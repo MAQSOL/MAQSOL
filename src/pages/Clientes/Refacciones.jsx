@@ -2,7 +2,7 @@ import Layout from "../../components/Layout";import React, { useState, useEffect
 import { Link, useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 
-import logoMaqsol from "../../assets/Maqsolrefacciones.png";
+import logoMaqsol from "../../assets/maqsolrefacciones.png";
 import margen from "../../assets/margen.png";
 import "./Ventas.css";
 import DeleteButton from "../../components/DeleteButton";

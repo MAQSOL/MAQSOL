@@ -19,7 +19,7 @@ import Recepcionequipos from "./pages/Recepcion/Recepcionequipos";
 
 import Asistencias from "./pages/Administracion/Asistencias";
 import Bitacorafleteros from "./pages/Administracion/Bitacorafleteros";
-import GestionClientes from "./pages/Administracion/GestionClientes";
+import GestionClientes from "./pages/Administracion/Gestionclientes";
 import ListaPrecios from "./pages/Administracion/ListaPrecios";
 import ReporteHoras from "./pages/Administracion/ReporteHoras";
 import GeneradorContratos from "./pages/Administracion/GeneradorContratos";
