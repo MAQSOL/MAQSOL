@@ -1,0 +1,122 @@
+.delbtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  border-radius: 15px;
+  background: #f2f2f2;
+  transition: width 0.32s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s;
+  width: 30px;
+  overflow: hidden;
+  vertical-align: middle;
+}
+.delbtn-sm {
+  height: 26px;
+  border-radius: 13px;
+  width: 26px;
+}
+.delbtn-open {
+  width: 96px;
+  background: #ececec;
+}
+.delbtn-sm.delbtn-open {
+  width: 84px;
+}
+
+.delbtn-trigger {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  color: #999;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  transition: color 0.2s, transform 0.15s;
+}
+.delbtn-sm .delbtn-trigger {
+  flex-basis: 26px;
+  height: 26px;
+}
+.delbtn-trigger:hover {
+  color: #c62828;
+}
+.delbtn-trigger:active {
+  transform: scale(0.88);
+}
+
+.delbtn-lid {
+  transform-box: fill-box;
+  transform-origin: 30% 25%;
+  transition: transform 0.34s cubic-bezier(0.34, 1.1, 0.64, 1);
+}
+.delbtn-open .delbtn-lid {
+  transform: rotate(-28deg);
+}
+
+.delbtn-check {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: delbtn-draw 0.4s ease forwards;
+}
+@keyframes delbtn-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.delbtn-panel {
+  position: absolute;
+  left: 30px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 8px;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.22s ease 0.1s, transform 0.22s ease 0.1s;
+  pointer-events: none;
+}
+.delbtn-sm .delbtn-panel {
+  left: 26px;
+}
+.delbtn-open .delbtn-panel {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.delbtn-circle {
+  flex: 0 0 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s;
+}
+.delbtn-circle:hover {
+  transform: scale(1.08);
+}
+.delbtn-circle:active {
+  transform: scale(0.88);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .delbtn,
+  .delbtn-lid,
+  .delbtn-panel,
+  .delbtn-trigger,
+  .delbtn-circle {
+    transition: none !important;
+    animation: none !important;
+  }
+}

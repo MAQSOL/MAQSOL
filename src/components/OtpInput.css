@@ -1,0 +1,57 @@
+.otpinput {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.otpinput-slot {
+  width: 44px;
+  height: 52px;
+  border-radius: 10px;
+  border: 1px solid #d8d8d8;
+  background: #f4f4f9;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #222;
+  outline: none;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.otpinput-slot:focus {
+  border-color: var(--acento, #1d5c8f);
+  box-shadow: 0 0 0 3px rgba(29, 92, 143, 0.18);
+}
+
+.otpinput-success .otpinput-slot {
+  border-color: #1f8b4c;
+  background: #eafaf0;
+}
+
+.otpinput-error .otpinput-slot {
+  border-color: #c62828;
+  animation: otpinput-shake 0.32s ease;
+}
+
+@keyframes otpinput-shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .otpinput-error .otpinput-slot {
+    animation: none;
+  }
+}
