@@ -42,7 +42,8 @@ function Dashboard() {
   const { registros: pendientes, loading, guardar, eliminar } = useSharedTable("pendientes");
   const { registros: equiposInternos } = useSharedTable("equipos_internos");
   const { registros: equiposExternos } = useSharedTable("equipos_externos");
-  const { registros: clientes } = useSharedTable("clientes");
+  const { registros: alquileres } = useSharedTable("alquileres");
+  const alquileresActivos = alquileres.filter((a) => !a.finalizado).length;
   const { registros: colaboradores } = useSharedTable("colaboradores");
   const { registros: cotizacionesVenta } = useCotizaciones("venta");
   const { registros: cotizacionesRenta } = useCotizaciones("renta");
@@ -177,7 +178,8 @@ function Dashboard() {
           <RailNav
             items={[
               { label: "Equipos Internos", href: "/internos" },
-              { label: "Equipos Externos", href: "/externos" }
+              { label: "Equipos Externos", href: "/externos" },
+              { label: "Alquileres Activos", href: "/alquileres" }
             ]}
           />
         </div>
@@ -275,16 +277,10 @@ function Dashboard() {
             <p>Unidades registradas</p>
           </Link>
 
-          <Link to="/clientes" className="card">
-            <h3>CLIENTES ACTIVOS</h3>
-            <div className="numero">{clientes.length}</div>
-            <p>Clientes registrados</p>
-          </Link>
-
-          <Link to="/rentas" className="card">
+          <Link to="/alquileres" className="card">
             <h3>ALQUILERES ACTIVOS</h3>
-            <div className="numero">{cotizacionesRenta.length}</div>
-            <p>Cotizaciones de renta</p>
+            <div className="numero">{alquileresActivos}</div>
+            <p>Equipos en renta ahora</p>
           </Link>
 
           <Link to="/ventas" className="card">

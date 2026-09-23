@@ -14,6 +14,7 @@ import Refacciones from "./pages/Clientes/Refacciones";
 import Internos from "./pages/Mantenimientos/Internos";
 import Externos from "./pages/Mantenimientos/Externos";
 import Equipos from "./pages/Mantenimientos/Equipos";
+import Alquileres from "./pages/Mantenimientos/Alquileres";
 
 import Recepcionequipos from "./pages/Recepcion/Recepcionequipos";
 
@@ -41,6 +42,7 @@ function App() {
         <Route path="/internos" element={<ProtectedRoute><Internos /></ProtectedRoute>} />
         <Route path="/externos" element={<ProtectedRoute><Externos /></ProtectedRoute>} />
         <Route path="/equipos" element={<ProtectedRoute><Equipos /></ProtectedRoute>} />
+        <Route path="/alquileres" element={<ProtectedRoute><Alquileres /></ProtectedRoute>} />
 
         <Route path="/recepcion" element={<ProtectedRoute><Recepcionequipos /></ProtectedRoute>} />
 

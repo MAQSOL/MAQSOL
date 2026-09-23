@@ -60,7 +60,8 @@ function Sidebar() {
             onNavigate={cerrar}
             items={[
               { label: "Equipos Internos", href: "/internos" },
-              { label: "Equipos Externos", href: "/externos" }
+              { label: "Equipos Externos", href: "/externos" },
+              { label: "Alquileres Activos", href: "/alquileres" }
             ]}
           />
         </div>

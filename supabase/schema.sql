@@ -141,3 +141,22 @@ begin
     execute format('create policy "%1$s_all_auth" on public.%1$s for all using (auth.uid() is not null) with check (auth.uid() is not null)', t);
   end loop;
 end $$;
+
+-- ---------- 5) Alquileres activos (equipos en renta) + almacenamiento de fotos y checklist PDF ----------
+create table if not exists public.alquileres (id text primary key, data jsonb not null default '{}'::jsonb, updated_at timestamptz default now());
+alter table public.alquileres enable row level security;
+drop policy if exists "alquileres_all_auth" on public.alquileres;
+create policy "alquileres_all_auth" on public.alquileres for all using (auth.uid() is not null) with check (auth.uid() is not null);
+
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('alquileres', 'alquileres', false, 15728640)
+on conflict (id) do nothing;
+
+drop policy if exists "alquileres_storage_select" on storage.objects;
+create policy "alquileres_storage_select" on storage.objects for select using (bucket_id = 'alquileres' and auth.uid() is not null);
+drop policy if exists "alquileres_storage_insert" on storage.objects;
+create policy "alquileres_storage_insert" on storage.objects for insert with check (bucket_id = 'alquileres' and auth.uid() is not null);
+drop policy if exists "alquileres_storage_update" on storage.objects;
+create policy "alquileres_storage_update" on storage.objects for update using (bucket_id = 'alquileres' and auth.uid() is not null);
+drop policy if exists "alquileres_storage_delete" on storage.objects;
+create policy "alquileres_storage_delete" on storage.objects for delete using (bucket_id = 'alquileres' and auth.uid() is not null);
