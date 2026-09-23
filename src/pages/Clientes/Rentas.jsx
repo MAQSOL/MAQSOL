@@ -10,6 +10,8 @@ import DeleteButton from "../../components/DeleteButton";
 import { useCotizaciones } from "../../hooks/useCotizaciones";
 import { useSharedTable } from "../../hooks/useSharedTable";
 import { useCodigosFolio } from "../../hooks/useCodigosFolio";
+import { useAuth } from "../../contexts/AuthContext";
+import ListaCotizaciones from "../../components/ListaCotizaciones";
 
 const CLAUSULA_ESTANDAR = `1.0 PLAZO DE ENTREGA Y CONDICIONES
 
@@ -91,6 +93,7 @@ function Rentas() {
   const { registros: cotizaciones, guardar: guardarCotizacionDB } = useCotizaciones("renta");
   const { registros: clientesGuardados } = useSharedTable("clientes");
   const { codigos, miCodigo, nombrePorCodigo, telefonoPorCodigo } = useCodigosFolio();
+  const { isAdmin } = useAuth();
 
   // ==========================
   // DATOS CLIENTE
@@ -1622,55 +1625,11 @@ return (
   </h3>
 
   <div className="historial-contenido">
-  {cotizaciones.length === 0 ? (
-
-      <p>
-        No hay cotizaciones guardadas.
-      </p>
-
-) : (
-
-cotizaciones
-  .slice(0, 5)
-  .map((cotizacion) => (
-
-          <div
-            key={cotizacion.id}
-            style={{
-              borderBottom: "1px solid #ddd",
-              paddingBottom: "12px",
-              marginBottom: "12px"
-            }}
-          >
-
-            <strong>
-              {cotizacion.folio}
-            </strong>
-
-            <p>
-              {cotizacion.cliente}
-            </p>
-
-            <small>
-              {cotizacion.fecha}
-            </small>
-
-            <br />
-
-            <button
-              className="btn-panel"
-              onClick={() =>
-                cargarCotizacion(cotizacion)
-              }
-            >
-              Ver / Editar
-            </button>
-
-          </div>
-
-    ))
-
-)}
+    <ListaCotizaciones
+      cotizaciones={cotizaciones}
+      onCargar={cargarCotizacion}
+      mostrarAutor={isAdmin}
+    />
   </div>
 
 </div>

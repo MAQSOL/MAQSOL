@@ -8,6 +8,8 @@ import "./Ventas.css";
 import DeleteButton from "../../components/DeleteButton";
 import { useCotizaciones } from "../../hooks/useCotizaciones";
 import { useSharedTable } from "../../hooks/useSharedTable";
+import { useAuth } from "../../contexts/AuthContext";
+import ListaCotizaciones from "../../components/ListaCotizaciones";
 
 function Refacciones() {
 
@@ -20,6 +22,7 @@ const [clienteOtro, setClienteOtro] = useState("");
 const [historialAbierto, setHistorialAbierto] = useState(false);
 const [editandoId, setEditandoId] = useState(null);
 const navigate = useNavigate();
+const { isAdmin } = useAuth();
 const { registros: clientesGuardados } = useSharedTable("clientes");
 const { registros: cotizaciones, guardar: guardarCotizacionDB } = useCotizaciones("refaccion");
 
@@ -1418,35 +1421,11 @@ onChange={(e) =>
   </h3>
 
   <div className="historial-contenido">
- {
-  listaCotizaciones.length === 0 ? (
-    <p>No hay cotizaciones guardadas.</p>
-  ) : (
-    listaCotizaciones.slice(0, 5).map((cotizacion) => (
-      <div
-        key={cotizacion.id}
-        style={{
-          borderBottom: "1px solid #ddd",
-          paddingBottom: "12px",
-          marginBottom: "12px"
-        }}
-      >
-        <strong>{cotizacion.folio}</strong>
-        <p>{cotizacion.cliente}</p>
-        <small>{cotizacion.fecha}</small>
-
-        <br />
-
-        <button
-          className="btn-panel"
-          onClick={() => cargarCotizacion(cotizacion)}
-        >
-          Ver / Editar
-        </button>
-      </div>
-    ))
-  )
-}
+    <ListaCotizaciones
+      cotizaciones={listaCotizaciones}
+      onCargar={cargarCotizacion}
+      mostrarAutor={isAdmin}
+    />
   </div>
 
 </div>
