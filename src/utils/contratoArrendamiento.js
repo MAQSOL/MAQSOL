@@ -440,3 +440,196 @@ export function descargarContratoPDF(bloques, nombreArchivo, logoUrl) {
 
   doc.save(nombreArchivo + ".pdf");
 }
+
+/** Genera y descarga el contrato como Word (.docx) editable, a partir del mismo modelo del PDF. */
+export async function descargarContratoWord(bloques, nombreArchivo, logoUrl) {
+  const {
+    Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType,
+    BorderStyle, ShadingType, PageBreak, Header, Footer, PageNumber, ImageRun, VerticalAlign
+  } = await import("docx");
+
+  const AZUL = "1D5C8F";
+  const ANCHO = 9360; // ancho útil en twips (carta, márgenes de 1")
+  const linea = { style: BorderStyle.SINGLE, size: 4, color: "BBBBBB" };
+  const bordes = { top: linea, bottom: linea, left: linea, right: linea };
+  const sinBorde = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
+  const sinBordes = { top: sinBorde, bottom: sinBorde, left: sinBorde, right: sinBorde };
+
+  const run = (text, o = {}) => new TextRun({ text: String(text), font: "Arial", size: o.size || 19, bold: o.bold, color: o.color });
+  const parrafo = (text, o = {}) =>
+    new Paragraph({
+      alignment: o.centro ? AlignmentType.CENTER : o.derecha ? AlignmentType.RIGHT : AlignmentType.JUSTIFIED,
+      spacing: { after: o.despues ?? 120, before: o.antes ?? 0 },
+      keepNext: o.keepNext,
+      children: [run(text, o)]
+    });
+
+  const celda = (children, ancho, o = {}) =>
+    new TableCell({
+      width: { size: ancho, type: WidthType.DXA },
+      borders: o.sinBordes ? sinBordes : bordes,
+      shading: o.fondo ? { fill: o.fondo, type: ShadingType.CLEAR, color: "auto" } : undefined,
+      margins: { top: 60, bottom: 60, left: 100, right: 100 },
+      columnSpan: o.span,
+      verticalAlign: VerticalAlign.CENTER,
+      children
+    });
+
+  const hijos = [];
+
+  bloques.forEach((bl) => {
+    switch (bl.t) {
+      case "salto":
+        hijos.push(new Paragraph({ children: [new PageBreak()] }));
+        break;
+      case "title":
+        hijos.push(parrafo(bl.text, { centro: true, bold: true, size: 28, despues: 200 }));
+        break;
+      case "center":
+        hijos.push(parrafo(bl.text, { centro: true, color: "666666", despues: 160 }));
+        break;
+      case "h":
+        hijos.push(parrafo(bl.text, { centro: true, bold: true, size: 22, antes: 160, despues: 140 }));
+        break;
+      case "p":
+        hijos.push(parrafo(bl.text, { bold: bl.bold, keepNext: bl.keep }));
+        break;
+      case "box": {
+        const cE = 3300;
+        const cV = ANCHO - cE;
+        hijos.push(
+          new Table({
+            width: { size: ANCHO, type: WidthType.DXA },
+            columnWidths: [cE, cV],
+            rows: [
+              new TableRow({
+                cantSplit: true,
+                children: [celda([parrafo(bl.titulo, { bold: true, color: "FFFFFF", size: 18, despues: 0 })], ANCHO, { fondo: AZUL, span: 2 })]
+              }),
+              ...bl.filas.map(
+                ([e, v]) =>
+                  new TableRow({
+                    cantSplit: true,
+                    children: [
+                      celda([parrafo(e, { bold: true, size: 17, despues: 0 })], cE),
+                      celda([parrafo(v, { size: 17, despues: 0 })], cV)
+                    ]
+                  })
+              )
+            ]
+          }),
+          new Paragraph({ spacing: { after: 140 }, children: [] })
+        );
+        break;
+      }
+      case "grid": {
+        const n = bl.cols.length;
+        const w = Math.floor(ANCHO / n);
+        hijos.push(
+          new Table({
+            width: { size: w * n, type: WidthType.DXA },
+            columnWidths: bl.cols.map(() => w),
+            rows: [
+              new TableRow({
+                cantSplit: true,
+                children: bl.cols.map((c) => celda([parrafo(c.titulo, { centro: true, bold: true, color: "FFFFFF", size: 17, despues: 0 })], w, { fondo: AZUL }))
+              }),
+              new TableRow({
+                cantSplit: true,
+                children: bl.cols.map((c) => celda([parrafo(c.texto, { size: 17, despues: 0 })], w))
+              })
+            ]
+          }),
+          new Paragraph({ spacing: { after: 140 }, children: [] })
+        );
+        break;
+      }
+      case "linea":
+        hijos.push(
+          parrafo("", { derecha: true, antes: 300, despues: 0 }),
+          new Paragraph({
+            alignment: AlignmentType.RIGHT,
+            spacing: { after: 160 },
+            children: [run("_______________________________   ", { color: "444444" }), run(bl.text, { size: 16 })]
+          })
+        );
+        break;
+      case "firmas": {
+        const w = Math.floor(ANCHO / 2);
+        const col = (lineas) =>
+          celda(
+            [
+              new Paragraph({ spacing: { before: 700 }, children: [] }),
+              new Paragraph({ border: { top: { style: BorderStyle.SINGLE, size: 6, color: "444444", space: 4 } }, children: [] }),
+              ...lineas.map((l, i) => parrafo(l, { centro: true, bold: i === 0, size: 17, despues: 20 }))
+            ],
+            w,
+            { sinBordes: true }
+          );
+        hijos.push(
+          new Table({
+            width: { size: w * 2, type: WidthType.DXA },
+            columnWidths: [w, w],
+            rows: [new TableRow({ cantSplit: true, children: [col(bl.izq), col(bl.der)] })]
+          }),
+          new Paragraph({ spacing: { after: 160 }, children: [] })
+        );
+        break;
+      }
+      default:
+        break;
+    }
+  });
+
+  let logo = null;
+  if (logoUrl) {
+    try {
+      const resp = await fetch(logoUrl);
+      logo = new Uint8Array(await resp.arrayBuffer());
+    } catch {
+      logo = null;
+    }
+  }
+
+  const encabezado = new Header({
+    children: [
+      new Paragraph({
+        border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: AZUL, space: 4 } },
+        spacing: { after: 120 },
+        children: [
+          ...(logo ? [new ImageRun({ type: "png", data: logo, transformation: { width: 70, height: 36 } }), run("   ")] : []),
+          run("MAQUINARIA SOPORTE Y LOGISTICA SA DE CV", { bold: true, size: 16, color: "444444" }),
+          run("      pág. ", { size: 16, color: "444444" }),
+          new TextRun({ children: [PageNumber.CURRENT], font: "Arial", size: 16, color: "444444" }),
+          run("     " + CODIGO_DOC, { size: 16, color: "444444" })
+        ]
+      })
+    ]
+  });
+
+  const documento = new Document({
+    creator: "MAQSISTEM",
+    title: nombreArchivo,
+    sections: [
+      {
+        properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1300, bottom: 1000, left: 1440, right: 1440, header: 500 } } },
+        headers: { default: encabezado },
+        footers: { default: new Footer({ children: [new Paragraph({ children: [] })] }) },
+        children: hijos
+      }
+    ]
+  });
+
+  const blob = await Packer.toBlob(documento);
+  const url = URL.createObjectURL(blob);
+  const a = document_createA(url, nombreArchivo + ".docx");
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function document_createA(url, nombre) {
+  const a = window.document.createElement("a");
+  a.href = url;
+  a.download = nombre;
+  return a;
+}

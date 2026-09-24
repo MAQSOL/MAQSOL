@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
 import logo from "../../assets/logo.png";
 import { useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
-import { construirDocumento, descargarContratoPDF } from "../../utils/contratoArrendamiento";
+import { construirDocumento, descargarContratoPDF, descargarContratoWord } from "../../utils/contratoArrendamiento";
 import { S, fFecha, hoyISO } from "./estilosAdmin";
 
 const EQUIPO_FILA = { descripcion: "", marca: "", modelo: "", serie: "", motor: "", valorUSD: "", importeRenta: "" };
@@ -174,6 +174,18 @@ export default function GeneradorContratos() {
     descargarContratoPDF(construirDocumento(datos), datos.folio, logoUrl);
   };
 
+  const descargarWord = async () => {
+    if (!validar()) return;
+    const datos = conFolio();
+    if (!form.folio) setForm(datos);
+    const logoUrl = new URL(logo, window.location.href).href;
+    try {
+      await descargarContratoWord(construirDocumento(datos), datos.folio, logoUrl);
+    } catch (e) {
+      alert("No se pudo generar el Word: " + (e.message || e));
+    }
+  };
+
   const nuevo = () => setForm({ ...NUEVO, id: "CT-" + Date.now(), fechaContrato: hoyISO() });
 
   const inp = (campo, extra = {}) => (
@@ -192,6 +204,7 @@ export default function GeneradorContratos() {
             <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
             <button style={S.btnGris} onClick={nuevo}>Nuevo contrato</button>
             <button style={S.btnGris} onClick={guardar}>Guardar en historial</button>
+            <button style={S.btnGris} onClick={descargarWord}>Descargar Word (editable)</button>
             <button style={S.btn} onClick={descargar}>Descargar PDF</button>
           </div>
         </div>

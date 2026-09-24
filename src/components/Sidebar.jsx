@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
 import RailNav from "./RailNav";
+import { useAuth } from "../contexts/AuthContext";
 
 function Sidebar() {
   const [abierto, setAbierto] = useState(false);
+  const { isAdmin } = useAuth();
 
   const cerrar = () => setAbierto(false);
 
@@ -84,7 +86,9 @@ function Sidebar() {
               { label: "Gestión de Clientes", href: "/clientes" },
               { label: "Lista de Precios", href: "/precios" },
               { label: "Reporte de Horas", href: "/horas" },
-              { label: "Generador de Contratos", href: "/contratos" }
+              { label: "Generador de Contratos", href: "/contratos" },
+              { label: "Cargas de Diesel", href: "/diesel" },
+              ...(isAdmin ? [{ label: "Documentos de Personal", href: "/personal" }] : [])
             ]}
           />
         </div>

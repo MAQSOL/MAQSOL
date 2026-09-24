@@ -104,6 +104,22 @@ function Dashboard() {
       else if (dia?.estado === "F") faltas++;
     }
   });
+  const diaHoy = (hoy.getDay() + 6) % 7;
+  const resumenPersonas = colaboradoresActivos.map((c) => {
+    const dias = [0, 1, 2, 3, 4, 5].map((i) => asistSemana?.[c.id]?.[i]?.estado || "");
+    const asistencias = dias.filter((d) => d === "A").length;
+    const faltasP = dias.filter((d) => d === "F").length;
+    const registrados = asistencias + faltasP;
+    return {
+      id: c.id,
+      nombre: c.nombre,
+      puesto: c.puesto,
+      dias,
+      asistencias,
+      faltas: faltasP,
+      porcentaje: registrados ? Math.round((asistencias / registrados) * 100) : null
+    };
+  });
   const totalRegistrosSemana = presentes + faltas;
   const porcentajeAsistencia = totalRegistrosSemana ? Math.round((presentes / totalRegistrosSemana) * 100) : null;
 
@@ -200,7 +216,9 @@ function Dashboard() {
               { label: "Gestión de Clientes", href: "/clientes" },
               { label: "Lista de Precios", href: "/precios" },
               { label: "Reporte de Horas", href: "/horas" },
-              { label: "Generador de Contratos", href: "/contratos" }
+              { label: "Generador de Contratos", href: "/contratos" },
+              { label: "Cargas de Diesel", href: "/diesel" },
+              ...(isAdmin ? [{ label: "Documentos de Personal", href: "/personal" }] : [])
             ]}
           />
         </div>
@@ -475,14 +493,88 @@ function Dashboard() {
 
             {colaboradoresActivos.length === 0 ? (
               <p>Aún no hay colaboradores registrados.</p>
-            ) : porcentajeAsistencia === null ? (
-              <p>Todavía no se captura asistencia esta semana.</p>
             ) : (
-              <p>
-                <strong style={{ fontSize: "28px", color: "var(--acento)" }}>{porcentajeAsistencia}%</strong>{" "}
-                de asistencia esta semana ({presentes} asistencias, {faltas} faltas registradas de{" "}
-                {colaboradoresActivos.length} colaboradores).
-              </p>
+              <>
+                <p style={{ marginBottom: "12px" }}>
+                  {porcentajeAsistencia === null ? (
+                    "Todavía no se captura asistencia esta semana."
+                  ) : (
+                    <>
+                      <strong style={{ fontSize: "28px", color: "var(--acento)" }}>{porcentajeAsistencia}%</strong>{" "}
+                      de asistencia general ({presentes} asistencias, {faltas} faltas)
+                    </>
+                  )}
+                </p>
+
+                <div style={{ maxHeight: "300px", overflowY: "auto", paddingRight: "4px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "0 0 6px" }}>
+                    <span style={{ flex: 1 }} />
+                    <div style={{ display: "flex", gap: "4px" }}>
+                      {["L", "M", "M", "J", "V", "S"].map((d, i) => (
+                        <span
+                          key={i}
+                          style={{
+                            width: "22px",
+                            textAlign: "center",
+                            fontSize: "11px",
+                            fontWeight: i === diaHoy ? 800 : 500,
+                            color: i === diaHoy ? "var(--acento)" : "#999"
+                          }}
+                        >
+                          {d}
+                        </span>
+                      ))}
+                    </div>
+                    <span style={{ width: "92px" }} />
+                  </div>
+
+                  {resumenPersonas.map((p) => (
+                    <div
+                      key={p.id}
+                      style={{ display: "flex", alignItems: "center", gap: "10px", padding: "7px 0", borderTop: "1px solid #f0f0f0" }}
+                    >
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: "13.5px", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {p.nombre}
+                        </div>
+                        {p.puesto && <div style={{ fontSize: "11px", color: "#999" }}>{p.puesto}</div>}
+                      </div>
+
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        {p.dias.map((estado, i) => (
+                          <span
+                            key={i}
+                            title={estado === "A" ? "Asistió" : estado === "F" ? "Faltó" : "Sin captura"}
+                            style={{
+                              width: "22px",
+                              height: "22px",
+                              borderRadius: "5px",
+                              background: estado === "A" ? "#1f8b4c" : estado === "F" ? "#c62828" : "#e9e9e9",
+                              outline: i === diaHoy ? "2px solid var(--acento)" : "none",
+                              outlineOffset: "1px"
+                            }}
+                          />
+                        ))}
+                      </div>
+
+                      <div style={{ width: "92px" }}>
+                        <div style={{ height: "7px", borderRadius: "4px", background: "#eee", overflow: "hidden" }}>
+                          <div style={{ width: `${p.porcentaje ?? 0}%`, height: "100%", background: "var(--acento)" }} />
+                        </div>
+                        <div style={{ fontSize: "11px", color: "#777", marginTop: "3px" }}>
+                          {p.porcentaje === null ? "sin datos" : `${p.asistencias}/${p.asistencias + p.faltas} · ${p.porcentaje}%`}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: "flex", gap: "14px", fontSize: "11px", color: "#888", margin: "10px 0 4px" }}>
+                  <span><span style={{ display: "inline-block", width: 10, height: 10, borderRadius: 2, background: "#1f8b4c", marginRight: 5 }} />Asistió</span>
+                  <span><span style={{ display: "inline-block", width: 10, height: 10, borderRadius: 2, background: "#c62828", marginRight: 5 }} />Faltó</span>
+                  <span><span style={{ display: "inline-block", width: 10, height: 10, borderRadius: 2, background: "#e9e9e9", marginRight: 5 }} />Sin captura</span>
+                </div>
+              </>
             )}
 
             <Link

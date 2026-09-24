@@ -160,3 +160,28 @@ drop policy if exists "alquileres_storage_update" on storage.objects;
 create policy "alquileres_storage_update" on storage.objects for update using (bucket_id = 'alquileres' and auth.uid() is not null);
 drop policy if exists "alquileres_storage_delete" on storage.objects;
 create policy "alquileres_storage_delete" on storage.objects for delete using (bucket_id = 'alquileres' and auth.uid() is not null);
+
+-- ---------- 6) Cargas de diesel ----------
+create table if not exists public.diesel_cargas (id text primary key, data jsonb not null default '{}'::jsonb, updated_at timestamptz default now());
+alter table public.diesel_cargas enable row level security;
+drop policy if exists "diesel_cargas_all_auth" on public.diesel_cargas;
+create policy "diesel_cargas_all_auth" on public.diesel_cargas for all using (auth.uid() is not null) with check (auth.uid() is not null);
+
+-- ---------- 7) Documentos de personal (SOLO ADMIN: son datos confidenciales) ----------
+create table if not exists public.personal (id text primary key, data jsonb not null default '{}'::jsonb, updated_at timestamptz default now());
+alter table public.personal enable row level security;
+drop policy if exists "personal_admin_all" on public.personal;
+create policy "personal_admin_all" on public.personal for all using (public.es_admin()) with check (public.es_admin());
+
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('personal', 'personal', false, 15728640)
+on conflict (id) do nothing;
+
+drop policy if exists "personal_storage_admin_select" on storage.objects;
+create policy "personal_storage_admin_select" on storage.objects for select using (bucket_id = 'personal' and public.es_admin());
+drop policy if exists "personal_storage_admin_insert" on storage.objects;
+create policy "personal_storage_admin_insert" on storage.objects for insert with check (bucket_id = 'personal' and public.es_admin());
+drop policy if exists "personal_storage_admin_update" on storage.objects;
+create policy "personal_storage_admin_update" on storage.objects for update using (bucket_id = 'personal' and public.es_admin());
+drop policy if exists "personal_storage_admin_delete" on storage.objects;
+create policy "personal_storage_admin_delete" on storage.objects for delete using (bucket_id = 'personal' and public.es_admin());

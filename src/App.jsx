@@ -24,6 +24,8 @@ import GestionClientes from "./pages/Administracion/Gestionclientes";
 import ListaPrecios from "./pages/Administracion/ListaPrecios";
 import ReporteHoras from "./pages/Administracion/ReporteHoras";
 import GeneradorContratos from "./pages/Administracion/GeneradorContratos";
+import CargasDiesel from "./pages/Administracion/CargasDiesel";
+import PersonalNuevo from "./pages/Administracion/PersonalNuevo";
 
 function App() {
   return (
@@ -52,6 +54,8 @@ function App() {
         <Route path="/precios" element={<ProtectedRoute><ListaPrecios /></ProtectedRoute>} />
         <Route path="/horas" element={<ProtectedRoute><ReporteHoras /></ProtectedRoute>} />
         <Route path="/contratos" element={<ProtectedRoute><GeneradorContratos /></ProtectedRoute>} />
+        <Route path="/diesel" element={<ProtectedRoute><CargasDiesel /></ProtectedRoute>} />
+        <Route path="/personal" element={<ProtectedRoute><PersonalNuevo /></ProtectedRoute>} />
 
       </Routes>
       </AuthProvider>
