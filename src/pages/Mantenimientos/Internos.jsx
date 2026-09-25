@@ -3,7 +3,7 @@ import Sidebar from '../../components/Sidebar'
 import { descargarExcelBonito, nombreArchivoFecha } from '../../utils/exportExcel'
 import DeleteButton from '../../components/DeleteButton'
 import { useSharedTable, useCatalogo } from '../../hooks/useSharedTable'
-import { useAuth } from '../../contexts/AuthContext'
+import QrEquipoModal from '../../components/QrEquipoModal'
 
 const VINO = 'var(--acento)'
 const KEY_EQUIPOS = 'equiposInternos'
@@ -130,6 +130,7 @@ export default function EquiposInternos(){
   const[vista,setVista]=useState('lista')
   const[activoId,setActivoId]=useState(null)
   const[modal,setModal]=useState(false)
+  const[modalQr,setModalQr]=useState(false)
   const[form,setForm]=useState(EQUIPO_NUEVO)
   const[modoNuevoOperador,setModoNuevoOperador]=useState(false)
   const[nuevoOperador,setNuevoOperador]=useState('')
@@ -273,6 +274,8 @@ export default function EquiposInternos(){
     return(
       <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
 
+        {modalQr&&<QrEquipoModal equipo={activo} onGuardarToken={t=>guardarEquipoRow(activo.id,{...activo,qrToken:t})} onCerrar={()=>setModalQr(false)}/>}
+
         {/* ENCABEZADO + FOTO */}
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:24,gap:20}}>
           <div style={{flex:1}}>
@@ -281,6 +284,7 @@ export default function EquiposInternos(){
             <div style={{display:'flex',gap:10,marginTop:14}}>
               <button style={S.btnGris} onClick={()=>setVista('lista')}>← Regresar a la lista</button>
               <button style={S.btn} onClick={()=>abrirEditar(activo)}>Editar datos generales</button>
+              <button style={S.btnGris} onClick={()=>setModalQr(true)}>Generar código QR</button>
             </div>
           </div>
    <div style={{flexShrink:0,textAlign:'center'}}>

@@ -2,6 +2,7 @@ import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Login from "./pages/Login";
+import EquipoQR from "./pages/EquipoQR";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -34,6 +35,7 @@ function App() {
       <Routes>
 
         <Route path="/login" element={<Login />} />
+        <Route path="/e/:token" element={<EquipoQR />} />
 
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 

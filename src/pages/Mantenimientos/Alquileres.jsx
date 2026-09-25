@@ -10,8 +10,33 @@ import { S, fFecha, hoyISO } from "../Administracion/estilosAdmin";
 const BUCKET = "alquileres";
 const MAX_PDF_MB = 15;
 
+const PLANES = [
+  { clave: "1d", dias: 1, horas: 8, etiqueta: "1 día", detalle: "8 horas" },
+  { clave: "6d", dias: 6, horas: 50, etiqueta: "6 días", detalle: "50 horas" },
+  { clave: "14d", dias: 14, horas: 100, etiqueta: "14 días", detalle: "100 horas" },
+  { clave: "28d", dias: 28, horas: 200, etiqueta: "28 días", detalle: "200 horas" },
+  { clave: "manual", etiqueta: "Manual", detalle: "elige la fecha" }
+];
+
+const isoDe = (d) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+// el día de inicio cuenta como día 1: 6 días desde el lunes terminan el sábado
+const finDePlan = (inicio, dias) => {
+  const d = new Date(inicio + "T00:00:00");
+  d.setDate(d.getDate() + dias - 1);
+  return isoDe(d);
+};
+
+const diasDe = (a) => {
+  if (!a.fechaInicio || !a.fechaFin) return null;
+  return Math.round((new Date(a.fechaFin + "T00:00:00") - new Date(a.fechaInicio + "T00:00:00")) / 86400000) + 1;
+};
+
 const NUEVO = {
   id: "",
+  plan: "",
+  horasIncluidas: "",
   fechaInicio: "",
   fechaFin: "",
   clienteId: "",
@@ -148,6 +173,26 @@ export default function Alquileres() {
   }, [llavePaths]);
 
   const set = (campo, valor) => setForm((f) => ({ ...f, [campo]: valor }));
+
+  const elegirPlan = (clave) =>
+    setForm((f) => {
+      const plan = PLANES.find((p) => p.clave === clave);
+      if (!plan.dias) return { ...f, plan: "manual" };
+      return {
+        ...f,
+        plan: clave,
+        horasIncluidas: String(plan.horas),
+        fechaFin: f.fechaInicio ? finDePlan(f.fechaInicio, plan.dias) : f.fechaFin
+      };
+    });
+
+  const cambiarInicio = (valor) =>
+    setForm((f) => {
+      const plan = PLANES.find((p) => p.clave === f.plan);
+      return { ...f, fechaInicio: valor, fechaFin: plan?.dias && valor ? finDePlan(valor, plan.dias) : f.fechaFin };
+    });
+
+  const cambiarFin = (valor) => setForm((f) => ({ ...f, fechaFin: valor, plan: "manual" }));
 
   const resetArchivos = () => {
     nuevasFotos.forEach((f) => URL.revokeObjectURL(f.preview));
@@ -383,6 +428,11 @@ export default function Alquileres() {
                     </td>
                     <td style={S.td}>
                       {fFecha(a.fechaInicio)} → {fFecha(a.fechaFin)}
+                      {diasDe(a) > 0 && (
+                        <div style={{ fontSize: 12, color: "#777" }}>
+                          {diasDe(a)} {diasDe(a) === 1 ? "día" : "días"}{a.horasIncluidas ? ` · ${a.horasIncluidas} h` : ""}
+                        </div>
+                      )}
                       {!a.finalizado && d !== null && (
                         <div style={{ fontSize: 12, fontWeight: 700, color: d < 0 ? "#c62828" : d <= 3 ? "#c98a00" : "#1f8b4c" }}>
                           {d < 0 ? `Vencido hace ${Math.abs(d)} d` : d === 0 ? "Vence hoy" : `Faltan ${d} d`}
@@ -420,10 +470,55 @@ export default function Alquileres() {
             <p style={{ color: "#888", fontSize: 13, margin: "0 0 18px" }}>Periodo, cliente, obra, equipo, fotos y checklist en PDF.</p>
 
             <h3 style={S.h3}>Periodo de renta</h3>
-            <div style={S.grid2}>
-              <div><label style={S.label}>INICIA</label><input type="date" style={S.input} value={form.fechaInicio} onChange={(e) => set("fechaInicio", e.target.value)} /></div>
-              <div><label style={S.label}>TERMINA</label><input type="date" style={S.input} value={form.fechaFin} onChange={(e) => set("fechaFin", e.target.value)} /></div>
+            <label style={S.label}>PLAN (la fecha de fin se calcula sola)</label>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+              {PLANES.map((p) => {
+                const activo = form.plan === p.clave;
+                return (
+                  <button
+                    key={p.clave}
+                    type="button"
+                    onClick={() => elegirPlan(p.clave)}
+                    style={{
+                      padding: "9px 14px",
+                      borderRadius: 8,
+                      border: activo ? "2px solid var(--acento)" : "1px solid #d8d8d8",
+                      background: activo ? "var(--acento)" : "#fff",
+                      color: activo ? "#fff" : "#333",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      lineHeight: 1.25
+                    }}
+                  >
+                    <strong style={{ display: "block", fontSize: 14 }}>{p.etiqueta}</strong>
+                    <span style={{ fontSize: 11.5, opacity: 0.85 }}>{p.detalle}</span>
+                  </button>
+                );
+              })}
             </div>
+            <div style={S.grid2}>
+              <div><label style={S.label}>INICIA</label><input type="date" style={S.input} value={form.fechaInicio} onChange={(e) => cambiarInicio(e.target.value)} /></div>
+              <div><label style={S.label}>TERMINA</label><input type="date" style={S.input} value={form.fechaFin} onChange={(e) => cambiarFin(e.target.value)} /></div>
+            </div>
+            {form.fechaInicio && form.fechaFin && diasDe(form) > 0 && (
+              <p style={{ margin: "-4px 0 14px", fontSize: 13, color: "#555" }}>
+                {diasDe(form)} {diasDe(form) === 1 ? "día" : "días"}
+                {form.horasIncluidas ? ` · ${form.horasIncluidas} horas incluidas` : ""}
+                {form.plan === "manual" && (
+                  <>
+                    {" · horas incluidas: "}
+                    <input
+                      type="number"
+                      min="0"
+                      value={form.horasIncluidas}
+                      onChange={(e) => set("horasIncluidas", e.target.value)}
+                      placeholder="opcional"
+                      style={{ width: 90, padding: "4px 8px", border: "1px solid #d8d8d8", borderRadius: 6 }}
+                    />
+                  </>
+                )}
+              </p>
+            )}
 
             <h3 style={S.h3}>Cliente</h3>
             <div style={{ marginBottom: 14 }}>

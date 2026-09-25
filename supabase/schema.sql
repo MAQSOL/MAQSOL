@@ -185,3 +185,47 @@ drop policy if exists "personal_storage_admin_update" on storage.objects;
 create policy "personal_storage_admin_update" on storage.objects for update using (bucket_id = 'personal' and public.es_admin());
 drop policy if exists "personal_storage_admin_delete" on storage.objects;
 create policy "personal_storage_admin_delete" on storage.objects for delete using (bucket_id = 'personal' and public.es_admin());
+
+-- ---------- 8) Código QR de equipos internos ----------
+-- Función pública: devuelve SOLO datos seguros (sin costos, operador, notas ni ubicación) de UN equipo,
+-- y solo si quien llama conoce el token secreto del QR. Así el cliente no necesita cuenta.
+create or replace function public.equipo_publico(p_token text)
+returns jsonb
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select jsonb_build_object(
+    'tipo', e.data->>'tipo',
+    'marca', e.data->>'marca',
+    'modelo', e.data->>'modelo',
+    'serie', e.data->>'serie',
+    'anio', e.data->>'anio',
+    'motor', e.data->>'motor',
+    'capacidad', e.data->>'capacidad',
+    'combustible', e.data->>'combustible',
+    'horometro', e.data->>'horometro',
+    'proximoMantto', e.data->>'proximoMantto',
+    'fotoUrl', e.data->>'fotoUrl',
+    'mantenimientos', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'mid', m->>'mid',
+        'fecha', m->>'fecha',
+        'tipoMantto', m->>'tipoMantto',
+        'horometro', m->>'horometro',
+        'descripcion', m->>'descripcion',
+        'realizadoPor', m->>'realizadoPor'
+      ) order by m->>'fecha' desc)
+      from jsonb_array_elements(coalesce(e.data->'mantenimientos', '[]'::jsonb)) m
+    ), '[]'::jsonb)
+  )
+  from public.equipos_internos e
+  where p_token is not null
+    and length(p_token) >= 16
+    and e.data->>'qrToken' = p_token
+  limit 1;
+$$;
+
+revoke all on function public.equipo_publico(text) from public;
+grant execute on function public.equipo_publico(text) to anon, authenticated;
