@@ -12,7 +12,7 @@ const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "
 const DIA_DESCANSO = 6;
 
 const VINO = "var(--acento)";
-const VINO_IMPRESION = "#1d5c8f"; // hex fijo para el PDF (ventana aparte, sin las variables CSS de la app)
+const VINO_IMPRESION = "#8f1d2c"; // hex fijo para el PDF (ventana aparte, sin las variables CSS de la app)
 const VERDE = "#2e7d32";
 const ROJO = "#b00020";
 
@@ -343,9 +343,10 @@ function Asistencias() {
     ventana.document.write(`
       <html><head><title>${nombreArchivo}</title>
       <style>
+        @page{size:auto;margin:0;}
         *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-        body{font-family:Arial,Helvetica,sans-serif;padding:20px;color:#000;}
-        h2{margin:0 0 16px;color:${VINO_IMPRESION};font-size:16px;}
+        body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:12mm 10mm;color:#000;}
+        h2{margin:0 0 16px;color:${VINO_IMPRESION};font-size:17px;}
         .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 24px;}
         .tarjeta{border-collapse:collapse;width:100%;border:1px solid #000;page-break-inside:avoid;font-size:11px;}
         .tarjeta td,.tarjeta th{border:1px solid #999;padding:5px 8px;}

@@ -239,7 +239,8 @@ export default function Recepcionequipos(){
       <html><head><title>Entrega y Salida ${r.folio}</title>
       <style>
         *{box-sizing:border-box;}
-        body{font-family:Arial,Helvetica,sans-serif;padding:20px;color:#000;font-size:11.5px;}
+        @page{size:auto;margin:0;}
+        body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:12mm 10mm;color:#000;font-size:11.5px;}
         table{width:100%;border-collapse:collapse;}
         td,th{border:1px solid #999;padding:5px 7px;}
         .cab{display:flex;align-items:center;gap:14px;border:2px solid #000;padding:10px;margin-bottom:10px;}

@@ -114,14 +114,15 @@ export default function ReporteHoras() {
       .join("");
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Reporte de horas</title>
       <style>
-        body{font-family:Arial,sans-serif;color:#222;margin:30px;font-size:12px}
+        @page{size:auto;margin:0}
+        body{font-family:Arial,sans-serif;color:#222;margin:0;padding:12mm 12mm;font-size:12px}
         .top{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #1d5c8f;padding-bottom:12px;margin-bottom:18px}
         .top img{height:60px} h1{font-size:20px;margin:0;color:#1d5c8f} p{margin:3px 0;color:#555}
         h2{font-size:14px;margin:22px 0 8px;color:#1d5c8f}
         table{width:100%;border-collapse:collapse} th{background:#1d5c8f;color:#fff;text-align:left;padding:7px;font-size:11px}
         td{padding:6px 7px;border-bottom:1px solid #ddd} tr:nth-child(even) td{background:#f6f9fc}
         .total{margin-top:16px;text-align:right;font-size:15px}
-        @media print{body{margin:14px}}
+        @media print{body{padding:10mm 9mm}}
       </style></head><body>
       <div class="top"><div><h1>Reporte de Horas de Maquinaria</h1><p>Periodo: ${esc(periodoTexto)}</p>
       ${fCliente ? `<p>Cliente: ${esc(fCliente)}</p>` : ""}<p>Generado: ${new Date().toLocaleDateString("es-MX")}</p></div>

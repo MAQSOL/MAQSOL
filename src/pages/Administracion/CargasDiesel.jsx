@@ -146,14 +146,15 @@ export default function CargasDiesel() {
       .join("");
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Cargas de diesel</title>
       <style>
-        body{font-family:Arial,sans-serif;color:#222;margin:28px;font-size:12px}
+        @page{size:auto;margin:0}
+        body{font-family:Arial,sans-serif;color:#222;margin:0;padding:12mm 12mm;font-size:12px}
         .top{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #1d5c8f;padding-bottom:12px;margin-bottom:16px}
         .top img{height:58px} h1{font-size:20px;margin:0;color:#1d5c8f} p{margin:3px 0;color:#555}
         h2{font-size:14px;margin:20px 0 8px;color:#1d5c8f}
         table{width:100%;border-collapse:collapse} th{background:#1d5c8f;color:#fff;text-align:left;padding:7px;font-size:11px}
         td{padding:6px 7px;border-bottom:1px solid #ddd} tr:nth-child(even) td{background:#f6f9fc}
         .tot{display:flex;gap:30px;justify-content:flex-end;margin-top:14px;font-size:14px}
-        @media print{body{margin:12px}}
+        @media print{body{padding:10mm 9mm}}
       </style></head><body>
       <div class="top"><div><h1>Cargas de Diesel</h1><p>${esc(etiquetaPeriodo)}</p><p>Generado: ${new Date().toLocaleDateString("es-MX")}</p></div><img src="${logoUrl}" alt="MAQSOL"></div>
       <h2>Resumen por máquina</h2>
