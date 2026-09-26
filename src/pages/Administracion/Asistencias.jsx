@@ -245,13 +245,58 @@ function Asistencias() {
   const [detalle, setDetalle] = useState(null);
 
   // ==========================
+  // OBSERVACIONES POR EMPLEADO (de toda la semana)
+  // ==========================
+
+  const [obsModal, setObsModal] = useState(null);
+  const [obsTexto, setObsTexto] = useState("");
+
+  const obsSemana = (id) => registros?.[claveSemana]?.[id]?.obs || "";
+
+  const guardarObsSemana = (id, texto) => {
+    const copia = JSON.parse(JSON.stringify(registros));
+    if (!copia[claveSemana]) copia[claveSemana] = {};
+    if (!copia[claveSemana][id]) copia[claveSemana][id] = {};
+    copia[claveSemana][id].obs = texto.trim();
+    guardarRegistros(copia);
+  };
+
+  const abrirObs = (c) => {
+    setObsTexto(obsSemana(c.id));
+    setObsModal(c);
+  };
+
+  const extrasPorDia = (id) =>
+    DIAS.map((nombreDia, i) => ({
+      i,
+      nombreDia,
+      min: extrasDelDia(obtenerDia(id, i), i)
+    })).filter((d) => d.min > 0);
+
+  const extrasTexto = (id) => {
+    const lista = extrasPorDia(id);
+    if (!lista.length) return "";
+    const total = lista.reduce((s, d) => s + d.min, 0);
+    return (
+      "Horas extra: " +
+      lista
+        .map((d) => `${d.nombreDia.slice(0, 3)} ${formatoCorto(fechasSemana[d.i])} +${minutosATexto(d.min)}`)
+        .join(", ") +
+      ` (total ${minutosATexto(total)})`
+    );
+  };
+
+  const tieneObs = (id) =>
+    !!(obsSemana(id) || DIAS.some((_, i) => obtenerDia(id, i).observaciones));
+
+  // ==========================
   // DESCARGAS
   // ==========================
 
   const descargarExcel = () => {
     const columnas = [
       "Colaborador", "Puesto", "Día", "Fecha", "Estado",
-      "Entrada", "Salida", "Horas extras", "Observaciones"
+      "Entrada", "Salida", "Horas extras", "Observaciones", "Obs. de la semana"
     ];
     const filas = [];
 
@@ -265,7 +310,8 @@ function Asistencias() {
           c.nombre, c.puesto, nombreDia, formatoCorto(fechasSemana[i]),
           estadoTexto, dia.entrada, dia.salida,
           extras > 0 ? minutosATexto(extras) : "",
-          dia.observaciones || ""
+          dia.observaciones || "",
+          i === 0 ? obsSemana(c.id) : ""
         ]);
       });
     });
@@ -320,9 +366,15 @@ function Asistencias() {
         </tr>`;
       }).join("");
 
-      const observaciones = DIAS_PDF.map((_, i) => obtenerDia(c.id, i).observaciones)
+      const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const observaciones = [
+        extrasTexto(c.id),
+        obsSemana(c.id),
+        ...DIAS_PDF.map((_, i) => obtenerDia(c.id, i).observaciones)
+      ]
         .filter(Boolean)
-        .join(" ");
+        .map(esc)
+        .join(" · ");
 
       tarjetas += `
         <table class="tarjeta">
@@ -852,6 +904,23 @@ function Asistencias() {
                                 >
                                   {c.baja ? "Reactivar" : "Dar de baja"}
                                 </button>
+                                <br />
+                                <button
+                                  onClick={() => abrirObs(c)}
+                                  style={{
+                                    marginTop: "6px",
+                                    background: tieneObs(c.id) ? "#fff6d8" : "#f1f1f1",
+                                    border: "1px solid " + (tieneObs(c.id) ? "#e6c85a" : "#e0e0e0"),
+                                    color: tieneObs(c.id) ? "#8a6d00" : "#555",
+                                    fontSize: "12px",
+                                    fontWeight: "700",
+                                    cursor: "pointer",
+                                    borderRadius: "8px",
+                                    padding: "5px 11px"
+                                  }}
+                                >
+                                  📝 Observaciones{tieneObs(c.id) ? " ●" : ""}
+                                </button>
                               </td>
 
                               {DIAS.map((_, i) => {
@@ -971,6 +1040,123 @@ function Asistencias() {
         </div>
 
       </div>
+
+      {/* OBSERVACIONES DEL EMPLEADO (SEMANA) */}
+      {obsModal && (
+        <div
+          onClick={() => setObsModal(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,.5)",
+            zIndex: 2000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px"
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#fff",
+              borderRadius: "18px",
+              padding: "30px",
+              width: "100%",
+              maxWidth: "520px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              boxShadow: "0 20px 60px rgba(0,0,0,.3)"
+            }}
+          >
+            <h3 style={{ marginBottom: "2px" }}>Observaciones · {obsModal.nombre}</h3>
+            <p style={{ color: "#999", marginBottom: "18px", fontSize: "14px" }}>
+              Semana {numeroDeSemana(lunes)} · Del {formatoCorto(fechasSemana[0])} al {formatoCorto(fechasSemana[6])}
+            </p>
+
+            {(() => {
+              const lista = extrasPorDia(obsModal.id);
+              const total = lista.reduce((s, d) => s + d.min, 0);
+              return (
+                <div
+                  style={{
+                    background: lista.length ? "#fff6d8" : "#f6f6f6",
+                    border: "1px solid " + (lista.length ? "#e6c85a" : "#e6e6e6"),
+                    borderRadius: "12px",
+                    padding: "12px 14px",
+                    marginBottom: "16px",
+                    fontSize: "13.5px"
+                  }}
+                >
+                  <strong style={{ color: lista.length ? "#8a6d00" : "#777" }}>
+                    Horas extra de la semana
+                  </strong>
+                  {lista.length === 0 ? (
+                    <div style={{ color: "#888", marginTop: "4px" }}>
+                      Sin horas extra. Se calculan solas: en cada día toca <em>detalle</em> y captura la hora de salida (después de las 18:00), o marca el domingo como trabajado.
+                    </div>
+                  ) : (
+                    <>
+                      {lista.map((d) => (
+                        <div key={d.i} style={{ marginTop: "4px" }}>
+                          {d.nombreDia} {formatoCorto(fechasSemana[d.i])}: <strong>+{minutosATexto(d.min)}</strong>
+                        </div>
+                      ))}
+                      <div style={{ marginTop: "6px", fontWeight: 700 }}>Total: {minutosATexto(total)}</div>
+                      <div style={{ marginTop: "4px", color: "#8a6d00", fontSize: "12px" }}>
+                        Esto sale automáticamente en el campo Observaciones del PDF.
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
+
+            <label style={{ fontWeight: "600", fontSize: "13px", color: "#777", display: "block" }}>
+              Tus observaciones de la semana
+            </label>
+            <textarea
+              autoFocus
+              value={obsTexto}
+              onChange={(e) => setObsTexto(e.target.value)}
+              placeholder="Permisos, retardos, incapacidad, motivo de las horas extra, notas..."
+              style={{ ...input, marginTop: "6px", minHeight: "110px", resize: "vertical", textAlign: "left" }}
+            />
+
+            {DIAS.some((_, i) => obtenerDia(obsModal.id, i).observaciones) && (
+              <div style={{ marginTop: "12px", fontSize: "12.5px", color: "#666" }}>
+                <strong>Notas por día (también salen en el PDF):</strong>
+                {DIAS.map((nombreDia, i) => {
+                  const t = obtenerDia(obsModal.id, i).observaciones;
+                  return t ? (
+                    <div key={i} style={{ marginTop: "3px" }}>
+                      {nombreDia} {formatoCorto(fechasSemana[i])}: {t}
+                    </div>
+                  ) : null;
+                })}
+              </div>
+            )}
+
+            <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+              <button
+                onClick={() => setObsModal(null)}
+                style={{ flex: 1, background: "#eee", color: "#333", border: "none", borderRadius: "10px", padding: "14px", cursor: "pointer", fontWeight: "700" }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  guardarObsSemana(obsModal.id, obsTexto);
+                  setObsModal(null);
+                }}
+                style={{ flex: 1, background: VINO, color: "#fff", border: "none", borderRadius: "10px", padding: "14px", cursor: "pointer", fontWeight: "700" }}
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* DETALLE */}
       {detalle && (
