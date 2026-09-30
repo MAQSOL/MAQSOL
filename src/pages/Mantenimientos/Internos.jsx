@@ -264,6 +264,42 @@ export default function EquiposInternos(){
 
   const activo=equipos.find(e=>e.id===activoId)
 
+  const modalEquipo=modal&&(<div style={S.modalBg} onClick={()=>setModal(false)}><div style={S.modal} onClick={ev=>ev.stopPropagation()}>
+        <h2 style={{fontSize:22,fontWeight:800,margin:0}}>{equipos.some(e=>e.id===form.id)?'Editar datos generales':'Nuevo equipo'}</h2>
+        <p style={{color:'#888',fontSize:13,margin:'4px 0 18px'}}>Datos básicos. Filtros, suministros, pendientes y mantto se capturan en la ficha.</p>
+        <div style={S.grid3}>
+          <div><label style={S.label}>TIPO DE EQUIPO</label>
+            {modoNuevoTipoForm?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Excavadora" value={nuevoTipoForm} onChange={ev=>setNuevoTipoForm(ev.target.value)}/><button style={S.btnVerde} onClick={agregarTipoDesdeForm}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevoTipoForm(false)}>✕</button></div>)
+            :(<select style={S.input} value={form.tipo} onChange={ev=>cambiarTipoForm(ev.target.value)}><option value="">Selecciona un tipo</option>{tipos.map(t=><option key={t}>{t}</option>)}<option value="__nuevo__">+ Agregar tipo nuevo</option></select>)}
+          </div>
+          <div><label style={S.label}>MARCA</label><input style={S.input} value={form.marca} onChange={ev=>setForm({...form,marca:ev.target.value})}/></div>
+          <div><label style={S.label}>MODELO</label><input style={S.input} value={form.modelo} onChange={ev=>setForm({...form,modelo:ev.target.value})}/></div>
+        </div>
+        <div style={S.grid4}>
+          <div><label style={S.label}>SERIE</label><input style={S.input} value={form.serie} onChange={ev=>setForm({...form,serie:ev.target.value})}/></div>
+          <div><label style={S.label}>AÑO</label><input style={S.input} value={form.anio} onChange={ev=>setForm({...form,anio:ev.target.value})}/></div>
+          <div><label style={S.label}>HORÓMETRO</label><input style={S.input} value={form.horometro} onChange={ev=>setForm({...form,horometro:ev.target.value})} placeholder="Ej. 3450"/></div>
+          <div><label style={S.label}>PRÓXIMO MANTTO</label><input type="date" style={S.input} value={form.proximoMantto} onChange={ev=>setForm({...form,proximoMantto:ev.target.value})}/></div>
+        </div>
+        <div style={S.grid3}>
+          <div><label style={S.label}>OPERADOR</label>
+            {modoNuevoOperador?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Nombre" value={nuevoOperador} onChange={ev=>setNuevoOperador(ev.target.value)}/><button style={S.btnVerde} onClick={agregarOperador}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevoOperador(false)}>✕</button></div>)
+            :(<select style={S.input} value={form.operador} onChange={ev=>cambiarOperador(ev.target.value)}><option value="">Sin operador</option>{operadores.map(o=><option key={o}>{o}</option>)}<option value="__nuevo__">+ Agregar operador</option></select>)}
+          </div>
+          <div><label style={S.label}>UBICACIÓN</label>
+            {modoNuevaUbicacion?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Bacalar" value={nuevaUbicacion} onChange={ev=>setNuevaUbicacion(ev.target.value)}/><button style={S.btnVerde} onClick={agregarUbicacion}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevaUbicacion(false)}>✕</button></div>)
+            :(<select style={S.input} value={form.ubicacion} onChange={ev=>cambiarUbicacion(ev.target.value)}><option value="">Selecciona</option>{ubicaciones.map(u=><option key={u}>{u}</option>)}<option value="__nueva__">+ Agregar ubicación nueva</option></select>)}
+          </div>
+          <div><label style={S.label}>PLACAS</label><input style={S.input} value={form.placas} onChange={ev=>setForm({...form,placas:ev.target.value})}/></div>
+        </div>
+        <div style={{...S.grid3,marginBottom:22}}>
+          <div><label style={S.label}>MOTOR</label><input style={S.input} value={form.motor} onChange={ev=>setForm({...form,motor:ev.target.value})}/></div>
+          <div><label style={S.label}>CAPACIDAD</label><input style={S.input} value={form.capacidad} onChange={ev=>setForm({...form,capacidad:ev.target.value})} placeholder="Ej. 4,000 kg / 17 m"/></div>
+          <div><label style={S.label}>COMBUSTIBLE</label><input style={S.input} value={form.combustible} onChange={ev=>setForm({...form,combustible:ev.target.value})} placeholder="Diésel / Gasolina"/></div>
+        </div>
+        <div style={{display:'flex',justifyContent:'flex-end',gap:10}}><button style={S.btnGris} onClick={()=>setModal(false)}>Cancelar</button><button style={S.btn} onClick={guardarForm}>Guardar y abrir ficha</button></div>
+      </div></div>)
+
   // ========================= FICHA =========================
   if(vista==='ficha'&&activo){
     const Dato=({etiqueta,valor})=>(<div style={{marginBottom:14}}><div style={S.label}>{etiqueta}</div><div style={{fontSize:15}}>{valor||<span style={{color:'#bbb'}}>—</span>}</div></div>)
@@ -275,6 +311,7 @@ export default function EquiposInternos(){
       <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
 
         {modalQr&&<QrEquipoModal equipo={activo} onGuardarToken={t=>guardarEquipoRow(activo.id,{...activo,qrToken:t})} onCerrar={()=>setModalQr(false)}/>}
+        {modalEquipo}
 
         {/* ENCABEZADO + FOTO */}
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:24,gap:20}}>
@@ -559,41 +596,7 @@ export default function EquiposInternos(){
       </div>
 
       {/* MODAL ALTA/EDICIÓN EQUIPO */}
-      {modal&&(<div style={S.modalBg} onClick={()=>setModal(false)}><div style={S.modal} onClick={ev=>ev.stopPropagation()}>
-        <h2 style={{fontSize:22,fontWeight:800,margin:0}}>{equipos.some(e=>e.id===form.id)?'Editar datos generales':'Nuevo equipo'}</h2>
-        <p style={{color:'#888',fontSize:13,margin:'4px 0 18px'}}>Datos básicos. Filtros, suministros, pendientes y mantto se capturan en la ficha.</p>
-        <div style={S.grid3}>
-          <div><label style={S.label}>TIPO DE EQUIPO</label>
-            {modoNuevoTipoForm?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Excavadora" value={nuevoTipoForm} onChange={ev=>setNuevoTipoForm(ev.target.value)}/><button style={S.btnVerde} onClick={agregarTipoDesdeForm}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevoTipoForm(false)}>✕</button></div>)
-            :(<select style={S.input} value={form.tipo} onChange={ev=>cambiarTipoForm(ev.target.value)}><option value="">Selecciona un tipo</option>{tipos.map(t=><option key={t}>{t}</option>)}<option value="__nuevo__">+ Agregar tipo nuevo</option></select>)}
-          </div>
-          <div><label style={S.label}>MARCA</label><input style={S.input} value={form.marca} onChange={ev=>setForm({...form,marca:ev.target.value})}/></div>
-          <div><label style={S.label}>MODELO</label><input style={S.input} value={form.modelo} onChange={ev=>setForm({...form,modelo:ev.target.value})}/></div>
-        </div>
-        <div style={S.grid4}>
-          <div><label style={S.label}>SERIE</label><input style={S.input} value={form.serie} onChange={ev=>setForm({...form,serie:ev.target.value})}/></div>
-          <div><label style={S.label}>AÑO</label><input style={S.input} value={form.anio} onChange={ev=>setForm({...form,anio:ev.target.value})}/></div>
-          <div><label style={S.label}>HORÓMETRO</label><input style={S.input} value={form.horometro} onChange={ev=>setForm({...form,horometro:ev.target.value})} placeholder="Ej. 3450"/></div>
-          <div><label style={S.label}>PRÓXIMO MANTTO</label><input type="date" style={S.input} value={form.proximoMantto} onChange={ev=>setForm({...form,proximoMantto:ev.target.value})}/></div>
-        </div>
-        <div style={S.grid3}>
-          <div><label style={S.label}>OPERADOR</label>
-            {modoNuevoOperador?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Nombre" value={nuevoOperador} onChange={ev=>setNuevoOperador(ev.target.value)}/><button style={S.btnVerde} onClick={agregarOperador}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevoOperador(false)}>✕</button></div>)
-            :(<select style={S.input} value={form.operador} onChange={ev=>cambiarOperador(ev.target.value)}><option value="">Sin operador</option>{operadores.map(o=><option key={o}>{o}</option>)}<option value="__nuevo__">+ Agregar operador</option></select>)}
-          </div>
-          <div><label style={S.label}>UBICACIÓN</label>
-            {modoNuevaUbicacion?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Bacalar" value={nuevaUbicacion} onChange={ev=>setNuevaUbicacion(ev.target.value)}/><button style={S.btnVerde} onClick={agregarUbicacion}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevaUbicacion(false)}>✕</button></div>)
-            :(<select style={S.input} value={form.ubicacion} onChange={ev=>cambiarUbicacion(ev.target.value)}><option value="">Selecciona</option>{ubicaciones.map(u=><option key={u}>{u}</option>)}<option value="__nueva__">+ Agregar ubicación nueva</option></select>)}
-          </div>
-          <div><label style={S.label}>PLACAS</label><input style={S.input} value={form.placas} onChange={ev=>setForm({...form,placas:ev.target.value})}/></div>
-        </div>
-        <div style={{...S.grid3,marginBottom:22}}>
-          <div><label style={S.label}>MOTOR</label><input style={S.input} value={form.motor} onChange={ev=>setForm({...form,motor:ev.target.value})}/></div>
-          <div><label style={S.label}>CAPACIDAD</label><input style={S.input} value={form.capacidad} onChange={ev=>setForm({...form,capacidad:ev.target.value})} placeholder="Ej. 4,000 kg / 17 m"/></div>
-          <div><label style={S.label}>COMBUSTIBLE</label><input style={S.input} value={form.combustible} onChange={ev=>setForm({...form,combustible:ev.target.value})} placeholder="Diésel / Gasolina"/></div>
-        </div>
-        <div style={{display:'flex',justifyContent:'flex-end',gap:10}}><button style={S.btnGris} onClick={()=>setModal(false)}>Cancelar</button><button style={S.btn} onClick={guardarForm}>Guardar y abrir ficha</button></div>
-      </div></div>)}
+      {modalEquipo}
 
     </div></div>
   )
