@@ -27,6 +27,7 @@ import ReporteHoras from "./pages/Administracion/ReporteHoras";
 import GeneradorContratos from "./pages/Administracion/GeneradorContratos";
 import CargasDiesel from "./pages/Administracion/CargasDiesel";
 import PersonalNuevo from "./pages/Administracion/PersonalNuevo";
+import Tareas from "./pages/Operaciones/Tareas";
 
 function App() {
   return (
@@ -58,6 +59,7 @@ function App() {
         <Route path="/contratos" element={<ProtectedRoute><GeneradorContratos /></ProtectedRoute>} />
         <Route path="/diesel" element={<ProtectedRoute><CargasDiesel /></ProtectedRoute>} />
         <Route path="/personal" element={<ProtectedRoute><PersonalNuevo /></ProtectedRoute>} />
+        <Route path="/tareas" element={<ProtectedRoute><Tareas /></ProtectedRoute>} />
 
       </Routes>
       </AuthProvider>

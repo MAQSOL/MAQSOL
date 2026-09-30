@@ -9,7 +9,13 @@ import { useCotizaciones } from "../hooks/useCotizaciones";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../supabaseClient";
 import { migrarLocalStorage } from "../utils/migrarLocalStorage";
-import { IconoCampana, IconoPortapapeles, IconoBarras, IconoPersonas } from "../components/Icons";
+import { IconoCampana, IconoPortapapeles, IconoBarras, IconoPersonas, IconoTareas, IconoRayo, IconoNube, IconoChat, IconoCorreo } from "../components/Icons";
+
+const ACCESOS_DIRECTOS = [
+  { nombre: "OneDrive", url: "https://onedrive.live.com/", Icono: IconoNube, color: "#0a6cf0" },
+  { nombre: "WhatsApp Web", url: "https://web.whatsapp.com/", Icono: IconoChat, color: "#1f8b4c" },
+  { nombre: "Outlook", url: "https://outlook.office.com/mail/", Icono: IconoCorreo, color: "#0a6cf0" }
+];
 
 const MESES_CORTOS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 const DIA_DESCANSO = 6;
@@ -48,6 +54,15 @@ function Dashboard() {
   const { registros: cotizacionesVenta } = useCotizaciones("venta");
   const { registros: cotizacionesRenta } = useCotizaciones("renta");
   const { registros: cotizacionesRefaccion } = useCotizaciones("refaccion");
+  const { registros: tareas } = useSharedTable("tareas");
+
+  const tareasAbiertas = tareas.filter((t) => t.estado !== "hecho");
+  const misTareas = tareasAbiertas.filter((t) => t.asignadoId === user?.id);
+
+  const actividadReciente = tareas
+    .flatMap((t) => (t.comentarios || []).map((c) => ({ ...c, tarea: t.titulo })))
+    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+    .slice(0, 6);
 
   const equiposConMantto = [
     ...equiposInternos.map((e) => ({ ...e, origen: "Interno", href: "/internos" })),
@@ -201,6 +216,13 @@ function Dashboard() {
         </div>
 
         <div className="menu-section">
+          <h4>Operaciones</h4>
+          <RailNav
+            items={[{ label: "Tareas", href: "/tareas" }]}
+          />
+        </div>
+
+        <div className="menu-section">
           <h4>Recepción</h4>
           <RailNav
             items={[{ label: "Recepción Equipos", href: "/recepcion" }]}
@@ -311,6 +333,12 @@ function Dashboard() {
             <h3>MANTTOS PENDIENTES</h3>
             <div className="numero">{manttosPendientes}</div>
             <p>Próximos o vencidos</p>
+          </Link>
+
+          <Link to="/tareas" className="card">
+            <h3>TAREAS ABIERTAS</h3>
+            <div className="numero">{tareasAbiertas.length}</div>
+            <p>{misTareas.length} asignadas a ti</p>
           </Link>
 
         </section>
@@ -584,6 +612,79 @@ function Dashboard() {
               Ir a Asistencias
             </Link>
 
+          </div>
+
+          <div className="panel">
+            <h3 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <IconoRayo style={{ color: "var(--acento)" }} /> Accesos Directos
+            </h3>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "4px" }}>
+              {ACCESOS_DIRECTOS.map((a) => (
+                <a
+                  key={a.nombre}
+                  href={a.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    padding: "10px 8px",
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    color: "#333"
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.background = "#f7f7f7")}
+                  onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}
+                >
+                  <span
+                    style={{
+                      width: "36px",
+                      height: "36px",
+                      borderRadius: "9px",
+                      background: a.color + "1a",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0
+                    }}
+                  >
+                    <a.Icono style={{ color: a.color, width: "19px", height: "19px" }} />
+                  </span>
+                  <span style={{ fontWeight: 600, fontSize: "14px" }}>{a.nombre}</span>
+                  <span style={{ marginLeft: "auto", color: "#bbb", fontSize: "13px" }}>↗</span>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="panel">
+            <h3 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <IconoTareas style={{ color: "var(--acento)" }} /> Actividad Reciente
+            </h3>
+
+            {actividadReciente.length === 0 ? (
+              <p>Aún no hay avances registrados en Tareas.</p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {actividadReciente.map((c) => (
+                  <div key={c.id} style={{ paddingBottom: "10px", borderBottom: "1px solid #f0f0f0" }}>
+                    <div style={{ fontSize: "13.5px" }}>
+                      <strong>{c.autor}</strong> avanzó en <strong>{c.tarea}</strong>
+                    </div>
+                    <div style={{ fontSize: "12.5px", color: "#777", margin: "3px 0" }}>{c.texto}</div>
+                    <div style={{ fontSize: "11px", color: "#aaa" }}>
+                      {new Date(c.fecha).toLocaleString("es-MX", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <Link to="/tareas" className="btn-panel">
+              Ir a Tareas
+            </Link>
           </div>
 
         </section>

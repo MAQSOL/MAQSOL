@@ -229,3 +229,9 @@ $$;
 
 revoke all on function public.equipo_publico(text) from public;
 grant execute on function public.equipo_publico(text) to anon, authenticated;
+
+-- ---------- 9) Tareas / Operaciones ----------
+create table if not exists public.tareas (id text primary key, data jsonb not null default '{}'::jsonb, updated_at timestamptz default now());
+alter table public.tareas enable row level security;
+drop policy if exists "tareas_all_auth" on public.tareas;
+create policy "tareas_all_auth" on public.tareas for all using (auth.uid() is not null) with check (auth.uid() is not null);

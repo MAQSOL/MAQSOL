@@ -76,3 +76,55 @@ export function IconoLlave(props) {
     </svg>
   );
 }
+
+export function IconoTareas(props) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="3" y="4" width="18" height="17" rx="2" />
+      <path d="M3 9h18" />
+      <path d="M8 14l2 2 4-4" />
+    </svg>
+  );
+}
+
+export function IconoRayo(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" />
+    </svg>
+  );
+}
+
+export function IconoReloj(props) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3.5 2" />
+    </svg>
+  );
+}
+
+export function IconoNube(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M7 18h11a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 8 8.6 4 4 0 0 0 7 18Z" />
+    </svg>
+  );
+}
+
+export function IconoChat(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M21 11.5a8.5 8.5 0 0 1-11.87 7.8L3 21l1.7-6.13A8.5 8.5 0 1 1 21 11.5Z" />
+    </svg>
+  );
+}
+
+export function IconoCorreo(props) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m4 7 8 6 8-6" />
+    </svg>
+  );
+}
