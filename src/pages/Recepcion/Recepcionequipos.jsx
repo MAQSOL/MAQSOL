@@ -2,12 +2,10 @@ import { useState } from 'react'
 import { useListaCompartida } from '../../hooks/useSharedTable'
 import Sidebar from '../../components/Sidebar'
 import DeleteButton from '../../components/DeleteButton'
-import logo from '../../assets/logo.png'
 import { descargarExcelBonito, nombreArchivoFecha } from '../../utils/exportExcel'
+import { abrirChecklistPDF, descargarChecklistExcel } from '../../utils/checklistForma'
 
 const VINO = 'var(--acento)'
-const VINO_IMPRESION = '#1d5c8f' // hex fijo para el PDF (ventana aparte, sin las variables CSS de la app)
-const KEY_CHECKLISTS = 'checklistsEntregaSalida'
 
 const NIVELES = ['Electrica','1/4','1/2','3/4','Full']
 
@@ -23,7 +21,6 @@ const COL3 = ['MARCHA AVANTE-REVERSA','ELEVACION DEL BRAZO','MOTOR AUXILIAR',
 ].map(x=>typeof x==='string'?{n:x}:x)
 const COL4 = ['ALARMA DE REVERSA','BOTON DE PARO EMERGENCIA (JIB)','CADENA DE LA PLUMA','MANGUERAS Y CONEXIONES','TOMA DE CORRIENTE (CLAVIJA)','JIB','PANEL DE CONTROL AEREO'].map(n=>({n}))
 
-const TODOS_ITEMS = [...COL1,...COL2,...COL3,...COL4]
 
 const CHECKLIST_NUEVO = {
   id:'',folio:'',tipo:'Salida',ligadoA:'',
@@ -175,27 +172,7 @@ export default function Recepcionequipos(){
   // ================= EXPORTES =================
 
   function descargarExcel(r){
-    const columnas=['Campo','Valor']
-    const filas=[
-      ['Folio',r.folio],['Tipo',r.tipo||'Salida'],['Ligado a',r.ligadoA||''],['Cliente',r.cliente],['Fecha',r.fecha],['Hora',r.hora],['Orden de compra',r.ordenCompra],
-      ['Equipo',r.equipo],['Nivel combustible',r.nivelCombustible],['Horómetro',r.horometro],['Marca',r.marca],['Modelo',r.modelo],['Serie',r.serie],
-      ['Accesorio',r.accesorio],['Marca accesorio',r.accMarca],['Modelo accesorio',r.accModelo],['Serie accesorio',r.accSerie],['Flete',r.flete],
-      ['Nombre contacto',r.nombreContacto],['Teléfono',r.telefono],['Correo',r.correo],
-      ['Ubicación',r.ubicacion],['Hora de entrega',r.horaEntrega],['Fecha de entrega',r.fechaEntrega],['Fecha de retiro',r.fechaRetiro],['Hora de retiro',r.horaRetiro],['Horómetro retiro',r.horometroRetiro],
-      ['Quién entrega',r.quienEntrega],['Quién recibe',r.quienRecibe],
-      ...TODOS_ITEMS.map(it=>[it.n,(r.items&&r.items[it.n])||'']),
-      ...TODOS_ITEMS.filter(it=>it.pct).map(it=>[it.n+' (%)',(r.porcentajes&&r.porcentajes[it.n])||'']),
-      ['Servicio pre-entrega · fecha',r.servPreEntregaFecha],['Servicio pre-entrega · horómetro',r.servPreEntregaHorometro],
-      ['Próximo servicio · fecha',r.proximoServicioFecha],['Próximo servicio · horómetro',r.proximoServicioHorometro],
-      ['Reparaciones por daños a considerar',r.reparaciones],['Firma de enterado y conformidad',r.firmaEnterado],['Observaciones / uso en obra',r.observaciones],
-      ['Recibe el equipo (cliente)',r.recibeCliente],['Retira el equipo (cliente)',r.retiraCliente]
-    ]
-    descargarExcelBonito({
-      titulo:'Checklist de '+(r.tipo||'Salida')+' de Equipo',
-      subtitulo:'Folio '+r.folio+' · '+(r.cliente||''),
-      columnas,filas,
-      nombreArchivo:nombreArchivoFecha((r.tipo==='Entrada'?'CH-ENTRADA-':'CH-SALIDA-')+(r.folio||'equipo').toString().toUpperCase().replace(/[^A-Z0-9]/g,''))
-    })
+    descargarChecklistExcel(r,[COL1,COL2,COL3,COL4],nombreArchivoFecha((r.tipo==='Entrada'?'CH-ENTRADA-':'CH-SALIDA-')+(r.folio||'equipo').toString().toUpperCase().replace(/[^A-Z0-9]/g,'')))
   }
 
   function descargarListaExcel(){
@@ -210,165 +187,7 @@ export default function Recepcionequipos(){
   }
 
   function descargarPDF(r){
-    const ventana=window.open('','_blank')
-    if(!ventana){alert('El navegador bloqueó la ventana. Permite ventanas emergentes para este sitio.');return}
-    const e=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    const v=t=>{const x=e(t).trim();return x||'<span class="vacio">&nbsp;</span>'}
-    const logoUrl=new URL(logo,window.location.href).href
-    const tipo=(r.tipo||'Salida').toUpperCase()
-
-    const campo=(etq,val,extra)=>`<div class="campo${extra?' '+extra:''}"><span class="etq">${etq}</span><span class="val">${v(val)}</span></div>`
-
-    const chip=val=>{
-      if(!val)return '<span class="chip nada">—</span>'
-      const clase=(val==='B'||val==='SI')?'bien':(val==='R')?'reg':'mal'
-      return '<span class="chip '+clase+'">'+val+'</span>'
-    }
-    const columna=items=>'<div class="col">'+items.map(it=>{
-      const val=(r.items&&r.items[it.n])||''
-      const pct=it.pct&&r.porcentajes&&r.porcentajes[it.n]?'<span class="pct">'+e(r.porcentajes[it.n])+'%</span>':''
-      return '<div class="fila"><span class="nom">'+e(it.n.toLowerCase())+'</span>'+pct+chip(val)+'</div>'
-    }).join('')+'</div>'
-
-    const firma=(rol,empresa,nombre)=>`
-      <div class="firma">
-        <div class="rol">${rol}</div>
-        <div class="empresa">${empresa}</div>
-        <div class="espacio"></div>
-        <div class="linea"></div>
-        <div class="nombre">${nombre?e(nombre):'Nombre y firma'}</div>
-        <div class="fh">Fecha: ____ / ____ / ________ &nbsp;&nbsp; Hora: ______</div>
-      </div>`
-
-    ventana.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Entrega y Salida ${e(r.folio)}</title>
-      <style>
-        @page{size:letter landscape;margin:0;}
-        *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-        html,body{margin:0;padding:0;background:#fff;}
-        body{font-family:Arial,Helvetica,sans-serif;color:#1c1c1c;}
-        #probe{position:absolute;visibility:hidden;width:0;height:202mm;}
-        #hoja{width:263mm;margin:8mm auto 0;}
-        .cab{display:flex;align-items:center;gap:12px;padding-bottom:7px;border-bottom:3px solid ${VINO_IMPRESION};}
-        .cab img{height:15mm;width:auto;}
-        .tit{flex:1;}
-        .tit h1{margin:0;font-size:15.5px;letter-spacing:.3px;color:${VINO_IMPRESION};}
-        .tit p{margin:2px 0 0;font-size:10.5px;color:#555;letter-spacing:.6px;}
-        .tit b{color:#1c1c1c;}
-        .folio{background:${VINO_IMPRESION};color:#fff;border-radius:6px;padding:5px 14px;text-align:center;min-width:46mm;}
-        .folio small{display:block;font-size:7.5px;letter-spacing:1.4px;opacity:.85;}
-        .folio strong{font-size:12.5px;letter-spacing:.4px;}
-        .paneles{display:grid;grid-template-columns:1.1fr 1.05fr 1fr;gap:6px;margin-top:7px;}
-        .panel{border:1px solid #d5dbe1;border-radius:6px;overflow:hidden;}
-        .panel h4{margin:0;background:#eef2f6;color:${VINO_IMPRESION};font-size:7.5px;letter-spacing:1.1px;padding:3px 7px;border-bottom:1px solid #d5dbe1;}
-        .grid2{display:grid;grid-template-columns:1fr 1fr;}
-        .campo{padding:2px 7px 3px;border-bottom:1px solid #eef0f3;min-height:7.6mm;display:flex;flex-direction:column;justify-content:center;}
-        .campo.ancho{grid-column:1 / -1;}
-        .etq{font-size:6.2px;letter-spacing:.7px;color:#8a929b;text-transform:uppercase;}
-        .val{font-size:9.6px;font-weight:700;color:#1c1c1c;line-height:1.15;word-break:break-word;}
-        .vacio{display:inline-block;min-height:9px;}
-        .sec{display:flex;align-items:center;gap:10px;margin:8px 0 4px;}
-        .sec h3{margin:0;background:${VINO_IMPRESION};color:#fff;font-size:8px;letter-spacing:1.2px;padding:3.5px 10px;border-radius:4px;}
-        .leyenda{font-size:7.5px;color:#666;display:flex;gap:10px;}
-        .leyenda .chip{margin-right:3px;}
-        .checks{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
-        .col{border:1px solid #d5dbe1;border-radius:6px;overflow:hidden;}
-        .fila{display:flex;align-items:center;gap:5px;padding:2px 7px;min-height:5.7mm;border-bottom:1px solid #eef0f3;}
-        .fila:nth-child(even){background:#f8fafc;}
-        .fila:last-child{border-bottom:none;}
-        .nom{flex:1;font-size:7.7px;text-transform:uppercase;letter-spacing:.2px;line-height:1.15;}
-        .pct{font-size:7.3px;color:#555;font-weight:700;}
-        .chip{display:inline-block;min-width:15px;text-align:center;font-size:7.8px;font-weight:800;padding:1.5px 4px;border-radius:9px;}
-        .chip.bien{background:#e1f3e7;color:#1b7a3f;}
-        .chip.reg{background:#fdf0d4;color:#a8730a;}
-        .chip.mal{background:#fbe0e4;color:#b3202f;}
-        .chip.nada{background:#f1f3f5;color:#aab0b7;}
-        .servicios{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;}
-        .servicios .campo{border:1px solid #d5dbe1;border-radius:6px;padding:3px 9px;min-height:8mm;}
-        .cajas{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-        .caja{border:1px solid #d5dbe1;border-radius:6px;min-height:15mm;padding:5px 8px;font-size:9px;white-space:pre-wrap;line-height:1.3;}
-        .caja .etq{display:block;margin-bottom:2px;}
-        .conf{margin:7px 0 2px;font-size:7.8px;color:#555;text-align:center;letter-spacing:.2px;}
-        .firmas{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:3px;}
-        .firma{border:1px solid #c5ccd3;border-radius:6px;padding:5px 9px 5px;text-align:center;}
-        .firma .rol{font-size:8px;font-weight:800;color:${VINO_IMPRESION};letter-spacing:.8px;}
-        .firma .empresa{font-size:6.8px;color:#777;letter-spacing:.3px;min-height:8px;}
-        .firma .espacio{height:22mm;}
-        .firma .linea{border-top:1px solid #333;margin:0 6px;}
-        .firma .nombre{font-size:8.2px;font-weight:700;margin-top:2px;min-height:10px;}
-        .firma .fh{font-size:6.6px;color:#888;margin-top:3px;}
-        .pie{margin-top:5px;text-align:center;font-size:6.6px;color:#9aa1a9;letter-spacing:.4px;}
-      </style></head>
-      <body>
-        <div id="probe"></div>
-        <div id="hoja">
-          <div class="cab">
-            <img src="${logoUrl}" alt=""/>
-            <div class="tit">
-              <h1>MAQUINARIA SOPORTE Y LOGISTICA SA DE CV</h1>
-              <p><b>${tipo} DE EQUIPO</b> · Checklist de condición${r.ligadoA?' · Ligado a '+e(r.ligadoA):''}</p>
-            </div>
-            <div class="folio"><small>FOLIO</small><strong>${e(r.folio)}</strong></div>
-          </div>
-
-          <div class="paneles">
-            <div class="panel"><h4>CLIENTE Y OBRA</h4><div class="grid2">
-              ${campo('Cliente',r.cliente,'ancho')}
-              ${campo('Contacto',r.nombreContacto)}${campo('Teléfono',r.telefono)}
-              ${campo('Correo',r.correo)}${campo('Orden de compra',r.ordenCompra)}
-              ${campo('Ubicación',r.ubicacion,'ancho')}
-            </div></div>
-            <div class="panel"><h4>EQUIPO</h4><div class="grid2">
-              ${campo('Equipo',r.equipo)}${campo('Marca',r.marca)}
-              ${campo('Modelo',r.modelo)}${campo('Serie',r.serie)}
-              ${campo('Horómetro',r.horometro)}${campo('Nivel de combustible',r.nivelCombustible)}
-              ${campo('Accesorio',r.accesorio)}${campo('Marca / modelo acc.',((r.accMarca||'')+' '+(r.accModelo||'')).trim())}
-              ${campo('Serie acc.',r.accSerie)}${campo('Flete',r.flete)}
-            </div></div>
-            <div class="panel"><h4>ENTREGA Y RETIRO</h4><div class="grid2">
-              ${campo('Fecha',fFecha(r.fecha))}${campo('Hora',r.hora)}
-              ${campo('Entrega',(r.fechaEntrega?fFecha(r.fechaEntrega):'')+' '+(r.horaEntrega||''))}${campo('Retiro',(r.fechaRetiro?fFecha(r.fechaRetiro):'')+' '+(r.horaRetiro||''))}
-              ${campo('Horómetro al retiro',r.horometroRetiro,'ancho')}
-              ${campo('Entrega el equipo',r.quienEntrega)}${campo('Recibe el equipo',r.quienRecibe)}
-            </div></div>
-          </div>
-
-          <div class="sec"><h3>CHECKLIST DE CONDICIÓN</h3>
-            <div class="leyenda"><span><span class="chip bien">B</span>Bueno</span><span><span class="chip reg">R</span>Regular</span><span><span class="chip mal">M</span>Malo</span></div>
-          </div>
-          <div class="checks">${columna(COL1)}${columna(COL2)}${columna(COL3)}${columna(COL4)}</div>
-
-          <div class="servicios">
-            ${campo('Servicio pre-entrega',(r.servPreEntregaFecha?fFecha(r.servPreEntregaFecha):'')+'  ·  Hrm. '+(r.servPreEntregaHorometro||'—'))}
-            ${campo('Próximo servicio',(r.proximoServicioFecha?fFecha(r.proximoServicioFecha):'')+'  ·  Hrm. '+(r.proximoServicioHorometro||'—'))}
-          </div>
-
-          <div class="sec"><h3>OBSERVACIONES</h3></div>
-          <div class="cajas">
-            <div class="caja"><span class="etq">Reparaciones por daños a considerar</span>${e(r.reparaciones)||'&nbsp;'}</div>
-            <div class="caja"><span class="etq">Observaciones / uso en obra</span>${e(r.observaciones)||'&nbsp;'}</div>
-          </div>
-
-          <div class="sec"><h3>FIRMAS DE CONFORMIDAD</h3></div>
-          <div class="conf">Las partes firman de conformidad con el estado del equipo descrito en este documento.</div>
-          <div class="firmas">
-            ${firma('ENTREGA / RETIRA EL EQUIPO','MAQUINARIA SOPORTE Y LOGISTICA',r.quienEntrega)}
-            ${firma('RECIBE EL EQUIPO','CLIENTE',r.recibeCliente||r.quienRecibe)}
-            ${firma('ENTERADO Y CONFORME','PERSONA ENCARGADA DEL EQUIPO (CLIENTE)',r.firmaEnterado||r.retiraCliente)}
-            ${firma('Vo. Bo.','MAQUINARIA SOPORTE Y LOGISTICA SA DE CV','LIC. FRANCISCO TORRES MORALES')}
-          </div>
-          <div class="pie">Documento generado desde MAQSISTEM · ${e(r.folio)}</div>
-        </div>
-        <script>
-          window.onload=function(){
-            var hoja=document.getElementById('hoja');
-            var maximo=document.getElementById('probe').offsetHeight;
-            var h=hoja.offsetHeight+30;
-            if(h>maximo){hoja.style.zoom=(maximo/h).toFixed(3);}
-            setTimeout(function(){window.print()},350);
-          }
-        </script>
-      </body></html>`)
-    ventana.document.close()
+    abrirChecklistPDF(r,[COL1,COL2,COL3,COL4])
   }
 
   return(
