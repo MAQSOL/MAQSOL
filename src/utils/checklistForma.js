@@ -76,7 +76,7 @@ export function htmlChecklist(r, cols) {
   const t3 = `
     <table class="t">
       <colgroup>${'<col style="width:4.1667%">'.repeat(24)}</colgroup>
-      <tr class="serv">${L("SERVICIO DE PRE-ENTREGA", 3)}${L("FECHA", 1)}${V(fF(r.servPreEntregaFecha), 3)}${L("HORÓMETRO", 2)}${V(r.servPreEntregaHorometro, 3)}${L("PRÓXIMO SERVICIO", 3)}${L("FECHA", 1)}${V(fF(r.proximoServicioFecha), 3)}${L("HORÓMETRO", 2)}${V(r.proximoServicioHorometro, 3)}</tr>
+      <tr class="serv">${L("SERVICIO DE PRE-ENTREGA", 3)}${L("FECHA", 1)}${V(r.servPreNA ? "N/A" : fF(r.servPreEntregaFecha), 3)}${L("HORÓMETRO", 2)}${V(r.servPreNA ? "N/A" : r.servPreEntregaHorometro, 3)}${L("PRÓXIMO SERVICIO", 3)}${L("FECHA", 1)}${V(r.proxServNA ? "N/A" : fF(r.proximoServicioFecha), 3)}${L("HORÓMETRO", 2)}${V(r.proxServNA ? "N/A" : r.proximoServicioHorometro, 3)}</tr>
       <tr class="rep">${L("REPARACIONES POR DAÑOS A CONSIDERAR", 4)}${td("txt", 17, v(r.reparaciones))}${td("fe", 3, `<div class="fet">FIRMA DE ENTERADO Y CONFORMIDAD DE LA PERSONA ENCARGADA DEL EQUIPO</div>${r.firmaEnterado ? `<div class="fen">${esc(r.firmaEnterado)}</div>` : ""}`)}</tr>
       <tr class="obs">${L("OBSERVACIONES / USO EN OBRA", 4)}${td("txt", 20, v(r.observaciones))}</tr>
       <tr class="sh">${L("RECIBE EL EQUIPO", 5)}${L("ENTREGA / RETIRA EL EQUIPO", 5)}${L("RETIRA EL EQUIPO (CLIENTE)", 7)}${L("Vo. Bo.", 7)}</tr>
@@ -290,8 +290,8 @@ export async function descargarChecklistExcel(r, cols, nombreArchivo) {
     }
 
     // ---- Servicios, reparaciones, observaciones y firmas ----
-    etq(20, 1, 3, "SERVICIO DE PRE-ENTREGA"); etq(20, 4, 4, "FECHA"); val(20, 5, 7, fF(r.servPreEntregaFecha)); etq(20, 8, 9, "HORÓMETRO"); val(20, 10, 12, r.servPreEntregaHorometro);
-    etq(20, 13, 15, "PRÓXIMO SERVICIO"); etq(20, 16, 16, "FECHA"); val(20, 17, 19, fF(r.proximoServicioFecha)); etq(20, 20, 21, "HORÓMETRO"); val(20, 22, 24, r.proximoServicioHorometro);
+    etq(20, 1, 3, "SERVICIO DE PRE-ENTREGA"); etq(20, 4, 4, "FECHA"); val(20, 5, 7, r.servPreNA ? "N/A" : fF(r.servPreEntregaFecha)); etq(20, 8, 9, "HORÓMETRO"); val(20, 10, 12, r.servPreNA ? "N/A" : r.servPreEntregaHorometro);
+    etq(20, 13, 15, "PRÓXIMO SERVICIO"); etq(20, 16, 16, "FECHA"); val(20, 17, 19, r.proxServNA ? "N/A" : fF(r.proximoServicioFecha)); etq(20, 20, 21, "HORÓMETRO"); val(20, 22, 24, r.proxServNA ? "N/A" : r.proximoServicioHorometro);
     alto(20, 7.2);
 
     etq(21, 1, 4, "REPARACIONES POR DAÑOS A CONSIDERAR");

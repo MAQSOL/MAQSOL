@@ -1,5 +1,8 @@
 import { useState } from 'react'
-import { useListaCompartida } from '../../hooks/useSharedTable'
+import { useListaCompartida, useSharedTable } from '../../hooks/useSharedTable'
+import CampoOpciones from '../../components/CampoOpciones'
+import NipModal from '../../components/NipModal'
+import { TIPOS_EQUIPO, ACCESORIOS, UBICACIONES_BASE, unir, marcasDe, modelosDe } from '../../utils/catalogoEquipos'
 import Sidebar from '../../components/Sidebar'
 import DeleteButton from '../../components/DeleteButton'
 import { descargarExcelBonito, nombreArchivoFecha } from '../../utils/exportExcel'
@@ -33,7 +36,8 @@ const CHECKLIST_NUEVO = {
   items:{},porcentajes:{},
   servPreEntregaFecha:'',servPreEntregaHorometro:'',proximoServicioFecha:'',proximoServicioHorometro:'',
   reparaciones:'',firmaEnterado:'',observaciones:'',
-  recibeCliente:'',retiraCliente:''
+  recibeCliente:'',retiraCliente:'',
+  accNA:false,servPreNA:false,proxServNA:false
 }
 
 const S = {
@@ -109,6 +113,11 @@ export default function Recepcionequipos(){
   const[busqueda,setBusqueda]=useState('')
   const[fCliente,setFCliente]=useState('')
   const[fTipo,setFTipo]=useState('')
+  const[folioManual,setFolioManual]=useState(false)
+  const[pideNip,setPideNip]=useState(false)
+  const{registros:internos}=useSharedTable('equipos_internos')
+  const{registros:externos}=useSharedTable('equipos_externos')
+  const{registros:alquileres}=useSharedTable('alquileres')
 
   function limpiarNombre(s){
     return (s||'').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Z0-9]/g,'')
@@ -130,28 +139,62 @@ export default function Recepcionequipos(){
 
   function abrirNuevo(){
     const seq=siguienteSeq()
+    setFolioManual(false)
     setForm({...CHECKLIST_NUEVO,id:uid(),folioSeq:seq,folio:construirFolio(seq,'',hoyISO()),fecha:hoyISO(),items:{},porcentajes:{}})
     setModal(true)
   }
-  function abrirEditar(r){setForm({...CHECKLIST_NUEVO,folioSeq:r.folioSeq||siguienteSeq(),...r,items:{...r.items},porcentajes:{...r.porcentajes}});setModal(true)}
+  function abrirEditar(r){setFolioManual(false);setForm({...CHECKLIST_NUEVO,folioSeq:r.folioSeq||siguienteSeq(),...r,items:{...r.items},porcentajes:{...r.porcentajes}});setModal(true)}
   function registrarEntrada(salida){
     const seq=siguienteSeq()
     const fecha=hoyISO()
+    setFolioManual(false)
     setForm({
       ...CHECKLIST_NUEVO,id:uid(),folioSeq:seq,folio:construirFolio(seq,salida.cliente,fecha),
       tipo:'Entrada',ligadoA:salida.folio,fecha,
       cliente:salida.cliente,nombreContacto:salida.nombreContacto,telefono:salida.telefono,correo:salida.correo,
       equipo:salida.equipo,marca:salida.marca,modelo:salida.modelo,serie:salida.serie,
-      accesorio:salida.accesorio,accMarca:salida.accMarca,accModelo:salida.accModelo,accSerie:salida.accSerie,
+      accesorio:salida.accesorio,accMarca:salida.accMarca,accModelo:salida.accModelo,accSerie:salida.accSerie,accNA:!!salida.accNA,
       ubicacion:salida.ubicacion,items:{},porcentajes:{}
     })
     setModal(true)
   }
-  function cambiarCliente(cliente){setForm(f=>({...f,cliente,folio:construirFolio(f.folioSeq,cliente,f.fecha)}))}
-  function cambiarFecha(fecha){setForm(f=>({...f,fecha,folio:construirFolio(f.folioSeq,f.cliente,fecha)}))}
+  const esNuevo=!registros.some(r=>r.id===form.id)
+  function cambiarCliente(cliente){setForm(f=>({...f,cliente,...(esNuevo&&!folioManual?{folio:construirFolio(f.folioSeq,cliente,f.fecha)}:{})}))}
+  function cambiarFecha(fecha){setForm(f=>({...f,fecha,...(esNuevo&&!folioManual?{folio:construirFolio(f.folioSeq,f.cliente,fecha)}:{})}))}
+  function editarFolio(texto){
+    const m=/^CH-(\d+)-/i.exec(texto)
+    setForm(f=>({...f,folio:texto,...(m?{folioSeq:parseInt(m[1],10)}:{})}))
+  }
+  function folioAutomatico(){
+    setFolioManual(false)
+    setForm(f=>({...f,folio:construirFolio(f.folioSeq,f.cliente,f.fecha)}))
+  }
+  function alternarNA(grupo){
+    setForm(f=>{
+      if(grupo==='acc'){
+        const on=!f.accNA
+        return on?{...f,accNA:true,accesorio:'N/A',accMarca:'N/A',accModelo:'N/A',accSerie:'N/A'}
+          :{...f,accNA:false,accesorio:'',accMarca:'',accModelo:'',accSerie:''}
+      }
+      if(grupo==='pre'){
+        const on=!f.servPreNA
+        return {...f,servPreNA:on,servPreEntregaFecha:'',servPreEntregaHorometro:''}
+      }
+      const on=!f.proxServNA
+      return {...f,proxServNA:on,proximoServicioFecha:'',proximoServicioHorometro:''}
+    })
+  }
+  function tomarEquipo(clave){
+    const lista=[...internos.map(e=>({...e,origen:'internos'})),...externos.map(e=>({...e,origen:'externos'}))]
+    const e=lista.find(x=>x.origen+':'+x.id===clave)
+    if(!e)return
+    setForm(f=>({...f,equipo:e.tipo||'',marca:e.marca||'',modelo:e.modelo||'',serie:e.serie||'',horometro:e.horometro||f.horometro,ubicacion:f.ubicacion||e.ubicacion||''}))
+  }
   function guardarForm(){
     if(!form.cliente.trim()){alert('Indica el cliente.');return}
     if(!form.equipo.trim()){alert('Indica el equipo.');return}
+    if(!form.folio.trim()){alert('El folio no puede quedar vacío.');return}
+    if(registros.some(r=>r.id!==form.id&&(r.folio||'').trim().toLowerCase()===form.folio.trim().toLowerCase())){alert('Ya existe un checklist con el folio '+form.folio+'. Cámbialo para no repetirlo.');return}
     const existe=registros.some(r=>r.id===form.id)
     const lista=existe?registros.map(r=>r.id===form.id?{...r,...form}:r):[...registros,form]
     guardarRegistros(lista);setModal(false)
@@ -163,6 +206,32 @@ export default function Recepcionequipos(){
   function cambiarPct(clave,valor){setForm(f=>({...f,porcentajes:{...f.porcentajes,[clave]:valor}}))}
 
   const clientes=[...new Set(registros.map(r=>r.cliente).filter(Boolean))].sort()
+
+  const tipoCoincide=(a)=>!form.equipo||!a||String(a).toLowerCase()===form.equipo.toLowerCase()
+  const opcionesTipo=unir(TIPOS_EQUIPO,registros.map(r=>r.equipo),internos.map(e=>e.tipo),externos.map(e=>e.tipo))
+  const opcionesMarca=unir(
+    registros.filter(r=>tipoCoincide(r.equipo)).map(r=>r.marca),
+    [...internos,...externos].filter(e=>tipoCoincide(e.tipo)).map(e=>e.marca),
+    marcasDe(form.equipo)
+  )
+  const mismaMarca=(a)=>!form.marca||String(a||'').toLowerCase()===form.marca.toLowerCase()
+  const opcionesModelo=unir(
+    registros.filter(r=>tipoCoincide(r.equipo)&&mismaMarca(r.marca)).map(r=>r.modelo),
+    [...internos,...externos].filter(e=>tipoCoincide(e.tipo)&&mismaMarca(e.marca)).map(e=>e.modelo),
+    modelosDe(form.equipo,form.marca)
+  )
+  const opcionesAccesorio=unir(ACCESORIOS,registros.map(r=>r.accesorio).filter(a=>a&&a!=='N/A'))
+  const opcionesAccMarca=unir(registros.map(r=>r.accMarca).filter(a=>a&&a!=='N/A'),marcasDe(''))
+  const opcionesUbicacion=unir(
+    UBICACIONES_BASE,
+    internos.map(e=>e.ubicacion),
+    alquileres.flatMap(a=>[a.obra,a.direccionObra]),
+    registros.map(r=>r.ubicacion)
+  )
+  const equiposRegistrados=[
+    ...internos.map(e=>({clave:'internos:'+e.id,texto:[e.tipo,e.marca,e.modelo].filter(Boolean).join(' ')+' · '+(e.serie||'s/n')+' (propio)'})),
+    ...externos.filter(e=>e.estado!=='Devuelto').map(e=>({clave:'externos:'+e.id,texto:[e.tipo,e.marca,e.modelo].filter(Boolean).join(' ')+' · '+(e.serie||'s/n')+' (externo)'}))
+  ]
 
   const filtrados=registros.filter(r=>{
     const t=(r.folio+' '+r.cliente+' '+r.equipo+' '+r.marca+' '+r.serie).toLowerCase()
@@ -233,6 +302,8 @@ export default function Recepcionequipos(){
         </table>
       </div>
 
+      {pideNip&&<NipModal mensaje="Escribe el NIP para cambiar el folio." onCorrecto={()=>{setPideNip(false);setFolioManual(true)}} onCancelar={()=>setPideNip(false)}/>}
+
       {/* MODAL ALTA/EDICIÓN */}
       {modal&&(<div style={S.modalBg} onClick={()=>setModal(false)}><div style={S.modal} onClick={ev=>ev.stopPropagation()}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
@@ -240,7 +311,18 @@ export default function Recepcionequipos(){
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             {form.ligadoA&&<span style={{fontSize:12,color:'#999'}}>Ligado a {form.ligadoA}</span>}
             <select translate="no" className="notranslate" style={{...S.input,width:120}} value={form.tipo} onChange={ev=>setForm({...form,tipo:ev.target.value})}><option>Salida</option><option>Entrada</option></select>
-            <span style={{fontWeight:700,color:VINO}}>Folio: {form.folio}</span>
+            {folioManual?(
+              <span style={{display:'inline-flex',alignItems:'center',gap:6}}>
+                <span style={{fontWeight:700,color:VINO}}>Folio:</span>
+                <input style={{...S.input,width:250,fontWeight:700}} value={form.folio} onChange={ev=>editarFolio(ev.target.value)}/>
+                <button type="button" style={S.btnGrisSm} title="Volver al folio que asigna el sistema" onClick={folioAutomatico}>Automático</button>
+              </span>
+            ):(
+              <span style={{display:'inline-flex',alignItems:'center',gap:8}}>
+                <span style={{fontWeight:700,color:VINO}}>Folio: {form.folio}</span>
+                <button type="button" style={S.btnGrisSm} title="Cambiar el folio (pide NIP)" onClick={()=>setPideNip(true)}>✎ Cambiar</button>
+              </span>
+            )}
           </div>
         </div>
 
@@ -257,14 +339,23 @@ export default function Recepcionequipos(){
         </div>
         <div style={S.grid2}>
           <div><label style={S.label}>CORREO</label><input style={S.input} value={form.correo} onChange={ev=>setForm({...form,correo:ev.target.value})}/></div>
-          <div><label style={S.label}>UBICACIÓN</label><input style={S.input} value={form.ubicacion} onChange={ev=>setForm({...form,ubicacion:ev.target.value})}/></div>
+          <div><label style={S.label}>UBICACIÓN / OBRA</label><CampoOpciones opciones={opcionesUbicacion} valor={form.ubicacion} onChange={v=>setForm(f=>({...f,ubicacion:v}))} vacio="Selecciona la ubicación" placeholder="Escribe la obra o ubicación" textoOtro="Otra ubicación u obra (escribir)"/></div>
         </div>
 
         <div style={S.seccion}>Equipo</div>
+        {equiposRegistrados.length>0&&(
+          <div style={{marginBottom:12}}>
+            <label style={S.label}>TOMAR DE EQUIPOS REGISTRADOS (llena equipo, marca, modelo y serie de un clic)</label>
+            <select style={S.input} value="" onChange={ev=>tomarEquipo(ev.target.value)}>
+              <option value="">— Elegir o llenar abajo —</option>
+              {equiposRegistrados.map(e=><option key={e.clave} value={e.clave}>{e.texto}</option>)}
+            </select>
+          </div>
+        )}
         <div style={S.grid4}>
-          <div><label style={S.label}>EQUIPO</label><input style={S.input} value={form.equipo} onChange={ev=>setForm({...form,equipo:ev.target.value})}/></div>
-          <div><label style={S.label}>MARCA</label><input style={S.input} value={form.marca} onChange={ev=>setForm({...form,marca:ev.target.value})}/></div>
-          <div><label style={S.label}>MODELO</label><input style={S.input} value={form.modelo} onChange={ev=>setForm({...form,modelo:ev.target.value})}/></div>
+          <div><label style={S.label}>EQUIPO</label><CampoOpciones opciones={opcionesTipo} valor={form.equipo} onChange={v=>setForm(f=>({...f,equipo:v}))} vacio="Selecciona el equipo" placeholder="Ej. Excavadora" textoOtro="Otro equipo (escribir)"/></div>
+          <div><label style={S.label}>MARCA</label><CampoOpciones opciones={opcionesMarca} valor={form.marca} onChange={v=>setForm(f=>({...f,marca:v}))} vacio="Selecciona la marca" placeholder="Escribe la marca" textoOtro="Otra marca (escribir)"/></div>
+          <div><label style={S.label}>MODELO</label><CampoOpciones opciones={opcionesModelo} valor={form.modelo} onChange={v=>setForm(f=>({...f,modelo:v}))} vacio="Selecciona el modelo" placeholder="Escribe el modelo" textoOtro="Otro modelo (escribir)"/></div>
           <div><label style={S.label}>SERIE</label><input style={S.input} value={form.serie} onChange={ev=>setForm({...form,serie:ev.target.value})}/></div>
         </div>
         <div style={S.grid4}>
@@ -274,13 +365,20 @@ export default function Recepcionequipos(){
           <div></div>
         </div>
 
-        <div style={S.seccion}>Accesorio (opcional)</div>
-        <div style={S.grid4}>
-          <div><label style={S.label}>ACCESORIO</label><input style={S.input} value={form.accesorio} onChange={ev=>setForm({...form,accesorio:ev.target.value})}/></div>
-          <div><label style={S.label}>MARCA</label><input style={S.input} value={form.accMarca} onChange={ev=>setForm({...form,accMarca:ev.target.value})}/></div>
-          <div><label style={S.label}>MODELO</label><input style={S.input} value={form.accModelo} onChange={ev=>setForm({...form,accModelo:ev.target.value})}/></div>
-          <div><label style={S.label}>SERIE</label><input style={S.input} value={form.accSerie} onChange={ev=>setForm({...form,accSerie:ev.target.value})}/></div>
+        <div style={{...S.seccion,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <span>Accesorio (opcional)</span>
+          <button type="button" onClick={()=>alternarNA('acc')} style={{...S.btnGrisSm,background:form.accNA?'#222':'#e9e9e9',color:form.accNA?'#fff':'#333'}}>{form.accNA?'✓ N/A · no lleva accesorio':'N/A · no lleva accesorio'}</button>
         </div>
+        {form.accNA?(
+          <p style={{color:'#888',fontSize:13,margin:'0 0 12px'}}>Sin accesorio: en el documento aparecerá N/A en todos sus datos.</p>
+        ):(
+          <div style={S.grid4}>
+            <div><label style={S.label}>ACCESORIO</label><CampoOpciones opciones={opcionesAccesorio} valor={form.accesorio} onChange={v=>setForm(f=>({...f,accesorio:v}))} vacio="Selecciona" placeholder="Escribe el accesorio" textoOtro="Otro accesorio (escribir)"/></div>
+            <div><label style={S.label}>MARCA</label><CampoOpciones opciones={opcionesAccMarca} valor={form.accMarca} onChange={v=>setForm(f=>({...f,accMarca:v}))} vacio="Selecciona" placeholder="Escribe la marca" textoOtro="Otra marca (escribir)"/></div>
+            <div><label style={S.label}>MODELO</label><input style={S.input} value={form.accModelo} onChange={ev=>setForm({...form,accModelo:ev.target.value})}/></div>
+            <div><label style={S.label}>SERIE</label><input style={S.input} value={form.accSerie} onChange={ev=>setForm({...form,accSerie:ev.target.value})}/></div>
+          </div>
+        )}
 
         <div style={S.seccion}>Entrega y retiro</div>
         <div style={S.grid4}>
@@ -304,11 +402,24 @@ export default function Recepcionequipos(){
         </div>
 
         <div style={S.seccion}>Servicio</div>
-        <div style={S.grid4}>
-          <div><label style={S.label}>SERV. PRE-ENTREGA · FECHA</label><input type="date" style={S.input} value={form.servPreEntregaFecha} onChange={ev=>setForm({...form,servPreEntregaFecha:ev.target.value})}/></div>
-          <div><label style={S.label}>SERV. PRE-ENTREGA · HORÓMETRO</label><input style={S.input} value={form.servPreEntregaHorometro} onChange={ev=>setForm({...form,servPreEntregaHorometro:ev.target.value})}/></div>
-          <div><label style={S.label}>PRÓXIMO SERVICIO · FECHA</label><input type="date" style={S.input} value={form.proximoServicioFecha} onChange={ev=>setForm({...form,proximoServicioFecha:ev.target.value})}/></div>
-          <div><label style={S.label}>PRÓXIMO SERVICIO · HORÓMETRO</label><input style={S.input} value={form.proximoServicioHorometro} onChange={ev=>setForm({...form,proximoServicioHorometro:ev.target.value})}/></div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+          {[
+            {g:'pre',na:form.servPreNA,titulo:'SERVICIO DE PRE-ENTREGA',f:'servPreEntregaFecha',h:'servPreEntregaHorometro'},
+            {g:'prox',na:form.proxServNA,titulo:'PRÓXIMO SERVICIO',f:'proximoServicioFecha',h:'proximoServicioHorometro'}
+          ].map(x=>(
+            <div key={x.g} style={{border:'1px solid #eee',borderRadius:8,padding:12}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                <strong style={{fontSize:12,color:'#555'}}>{x.titulo}</strong>
+                <button type="button" onClick={()=>alternarNA(x.g)} style={{...S.btnGrisSm,background:x.na?'#222':'#e9e9e9',color:x.na?'#fff':'#333'}}>{x.na?'✓ N/A':'N/A'}</button>
+              </div>
+              {x.na?(<p style={{color:'#888',fontSize:13,margin:0}}>No aplica: saldrá N/A en el documento.</p>):(
+                <div style={S.grid2}>
+                  <div><label style={S.label}>FECHA</label><input type="date" style={S.input} value={form[x.f]} onChange={ev=>setForm({...form,[x.f]:ev.target.value})}/></div>
+                  <div><label style={S.label}>HORÓMETRO</label><input style={S.input} value={form[x.h]} onChange={ev=>setForm({...form,[x.h]:ev.target.value})}/></div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
 
         <div style={S.seccion}>Notas y conformidad</div>
