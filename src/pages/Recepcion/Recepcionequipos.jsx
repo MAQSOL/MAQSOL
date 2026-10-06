@@ -209,102 +209,166 @@ export default function Recepcionequipos(){
     })
   }
 
-  function celdaEstado(v){
-    if(v==='B'||v==='SI')return '<span style="background:#e8f5e9;color:#2e7d32;padding:2px 6px;border-radius:10px;font-weight:700;">'+v+'</span>'
-    if(v==='R')return '<span style="background:#fff3e0;color:#c98a00;padding:2px 6px;border-radius:10px;font-weight:700;">'+v+'</span>'
-    if(v==='M'||v==='NO')return '<span style="background:#fce4ec;color:#c62828;padding:2px 6px;border-radius:10px;font-weight:700;">'+v+'</span>'
-    return '—'
-  }
-
-  function filaItems(cols,r){
-    const maxLen=Math.max(...cols.map(c=>c.length))
-    let html=''
-    for(let i=0;i<maxLen;i++){
-      html+='<tr>'
-      cols.forEach(col=>{
-        const it=col[i]
-        if(!it){html+='<td colspan="2"></td>';return}
-        const val=(r.items&&r.items[it.n])||''
-        const pct=it.pct?((r.porcentajes&&r.porcentajes[it.n])?' ('+r.porcentajes[it.n]+'%)':''):''
-        html+='<td>'+it.n+pct+'</td><td style="text-align:center;width:46px">'+celdaEstado(val)+'</td>'
-      })
-      html+='</tr>'
-    }
-    return html
-  }
-
   function descargarPDF(r){
     const ventana=window.open('','_blank')
-    ventana.document.write(`
-      <html><head><title>Entrega y Salida ${r.folio}</title>
+    if(!ventana){alert('El navegador bloqueó la ventana. Permite ventanas emergentes para este sitio.');return}
+    const e=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    const v=t=>{const x=e(t).trim();return x||'<span class="vacio">&nbsp;</span>'}
+    const logoUrl=new URL(logo,window.location.href).href
+    const tipo=(r.tipo||'Salida').toUpperCase()
+
+    const campo=(etq,val,extra)=>`<div class="campo${extra?' '+extra:''}"><span class="etq">${etq}</span><span class="val">${v(val)}</span></div>`
+
+    const chip=val=>{
+      if(!val)return '<span class="chip nada">—</span>'
+      const clase=(val==='B'||val==='SI')?'bien':(val==='R')?'reg':'mal'
+      return '<span class="chip '+clase+'">'+val+'</span>'
+    }
+    const columna=items=>'<div class="col">'+items.map(it=>{
+      const val=(r.items&&r.items[it.n])||''
+      const pct=it.pct&&r.porcentajes&&r.porcentajes[it.n]?'<span class="pct">'+e(r.porcentajes[it.n])+'%</span>':''
+      return '<div class="fila"><span class="nom">'+e(it.n.toLowerCase())+'</span>'+pct+chip(val)+'</div>'
+    }).join('')+'</div>'
+
+    const firma=(rol,empresa,nombre)=>`
+      <div class="firma">
+        <div class="rol">${rol}</div>
+        <div class="empresa">${empresa}</div>
+        <div class="espacio"></div>
+        <div class="linea"></div>
+        <div class="nombre">${nombre?e(nombre):'Nombre y firma'}</div>
+        <div class="fh">Fecha: ____ / ____ / ________ &nbsp;&nbsp; Hora: ______</div>
+      </div>`
+
+    ventana.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Entrega y Salida ${e(r.folio)}</title>
       <style>
-        *{box-sizing:border-box;}
-        @page{size:auto;margin:0;}
-        body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:12mm 10mm;color:#000;font-size:11.5px;}
-        table{width:100%;border-collapse:collapse;}
-        td,th{border:1px solid #999;padding:5px 7px;}
-        .cab{display:flex;align-items:center;gap:14px;border:2px solid #000;padding:10px;margin-bottom:10px;}
-        .cab img{height:60px;}
-        .cab h1{color:${VINO_IMPRESION};font-size:19px;margin:0;}
-        .cab h2{font-size:12px;margin:4px 0 0;text-align:center;}
-        .folio{margin-left:auto;border:1px solid #000;padding:6px 14px;text-align:center;font-weight:700;}
-        .datos td{font-size:11px;}
-        .datos .lbl{background:#eee;font-weight:700;width:16%;}
-        h3.sec{background:${VINO_IMPRESION};color:#fff;padding:5px 8px;margin:14px 0 6px;font-size:12px;}
-        .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-        .grid4 table td{font-size:10.5px;padding:3px 5px;}
-        textarea,.caja{border:1px solid #999;min-height:50px;padding:6px;white-space:pre-wrap;}
-        .firmas{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:16px;}
-        .firmas div{border:1px solid #000;padding:8px;min-height:70px;font-size:11px;}
-        .firmas .tit{background:#eee;font-weight:700;text-align:center;border-bottom:1px solid #000;}
-        @media print{button{display:none}}
+        @page{size:letter landscape;margin:0;}
+        *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        html,body{margin:0;padding:0;background:#fff;}
+        body{font-family:Arial,Helvetica,sans-serif;color:#1c1c1c;}
+        #probe{position:absolute;visibility:hidden;width:0;height:202mm;}
+        #hoja{width:263mm;margin:8mm auto 0;}
+        .cab{display:flex;align-items:center;gap:12px;padding-bottom:7px;border-bottom:3px solid ${VINO_IMPRESION};}
+        .cab img{height:15mm;width:auto;}
+        .tit{flex:1;}
+        .tit h1{margin:0;font-size:15.5px;letter-spacing:.3px;color:${VINO_IMPRESION};}
+        .tit p{margin:2px 0 0;font-size:10.5px;color:#555;letter-spacing:.6px;}
+        .tit b{color:#1c1c1c;}
+        .folio{background:${VINO_IMPRESION};color:#fff;border-radius:6px;padding:5px 14px;text-align:center;min-width:46mm;}
+        .folio small{display:block;font-size:7.5px;letter-spacing:1.4px;opacity:.85;}
+        .folio strong{font-size:12.5px;letter-spacing:.4px;}
+        .paneles{display:grid;grid-template-columns:1.1fr 1.05fr 1fr;gap:6px;margin-top:7px;}
+        .panel{border:1px solid #d5dbe1;border-radius:6px;overflow:hidden;}
+        .panel h4{margin:0;background:#eef2f6;color:${VINO_IMPRESION};font-size:7.5px;letter-spacing:1.1px;padding:3px 7px;border-bottom:1px solid #d5dbe1;}
+        .grid2{display:grid;grid-template-columns:1fr 1fr;}
+        .campo{padding:2px 7px 3px;border-bottom:1px solid #eef0f3;min-height:7.6mm;display:flex;flex-direction:column;justify-content:center;}
+        .campo.ancho{grid-column:1 / -1;}
+        .etq{font-size:6.2px;letter-spacing:.7px;color:#8a929b;text-transform:uppercase;}
+        .val{font-size:9.6px;font-weight:700;color:#1c1c1c;line-height:1.15;word-break:break-word;}
+        .vacio{display:inline-block;min-height:9px;}
+        .sec{display:flex;align-items:center;gap:10px;margin:8px 0 4px;}
+        .sec h3{margin:0;background:${VINO_IMPRESION};color:#fff;font-size:8px;letter-spacing:1.2px;padding:3.5px 10px;border-radius:4px;}
+        .leyenda{font-size:7.5px;color:#666;display:flex;gap:10px;}
+        .leyenda .chip{margin-right:3px;}
+        .checks{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+        .col{border:1px solid #d5dbe1;border-radius:6px;overflow:hidden;}
+        .fila{display:flex;align-items:center;gap:5px;padding:2px 7px;min-height:5.7mm;border-bottom:1px solid #eef0f3;}
+        .fila:nth-child(even){background:#f8fafc;}
+        .fila:last-child{border-bottom:none;}
+        .nom{flex:1;font-size:7.7px;text-transform:uppercase;letter-spacing:.2px;line-height:1.15;}
+        .pct{font-size:7.3px;color:#555;font-weight:700;}
+        .chip{display:inline-block;min-width:15px;text-align:center;font-size:7.8px;font-weight:800;padding:1.5px 4px;border-radius:9px;}
+        .chip.bien{background:#e1f3e7;color:#1b7a3f;}
+        .chip.reg{background:#fdf0d4;color:#a8730a;}
+        .chip.mal{background:#fbe0e4;color:#b3202f;}
+        .chip.nada{background:#f1f3f5;color:#aab0b7;}
+        .servicios{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;}
+        .servicios .campo{border:1px solid #d5dbe1;border-radius:6px;padding:3px 9px;min-height:8mm;}
+        .cajas{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+        .caja{border:1px solid #d5dbe1;border-radius:6px;min-height:15mm;padding:5px 8px;font-size:9px;white-space:pre-wrap;line-height:1.3;}
+        .caja .etq{display:block;margin-bottom:2px;}
+        .conf{margin:7px 0 2px;font-size:7.8px;color:#555;text-align:center;letter-spacing:.2px;}
+        .firmas{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:3px;}
+        .firma{border:1px solid #c5ccd3;border-radius:6px;padding:5px 9px 5px;text-align:center;}
+        .firma .rol{font-size:8px;font-weight:800;color:${VINO_IMPRESION};letter-spacing:.8px;}
+        .firma .empresa{font-size:6.8px;color:#777;letter-spacing:.3px;min-height:8px;}
+        .firma .espacio{height:22mm;}
+        .firma .linea{border-top:1px solid #333;margin:0 6px;}
+        .firma .nombre{font-size:8.2px;font-weight:700;margin-top:2px;min-height:10px;}
+        .firma .fh{font-size:6.6px;color:#888;margin-top:3px;}
+        .pie{margin-top:5px;text-align:center;font-size:6.6px;color:#9aa1a9;letter-spacing:.4px;}
       </style></head>
       <body>
-        <div class="cab">
-          <img src="${logo}"/>
-          <div style="flex:1"><h1>MAQUINARIA SOPORTE Y LOGISTICA SA DE CV</h1><h2>${(r.tipo||'Salida').toUpperCase()} DE EQUIPO${r.ligadoA?' · Ligado a '+r.ligadoA:''}</h2></div>
-          <div class="folio">FOLIO<br><strong>${r.folio}</strong></div>
+        <div id="probe"></div>
+        <div id="hoja">
+          <div class="cab">
+            <img src="${logoUrl}" alt=""/>
+            <div class="tit">
+              <h1>MAQUINARIA SOPORTE Y LOGISTICA SA DE CV</h1>
+              <p><b>${tipo} DE EQUIPO</b> · Checklist de condición${r.ligadoA?' · Ligado a '+e(r.ligadoA):''}</p>
+            </div>
+            <div class="folio"><small>FOLIO</small><strong>${e(r.folio)}</strong></div>
+          </div>
+
+          <div class="paneles">
+            <div class="panel"><h4>CLIENTE Y OBRA</h4><div class="grid2">
+              ${campo('Cliente',r.cliente,'ancho')}
+              ${campo('Contacto',r.nombreContacto)}${campo('Teléfono',r.telefono)}
+              ${campo('Correo',r.correo)}${campo('Orden de compra',r.ordenCompra)}
+              ${campo('Ubicación',r.ubicacion,'ancho')}
+            </div></div>
+            <div class="panel"><h4>EQUIPO</h4><div class="grid2">
+              ${campo('Equipo',r.equipo)}${campo('Marca',r.marca)}
+              ${campo('Modelo',r.modelo)}${campo('Serie',r.serie)}
+              ${campo('Horómetro',r.horometro)}${campo('Nivel de combustible',r.nivelCombustible)}
+              ${campo('Accesorio',r.accesorio)}${campo('Marca / modelo acc.',((r.accMarca||'')+' '+(r.accModelo||'')).trim())}
+              ${campo('Serie acc.',r.accSerie)}${campo('Flete',r.flete)}
+            </div></div>
+            <div class="panel"><h4>ENTREGA Y RETIRO</h4><div class="grid2">
+              ${campo('Fecha',fFecha(r.fecha))}${campo('Hora',r.hora)}
+              ${campo('Entrega',(r.fechaEntrega?fFecha(r.fechaEntrega):'')+' '+(r.horaEntrega||''))}${campo('Retiro',(r.fechaRetiro?fFecha(r.fechaRetiro):'')+' '+(r.horaRetiro||''))}
+              ${campo('Horómetro al retiro',r.horometroRetiro,'ancho')}
+              ${campo('Entrega el equipo',r.quienEntrega)}${campo('Recibe el equipo',r.quienRecibe)}
+            </div></div>
+          </div>
+
+          <div class="sec"><h3>CHECKLIST DE CONDICIÓN</h3>
+            <div class="leyenda"><span><span class="chip bien">B</span>Bueno</span><span><span class="chip reg">R</span>Regular</span><span><span class="chip mal">M</span>Malo</span></div>
+          </div>
+          <div class="checks">${columna(COL1)}${columna(COL2)}${columna(COL3)}${columna(COL4)}</div>
+
+          <div class="servicios">
+            ${campo('Servicio pre-entrega',(r.servPreEntregaFecha?fFecha(r.servPreEntregaFecha):'')+'  ·  Hrm. '+(r.servPreEntregaHorometro||'—'))}
+            ${campo('Próximo servicio',(r.proximoServicioFecha?fFecha(r.proximoServicioFecha):'')+'  ·  Hrm. '+(r.proximoServicioHorometro||'—'))}
+          </div>
+
+          <div class="sec"><h3>OBSERVACIONES</h3></div>
+          <div class="cajas">
+            <div class="caja"><span class="etq">Reparaciones por daños a considerar</span>${e(r.reparaciones)||'&nbsp;'}</div>
+            <div class="caja"><span class="etq">Observaciones / uso en obra</span>${e(r.observaciones)||'&nbsp;'}</div>
+          </div>
+
+          <div class="sec"><h3>FIRMAS DE CONFORMIDAD</h3></div>
+          <div class="conf">Las partes firman de conformidad con el estado del equipo descrito en este documento.</div>
+          <div class="firmas">
+            ${firma('ENTREGA / RETIRA EL EQUIPO','MAQUINARIA SOPORTE Y LOGISTICA',r.quienEntrega)}
+            ${firma('RECIBE EL EQUIPO','CLIENTE',r.recibeCliente||r.quienRecibe)}
+            ${firma('ENTERADO Y CONFORME','PERSONA ENCARGADA DEL EQUIPO (CLIENTE)',r.firmaEnterado||r.retiraCliente)}
+            ${firma('Vo. Bo.','MAQUINARIA SOPORTE Y LOGISTICA SA DE CV','LIC. FRANCISCO TORRES MORALES')}
+          </div>
+          <div class="pie">Documento generado desde MAQSISTEM · ${e(r.folio)}</div>
         </div>
-        <table class="datos">
-          <tr><td class="lbl">CLIENTE</td><td colspan="5">${r.cliente||''}</td></tr>
-          <tr><td class="lbl">FECHA</td><td>${fFecha(r.fecha)}</td><td class="lbl">HORA</td><td>${r.hora||''}</td><td class="lbl">ORDEN DE COMPRA</td><td>${r.ordenCompra||''}</td></tr>
-          <tr><td class="lbl">EQUIPO</td><td>${r.equipo||''}</td><td class="lbl">NIVEL COMBUSTIBLE</td><td>${r.nivelCombustible||''}</td><td class="lbl">HORÓMETRO</td><td>${r.horometro||''}</td></tr>
-          <tr><td class="lbl">MARCA</td><td>${r.marca||''}</td><td class="lbl">MODELO</td><td>${r.modelo||''}</td><td class="lbl">SERIE</td><td>${r.serie||''}</td></tr>
-          <tr><td class="lbl">ACCESORIO</td><td>${r.accesorio||''}</td><td class="lbl">MARCA/MODELO ACC.</td><td>${r.accMarca||''} ${r.accModelo||''}</td><td class="lbl">SERIE ACC. / FLETE</td><td>${r.accSerie||''} / ${r.flete||''}</td></tr>
-          <tr><td class="lbl">CONTACTO</td><td>${r.nombreContacto||''}</td><td class="lbl">TELÉFONO</td><td>${r.telefono||''}</td><td class="lbl">CORREO</td><td>${r.correo||''}</td></tr>
-          <tr><td class="lbl">UBICACIÓN</td><td>${r.ubicacion||''}</td><td class="lbl">ENTREGA</td><td>${fFecha(r.fechaEntrega)} ${r.horaEntrega||''}</td><td class="lbl">RETIRO</td><td>${fFecha(r.fechaRetiro)} ${r.horaRetiro||''} · ${r.horometroRetiro||''}</td></tr>
-          <tr><td class="lbl">ENTREGA EL EQUIPO</td><td colspan="2">${r.quienEntrega||''}</td><td class="lbl">RECIBE EL EQUIPO</td><td colspan="2">${r.quienRecibe||''}</td></tr>
-        </table>
-
-        <h3 class="sec">CHECKLIST DE CONDICIÓN — B: Bueno · R: Regular · M: Malo</h3>
-        <div class="grid4">
-          <table>${filaItems([COL1],r)}</table>
-          <table>${filaItems([COL2],r)}</table>
-          <table>${filaItems([COL3],r)}</table>
-          <table>${filaItems([COL4],r)}</table>
-        </div>
-
-        <table class="datos" style="margin-top:10px">
-          <tr><td class="lbl">SERV. PRE-ENTREGA</td><td>${fFecha(r.servPreEntregaFecha)} · Hrm. ${r.servPreEntregaHorometro||'—'}</td><td class="lbl">PRÓXIMO SERVICIO</td><td>${fFecha(r.proximoServicioFecha)} · Hrm. ${r.proximoServicioHorometro||'—'}</td></tr>
-        </table>
-
-        <h3 class="sec">REPARACIONES POR DAÑOS A CONSIDERAR</h3>
-        <div class="caja">${(r.reparaciones||'—').replace(/</g,'&lt;')}</div>
-        <h3 class="sec">OBSERVACIONES / USO EN OBRA</h3>
-        <div class="caja">${(r.observaciones||'—').replace(/</g,'&lt;')}</div>
-        <h3 class="sec">FIRMA DE ENTERADO Y CONFORMIDAD DE LA PERSONA ENCARGADA DEL EQUIPO</h3>
-        <div class="caja">${(r.firmaEnterado||'—').replace(/</g,'&lt;')}</div>
-
-        <div class="firmas">
-          <div><div class="tit">RECIBE EL EQUIPO<br>CLIENTE</div>${r.recibeCliente||''}</div>
-          <div><div class="tit">ENTREGA/RETIRA EL EQUIPO<br>MAQUINARIA SOPORTE Y LOGISTICA</div>${r.quienEntrega||''}</div>
-          <div><div class="tit">RETIRA EL EQUIPO (CLIENTE)</div>${r.retiraCliente||''}</div>
-          <div><div class="tit">Vo. Bo.<br>MAQUINARIA SOPORTE Y LOGISTICA SA DE CV</div>LIC. FRANCISCO TORRES MORALES</div>
-        </div>
-      </body></html>
-    `)
+        <script>
+          window.onload=function(){
+            var hoja=document.getElementById('hoja');
+            var maximo=document.getElementById('probe').offsetHeight;
+            var h=hoja.offsetHeight+30;
+            if(h>maximo){hoja.style.zoom=(maximo/h).toFixed(3);}
+            setTimeout(function(){window.print()},350);
+          }
+        </script>
+      </body></html>`)
     ventana.document.close()
-    ventana.print()
   }
 
   return(
