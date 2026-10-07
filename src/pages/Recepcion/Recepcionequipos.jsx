@@ -41,7 +41,7 @@ const CHECKLIST_NUEVO = {
   quienEntrega:'',quienRecibe:'',
   items:{},porcentajes:{},
   servPreEntregaFecha:'',servPreEntregaHorometro:'',proximoServicioFecha:'',proximoServicioHorometro:'',
-  reparaciones:'',firmaEnterado:'',observaciones:'',
+  reparaciones:'',observaciones:'',
   recibeCliente:'',retiraCliente:'',
   accNA:false,servPreNA:false,proxServNA:false,ocNA:false,
   fotosToken:'',fotos:[],ineEntrega:[],ineRecibe:[],firmas:{}
@@ -54,7 +54,6 @@ const FIRMAS=[
   {k:'entrega',t:'Entrega / retira el equipo',s:'MAQSOL'},
   {k:'recibe',t:'Recibe el equipo',s:'Cliente'},
   {k:'retira',t:'Retira el equipo',s:'Cliente'},
-  {k:'enterado',t:'Enterado y conforme',s:'Persona encargada del equipo'},
   {k:'voBo',t:'Vo. Bo.',s:'MAQSOL'}
 ]
 
@@ -151,6 +150,7 @@ export default function Recepcionequipos(){
   const[guardando,setGuardando]=useState(false)
   const[firmando,setFirmando]=useState(null)
   const[expedienteDe,setExpedienteDe]=useState(null)
+  const[soloDocs,setSoloDocs]=useState(false)
   const[copiado,setCopiado]=useState(false)
 
   function limpiarNombre(s){
@@ -183,7 +183,9 @@ export default function Recepcionequipos(){
     setForm({...CHECKLIST_NUEVO,id:uid(),folioSeq:seq,folio:construirFolio(seq,'',hoyISO()),fecha:hoyISO(),items:{},porcentajes:{}})
     setModal(true)
   }
-  function abrirEditar(r){reiniciarArchivos();setFolioManual(false);setForm({...CHECKLIST_NUEVO,folioSeq:r.folioSeq||siguienteSeq(),...r,items:{...r.items},porcentajes:{...r.porcentajes}});setModal(true)}
+  function abrirDocs(r){reiniciarArchivos();setSoloDocs(true);setFolioManual(false);setForm({...CHECKLIST_NUEVO,folioSeq:r.folioSeq||siguienteSeq(),...r,items:{...r.items},porcentajes:{...r.porcentajes}});setModal(true)}
+  function cerrarModal(){reiniciarArchivos();setSoloDocs(false);setModal(false)}
+  function abrirEditar(r){reiniciarArchivos();setSoloDocs(false);setFolioManual(false);setForm({...CHECKLIST_NUEVO,folioSeq:r.folioSeq||siguienteSeq(),...r,items:{...r.items},porcentajes:{...r.porcentajes}});setModal(true)}
   function registrarEntrada(salida){
     const seq=siguienteSeq()
     const fecha=hoyISO()
@@ -276,6 +278,7 @@ export default function Recepcionequipos(){
         if(rutas.length)await supabase.storage.from(b).remove(rutas)
       }
       reiniciarArchivos()
+      setSoloDocs(false)
       setModal(false)
     }catch(e){
       for(const b of [BUCKET_FOTOS,BUCKET_DOCS]){
@@ -408,6 +411,52 @@ export default function Recepcionequipos(){
     abrirChecklistPDF(conLinkFotos(r),[COL1,COL2,COL3,COL4])
   }
 
+  const seccionDocs=(<>
+        <div style={S.seccion}>Fotos del equipo</div>
+        <div style={{display:'flex',flexWrap:'wrap',gap:10,marginBottom:10}}>
+          {(form.fotos||[]).map(f=>{const u=urls[BUCKET_FOTOS+'|'+f.path];return(
+            <div key={f.path} style={{position:'relative'}}>
+              {u?<a href={u} target="_blank" rel="noopener noreferrer"><img src={u} alt="" style={estiloMiniatura}/></a>:<div style={{...estiloMiniatura,background:'#f0f0f0'}}/>}
+              <button type="button" title="Quitar foto" onClick={()=>quitarGuardado('fotos',f)} style={estiloX}>✕</button>
+            </div>)})}
+          {pend.fotos.map(f=>(
+            <div key={f.id} style={{position:'relative'}}>
+              <img src={f.preview} alt="" style={{...estiloMiniatura,outline:'2px dashed var(--acento)'}}/>
+              <button type="button" title="Quitar foto" onClick={()=>quitarPendiente('fotos',f.id)} style={estiloX}>✕</button>
+            </div>))}
+          {!(form.fotos||[]).length&&!pend.fotos.length&&<span style={{color:'#aaa',fontSize:13,alignSelf:'center'}}>Sin fotos. Es opcional.</span>}
+        </div>
+        <label style={{...S.btnGris,display:'inline-block',cursor:'pointer'}}>+ Agregar fotos<input type="file" accept="image/*" multiple style={{display:'none'}} onChange={ev=>{agregarArchivos('fotos',ev.target.files);ev.target.value=''}}/></label>
+        {linkFotos&&((form.fotos||[]).length>0||pend.fotos.length>0)&&(
+          <div style={{marginTop:12,padding:'10px 12px',background:'#f1f7ff',border:'1px solid #cfe2ff',borderRadius:8}}>
+            <div style={{fontSize:11.5,fontWeight:700,color:'#456'}}>ENLACE PARA VER LAS FOTOS · cualquiera que lo tenga puede abrirlo, sin iniciar sesión</div>
+            <div style={{display:'flex',gap:8,marginTop:6}}>
+              <input readOnly style={{...S.input,fontSize:12}} value={linkFotos} onFocus={ev=>ev.target.select()}/>
+              <button type="button" style={{...S.btnGris,whiteSpace:'nowrap'}} onClick={copiarLink}>{copiado?'¡Copiado!':'Copiar'}</button>
+            </div>
+            {pend.fotos.length>0&&<div style={{fontSize:12,color:'#a8730a',marginTop:6}}>El enlace empieza a funcionar al guardar el checklist. También sale en el PDF.</div>}
+          </div>
+        )}
+
+        <div style={S.seccion}>INE</div>
+        {[['ineEntrega','INE de quien entrega el equipo'],['ineRecibe','INE de quien recibe el equipo']].map(([g,titulo])=>(
+          <div key={g} style={{marginBottom:12}}>
+            <label style={S.label}>{titulo.toUpperCase()}</label>
+            <div style={{display:'flex',flexWrap:'wrap',gap:6,alignItems:'center'}}>
+              {(form[g]||[]).map(a=>{const u=urls[BUCKET_DOCS+'|'+a.path];return(
+                <span key={a.path} style={estiloChipArchivo}>
+                  {u?<a href={u} target="_blank" rel="noopener noreferrer" style={{color:'var(--acento)',fontWeight:700}}>📄 {a.nombre}</a>:'📄 '+a.nombre}
+                  <button type="button" onClick={()=>quitarGuardado(g,a)} style={estiloXChip}>✕</button>
+                </span>)})}
+              {pend[g].map(a=>(
+                <span key={a.id} style={{...estiloChipArchivo,outline:'1px dashed var(--acento)'}}>📄 {a.file.name}<button type="button" onClick={()=>quitarPendiente(g,a.id)} style={estiloXChip}>✕</button></span>))}
+              <label style={{...S.btnGrisSm,cursor:'pointer'}}>+ Subir (foto o PDF)<input type="file" multiple accept="application/pdf,image/*" style={{display:'none'}} onChange={ev=>{agregarArchivos(g,ev.target.files);ev.target.value=''}}/></label>
+            </div>
+          </div>
+        ))}
+        <p style={{color:'#999',fontSize:12,margin:'0 0 4px'}}>Las INE se guardan en un espacio privado: solo las ven los usuarios con sesión iniciada.</p>
+
+      </>)
   return(
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
@@ -453,6 +502,7 @@ export default function Recepcionequipos(){
               <td style={{...S.td,textAlign:'center',whiteSpace:'nowrap'}}>
                 {(r.tipo||'Salida')==='Salida'&&<button style={S.btnSm} onClick={()=>registrarEntrada(r)}>+ Entrada</button>}
                 <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>abrirEditar(r)}>Editar</button>
+                <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>abrirDocs(r)}>Fotos e INE</button>
                 <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>descargarPDF(r)}>PDF</button>
                 <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>descargarExcel(r)}>Excel</button>
                 {r.fotosToken&&(r.fotos||[]).length>0&&<a href={'/fotos/'+r.fotosToken} target="_blank" rel="noopener noreferrer" style={{...S.btnGrisSm,marginLeft:6,textDecoration:'none',display:'inline-block'}}>Fotos ({r.fotos.length})</a>}
@@ -468,8 +518,19 @@ export default function Recepcionequipos(){
       {firmando&&<FirmaPad titulo={'Firma · '+firmando.t} subtitulo={firmando.s+' — firma con el dedo dentro del recuadro'} onGuardar={d=>guardarFirma(firmando.k,d)} onCancelar={()=>setFirmando(null)}/>}
       {expedienteDe&&<ExpedienteCliente nombreCliente={expedienteDe} clientes={clientesDB} onGuardar={guardarClienteDB} onCerrar={()=>setExpedienteDe(null)}/>}
 
+      {/* FOTOS E INE (desde oficina) */}
+      {modal&&soloDocs&&(<div style={S.modalBg} onClick={cerrarModal}><div style={{...S.modal,maxWidth:760}} onClick={ev=>ev.stopPropagation()}>
+        <h2 style={{fontSize:22,fontWeight:800,margin:0}}>Fotos e INE</h2>
+        <p style={{color:'#888',fontSize:13,margin:'4px 0 6px'}}>{form.folio} · {form.cliente} · {form.equipo}</p>
+        {seccionDocs}
+        <div style={{display:'flex',justifyContent:'flex-end',gap:10,marginTop:16}}>
+          <button style={S.btnGris} onClick={cerrarModal} disabled={guardando}>Cancelar</button>
+          <button style={{...S.btn,opacity:guardando?0.6:1}} onClick={guardarForm} disabled={guardando}>{guardando?'Guardando…':'Guardar'}</button>
+        </div>
+      </div></div>)}
+
       {/* MODAL ALTA/EDICIÓN */}
-      {modal&&(<div style={S.modalBg} onClick={()=>setModal(false)}><div style={S.modal} onClick={ev=>ev.stopPropagation()}>
+      {modal&&!soloDocs&&(<div style={S.modalBg} onClick={()=>setModal(false)}><div style={S.modal} onClick={ev=>ev.stopPropagation()}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <h2 style={{fontSize:22,fontWeight:800,margin:0}}>{registros.some(r=>r.id===form.id)?'Editar checklist':'Nuevo checklist'}</h2>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
@@ -601,60 +662,15 @@ export default function Recepcionequipos(){
         <div style={S.seccion}>Notas y conformidad</div>
         <div style={{marginBottom:12}}><label style={S.label}>REPARACIONES POR DAÑOS A CONSIDERAR</label><textarea style={{...S.input,minHeight:60,resize:'vertical'}} value={form.reparaciones} onChange={ev=>setForm({...form,reparaciones:ev.target.value})}/></div>
         <div style={{marginBottom:12}}><label style={S.label}>OBSERVACIONES / USO EN OBRA</label><textarea style={{...S.input,minHeight:60,resize:'vertical'}} value={form.observaciones} onChange={ev=>setForm({...form,observaciones:ev.target.value})}/></div>
-        <div style={{marginBottom:12}}><label style={S.label}>FIRMA DE ENTERADO Y CONFORMIDAD (nombre de la persona encargada)</label><input style={S.input} value={form.firmaEnterado} onChange={ev=>setForm({...form,firmaEnterado:ev.target.value})}/></div>
 
         <div style={S.grid2}>
           <div><label style={S.label}>RECIBE EL EQUIPO (CLIENTE)</label><input style={S.input} value={form.recibeCliente} onChange={ev=>setForm({...form,recibeCliente:ev.target.value})}/></div>
           <div><label style={S.label}>RETIRA EL EQUIPO (CLIENTE)</label><input style={S.input} value={form.retiraCliente} onChange={ev=>setForm({...form,retiraCliente:ev.target.value})}/></div>
         </div>
 
-        <div style={S.seccion}>Fotos del equipo (opcional)</div>
-        <div style={{display:'flex',flexWrap:'wrap',gap:10,marginBottom:10}}>
-          {(form.fotos||[]).map(f=>{const u=urls[BUCKET_FOTOS+'|'+f.path];return(
-            <div key={f.path} style={{position:'relative'}}>
-              {u?<a href={u} target="_blank" rel="noopener noreferrer"><img src={u} alt="" style={estiloMiniatura}/></a>:<div style={{...estiloMiniatura,background:'#f0f0f0'}}/>}
-              <button type="button" title="Quitar foto" onClick={()=>quitarGuardado('fotos',f)} style={estiloX}>✕</button>
-            </div>)})}
-          {pend.fotos.map(f=>(
-            <div key={f.id} style={{position:'relative'}}>
-              <img src={f.preview} alt="" style={{...estiloMiniatura,outline:'2px dashed var(--acento)'}}/>
-              <button type="button" title="Quitar foto" onClick={()=>quitarPendiente('fotos',f.id)} style={estiloX}>✕</button>
-            </div>))}
-          {!(form.fotos||[]).length&&!pend.fotos.length&&<span style={{color:'#aaa',fontSize:13,alignSelf:'center'}}>Sin fotos. Es opcional.</span>}
-        </div>
-        <label style={{...S.btnGris,display:'inline-block',cursor:'pointer'}}>+ Agregar fotos<input type="file" accept="image/*" multiple style={{display:'none'}} onChange={ev=>{agregarArchivos('fotos',ev.target.files);ev.target.value=''}}/></label>
-        {linkFotos&&((form.fotos||[]).length>0||pend.fotos.length>0)&&(
-          <div style={{marginTop:12,padding:'10px 12px',background:'#f1f7ff',border:'1px solid #cfe2ff',borderRadius:8}}>
-            <div style={{fontSize:11.5,fontWeight:700,color:'#456'}}>ENLACE PARA VER LAS FOTOS · cualquiera que lo tenga puede abrirlo, sin iniciar sesión</div>
-            <div style={{display:'flex',gap:8,marginTop:6}}>
-              <input readOnly style={{...S.input,fontSize:12}} value={linkFotos} onFocus={ev=>ev.target.select()}/>
-              <button type="button" style={{...S.btnGris,whiteSpace:'nowrap'}} onClick={copiarLink}>{copiado?'¡Copiado!':'Copiar'}</button>
-            </div>
-            {pend.fotos.length>0&&<div style={{fontSize:12,color:'#a8730a',marginTop:6}}>El enlace empieza a funcionar al guardar el checklist. También sale en el PDF.</div>}
-          </div>
-        )}
-
-        <div style={S.seccion}>INE (opcional)</div>
-        {[['ineEntrega','INE de quien entrega el equipo'],['ineRecibe','INE de quien recibe el equipo']].map(([g,titulo])=>(
-          <div key={g} style={{marginBottom:12}}>
-            <label style={S.label}>{titulo.toUpperCase()}</label>
-            <div style={{display:'flex',flexWrap:'wrap',gap:6,alignItems:'center'}}>
-              {(form[g]||[]).map(a=>{const u=urls[BUCKET_DOCS+'|'+a.path];return(
-                <span key={a.path} style={estiloChipArchivo}>
-                  {u?<a href={u} target="_blank" rel="noopener noreferrer" style={{color:'var(--acento)',fontWeight:700}}>📄 {a.nombre}</a>:'📄 '+a.nombre}
-                  <button type="button" onClick={()=>quitarGuardado(g,a)} style={estiloXChip}>✕</button>
-                </span>)})}
-              {pend[g].map(a=>(
-                <span key={a.id} style={{...estiloChipArchivo,outline:'1px dashed var(--acento)'}}>📄 {a.file.name}<button type="button" onClick={()=>quitarPendiente(g,a.id)} style={estiloXChip}>✕</button></span>))}
-              <label style={{...S.btnGrisSm,cursor:'pointer'}}>+ Subir (foto o PDF)<input type="file" multiple accept="application/pdf,image/*" style={{display:'none'}} onChange={ev=>{agregarArchivos(g,ev.target.files);ev.target.value=''}}/></label>
-            </div>
-          </div>
-        ))}
-        <p style={{color:'#999',fontSize:12,margin:'0 0 4px'}}>Las INE se guardan en un espacio privado: solo las ven los usuarios con sesión iniciada.</p>
-
         <div style={S.seccion}>Firmas digitales (opcional)</div>
         <p style={{color:'#888',fontSize:12.5,margin:'0 0 10px'}}>Cada quien firma con el dedo en la pantalla. La firma sale impresa en su recuadro del PDF y del Excel.</p>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:10}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10}}>
           {FIRMAS.map(f=>{const img=(form.firmas||{})[f.k];return(
             <div key={f.k} style={{border:'1px solid #e3e6ea',borderRadius:8,padding:10,textAlign:'center'}}>
               <div style={{fontSize:11.5,fontWeight:800,color:VINO}}>{f.t.toUpperCase()}</div>

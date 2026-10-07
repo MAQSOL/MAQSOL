@@ -78,7 +78,7 @@ export function htmlChecklist(r, cols) {
     <table class="t">
       <colgroup>${'<col style="width:4.1667%">'.repeat(24)}</colgroup>
       <tr class="serv">${L("SERVICIO DE PRE-ENTREGA", 3)}${L("FECHA", 1)}${V(r.servPreNA ? "N/A" : fF(r.servPreEntregaFecha), 3)}${L("HORÓMETRO", 2)}${V(r.servPreNA ? "N/A" : r.servPreEntregaHorometro, 3)}${L("PRÓXIMO SERVICIO", 3)}${L("FECHA", 1)}${V(r.proxServNA ? "N/A" : fF(r.proximoServicioFecha), 3)}${L("HORÓMETRO", 2)}${V(r.proxServNA ? "N/A" : r.proximoServicioHorometro, 3)}</tr>
-      <tr class="rep">${L("REPARACIONES POR DAÑOS A CONSIDERAR", 4)}${td("txt", 17, v(r.reparaciones))}${td("fe", 3, `<div class="fet">FIRMA DE ENTERADO Y CONFORMIDAD DE LA PERSONA ENCARGADA DEL EQUIPO</div>${r.firmas && r.firmas.enterado ? `<img class="fimg ch" src="${r.firmas.enterado}" alt=""/>` : ""}${r.firmaEnterado ? `<div class="fen${r.firmas && r.firmas.enterado ? " conf" : ""}">${esc(r.firmaEnterado)}</div>` : ""}`)}</tr>
+      <tr class="rep">${L("REPARACIONES POR DAÑOS A CONSIDERAR", 4)}${td("txt", 20, v(r.reparaciones))}</tr>
       <tr class="obs">${L("OBSERVACIONES / USO EN OBRA", 4)}${td("txt", 20, v(r.observaciones))}</tr>
       <tr class="sh">${L("RECIBE EL EQUIPO", 5)}${L("ENTREGA / RETIRA EL EQUIPO", 5)}${L("RETIRA EL EQUIPO (CLIENTE)", 7)}${L("Vo. Bo.", 7)}</tr>
       <tr class="ss">${td("sc", 5, "CLIENTE: " + esc(r.cliente || ""))}${td("sc", 5, "MAQUINARIA SOPORTE Y LOGISTICA")}${td("sc", 7, "CLIENTE: " + esc(r.cliente || ""))}${td("sc", 7, "MAQUINARIA SOPORTE Y LOGISTICA SA DE CV")}</tr>
@@ -299,13 +299,7 @@ export async function descargarChecklistExcel(r, cols, nombreArchivo) {
     alto(20, 7.2);
 
     etq(21, 1, 4, "REPARACIONES POR DAÑOS A CONSIDERAR");
-    caja(21, 5, 21, 21, txt(r.reparaciones), { tam: 9, v: "top" });
-    caja(21, 22, 21, 24, {
-      richText: [
-        { text: "FIRMA DE ENTERADO Y CONFORMIDAD DE LA PERSONA ENCARGADA DEL EQUIPO", font: { name: "Calibri", size: 6.5, bold: true } },
-        { text: r.firmaEnterado ? "\n\n" + r.firmaEnterado : "", font: { name: "Calibri", size: 8.5, bold: true } }
-      ]
-    }, { h: "center", v: "top" });
+    caja(21, 5, 21, 24, txt(r.reparaciones), { tam: 9, v: "top" });
     alto(21, 20);
 
     etq(22, 1, 4, "OBSERVACIONES / USO EN OBRA");
@@ -361,7 +355,6 @@ export async function descargarChecklistExcel(r, cols, nombreArchivo) {
     ponerFirma(f.entrega, 6, 10, 24, 5 * 48 - 14, 76);
     ponerFirma(f.retira, 11, 17, 24, 7 * 48 - 14, 76);
     ponerFirma(f.voBo, 18, 24, 24, 7 * 48 - 14, 76);
-    ponerFirma(f.enterado, 22, 24, 20, 3 * 48 - 12, 42, 0.5);
 
     // ---- Enlace a las fotos ----
     if (r.fotosUrl) {
