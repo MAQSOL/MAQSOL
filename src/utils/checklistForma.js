@@ -72,16 +72,17 @@ export function htmlChecklist(r, cols) {
       ${filas.join("")}
     </table>`;
 
+  const imgFirma = (src) => (src ? `<img class="fimg" src="${src}" alt=""/>` : "&nbsp;");
   const dfirma = (nombre) => (nombre ? `<span class="pn">${esc(nombre)}</span>` : '<span class="pn hint">Nombre y firma</span>');
   const t3 = `
     <table class="t">
       <colgroup>${'<col style="width:4.1667%">'.repeat(24)}</colgroup>
       <tr class="serv">${L("SERVICIO DE PRE-ENTREGA", 3)}${L("FECHA", 1)}${V(r.servPreNA ? "N/A" : fF(r.servPreEntregaFecha), 3)}${L("HORÓMETRO", 2)}${V(r.servPreNA ? "N/A" : r.servPreEntregaHorometro, 3)}${L("PRÓXIMO SERVICIO", 3)}${L("FECHA", 1)}${V(r.proxServNA ? "N/A" : fF(r.proximoServicioFecha), 3)}${L("HORÓMETRO", 2)}${V(r.proxServNA ? "N/A" : r.proximoServicioHorometro, 3)}</tr>
-      <tr class="rep">${L("REPARACIONES POR DAÑOS A CONSIDERAR", 4)}${td("txt", 17, v(r.reparaciones))}${td("fe", 3, `<div class="fet">FIRMA DE ENTERADO Y CONFORMIDAD DE LA PERSONA ENCARGADA DEL EQUIPO</div>${r.firmaEnterado ? `<div class="fen">${esc(r.firmaEnterado)}</div>` : ""}`)}</tr>
+      <tr class="rep">${L("REPARACIONES POR DAÑOS A CONSIDERAR", 4)}${td("txt", 17, v(r.reparaciones))}${td("fe", 3, `<div class="fet">FIRMA DE ENTERADO Y CONFORMIDAD DE LA PERSONA ENCARGADA DEL EQUIPO</div>${r.firmas && r.firmas.enterado ? `<img class="fimg ch" src="${r.firmas.enterado}" alt=""/>` : ""}${r.firmaEnterado ? `<div class="fen${r.firmas && r.firmas.enterado ? " conf" : ""}">${esc(r.firmaEnterado)}</div>` : ""}`)}</tr>
       <tr class="obs">${L("OBSERVACIONES / USO EN OBRA", 4)}${td("txt", 20, v(r.observaciones))}</tr>
       <tr class="sh">${L("RECIBE EL EQUIPO", 5)}${L("ENTREGA / RETIRA EL EQUIPO", 5)}${L("RETIRA EL EQUIPO (CLIENTE)", 7)}${L("Vo. Bo.", 7)}</tr>
       <tr class="ss">${td("sc", 5, "CLIENTE: " + esc(r.cliente || ""))}${td("sc", 5, "MAQUINARIA SOPORTE Y LOGISTICA")}${td("sc", 7, "CLIENTE: " + esc(r.cliente || ""))}${td("sc", 7, "MAQUINARIA SOPORTE Y LOGISTICA SA DE CV")}</tr>
-      <tr class="sf">${td("firmab", 5, "&nbsp;")}${td("firmab", 5, "&nbsp;")}${td("firmab", 7, "&nbsp;")}${td("firmab", 7, "&nbsp;")}</tr>
+      <tr class="sf">${td("firmab", 5, imgFirma(r.firmas && r.firmas.recibe))}${td("firmab", 5, imgFirma(r.firmas && r.firmas.entrega))}${td("firmab", 7, imgFirma(r.firmas && r.firmas.retira))}${td("firmab", 7, imgFirma(r.firmas && r.firmas.voBo))}</tr>
       <tr class="sp">${td("pie", 5, dfirma(r.recibeCliente || r.quienRecibe))}${td("pie", 5, dfirma(r.quienEntrega))}${td("pie", 7, dfirma(r.retiraCliente))}${td("pie", 7, '<span class="pn">LIC. FRANCISCO TORRES MORALES</span>')}</tr>
     </table>`;
 
@@ -138,12 +139,15 @@ export function htmlChecklist(r, cols) {
     tr.sh,tr.ss,tr.sp{height:5mm;}
     tr.sf{height:20mm;}
     .sc{font-size:6.6px;text-align:center;font-weight:700;}
-    .firmab{background:#fff;}
+    .firmab{background:#fff;text-align:center;padding:1px;}
+    .fimg{display:block;margin:0 auto;max-width:94%;max-height:18.5mm;object-fit:contain;}
+    .fimg.ch{max-height:7.5mm;margin-top:1mm;}
+    .fen.conf{margin-top:0;}
     .pie{background:#d9d9d9;text-align:center;}
     .pn{font-size:7.2px;font-weight:700;}
     .pn.hint{color:#8a8a8a;font-weight:400;font-style:italic;}
     .rojo{height:1.1mm;background:#e30613;margin-top:0;}
-    .pie-doc{margin-top:3px;text-align:center;font-size:6px;color:#999;letter-spacing:.4px;}
+    .pie-doc{margin-top:3px;text-align:center;font-size:6.6px;color:#888;letter-spacing:.3px;}
   </style></head>
   <body>
     <div id="probe"></div>
@@ -152,7 +156,7 @@ export function htmlChecklist(r, cols) {
       ${t2}
       ${t3}
       <div class="rojo"></div>
-      <div class="pie-doc">Documento generado desde MAQSISTEM · ${esc(r.folio)}</div>
+      <div class="pie-doc">${r.fotosUrl ? `Fotos del equipo: <a href="${esc(r.fotosUrl)}" style="color:#1d5c8f;font-weight:700;text-decoration:none">${esc(r.fotosUrl)}</a> &nbsp;·&nbsp; ` : ""}Documento generado desde MAQSISTEM · ${esc(r.folio)}</div>
     </div>
     <script>
       window.onload=function(){
@@ -330,7 +334,46 @@ export async function descargarChecklistExcel(r, cols, nombreArchivo) {
       ws.addImage(id, { tl: { col: 0.35, row: 0.2 }, ext: { width: Math.round(altoPx * LOGO_MAQSOL_TRANSPARENTE_RELACION), height: altoPx } });
     } catch { /* si el logo falla, el archivo sale igual */ }
 
-    ws.pageSetup.printArea = "A1:X27";
+    // ---- Firmas dibujadas ----
+    const tamanoPNG = (dataUrl) => {
+      try {
+        const bin = atob(String(dataUrl).split(",")[1].slice(0, 48));
+        const n = (i) => (bin.charCodeAt(i) << 24) | (bin.charCodeAt(i + 1) << 16) | (bin.charCodeAt(i + 2) << 8) | bin.charCodeAt(i + 3);
+        return { w: n(16), h: n(20) };
+      } catch {
+        return { w: 300, h: 120 };
+      }
+    };
+    const ponerFirma = (dataUrl, c1, c2, filaCero, anchoPx, altoPx, desplazaY = 0.06) => {
+      if (!dataUrl) return;
+      try {
+        const { w, h } = tamanoPNG(dataUrl);
+        const esc = Math.min(anchoPx / w, altoPx / h);
+        const ancho = Math.round(w * esc);
+        const alto = Math.round(h * esc);
+        const id = wb.addImage({ base64: dataUrl, extension: "png" });
+        const colAncho = (c2 - c1 + 1) * 48;
+        ws.addImage(id, { tl: { col: c1 - 1 + Math.max(0, (colAncho - ancho) / 2 / 48), row: filaCero + desplazaY }, ext: { width: ancho, height: alto } });
+      } catch { /* si una firma falla, el archivo sale igual */ }
+    };
+    const f = r.firmas || {};
+    ponerFirma(f.recibe, 1, 5, 24, 5 * 48 - 14, 76);
+    ponerFirma(f.entrega, 6, 10, 24, 5 * 48 - 14, 76);
+    ponerFirma(f.retira, 11, 17, 24, 7 * 48 - 14, 76);
+    ponerFirma(f.voBo, 18, 24, 24, 7 * 48 - 14, 76);
+    ponerFirma(f.enterado, 22, 24, 20, 3 * 48 - 12, 42, 0.5);
+
+    // ---- Enlace a las fotos ----
+    if (r.fotosUrl) {
+      ws.mergeCells(28, 1, 28, 24);
+      const celdaLink = ws.getCell(28, 1);
+      celdaLink.value = { text: "Fotos del equipo: " + r.fotosUrl, hyperlink: r.fotosUrl };
+      celdaLink.font = { name: "Calibri", size: 9, underline: true, color: { argb: "FF1D5C8F" } };
+      celdaLink.alignment = { horizontal: "center", vertical: "middle" };
+      ws.getRow(28).height = 14;
+    }
+
+    ws.pageSetup.printArea = r.fotosUrl ? "A1:X28" : "A1:X27";
 
     const buffer = await wb.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });

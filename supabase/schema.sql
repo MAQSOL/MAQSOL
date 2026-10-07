@@ -235,3 +235,67 @@ create table if not exists public.tareas (id text primary key, data jsonb not nu
 alter table public.tareas enable row level security;
 drop policy if exists "tareas_all_auth" on public.tareas;
 create policy "tareas_all_auth" on public.tareas for all using (auth.uid() is not null) with check (auth.uid() is not null);
+
+-- ---------- 10) Checklist: fotos con enlace público, INE privada ----------
+-- Fotos: bucket PÚBLICO con rutas aleatorias (token de 24 caracteres). Solo quien tiene el enlace las ve.
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('checklist-fotos', 'checklist-fotos', true, 10485760)
+on conflict (id) do nothing;
+
+-- INE y documentos: bucket PRIVADO, solo usuarios con sesión.
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('checklist-docs', 'checklist-docs', false, 15728640)
+on conflict (id) do nothing;
+
+do $$
+declare b text;
+begin
+  foreach b in array array['checklist-fotos','checklist-docs']
+  loop
+    execute format('drop policy if exists "%s_select" on storage.objects', b);
+    execute format('create policy "%s_select" on storage.objects for select using (bucket_id = %L and auth.uid() is not null)', b, b);
+    execute format('drop policy if exists "%s_insert" on storage.objects', b);
+    execute format('create policy "%s_insert" on storage.objects for insert with check (bucket_id = %L and auth.uid() is not null)', b, b);
+    execute format('drop policy if exists "%s_update" on storage.objects', b);
+    execute format('create policy "%s_update" on storage.objects for update using (bucket_id = %L and auth.uid() is not null)', b, b);
+    execute format('drop policy if exists "%s_delete" on storage.objects', b);
+    execute format('create policy "%s_delete" on storage.objects for delete using (bucket_id = %L and auth.uid() is not null)', b, b);
+  end loop;
+end $$;
+
+-- Página pública /fotos/<token>: devuelve solo folio, equipo y rutas de fotos (sin cliente, contacto ni costos).
+create or replace function public.checklist_fotos_publico(p_token text)
+returns jsonb
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select jsonb_build_object(
+    'folio', c.data->>'folio',
+    'fecha', c.data->>'fecha',
+    'equipo', c.data->>'equipo',
+    'marca', c.data->>'marca',
+    'modelo', c.data->>'modelo',
+    'serie', c.data->>'serie',
+    'fotos', coalesce((
+      select jsonb_agg(f->>'path')
+      from jsonb_array_elements(coalesce(c.data->'fotos', '[]'::jsonb)) f
+    ), '[]'::jsonb)
+  )
+  from public.checklists c
+  where p_token is not null
+    and length(p_token) >= 16
+    and c.data->>'fotosToken' = p_token
+  limit 1;
+$$;
+
+revoke all on function public.checklist_fotos_publico(text) from public;
+grant execute on function public.checklist_fotos_publico(text) to anon, authenticated;
+
+-- ---------- 11) Personal externo (practicantes): asistencia quincenal ----------
+-- La asistencia se guarda en public.asistencias con id "2026-Q20" (año-Q#quincena).
+create table if not exists public.personal_externo (id text primary key, data jsonb not null default '{}'::jsonb, updated_at timestamptz default now());
+alter table public.personal_externo enable row level security;
+drop policy if exists "personal_externo_all_auth" on public.personal_externo;
+create policy "personal_externo_all_auth" on public.personal_externo for all using (auth.uid() is not null) with check (auth.uid() is not null);

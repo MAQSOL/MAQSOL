@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useListaCompartida, useSharedTable } from '../../hooks/useSharedTable'
 import CampoOpciones from '../../components/CampoOpciones'
 import NipModal from '../../components/NipModal'
@@ -7,6 +7,12 @@ import Sidebar from '../../components/Sidebar'
 import DeleteButton from '../../components/DeleteButton'
 import { descargarExcelBonito, nombreArchivoFecha } from '../../utils/exportExcel'
 import { abrirChecklistPDF, descargarChecklistExcel } from '../../utils/checklistForma'
+import { supabase } from '../../supabaseClient'
+import FirmaPad from '../../components/FirmaPad'
+import ExpedienteCliente from '../../components/ExpedienteCliente'
+import { estadoExpediente, buscarCliente } from '../../utils/expediente'
+import { comprimirImagen, rutaUnica, extensionDe } from '../../utils/imagenes'
+import { nuevoToken, urlBase } from '../../utils/qrEquipo'
 
 const VINO = 'var(--acento)'
 
@@ -37,8 +43,20 @@ const CHECKLIST_NUEVO = {
   servPreEntregaFecha:'',servPreEntregaHorometro:'',proximoServicioFecha:'',proximoServicioHorometro:'',
   reparaciones:'',firmaEnterado:'',observaciones:'',
   recibeCliente:'',retiraCliente:'',
-  accNA:false,servPreNA:false,proxServNA:false
+  accNA:false,servPreNA:false,proxServNA:false,ocNA:false,
+  fotosToken:'',fotos:[],ineEntrega:[],ineRecibe:[],firmas:{}
 }
+
+const BUCKET_FOTOS='checklist-fotos'
+const BUCKET_DOCS='checklist-docs'
+const MAX_MB=15
+const FIRMAS=[
+  {k:'entrega',t:'Entrega / retira el equipo',s:'MAQSOL'},
+  {k:'recibe',t:'Recibe el equipo',s:'Cliente'},
+  {k:'retira',t:'Retira el equipo',s:'Cliente'},
+  {k:'enterado',t:'Enterado y conforme',s:'Persona encargada del equipo'},
+  {k:'voBo',t:'Vo. Bo.',s:'MAQSOL'}
+]
 
 const S = {
   page:{padding:'24px 28px',fontFamily:'inherit',color:'#222',flex:1,overflowY:'auto'},
@@ -62,6 +80,12 @@ const S = {
   seccion:{fontSize:14,fontWeight:800,color:VINO,margin:'18px 0 8px',paddingTop:10,borderTop:'1px solid #eee'}
 }
 
+const estiloMiniatura={width:110,height:82,objectFit:'cover',borderRadius:8,display:'block'}
+const estiloX={position:'absolute',top:-6,right:-6,width:22,height:22,borderRadius:'50%',border:'none',background:'#c62828',color:'#fff',cursor:'pointer',fontSize:12,lineHeight:1}
+const estiloChipArchivo={background:'#f3f6f9',borderRadius:14,padding:'4px 10px',fontSize:12,display:'inline-flex',alignItems:'center',gap:6}
+const estiloXChip={border:'none',background:'transparent',color:'#c62828',cursor:'pointer',fontSize:12,padding:0}
+const chipExp=(color,fondo)=>({background:fondo,color,fontSize:11.5,fontWeight:700,padding:'3px 10px',borderRadius:20,whiteSpace:'nowrap'})
+
 function uid(){return 'x'+Date.now()+Math.random().toString(36).slice(2,6)}
 function hoyISO(){return new Date().toISOString().slice(0,10)}
 function fFecha(f){return f?new Date(f+'T00:00:00').toLocaleDateString('es-MX'):'—'}
@@ -74,7 +98,7 @@ function BadgeTipo({tipo}){
 function BotonEstado({activo,color,onClick,children}){
   return (
     <button type="button" translate="no" className="notranslate" onClick={onClick} style={{
-      width:30,height:26,border:'1px solid #ccc',borderRadius:4,cursor:'pointer',fontWeight:800,fontSize:12,
+      width:28,height:26,flex:'0 0 auto',border:'1px solid #ccc',borderRadius:4,cursor:'pointer',fontWeight:800,fontSize:12,padding:0,
       background:activo?color:'#fff',color:activo?'#fff':'#888'
     }}>{children}</button>
   )
@@ -85,9 +109,10 @@ function ColumnaChecklist({titulo,items,valores,porcentajes,onCambiar,onCambiarP
     <div style={{border:'1px solid #e6e6e6',borderRadius:8,overflow:'hidden'}}>
       <div style={{background:'#222',color:'#fff',fontSize:11,fontWeight:700,padding:'7px 10px'}}>{titulo}</div>
       {items.map(it=>(
-        <div key={it.n} style={{display:'flex',alignItems:'center',gap:6,padding:'6px 8px',borderBottom:'1px solid #f0f0f0',fontSize:11.5}}>
-          <div style={{flex:1}}>{it.n}</div>
-          {it.pct&&<input value={porcentajes[it.n]||''} onChange={ev=>onCambiarPct(it.n,ev.target.value)} placeholder="%" style={{width:42,padding:'3px 4px',border:'1px solid #ddd',borderRadius:4,fontSize:11}}/>}
+        <div key={it.n} style={{display:'flex',flexWrap:'wrap',alignItems:'center',gap:'4px 6px',padding:'6px 8px',borderBottom:'1px solid #f0f0f0',fontSize:11.5}}>
+          <div style={it.pct?{flex:'1 1 100%',fontWeight:600}:{flex:'1 1 0',minWidth:0}}>{it.n}</div>
+          <div style={{display:'flex',alignItems:'center',gap:4,marginLeft:'auto',flex:'0 0 auto'}}>
+          {it.pct&&<input value={porcentajes[it.n]||''} onChange={ev=>onCambiarPct(it.n,ev.target.value)} placeholder="%" style={{width:46,padding:'4px 5px',border:'1px solid #ddd',borderRadius:4,fontSize:11,textAlign:'center'}}/>}
           {it.siNo?(
             <>
               <BotonEstado activo={valores[it.n]==='SI'} color="#1f8b4c" onClick={()=>onCambiar(it.n,'SI')}>SI</BotonEstado>
@@ -100,6 +125,7 @@ function ColumnaChecklist({titulo,items,valores,porcentajes,onCambiar,onCambiarP
               <BotonEstado activo={valores[it.n]==='M'} color="#c62828" onClick={()=>onCambiar(it.n,'M')}>M</BotonEstado>
             </>
           )}
+          </div>
         </div>
       ))}
     </div>
@@ -118,6 +144,14 @@ export default function Recepcionequipos(){
   const{registros:internos}=useSharedTable('equipos_internos')
   const{registros:externos}=useSharedTable('equipos_externos')
   const{registros:alquileres}=useSharedTable('alquileres')
+  const{registros:clientesDB,guardar:guardarClienteDB}=useSharedTable('clientes')
+  const[pend,setPend]=useState({fotos:[],ineEntrega:[],ineRecibe:[]})
+  const[quitar,setQuitar]=useState([])
+  const[urls,setUrls]=useState({})
+  const[guardando,setGuardando]=useState(false)
+  const[firmando,setFirmando]=useState(null)
+  const[expedienteDe,setExpedienteDe]=useState(null)
+  const[copiado,setCopiado]=useState(false)
 
   function limpiarNombre(s){
     return (s||'').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Z0-9]/g,'')
@@ -137,16 +171,23 @@ export default function Recepcionequipos(){
     return n+1
   }
 
+  function reiniciarArchivos(){
+    pend.fotos.forEach(f=>f.preview&&URL.revokeObjectURL(f.preview))
+    setPend({fotos:[],ineEntrega:[],ineRecibe:[]})
+    setQuitar([])
+  }
   function abrirNuevo(){
     const seq=siguienteSeq()
+    reiniciarArchivos()
     setFolioManual(false)
     setForm({...CHECKLIST_NUEVO,id:uid(),folioSeq:seq,folio:construirFolio(seq,'',hoyISO()),fecha:hoyISO(),items:{},porcentajes:{}})
     setModal(true)
   }
-  function abrirEditar(r){setFolioManual(false);setForm({...CHECKLIST_NUEVO,folioSeq:r.folioSeq||siguienteSeq(),...r,items:{...r.items},porcentajes:{...r.porcentajes}});setModal(true)}
+  function abrirEditar(r){reiniciarArchivos();setFolioManual(false);setForm({...CHECKLIST_NUEVO,folioSeq:r.folioSeq||siguienteSeq(),...r,items:{...r.items},porcentajes:{...r.porcentajes}});setModal(true)}
   function registrarEntrada(salida){
     const seq=siguienteSeq()
     const fecha=hoyISO()
+    reiniciarArchivos()
     setFolioManual(false)
     setForm({
       ...CHECKLIST_NUEVO,id:uid(),folioSeq:seq,folio:construirFolio(seq,salida.cliente,fecha),
@@ -159,7 +200,12 @@ export default function Recepcionequipos(){
     setModal(true)
   }
   const esNuevo=!registros.some(r=>r.id===form.id)
-  function cambiarCliente(cliente){setForm(f=>({...f,cliente,...(esNuevo&&!folioManual?{folio:construirFolio(f.folioSeq,cliente,f.fecha)}:{})}))}
+  function cambiarCliente(cliente){
+    const conocido=buscarCliente(clientesDB,cliente)
+    setForm(f=>({...f,cliente,
+      ...(conocido?{nombreContacto:f.nombreContacto||conocido.contacto||'',telefono:f.telefono||conocido.telefono||'',correo:f.correo||conocido.correo||''}:{}),
+      ...(esNuevo&&!folioManual?{folio:construirFolio(f.folioSeq,cliente,f.fecha)}:{})}))
+  }
   function cambiarFecha(fecha){setForm(f=>({...f,fecha,...(esNuevo&&!folioManual?{folio:construirFolio(f.folioSeq,f.cliente,fecha)}:{})}))}
   function editarFolio(texto){
     const m=/^CH-(\d+)-/i.exec(texto)
@@ -171,6 +217,10 @@ export default function Recepcionequipos(){
   }
   function alternarNA(grupo){
     setForm(f=>{
+      if(grupo==='oc'){
+        const on=!f.ocNA
+        return {...f,ocNA:on,ordenCompra:on?'N/A':''}
+      }
       if(grupo==='acc'){
         const on=!f.accNA
         return on?{...f,accNA:true,accesorio:'N/A',accMarca:'N/A',accModelo:'N/A',accSerie:'N/A'}
@@ -190,14 +240,90 @@ export default function Recepcionequipos(){
     if(!e)return
     setForm(f=>({...f,equipo:e.tipo||'',marca:e.marca||'',modelo:e.modelo||'',serie:e.serie||'',horometro:e.horometro||f.horometro,ubicacion:f.ubicacion||e.ubicacion||''}))
   }
-  function guardarForm(){
+  async function guardarForm(){
     if(!form.cliente.trim()){alert('Indica el cliente.');return}
     if(!form.equipo.trim()){alert('Indica el equipo.');return}
     if(!form.folio.trim()){alert('El folio no puede quedar vacío.');return}
     if(registros.some(r=>r.id!==form.id&&(r.folio||'').trim().toLowerCase()===form.folio.trim().toLowerCase())){alert('Ya existe un checklist con el folio '+form.folio+'. Cámbialo para no repetirlo.');return}
-    const existe=registros.some(r=>r.id===form.id)
-    const lista=existe?registros.map(r=>r.id===form.id?{...r,...form}:r):[...registros,form]
-    guardarRegistros(lista);setModal(false)
+    setGuardando(true)
+    const subidos=[]
+    try{
+      const reg={...form,fotos:[...(form.fotos||[])],ineEntrega:[...(form.ineEntrega||[])],ineRecibe:[...(form.ineRecibe||[])]}
+      const token=reg.fotosToken||(pend.fotos.length?nuevoToken():'')
+      reg.fotosToken=token
+      for(const f of pend.fotos){
+        const blob=await comprimirImagen(f.file)
+        const path=token+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.jpg'
+        const{error}=await supabase.storage.from(BUCKET_FOTOS).upload(path,blob,{contentType:'image/jpeg'})
+        if(error)throw error
+        subidos.push({b:BUCKET_FOTOS,path})
+        reg.fotos.push({path,nombre:f.file.name})
+      }
+      for(const grupo of ['ineEntrega','ineRecibe']){
+        for(const f of pend[grupo]){
+          const path=rutaUnica(reg.id,grupo,extensionDe(f.file.name))
+          const{error}=await supabase.storage.from(BUCKET_DOCS).upload(path,f.file,{contentType:f.file.type})
+          if(error)throw error
+          subidos.push({b:BUCKET_DOCS,path})
+          reg[grupo].push({path,nombre:f.file.name})
+        }
+      }
+      const existe=registros.some(r=>r.id===reg.id)
+      const lista=existe?registros.map(r=>r.id===reg.id?{...r,...reg}:r):[...registros,reg]
+      await guardarRegistros(lista)
+      for(const b of [BUCKET_FOTOS,BUCKET_DOCS]){
+        const rutas=quitar.filter(q=>q.b===b).map(q=>q.path)
+        if(rutas.length)await supabase.storage.from(b).remove(rutas)
+      }
+      reiniciarArchivos()
+      setModal(false)
+    }catch(e){
+      for(const b of [BUCKET_FOTOS,BUCKET_DOCS]){
+        const rutas=subidos.filter(x=>x.b===b).map(x=>x.path)
+        if(rutas.length)await supabase.storage.from(b).remove(rutas)
+      }
+      alert('No se pudo guardar: '+(e.message||e)+'\n\nSi es la primera vez que usas fotos o INE, falta correr el SQL de almacenamiento en Supabase.')
+    }finally{
+      setGuardando(false)
+    }
+  }
+  function agregarArchivos(grupo,archivos){
+    const lista=Array.from(archivos)
+    const validos=lista.filter(a=>{
+      const ok=grupo==='fotos'?a.type.startsWith('image/'):(a.type==='application/pdf'||a.type.startsWith('image/'))
+      if(!ok){alert('"'+a.name+'" no es un archivo válido ('+(grupo==='fotos'?'solo imágenes':'PDF o imagen')+'); se omitió.');return false}
+      if(a.size>MAX_MB*1024*1024){alert('"'+a.name+'" pesa más de '+MAX_MB+' MB; se omitió.');return false}
+      return true
+    }).map(file=>({id:uid(),file,preview:file.type.startsWith('image/')?URL.createObjectURL(file):''}))
+    if(!validos.length)return
+    if(grupo==='fotos'&&!form.fotosToken)setForm(f=>({...f,fotosToken:nuevoToken()}))
+    setPend(p=>({...p,[grupo]:[...p[grupo],...validos]}))
+  }
+  function quitarPendiente(grupo,id){
+    setPend(p=>{
+      const f=p[grupo].find(x=>x.id===id)
+      if(f&&f.preview)URL.revokeObjectURL(f.preview)
+      return {...p,[grupo]:p[grupo].filter(x=>x.id!==id)}
+    })
+  }
+  function quitarGuardado(grupo,archivo){
+    setForm(f=>({...f,[grupo]:(f[grupo]||[]).filter(x=>x.path!==archivo.path)}))
+    setQuitar(q=>[...q,{b:grupo==='fotos'?BUCKET_FOTOS:BUCKET_DOCS,path:archivo.path}])
+  }
+  function guardarFirma(clave,dataUrl){
+    setForm(f=>({...f,firmas:{...(f.firmas||{}),[clave]:dataUrl}}))
+    setFirmando(null)
+  }
+  function quitarFirma(clave){
+    setForm(f=>{const n={...(f.firmas||{})};delete n[clave];return {...f,firmas:n}})
+  }
+  const linkFotos=form.fotosToken?urlBase()+'/fotos/'+form.fotosToken:''
+  async function copiarLink(){
+    try{await navigator.clipboard.writeText(linkFotos);setCopiado(true);setTimeout(()=>setCopiado(false),2000)}
+    catch{window.prompt('Copia este enlace:',linkFotos)}
+  }
+  function conLinkFotos(r){
+    return {...r,fotosUrl:(r.fotos&&r.fotos.length&&r.fotosToken)?urlBase()+'/fotos/'+r.fotosToken:''}
   }
   function eliminarRegistro(r){
     guardarRegistros(registros.filter(x=>x.id!==r.id))
@@ -206,6 +332,29 @@ export default function Recepcionequipos(){
   function cambiarPct(clave,valor){setForm(f=>({...f,porcentajes:{...f.porcentajes,[clave]:valor}}))}
 
   const clientes=[...new Set(registros.map(r=>r.cliente).filter(Boolean))].sort()
+  const opcionesCliente=unir(clientesDB.map(c=>c.cliente),registros.map(r=>r.cliente))
+  const clienteDeForm=buscarCliente(clientesDB,form.cliente)
+  const expForm=estadoExpediente(clienteDeForm)
+
+  const rutasVisibles=modal?[...(form.fotos||[]).map(f=>BUCKET_FOTOS+'|'+f.path),...(form.ineEntrega||[]).map(f=>BUCKET_DOCS+'|'+f.path),...(form.ineRecibe||[]).map(f=>BUCKET_DOCS+'|'+f.path)]:[]
+  const llaveRutas=[...new Set(rutasVisibles)].sort().join(',')
+  useEffect(()=>{
+    const faltan=llaveRutas.split(',').filter(x=>x&&!urls[x])
+    if(!faltan.length)return
+    let vivo=true
+    ;(async()=>{
+      const nuevos={}
+      for(const b of [BUCKET_FOTOS,BUCKET_DOCS]){
+        const paths=faltan.filter(x=>x.startsWith(b+'|')).map(x=>x.slice(b.length+1))
+        if(!paths.length)continue
+        const{data}=await supabase.storage.from(b).createSignedUrls(paths,3600)
+        ;(data||[]).forEach(d=>{if(d.signedUrl)nuevos[b+'|'+d.path]=d.signedUrl})
+      }
+      if(vivo)setUrls(u=>({...u,...nuevos}))
+    })()
+    return()=>{vivo=false}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[llaveRutas])
 
   const tipoCoincide=(a)=>!form.equipo||!a||String(a).toLowerCase()===form.equipo.toLowerCase()
   const opcionesTipo=unir(TIPOS_EQUIPO,registros.map(r=>r.equipo),internos.map(e=>e.tipo),externos.map(e=>e.tipo))
@@ -241,7 +390,7 @@ export default function Recepcionequipos(){
   // ================= EXPORTES =================
 
   function descargarExcel(r){
-    descargarChecklistExcel(r,[COL1,COL2,COL3,COL4],nombreArchivoFecha((r.tipo==='Entrada'?'CH-ENTRADA-':'CH-SALIDA-')+(r.folio||'equipo').toString().toUpperCase().replace(/[^A-Z0-9]/g,'')))
+    descargarChecklistExcel(conLinkFotos(r),[COL1,COL2,COL3,COL4],nombreArchivoFecha((r.tipo==='Entrada'?'CH-ENTRADA-':'CH-SALIDA-')+(r.folio||'equipo').toString().toUpperCase().replace(/[^A-Z0-9]/g,'')))
   }
 
   function descargarListaExcel(){
@@ -256,7 +405,7 @@ export default function Recepcionequipos(){
   }
 
   function descargarPDF(r){
-    abrirChecklistPDF(r,[COL1,COL2,COL3,COL4])
+    abrirChecklistPDF(conLinkFotos(r),[COL1,COL2,COL3,COL4])
   }
 
   return(
@@ -275,13 +424,13 @@ export default function Recepcionequipos(){
       </div>
 
       <div style={{...S.card,padding:0,overflowX:'auto'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',minWidth:1080}}>
+        <table style={{width:'100%',borderCollapse:'collapse',minWidth:1380}}>
           <thead><tr>
             <th style={S.th}>FOLIO</th><th style={S.th}>CLIENTE</th><th style={S.th}>TIPO</th><th style={S.th}>EQUIPO</th><th style={S.th}>FECHA</th>
-            <th style={S.th}>ENTREGA</th><th style={S.th}>RECIBE</th><th style={{...S.th,width:260,textAlign:'center'}}></th>
+            <th style={S.th}>ENTREGA</th><th style={S.th}>RECIBE</th><th style={S.th}>EXPEDIENTE</th><th style={{...S.th,width:300,textAlign:'center'}}></th>
           </tr></thead>
           <tbody>
-            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={8}>No hay checklists registrados. Usa "+ Nuevo checklist".</td></tr>
+            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={9}>No hay checklists registrados. Usa "+ Nuevo checklist".</td></tr>
             :filtrados.map(r=>(<tr key={r.id} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
               <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>abrirEditar(r)}>{r.folio}{r.ligadoA?<div style={{color:'#999',fontSize:11,fontWeight:400}}>Liga: {r.ligadoA}</div>:null}</td>
               <td style={S.td}>{r.cliente}</td>
@@ -290,11 +439,23 @@ export default function Recepcionequipos(){
               <td style={S.td}>{fFecha(r.fecha)}</td>
               <td style={S.td}>{r.quienEntrega||'—'}</td>
               <td style={S.td}>{r.quienRecibe||'—'}</td>
+              <td style={S.td}>{(()=>{
+                const ex=estadoExpediente(buscarCliente(clientesDB,r.cliente))
+                return(<button type="button" title="Ver o actualizar el expediente del cliente" onClick={()=>setExpedienteDe(r.cliente)} style={{border:'none',background:'transparent',cursor:'pointer',padding:0,textAlign:'left'}}>
+                  {!ex?<span style={chipExp('#8a6d00','#fff6d8')}>Sin ficha</span>:(
+                    <span style={{display:'inline-flex',flexDirection:'column',gap:3}}>
+                      <span style={ex.contrato?chipExp('#1b7a3f','#e1f3e7'):chipExp('#b3202f','#fbe0e4')}>{ex.contrato?'Contrato ✓':'Contrato sin firmar'}</span>
+                      <span style={!ex.tipo?chipExp('#666','#eee'):ex.entregados===ex.total?chipExp('#1b7a3f','#e1f3e7'):chipExp('#a8730a','#fdf0d4')}>{!ex.tipo?'Falta tipo de persona':(ex.tipo==='moral'?'Moral':'Física')+' · docs '+ex.entregados+'/'+ex.total}</span>
+                    </span>
+                  )}
+                </button>)
+              })()}</td>
               <td style={{...S.td,textAlign:'center',whiteSpace:'nowrap'}}>
                 {(r.tipo||'Salida')==='Salida'&&<button style={S.btnSm} onClick={()=>registrarEntrada(r)}>+ Entrada</button>}
                 <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>abrirEditar(r)}>Editar</button>
                 <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>descargarPDF(r)}>PDF</button>
                 <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>descargarExcel(r)}>Excel</button>
+                {r.fotosToken&&(r.fotos||[]).length>0&&<a href={'/fotos/'+r.fotosToken} target="_blank" rel="noopener noreferrer" style={{...S.btnGrisSm,marginLeft:6,textDecoration:'none',display:'inline-block'}}>Fotos ({r.fotos.length})</a>}
                 <span style={{marginLeft:6,display:'inline-block'}}><DeleteButton size="sm" title="Eliminar checklist" onConfirm={()=>eliminarRegistro(r)}/></span>
               </td>
             </tr>))}
@@ -303,6 +464,9 @@ export default function Recepcionequipos(){
       </div>
 
       {pideNip&&<NipModal mensaje="Escribe el NIP para cambiar el folio." onCorrecto={()=>{setPideNip(false);setFolioManual(true)}} onCancelar={()=>setPideNip(false)}/>}
+
+      {firmando&&<FirmaPad titulo={'Firma · '+firmando.t} subtitulo={firmando.s+' — firma con el dedo dentro del recuadro'} onGuardar={d=>guardarFirma(firmando.k,d)} onCancelar={()=>setFirmando(null)}/>}
+      {expedienteDe&&<ExpedienteCliente nombreCliente={expedienteDe} clientes={clientesDB} onGuardar={guardarClienteDB} onCerrar={()=>setExpedienteDe(null)}/>}
 
       {/* MODAL ALTA/EDICIÓN */}
       {modal&&(<div style={S.modalBg} onClick={()=>setModal(false)}><div style={S.modal} onClick={ev=>ev.stopPropagation()}>
@@ -328,12 +492,24 @@ export default function Recepcionequipos(){
 
         <div style={S.seccion}>Datos generales</div>
         <div style={S.grid3}>
-          <div><label style={S.label}>CLIENTE</label><input style={S.input} value={form.cliente} onChange={ev=>cambiarCliente(ev.target.value)}/></div>
+          <div><label style={S.label}>CLIENTE</label><CampoOpciones opciones={opcionesCliente} valor={form.cliente} onChange={cambiarCliente} vacio="Selecciona el cliente" placeholder="Escribe el nombre del cliente" textoOtro="Cliente nuevo (escribir)"/></div>
           <div><label style={S.label}>FECHA</label><input type="date" style={S.input} value={form.fecha} onChange={ev=>cambiarFecha(ev.target.value)}/></div>
           <div><label style={S.label}>HORA</label><input type="time" style={S.input} value={form.hora} onChange={ev=>setForm({...form,hora:ev.target.value})}/></div>
         </div>
+        {form.cliente.trim()&&(
+          <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',margin:'0 0 12px',padding:'8px 12px',background:'#f6f8fa',border:'1px solid #e8ecf0',borderRadius:8}}>
+            <strong style={{fontSize:11.5,color:'#667'}}>EXPEDIENTE DEL CLIENTE</strong>
+            {!clienteDeForm?<span style={chipExp('#8a6d00','#fff6d8')}>Sin ficha en Gestión de Clientes</span>:(
+              <>
+                <span style={expForm.contrato?chipExp('#1b7a3f','#e1f3e7'):chipExp('#b3202f','#fbe0e4')}>{expForm.contrato?'Contrato firmado':'Contrato sin firmar'}</span>
+                {expForm.tipo?<span style={expForm.entregados===expForm.total?chipExp('#1b7a3f','#e1f3e7'):chipExp('#a8730a','#fdf0d4')}>{expForm.tipo==='moral'?'Persona moral':'Persona física'} · documentos {expForm.entregados}/{expForm.total}</span>:<span style={chipExp('#666','#eee')}>Falta indicar persona física o moral</span>}
+              </>
+            )}
+            <button type="button" style={{...S.btnGrisSm,marginLeft:'auto'}} onClick={()=>setExpedienteDe(form.cliente)}>Ver / actualizar</button>
+          </div>
+        )}
         <div style={S.grid3}>
-          <div><label style={S.label}>ORDEN DE COMPRA</label><input style={S.input} value={form.ordenCompra} onChange={ev=>setForm({...form,ordenCompra:ev.target.value})}/></div>
+          <div><div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><label style={S.label}>ORDEN DE COMPRA</label><button type="button" onClick={()=>alternarNA('oc')} style={{...S.btnGrisSm,padding:'1px 10px',fontSize:11,marginBottom:4,background:form.ocNA?'#222':'#e9e9e9',color:form.ocNA?'#fff':'#333'}}>{form.ocNA?'✓ N/A':'N/A'}</button></div><input style={S.input} disabled={form.ocNA} value={form.ordenCompra} onChange={ev=>setForm({...form,ordenCompra:ev.target.value})}/></div>
           <div><label style={S.label}>NOMBRE CONTACTO</label><input style={S.input} value={form.nombreContacto} onChange={ev=>setForm({...form,nombreContacto:ev.target.value})}/></div>
           <div><label style={S.label}>TELÉFONO</label><input style={S.input} value={form.telefono} onChange={ev=>setForm({...form,telefono:ev.target.value})}/></div>
         </div>
@@ -432,9 +608,70 @@ export default function Recepcionequipos(){
           <div><label style={S.label}>RETIRA EL EQUIPO (CLIENTE)</label><input style={S.input} value={form.retiraCliente} onChange={ev=>setForm({...form,retiraCliente:ev.target.value})}/></div>
         </div>
 
+        <div style={S.seccion}>Fotos del equipo (opcional)</div>
+        <div style={{display:'flex',flexWrap:'wrap',gap:10,marginBottom:10}}>
+          {(form.fotos||[]).map(f=>{const u=urls[BUCKET_FOTOS+'|'+f.path];return(
+            <div key={f.path} style={{position:'relative'}}>
+              {u?<a href={u} target="_blank" rel="noopener noreferrer"><img src={u} alt="" style={estiloMiniatura}/></a>:<div style={{...estiloMiniatura,background:'#f0f0f0'}}/>}
+              <button type="button" title="Quitar foto" onClick={()=>quitarGuardado('fotos',f)} style={estiloX}>✕</button>
+            </div>)})}
+          {pend.fotos.map(f=>(
+            <div key={f.id} style={{position:'relative'}}>
+              <img src={f.preview} alt="" style={{...estiloMiniatura,outline:'2px dashed var(--acento)'}}/>
+              <button type="button" title="Quitar foto" onClick={()=>quitarPendiente('fotos',f.id)} style={estiloX}>✕</button>
+            </div>))}
+          {!(form.fotos||[]).length&&!pend.fotos.length&&<span style={{color:'#aaa',fontSize:13,alignSelf:'center'}}>Sin fotos. Es opcional.</span>}
+        </div>
+        <label style={{...S.btnGris,display:'inline-block',cursor:'pointer'}}>+ Agregar fotos<input type="file" accept="image/*" multiple style={{display:'none'}} onChange={ev=>{agregarArchivos('fotos',ev.target.files);ev.target.value=''}}/></label>
+        {linkFotos&&((form.fotos||[]).length>0||pend.fotos.length>0)&&(
+          <div style={{marginTop:12,padding:'10px 12px',background:'#f1f7ff',border:'1px solid #cfe2ff',borderRadius:8}}>
+            <div style={{fontSize:11.5,fontWeight:700,color:'#456'}}>ENLACE PARA VER LAS FOTOS · cualquiera que lo tenga puede abrirlo, sin iniciar sesión</div>
+            <div style={{display:'flex',gap:8,marginTop:6}}>
+              <input readOnly style={{...S.input,fontSize:12}} value={linkFotos} onFocus={ev=>ev.target.select()}/>
+              <button type="button" style={{...S.btnGris,whiteSpace:'nowrap'}} onClick={copiarLink}>{copiado?'¡Copiado!':'Copiar'}</button>
+            </div>
+            {pend.fotos.length>0&&<div style={{fontSize:12,color:'#a8730a',marginTop:6}}>El enlace empieza a funcionar al guardar el checklist. También sale en el PDF.</div>}
+          </div>
+        )}
+
+        <div style={S.seccion}>INE (opcional)</div>
+        {[['ineEntrega','INE de quien entrega el equipo'],['ineRecibe','INE de quien recibe el equipo']].map(([g,titulo])=>(
+          <div key={g} style={{marginBottom:12}}>
+            <label style={S.label}>{titulo.toUpperCase()}</label>
+            <div style={{display:'flex',flexWrap:'wrap',gap:6,alignItems:'center'}}>
+              {(form[g]||[]).map(a=>{const u=urls[BUCKET_DOCS+'|'+a.path];return(
+                <span key={a.path} style={estiloChipArchivo}>
+                  {u?<a href={u} target="_blank" rel="noopener noreferrer" style={{color:'var(--acento)',fontWeight:700}}>📄 {a.nombre}</a>:'📄 '+a.nombre}
+                  <button type="button" onClick={()=>quitarGuardado(g,a)} style={estiloXChip}>✕</button>
+                </span>)})}
+              {pend[g].map(a=>(
+                <span key={a.id} style={{...estiloChipArchivo,outline:'1px dashed var(--acento)'}}>📄 {a.file.name}<button type="button" onClick={()=>quitarPendiente(g,a.id)} style={estiloXChip}>✕</button></span>))}
+              <label style={{...S.btnGrisSm,cursor:'pointer'}}>+ Subir (foto o PDF)<input type="file" multiple accept="application/pdf,image/*" style={{display:'none'}} onChange={ev=>{agregarArchivos(g,ev.target.files);ev.target.value=''}}/></label>
+            </div>
+          </div>
+        ))}
+        <p style={{color:'#999',fontSize:12,margin:'0 0 4px'}}>Las INE se guardan en un espacio privado: solo las ven los usuarios con sesión iniciada.</p>
+
+        <div style={S.seccion}>Firmas digitales (opcional)</div>
+        <p style={{color:'#888',fontSize:12.5,margin:'0 0 10px'}}>Cada quien firma con el dedo en la pantalla. La firma sale impresa en su recuadro del PDF y del Excel.</p>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:10}}>
+          {FIRMAS.map(f=>{const img=(form.firmas||{})[f.k];return(
+            <div key={f.k} style={{border:'1px solid #e3e6ea',borderRadius:8,padding:10,textAlign:'center'}}>
+              <div style={{fontSize:11.5,fontWeight:800,color:VINO}}>{f.t.toUpperCase()}</div>
+              <div style={{fontSize:10.5,color:'#999',marginBottom:6}}>{f.s}</div>
+              <div style={{height:70,display:'flex',alignItems:'center',justifyContent:'center',background:'#fafbfc',border:'1px dashed #d5d9dd',borderRadius:6,marginBottom:8}}>
+                {img?<img src={img} alt="Firma" style={{maxWidth:'100%',maxHeight:'100%'}}/>:<span style={{color:'#bbb',fontSize:12}}>Sin firma</span>}
+              </div>
+              <div style={{display:'flex',gap:6,justifyContent:'center'}}>
+                <button type="button" style={{...S.btnSm,padding:'6px 10px'}} onClick={()=>setFirmando(f)}>{img?'Volver a firmar':'✍ Firmar'}</button>
+                {img&&<button type="button" style={{...S.btnGrisSm,padding:'6px 10px'}} onClick={()=>quitarFirma(f.k)}>Quitar</button>}
+              </div>
+            </div>)})}
+        </div>
+
         <div style={{display:'flex',justifyContent:'flex-end',gap:10,marginTop:16}}>
-          <button style={S.btnGris} onClick={()=>setModal(false)}>Cancelar</button>
-          <button style={S.btn} onClick={guardarForm}>Guardar</button>
+          <button style={S.btnGris} onClick={()=>{reiniciarArchivos();setModal(false)}} disabled={guardando}>Cancelar</button>
+          <button style={{...S.btn,opacity:guardando?0.6:1}} onClick={guardarForm} disabled={guardando}>{guardando?'Guardando…':'Guardar'}</button>
         </div>
       </div></div>)}
 

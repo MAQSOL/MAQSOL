@@ -5,6 +5,7 @@ import logo from "../../assets/logo.png";
 import "../Clientes/Ventas.css";
 import { descargarExcelBonito, nombreArchivoSemana } from "../../utils/exportExcel";
 import DeleteButton from "../../components/DeleteButton";
+import AsistenciaExterna from "./AsistenciaExterna";
 import { supabase } from "../../supabaseClient";
 import { useListaCompartida } from "../../hooks/useSharedTable";
 
@@ -560,6 +561,9 @@ function Asistencias() {
               <button style={tab(pestana === "quincenal")} onClick={() => setPestana("quincenal")}>
                 Quincenal
               </button>
+              <button style={tab(pestana === "externo")} onClick={() => setPestana("externo")}>
+                Personal externo
+              </button>
             </div>
           </div>
 
@@ -582,6 +586,8 @@ function Asistencias() {
               </div>
             </div>
           )}
+
+          {pestana === "externo" && <AsistenciaExterna />}
 
           {pestana === "semanal" && (
             <>

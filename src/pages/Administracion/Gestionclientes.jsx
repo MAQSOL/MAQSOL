@@ -1,10 +1,11 @@
 import Layout from "../../components/Layout";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
 import NipGate from "../../components/NipGate";
 import { useSharedTable } from "../../hooks/useSharedTable";
-import { useAuth } from "../../contexts/AuthContext";
+import ExpedienteCliente from "../../components/ExpedienteCliente";
+import { estadoExpediente } from "../../utils/expediente";
 
 const inputGrande = {
   height: "54px",
@@ -23,6 +24,7 @@ function GestionClientes() {
   const [telefono, setTelefono] = useState("");
   const [ubicacion, setUbicacion] = useState("");
   const [equipo, setEquipo] = useState("");
+  const [expedienteDe, setExpedienteDe] = useState(null);
 
   const guardarCliente = async () => {
     if (!cliente) {
@@ -166,7 +168,10 @@ function GestionClientes() {
               ) : clientes.length === 0 ? (
                 <p>No hay clientes guardados.</p>
               ) : (
-                clientes.map((c) => (
+                clientes.map((c) => {
+                  const ex = estadoExpediente(c);
+                  const chip = (color, fondo) => ({ background: fondo, color, fontSize: 11.5, fontWeight: 700, padding: "3px 10px", borderRadius: 20, whiteSpace: "nowrap" });
+                  return (
                   <div
                     key={c.id}
                     style={{
@@ -186,20 +191,33 @@ function GestionClientes() {
                       <p style={{ margin: 0, fontSize: "13px", color: "#666" }}>
                         {c.ubicacion}
                       </p>
+                      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginTop: "6px" }}>
+                        <span style={ex.contrato ? chip("#1b7a3f", "#e1f3e7") : chip("#b3202f", "#fbe0e4")}>{ex.contrato ? "Contrato firmado" : "Contrato sin firmar"}</span>
+                        <span style={!ex.tipo ? chip("#666", "#eee") : ex.entregados === ex.total ? chip("#1b7a3f", "#e1f3e7") : chip("#a8730a", "#fdf0d4")}>
+                          {!ex.tipo ? "Falta indicar persona física o moral" : `${ex.tipo === "moral" ? "Persona moral" : "Persona física"} · documentos ${ex.entregados}/${ex.total}`}
+                        </span>
+                      </div>
                     </div>
 
-                    {(
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <button type="button" className="btn-panel" style={{ margin: 0, border: "none", cursor: "pointer" }} onClick={() => setExpedienteDe(c.cliente)}>
+                        Expediente
+                      </button>
                       <DeleteButton
                         title="Eliminar cliente"
                         onConfirm={() => eliminarCliente(c.id)}
                       />
-                    )}
+                    </div>
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
         </div>
+        {expedienteDe && (
+          <ExpedienteCliente nombreCliente={expedienteDe} clientes={clientes} onGuardar={guardar} onCerrar={() => setExpedienteDe(null)} />
+        )}
       </Layout>
     </NipGate>
   );

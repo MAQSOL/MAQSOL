@@ -10,7 +10,8 @@ const KEY_EMPRESAS = 'empresasFleteMaqsol'
 
 const FLETE_NUEVO = {
   id:'',folio:'',fecha:'',
-  empresa:'',equipo:'',serieEquipo:'',
+  empresa:'',proveedor:'',equipo:'',serieEquipo:'',
+  oc:'',numOC:'',horaMovimiento:'',
   origen:'',destino:'',
   costo:'',pagado:'Pendiente',
   estado:'Programado',observaciones:''
@@ -56,15 +57,60 @@ function uid(){return 'x'+Date.now()+Math.random().toString(36).slice(2,6)}
 function fFecha(f){return f?new Date(f+'T00:00:00').toLocaleDateString('es-MX'):'—'}
 function hoyISO(){return new Date().toISOString().slice(0,10)}
 
+function textoOC(f){
+  if(f.oc==='enviada')return 'Enviada'+(f.numOC?' · N° '+f.numOC:'')
+  if(f.oc==='sin')return 'No lleva orden'
+  if(f.oc==='pendiente')return 'Pendiente de enviar'
+  return '—'
+}
+function dinero(v){const n=parseFloat(String(v).replace(/[$,\s]/g,''));return isNaN(n)?(v||'—'):'$'+n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function pdfFlete(f){
+  const fila=(k,v)=>`<tr><th>${k}</th><td>${esc(v)||'—'}</td></tr>`
+  const html=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(f.folio)}</title><style>
+    @page{size:letter portrait;margin:0}
+    body{font-family:Arial,sans-serif;margin:0;padding:16mm;color:#222}
+    h1{color:#8f1d2c;font-size:22px;margin:0}
+    .sub{color:#777;font-size:12px;margin:2px 0 14px}
+    .bar{border-top:3px solid #8f1d2c;margin:8px 0 14px}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{width:34%;text-align:left;background:#f4e9eb;color:#8f1d2c;padding:8px 10px;border:1px solid #e3d3d6}
+    td{padding:8px 10px;border:1px solid #e3d3d6}
+    .imp{font-size:16px;font-weight:700}
+    .pie{margin-top:14px;font-size:10px;color:#999;text-align:center}
+  </style></head><body>
+    <h1>BITÁCORA DE FLETE · ${esc(f.folio)}</h1>
+    <div class="sub">MAQUINARIA SOPORTE Y LOGÍSTICA SA DE CV · ${esc(fFecha(f.fecha))}</div><div class="bar"></div>
+    <table>
+      ${fila('Empresa (solicitó y pagó el flete)',f.empresa)}
+      ${fila('Proveedor que dio el servicio',f.proveedor)}
+      ${fila('Equipo movido',f.equipo)}
+      ${fila('Serie del equipo',f.serieEquipo)}
+      ${fila('Origen',f.origen)}
+      ${fila('Destino',f.destino)}
+      ${fila('Hora de movimiento del equipo',f.horaMovimiento)}
+      ${fila('Orden de compra',textoOC(f))}
+      <tr><th>Importe (sin impuestos)</th><td class="imp">${esc(f.costo?dinero(f.costo):'—')}</td></tr>
+      ${fila('Pago',f.pagado||'Pendiente')}
+      ${fila('Estado del viaje',f.estado==='En Ruta'?'Programado':f.estado)}
+      ${fila('Observaciones',f.observaciones)}
+    </table>
+    <div class="pie">Documento generado desde MAQSISTEM · ${esc(f.folio)}</div>
+    <script>window.onload=()=>setTimeout(()=>window.print(),300)</script>
+  </body></html>`
+  const w=window.open('','_blank');if(!w){alert('Permite ventanas emergentes para ver el PDF.');return}
+  w.document.write(html);w.document.close()
+}
+
 function BadgeEstado({estado}){
   const map={
     'Programado':{bg:'#fff3e0',c:'#c98a00'},
-    'En Ruta':{bg:'#e3f2fd',c:'#1565c0'},
     'Entregado':{bg:'#e8f5e9',c:'#2e7d32'},
     'Cancelado':{bg:'#fce4ec',c:'#c62828'}
   }
-  const s=map[estado]||map['Programado']
-  return <span style={{background:s.bg,color:s.c,padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>{estado}</span>
+  const e=estado==='En Ruta'?'Programado':estado
+  const s=map[e]||map['Programado']
+  return <span style={{background:s.bg,color:s.c,padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>{e}</span>
 }
 function BadgePago({pagado}){
   const ok=pagado==='Pagado'
@@ -74,6 +120,7 @@ function BadgePago({pagado}){
 export default function BitacoraFleteros(){
   const[fletes,guardarFletes]=useListaCompartida('fletes')
   const[empresas,guardarEmpresas]=useListaCatalogo('empresas_flete')
+  const[clientesDB]=useListaCompartida('clientes')
   const[modal,setModal]=useState(false)
   const[form,setForm]=useState(FLETE_NUEVO)
   const[verFlete,setVerFlete]=useState(null)
@@ -88,7 +135,8 @@ export default function BitacoraFleteros(){
       const m=/F-(\d+)/.exec(f.folio||'')
       return m?Math.max(max,parseInt(m[1],10)):max
     },0)
-    return 'F-'+String(n+1).padStart(3,'0')
+    const d=new Date()
+    return 'F-'+String(n+1).padStart(3,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+d.getFullYear()
   }
 
   function abrirNuevo(){
@@ -109,24 +157,23 @@ export default function BitacoraFleteros(){
   function cambiarEstado(f,estado){guardarFletes(fletes.map(x=>x.id===f.id?{...x,estado}:x))}
   function cambiarPago(f,pagado){guardarFletes(fletes.map(x=>x.id===f.id?{...x,pagado}:x))}
 
-  function agregarEmpresa(){const n=nuevaEmpresa.trim();if(!n)return;if(!empresas.includes(n))guardarEmpresas([...empresas,n].sort());setForm({...form,empresa:n});setNuevaEmpresa('');setModoNuevaEmpresa(false)}
-  function cambiarEmpresa(v){if(v==='__nueva__'){setModoNuevaEmpresa(true);return};setModoNuevaEmpresa(false);setForm({...form,empresa:v})}
+  function agregarEmpresa(){const n=nuevaEmpresa.trim();if(!n)return;if(!empresas.includes(n))guardarEmpresas([...empresas,n].sort());setForm({...form,proveedor:n});setNuevaEmpresa('');setModoNuevaEmpresa(false)}
+  function cambiarEmpresa(v){if(v==='__nueva__'){setModoNuevaEmpresa(true);return};setModoNuevaEmpresa(false);setForm({...form,proveedor:v})}
 
   const filtrados=fletes.filter(f=>{
-    const t=(f.folio+' '+f.origen+' '+f.destino+' '+f.empresa+' '+f.equipo+' '+f.serieEquipo).toLowerCase()
+    const t=(f.folio+' '+f.origen+' '+f.destino+' '+f.empresa+' '+f.equipo+' '+f.serieEquipo+' '+(f.proveedor||'')+' '+(f.numOC||'')).toLowerCase()
     return t.includes(busqueda.toLowerCase())&&(!fEstado||f.estado===fEstado)&&(!fPagado||f.pagado===fPagado)
   }).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''))
 
   const stats={
     programados:fletes.filter(f=>f.estado==='Programado').length,
-    enRuta:fletes.filter(f=>f.estado==='En Ruta').length,
     pendientesPago:fletes.filter(f=>f.pagado!=='Pagado').length,
     total:fletes.length
   }
 
   function exportarLista(){
-    const columnas=['Folio','Fecha','Empresa','Equipo','Serie','Origen','Destino','Costo','Pagado','Estado','Observaciones']
-    const filas=filtrados.map(f=>[f.folio,fFecha(f.fecha),f.empresa,f.equipo,f.serieEquipo,f.origen,f.destino,f.costo?'$'+f.costo:'',f.pagado,f.estado,f.observaciones])
+    const columnas=['Folio','Fecha','Empresa (cliente)','Proveedor del flete','Equipo','Serie','Origen','Destino','Hora','Orden de compra','Importe sin impuestos','Pagado','Estado','Observaciones']
+    const filas=filtrados.map(f=>[f.folio,fFecha(f.fecha),f.empresa,f.proveedor,f.equipo,f.serieEquipo,f.origen,f.destino,f.horaMovimiento,textoOC(f),f.costo?'$'+f.costo:'',f.pagado,f.estado,f.observaciones])
     descargarExcelBonito({
       titulo:'Bitácora de Fleteros',
       subtitulo:'MAQUINARIA SOPORTE Y LOGISTICA SA DE CV · '+filtrados.length+' fletes',
@@ -144,7 +191,6 @@ export default function BitacoraFleteros(){
 
       <div style={{display:'flex',gap:16,marginBottom:22,flexWrap:'wrap'}}>
         <div style={S.stat}><div style={S.statN}>{stats.programados}</div><div style={S.statK}>PROGRAMADOS</div></div>
-        <div style={S.stat}><div style={S.statN}>{stats.enRuta}</div><div style={S.statK}>EN RUTA</div></div>
         <div style={S.stat}><div style={S.statN}>{stats.pendientesPago}</div><div style={S.statK}>PENDIENTES DE PAGO</div></div>
         <div style={S.stat}><div style={S.statN}>{stats.total}</div><div style={S.statK}>TOTAL REGISTRADOS</div></div>
       </div>
@@ -152,29 +198,30 @@ export default function BitacoraFleteros(){
       <div style={S.card}>
         <div style={{display:'grid',gridTemplateColumns:'1.6fr 1fr 1fr',gap:18,alignItems:'end'}}>
           <div><label style={S.label}>BUSCAR</label><input style={S.input} placeholder="Folio, empresa, equipo, serie, origen o destino" value={busqueda} onChange={ev=>setBusqueda(ev.target.value)}/></div>
-          <div><label style={S.label}>ESTADO</label><select style={S.input} value={fEstado} onChange={ev=>setFEstado(ev.target.value)}><option value="">Todos</option><option>Programado</option><option>En Ruta</option><option>Entregado</option><option>Cancelado</option></select></div>
+          <div><label style={S.label}>ESTADO</label><select style={S.input} value={fEstado} onChange={ev=>setFEstado(ev.target.value)}><option value="">Todos</option><option>Programado</option><option>Entregado</option><option>Cancelado</option></select></div>
           <div><label style={S.label}>PAGO</label><select style={S.input} value={fPagado} onChange={ev=>setFPagado(ev.target.value)}><option value="">Todos</option><option>Pagado</option><option>Pendiente</option></select></div>
         </div>
       </div>
 
       <div style={{...S.card,padding:0,overflowX:'auto'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',minWidth:1100}}>
+        <table style={{width:'100%',borderCollapse:'collapse',minWidth:1250}}>
           <thead><tr>
             <th style={S.th}>FOLIO</th><th style={S.th}>FECHA</th><th style={S.th}>EMPRESA</th><th style={S.th}>EQUIPO</th>
-            <th style={S.th}>ORIGEN → DESTINO</th><th style={S.th}>PAGO</th><th style={S.th}>ESTADO</th><th style={{...S.th,width:120,textAlign:'center'}}></th>
+            <th style={S.th}>ORIGEN → DESTINO</th><th style={S.th}>OC</th><th style={S.th}>PAGO</th><th style={S.th}>ESTADO</th><th style={{...S.th,width:120,textAlign:'center'}}></th>
           </tr></thead>
           <tbody>
-            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={8}>No hay fletes registrados. Usa "+ Agregar flete".</td></tr>
+            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={9}>No hay fletes registrados. Usa "+ Agregar flete".</td></tr>
             :filtrados.map(f=>(<tr key={f.id} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
               <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>setVerFlete(f)}>{f.folio}</td>
               <td style={S.td}>{fFecha(f.fecha)}</td>
               <td style={S.td}>{f.empresa||<span style={{color:'#bbb'}}>—</span>}</td>
               <td style={S.td}>{f.equipo||<span style={{color:'#bbb'}}>—</span>}{f.serieEquipo?<div style={{color:'#999',fontSize:12}}>Serie: {f.serieEquipo}</div>:null}</td>
-              <td style={S.td}>{f.origen||'—'} → {f.destino}</td>
+              <td style={S.td}>{f.origen||'—'} → {f.destino}{f.horaMovimiento?<div style={{color:'#999',fontSize:12}}>{f.horaMovimiento} h</div>:null}</td>
+              <td style={S.td}>{textoOC(f)}</td>
               <td style={S.td}><BadgePago pagado={f.pagado}/></td>
               <td style={S.td}><BadgeEstado estado={f.estado}/></td>
               <td style={{...S.td,textAlign:'center',whiteSpace:'nowrap'}}>
-                <button style={S.btnGrisSm} onClick={()=>abrirEditar(f)}>Editar</button>
+                <button style={S.btnGrisSm} onClick={()=>pdfFlete(f)}>PDF</button> <button style={S.btnGrisSm} onClick={()=>abrirEditar(f)}>Editar</button>
                 <span style={{marginLeft:6,display:'inline-block'}}><DeleteButton size="sm" title="Eliminar flete" onConfirm={()=>eliminarFlete(f)}/></span>
               </td>
             </tr>))}
@@ -194,8 +241,11 @@ export default function BitacoraFleteros(){
           <div><div style={S.label}>SERIE DEL EQUIPO</div><div>{verFlete.serieEquipo||'—'}</div></div>
           <div><div style={S.label}>ORIGEN</div><div>{verFlete.origen||'—'}</div></div>
           <div><div style={S.label}>DESTINO</div><div>{verFlete.destino||'—'}</div></div>
-          <div><div style={S.label}>COSTO</div><div>{verFlete.costo?'$'+verFlete.costo:'—'}</div></div>
-          <div><div style={S.label}>EMPRESA QUE REALIZÓ EL FLETE</div><div>{verFlete.empresa||'—'}</div></div>
+          <div><div style={S.label}>IMPORTE (SIN IMPUESTOS)</div><div>{verFlete.costo?dinero(verFlete.costo):'—'}</div></div>
+          <div><div style={S.label}>EMPRESA (SOLICITÓ Y PAGÓ)</div><div>{verFlete.empresa||'—'}</div></div>
+          <div><div style={S.label}>PROVEEDOR DEL SERVICIO</div><div>{verFlete.proveedor||'—'}</div></div>
+          <div><div style={S.label}>HORA DE MOVIMIENTO</div><div>{verFlete.horaMovimiento||'—'}</div></div>
+          <div><div style={S.label}>ORDEN DE COMPRA</div><div>{textoOC(verFlete)}</div></div>
         </div>
         {verFlete.observaciones&&<div style={{marginBottom:14}}><div style={S.label}>OBSERVACIONES</div><div style={{whiteSpace:'pre-wrap'}}>{verFlete.observaciones}</div></div>}
 
@@ -211,7 +261,7 @@ export default function BitacoraFleteros(){
         <div style={{marginBottom:18}}>
           <div style={S.label}>¿QUÉ SIGUE? — ESTADO DEL VIAJE</div>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-            {['Programado','En Ruta','Entregado','Cancelado'].map(e=>(
+            {['Programado','Entregado','Cancelado'].map(e=>(
               <button key={e} style={verFlete.estado===e?S.btnSm:S.btnGrisSm} onClick={()=>{cambiarEstado(verFlete,e);setVerFlete({...verFlete,estado:e})}}>{e}</button>
             ))}
           </div>
@@ -220,6 +270,7 @@ export default function BitacoraFleteros(){
         <div style={{display:'flex',justifyContent:'space-between',gap:10}}>
           <DeleteButton title="Eliminar flete" onConfirm={()=>eliminarFlete(verFlete)}/>
           <div style={{display:'flex',gap:10}}>
+            <button style={S.btnGris} onClick={()=>pdfFlete(verFlete)}>Ver PDF</button>
             <button style={S.btnGris} onClick={()=>setVerFlete(null)}>Cerrar</button>
             <button style={S.btn} onClick={()=>{abrirEditar(verFlete);setVerFlete(null)}}>Editar</button>
           </div>
@@ -233,9 +284,14 @@ export default function BitacoraFleteros(){
 
         <div style={S.grid2}>
           <div><label style={S.label}>FECHA</label><input type="date" style={S.input} value={form.fecha} onChange={ev=>setForm({...form,fecha:ev.target.value})}/></div>
-          <div><label style={S.label}>EMPRESA QUE REALIZÓ EL FLETE</label>
+          <div><label style={S.label}>HORA EN QUE SE MOVIÓ EL EQUIPO</label><input type="time" style={S.input} value={form.horaMovimiento||''} onChange={ev=>setForm({...form,horaMovimiento:ev.target.value})}/></div>
+          <div><label style={S.label}>EMPRESA (QUE SOLICITÓ Y PAGÓ EL FLETE)</label>
+            <input style={S.input} list="lista-empresas-cliente" value={form.empresa} onChange={ev=>setForm({...form,empresa:ev.target.value})} placeholder="Escribe o elige un cliente"/>
+            <datalist id="lista-empresas-cliente">{[...new Set(clientesDB.map(c=>c.cliente).filter(Boolean))].map(n=><option key={n} value={n}/>)}</datalist>
+          </div>
+          <div><label style={S.label}>PROVEEDOR QUE DIO EL SERVICIO</label>
             {modoNuevaEmpresa?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Nombre de la empresa" value={nuevaEmpresa} onChange={ev=>setNuevaEmpresa(ev.target.value)}/><button style={S.btnVerde} onClick={agregarEmpresa}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevaEmpresa(false)}>✕</button></div>)
-            :(<select style={S.input} value={form.empresa} onChange={ev=>cambiarEmpresa(ev.target.value)}><option value="">Selecciona una empresa</option>{empresas.map(e=><option key={e}>{e}</option>)}<option value="__nueva__">+ Agregar empresa</option></select>)}
+            :(<select style={S.input} value={form.proveedor} onChange={ev=>cambiarEmpresa(ev.target.value)}><option value="">Selecciona un proveedor</option>{empresas.map(e=><option key={e}>{e}</option>)}<option value="__nueva__">+ Agregar proveedor</option></select>)}
           </div>
         </div>
 
@@ -249,10 +305,20 @@ export default function BitacoraFleteros(){
           <div><label style={S.label}>DESTINO</label><input style={S.input} value={form.destino} onChange={ev=>setForm({...form,destino:ev.target.value})} placeholder="Ej. Mérida"/></div>
         </div>
 
+        <div style={{marginBottom:14}}>
+          <label style={S.label}>ORDEN DE COMPRA (OC)</label>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
+            {[['enviada','Ya envió orden'],['pendiente','Aún no la envía'],['sin','No lleva orden']].map(([v,t])=>(
+              <button key={v} type="button" style={form.oc===v?S.btnSm:S.btnGrisSm} onClick={()=>setForm({...form,oc:form.oc===v?'':v,numOC:v==='enviada'?form.numOC:''})}>{t}</button>
+            ))}
+            {form.oc==='enviada'&&<input style={{...S.input,maxWidth:240}} placeholder="N° de orden de compra" value={form.numOC||''} onChange={ev=>setForm({...form,numOC:ev.target.value})}/>}
+          </div>
+        </div>
+
         <div style={S.grid3}>
-          <div><label style={S.label}>COSTO DEL FLETE</label><input style={S.input} value={form.costo} onChange={ev=>setForm({...form,costo:ev.target.value})} placeholder="Ej. 1500"/></div>
+          <div><label style={S.label}>IMPORTE (SIN IMPUESTOS)</label><input style={S.input} value={form.costo} onChange={ev=>setForm({...form,costo:ev.target.value})} placeholder="Ej. 1500 antes de IVA"/></div>
           <div><label style={S.label}>PAGO</label><select style={S.input} value={form.pagado} onChange={ev=>setForm({...form,pagado:ev.target.value})}><option>Pendiente</option><option>Pagado</option></select></div>
-          <div><label style={S.label}>ESTADO DEL VIAJE</label><select style={S.input} value={form.estado} onChange={ev=>setForm({...form,estado:ev.target.value})}><option>Programado</option><option>En Ruta</option><option>Entregado</option><option>Cancelado</option></select></div>
+          <div><label style={S.label}>ESTADO DEL VIAJE</label><select style={S.input} value={form.estado} onChange={ev=>setForm({...form,estado:ev.target.value})}><option>Programado</option><option>Entregado</option><option>Cancelado</option></select></div>
         </div>
 
         <div style={{marginBottom:20}}><label style={S.label}>OBSERVACIONES</label><textarea style={{...S.input,minHeight:70,resize:'vertical'}} value={form.observaciones} onChange={ev=>setForm({...form,observaciones:ev.target.value})}/></div>
