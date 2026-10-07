@@ -9,6 +9,12 @@ const fF = (f) => {
   const d = new Date(f + "T00:00:00");
   return isNaN(d) ? "" : d.toLocaleDateString("es-MX");
 };
+/** CH-002-CLIENTE-102026 -> 02-102026 (consecutivo y mes-año). */
+const folioCorto = (r) => {
+  const f = String(r.folio || "");
+  const m = /^CH-(\d+)-.*?(\d{2})(\d{4})$/i.exec(f);
+  return m ? String(parseInt(m[1], 10)).padStart(2, "0") + "-" + m[2] + m[3] : f;
+};
 const titulo = (r) => `ENTREGA Y SALIDA DE EQUIPO · ${(r.tipo || "Salida").toUpperCase()}${r.ligadoA ? " · LIGADO A " + r.ligadoA : ""}`;
 
 /** Documento HTML completo (una hoja carta horizontal) con el formato de Entrega y Salida de Equipo. */
@@ -30,7 +36,7 @@ export function htmlChecklist(r, cols) {
       <tr style="height:11mm">
         <td class="logo" colspan="4" rowspan="8"><img src="${LOGO_MAQSOL_TRANSPARENTE}" alt=""/></td>
         <td class="titulo" colspan="16">MAQUINARIA SOPORTE Y LOGISTICA SA DE CV</td>
-        <td class="folio" colspan="4" rowspan="4"><div class="fl">FOLIO</div><div class="fv">${v(r.folio)}</div></td>
+        <td class="folio" colspan="4" rowspan="4"><div class="fl">FOLIO</div><div class="fv">${v(folioCorto(r))}</div></td>
       </tr>
       <tr style="height:5.2mm">${td("sub", 16, esc(titulo(r)))}</tr>
       <tr>${L("CLIENTE", 2)}${V(r.cliente, 14)}</tr>
@@ -86,7 +92,7 @@ export function htmlChecklist(r, cols) {
       <tr class="sp">${td("pie", 5, dfirma(r.recibeCliente || r.quienRecibe))}${td("pie", 5, dfirma(r.quienEntrega))}${td("pie", 7, dfirma(r.retiraCliente))}${td("pie", 7, '<span class="pn">LIC. FRANCISCO TORRES MORALES</span>')}</tr>
     </table>`;
 
-  return `<!doctype html><html><head><meta charset="utf-8"><title>Entrega y Salida ${esc(r.folio)}</title>
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Entrega y Salida ${esc(folioCorto(r))}</title>
   <style>
     @page{size:letter landscape;margin:0;}
     *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -156,7 +162,7 @@ export function htmlChecklist(r, cols) {
       ${t2}
       ${t3}
       <div class="rojo"></div>
-      <div class="pie-doc">${r.fotosUrl ? `Fotos del equipo: <a href="${esc(r.fotosUrl)}" style="color:#1d5c8f;font-weight:700;text-decoration:none">${esc(r.fotosUrl)}</a> &nbsp;·&nbsp; ` : ""}Documento generado desde MAQSISTEM · ${esc(r.folio)}</div>
+      <div class="pie-doc">${r.fotosUrl ? `Fotos del equipo: <a href="${esc(r.fotosUrl)}" style="color:#1d5c8f;font-weight:700;text-decoration:none">${esc(r.fotosUrl)}</a> &nbsp;·&nbsp; ` : ""}Documento generado desde MAQSISTEM · ${esc(folioCorto(r))}</div>
     </div>
     <script>
       window.onload=function(){
@@ -231,7 +237,7 @@ export async function descargarChecklistExcel(r, cols, nombreArchivo) {
     caja(1, 21, 4, 24, {
       richText: [
         { text: "FOLIO\n", font: { name: "Cambria", size: 14, bold: true } },
-        { text: txt(r.folio), font: { name: "Calibri", size: 12, bold: true } }
+        { text: txt(folioCorto(r)), font: { name: "Calibri", size: 12, bold: true } }
       ]
     }, { fondo: GRIS, h: "center" });
     caja(2, 5, 2, 20, `ENTREGA Y SALIDA DE EQUIPO · ${(r.tipo || "Salida").toUpperCase()}${r.ligadoA ? " · LIGADO A " + r.ligadoA : ""}`, { negrita: true, tam: 8, h: "center" });

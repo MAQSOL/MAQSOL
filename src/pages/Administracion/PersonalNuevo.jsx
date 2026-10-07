@@ -123,8 +123,6 @@ export default function PersonalNuevo() {
   const cerrar = () => setModal(false);
 
   const set = (campo, valor) => setForm((f) => ({ ...f, [campo]: valor }));
-  const setEmpleo = (i, campo, valor) =>
-    setForm((f) => ({ ...f, empleos: f.empleos.map((e, k) => (k === i ? { ...e, [campo]: valor } : e)) }));
   const setHijo = (i, campo, valor) =>
     setForm((f) => ({ ...f, hijos: f.hijos.map((h, k) => (k === i ? { ...h, [campo]: valor } : h)) }));
 
@@ -359,24 +357,6 @@ export default function PersonalNuevo() {
               <Campo etiqueta="PARENTESCO"><input style={S.input} value={form.emergenciaParentesco} onChange={(e) => set("emergenciaParentesco", e.target.value)} /></Campo>
               <Campo etiqueta="TELÉFONO"><input style={S.input} value={form.emergenciaTelefono} onChange={(e) => set("emergenciaTelefono", e.target.value)} /></Campo>
             </div>
-
-            <h3 style={S.h3}>Últimos dos empleos</h3>
-            {form.empleos.slice(0, 2).map((emp, i) => (
-              <div key={i} style={{ border: "1px solid #eee", borderRadius: 8, padding: 12, marginBottom: 12 }}>
-                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: "var(--acento)" }}>{i === 0 ? "Empleo más reciente" : "Empleo anterior"}</div>
-                <div style={S.grid3}>
-                  <Campo etiqueta="EMPRESA"><input style={S.input} value={emp.empresa} onChange={(e) => setEmpleo(i, "empresa", e.target.value)} /></Campo>
-                  <Campo etiqueta="PUESTO"><input style={S.input} value={emp.puesto} onChange={(e) => setEmpleo(i, "puesto", e.target.value)} /></Campo>
-                  <Campo etiqueta="TELÉFONO DE REFERENCIA"><input style={S.input} value={emp.telefono} onChange={(e) => setEmpleo(i, "telefono", e.target.value)} /></Campo>
-                </div>
-                <div style={S.grid3}>
-                  <Campo etiqueta="DESDE"><input type="date" style={S.input} value={emp.desde} onChange={(e) => setEmpleo(i, "desde", e.target.value)} /></Campo>
-                  <Campo etiqueta="HASTA"><input type="date" style={S.input} value={emp.hasta} onChange={(e) => setEmpleo(i, "hasta", e.target.value)} /></Campo>
-                  <Campo etiqueta="DURACIÓN"><input style={S.input} value={emp.duracion} onChange={(e) => setEmpleo(i, "duracion", e.target.value)} placeholder="Ej. 2 años 3 meses" /></Campo>
-                </div>
-                <Campo etiqueta="MOTIVO DE RENUNCIA O SALIDA"><input style={S.input} value={emp.motivo} onChange={(e) => setEmpleo(i, "motivo", e.target.value)} /></Campo>
-              </div>
-            ))}
 
             <h3 style={S.h3}>
               Documentos recibidos ·{" "}

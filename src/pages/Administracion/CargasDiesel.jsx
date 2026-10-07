@@ -9,7 +9,7 @@ import { S, fFecha, hoyISO, dinero, esc } from "./estilosAdmin";
 
 const NUEVO = {
   id: "", fecha: "", equipoId: "", maquina: "", serie: "", obra: "",
-  operador: "", litros: "", precioLitro: "", total: 0, notas: ""
+  operador: "", litros: "", precioLitro: "", total: 0, importeConIva: "", notas: ""
 };
 
 const iso = (d) =>
@@ -101,6 +101,7 @@ export default function CargasDiesel() {
 
   const totalLitros = filtradas.reduce((s, c) => s + num(c.litros), 0);
   const totalImporte = filtradas.reduce((s, c) => s + num(c.total), 0);
+  const totalConIva = filtradas.reduce((s, c) => s + num(c.importeConIva), 0);
   const precioProm = totalLitros ? totalImporte / totalLitros : 0;
 
   const porMaquina = Object.values(
@@ -122,10 +123,10 @@ export default function CargasDiesel() {
     descargarExcelBonito({
       titulo: "Cargas de Diesel",
       subtitulo: `${etiquetaPeriodo} · ${litrosTxt(totalLitros)} · ${dinero(totalImporte)}`,
-      columnas: ["Fecha", "Máquina", "Serie", "Obra", "Operador", "Litros", "Precio por litro", "Total"],
+      columnas: ["Fecha", "Máquina", "Serie", "Obra", "Operador", "Litros", "Precio por litro (sin imp.)", "Total sin impuestos", "Importe con impuestos"],
       filas: [
-        ...filtradas.map((c) => [fFecha(c.fecha), c.maquina, c.serie, c.obra, c.operador, num(c.litros), dinero(c.precioLitro), dinero(c.total)]),
-        ["", "", "", "", "TOTAL", Math.round(totalLitros * 10) / 10, dinero(precioProm), dinero(totalImporte)]
+        ...filtradas.map((c) => [fFecha(c.fecha), c.maquina, c.serie, c.obra, c.operador, num(c.litros), dinero(c.precioLitro), dinero(c.total), c.importeConIva ? dinero(c.importeConIva) : ""]),
+        ["", "", "", "", "TOTAL", Math.round(totalLitros * 10) / 10, dinero(precioProm), dinero(totalImporte), dinero(totalConIva)]
       ],
       nombreArchivo: nombreArchivoSemana("DIESEL", lunes)
     });
@@ -142,7 +143,7 @@ export default function CargasDiesel() {
     const detalle = filtradas
       .slice()
       .sort((a, b) => (a.fecha || "").localeCompare(b.fecha || ""))
-      .map((c) => `<tr><td>${fFecha(c.fecha)}</td><td>${esc(c.maquina)}</td><td>${esc(c.serie || "—")}</td><td>${esc(c.obra || "—")}</td><td>${esc(c.operador || "—")}</td><td style="text-align:right">${litrosTxt(num(c.litros))}</td><td style="text-align:right">${dinero(c.precioLitro)}</td><td style="text-align:right"><b>${dinero(c.total)}</b></td></tr>`)
+      .map((c) => `<tr><td>${fFecha(c.fecha)}</td><td>${esc(c.maquina)}</td><td>${esc(c.serie || "—")}</td><td>${esc(c.obra || "—")}</td><td>${esc(c.operador || "—")}</td><td style="text-align:right">${litrosTxt(num(c.litros))}</td><td style="text-align:right">${dinero(c.precioLitro)}</td><td style="text-align:right"><b>${dinero(c.total)}</b></td><td style="text-align:right"><b>${c.importeConIva ? dinero(c.importeConIva) : "—"}</b></td></tr>`)
       .join("");
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Cargas de diesel</title>
       <style>
@@ -159,9 +160,9 @@ export default function CargasDiesel() {
       <div class="top"><div><h1>Cargas de Diesel</h1><p>${esc(etiquetaPeriodo)}</p><p>Generado: ${new Date().toLocaleDateString("es-MX")}</p></div><img src="${logoUrl}" alt="MAQSOL"></div>
       <h2>Resumen por máquina</h2>
       <table><thead><tr><th>Máquina</th><th>Serie</th><th style="text-align:center">Cargas</th><th style="text-align:right">Litros</th><th style="text-align:right">Importe</th></tr></thead><tbody>${resumen}</tbody></table>
-      <div class="tot"><span>Litros: <b>${litrosTxt(totalLitros)}</b></span><span>Precio prom.: <b>${dinero(precioProm)}</b></span><span>Total: <b>${dinero(totalImporte)}</b></span></div>
+      <div class="tot"><span>Litros: <b>${litrosTxt(totalLitros)}</b></span><span>Precio prom.: <b>${dinero(precioProm)}</b></span><span>Total sin impuestos: <b>${dinero(totalImporte)}</b></span><span>Total con impuestos: <b>${dinero(totalConIva)}</b></span></div>
       <h2>Detalle de cargas</h2>
-      <table><thead><tr><th>Fecha</th><th>Máquina</th><th>Serie</th><th>Obra</th><th>Operador</th><th style="text-align:right">Litros</th><th style="text-align:right">Precio/L</th><th style="text-align:right">Total</th></tr></thead><tbody>${detalle}</tbody></table>
+      <table><thead><tr><th>Fecha</th><th>Máquina</th><th>Serie</th><th>Obra</th><th>Operador</th><th style="text-align:right">Litros</th><th style="text-align:right">Precio/L</th><th style="text-align:right">Total sin imp.</th><th style="text-align:right">Con impuestos</th></tr></thead><tbody>${detalle}</tbody></table>
       <script>window.onload=function(){setTimeout(function(){window.print()},400)}</script>
       </body></html>`);
     w.document.close();
@@ -250,12 +251,12 @@ export default function CargasDiesel() {
             <thead>
               <tr>
                 <th style={S.th}>FECHA</th><th style={S.th}>MÁQUINA</th><th style={S.th}>SERIE</th><th style={S.th}>OBRA</th>
-                <th style={S.th}>OPERADOR</th><th style={S.th}>LITROS</th><th style={S.th}>PRECIO/L</th><th style={S.th}>TOTAL</th><th style={{ ...S.th, width: 60 }}></th>
+                <th style={S.th}>OPERADOR</th><th style={S.th}>LITROS</th><th style={S.th}>PRECIO/L</th><th style={S.th}>TOTAL SIN IMP.</th><th style={S.th}>CON IMPUESTOS</th><th style={{ ...S.th, width: 60 }}></th>
               </tr>
             </thead>
             <tbody>
               {filtradas.length === 0 ? (
-                <tr><td colSpan={9} style={{ ...S.td, textAlign: "center", color: "#999", padding: 40 }}>
+                <tr><td colSpan={10} style={{ ...S.td, textAlign: "center", color: "#999", padding: 40 }}>
                   No hay cargas en este periodo. Usa "+ Registrar carga".
                 </td></tr>
               ) : filtradas.map((c) => (
@@ -268,6 +269,7 @@ export default function CargasDiesel() {
                   <td style={S.td}>{litrosTxt(num(c.litros))}</td>
                   <td style={S.td}>{dinero(c.precioLitro)}</td>
                   <td style={{ ...S.td, fontWeight: 700 }}>{dinero(c.total)}</td>
+                  <td style={{ ...S.td, fontWeight: 700 }}>{c.importeConIva ? dinero(c.importeConIva) : "—"}</td>
                   <td style={{ ...S.td, textAlign: "center" }}>
                     <DeleteButton size="sm" title="Eliminar carga" onConfirm={() => guardarCargas(cargas.filter((x) => x.id !== c.id))} />
                   </td>
@@ -313,10 +315,16 @@ export default function CargasDiesel() {
             </div>
             <div style={S.grid3}>
               <div><label style={S.label}>LITROS</label><input type="number" min="0" step="0.1" style={S.input} value={form.litros} onChange={(e) => set("litros", e.target.value)} /></div>
-              <div><label style={S.label}>PRECIO POR LITRO</label><input type="number" min="0" step="0.01" style={S.input} value={form.precioLitro} onChange={(e) => set("precioLitro", e.target.value)} /></div>
+              <div><label style={S.label}>PRECIO POR LITRO (SIN IMPUESTOS)</label><input type="number" min="0" step="0.01" style={S.input} value={form.precioLitro} onChange={(e) => set("precioLitro", e.target.value)} /></div>
               <div>
-                <label style={S.label}>TOTAL</label>
+                <label style={S.label}>TOTAL (SIN IMPUESTOS)</label>
                 <div style={{ ...S.input, background: "#f5f5f5", fontWeight: 800 }}>{dinero(totalForm)}</div>
+              </div>
+            </div>
+            <div style={{ ...S.grid2, marginBottom: 14 }}>
+              <div>
+                <label style={S.label}>IMPORTE CON IMPUESTOS (LO CAPTURAS TÚ)</label>
+                <input type="number" min="0" step="0.01" style={S.input} value={form.importeConIva || ""} onChange={(e) => set("importeConIva", e.target.value)} placeholder="Según el ticket o factura" />
               </div>
             </div>
             <div style={{ marginBottom: 20 }}>
