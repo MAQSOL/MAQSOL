@@ -2,7 +2,7 @@ import Layout from "../../components/Layout";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
-import logo from "../../assets/logo.png";
+import { LOGO_MAQSOL_TRANSPARENTE } from "../../utils/logoMaqsolTransparente";
 import { useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
 import { descargarExcelBonito, nombreArchivoSemana, numeroSemanaISO } from "../../utils/exportExcel";
 import { S, fFecha, hoyISO, dinero, esc } from "./estilosAdmin";
@@ -107,10 +107,11 @@ export default function CargasDiesel() {
   const porMaquina = Object.values(
     filtradas.reduce((acc, c) => {
       const k = c.maquina + "|" + c.serie;
-      acc[k] = acc[k] || { maquina: c.maquina, serie: c.serie, cargas: 0, litros: 0, importe: 0 };
+      acc[k] = acc[k] || { maquina: c.maquina, serie: c.serie, cargas: 0, litros: 0, importe: 0, conIva: 0 };
       acc[k].cargas += 1;
       acc[k].litros += num(c.litros);
       acc[k].importe += num(c.total);
+      acc[k].conIva += num(c.importeConIva);
       return acc;
     }, {})
   ).sort((a, b) => b.litros - a.litros);
@@ -120,14 +121,27 @@ export default function CargasDiesel() {
 
   const exportarExcel = () => {
     if (!filtradas.length) return alert("No hay cargas en este periodo.");
+    const detalleOrdenado = filtradas.slice().sort((x, y) => (x.fecha || "").localeCompare(y.fecha || ""));
     descargarExcelBonito({
       titulo: "Cargas de Diesel",
-      subtitulo: `${etiquetaPeriodo} · ${litrosTxt(totalLitros)} · ${dinero(totalImporte)}`,
+      subtitulo: `${etiquetaPeriodo} · ${filtradas.length} cargas · ${litrosTxt(totalLitros)} · Sin impuestos ${dinero(totalImporte)} · Con impuestos ${dinero(totalConIva)}`,
       columnas: ["Fecha", "Máquina", "Serie", "Obra", "Operador", "Litros", "Precio por litro (sin imp.)", "Total sin impuestos", "Importe con impuestos"],
+      formatos: [null, null, null, null, null, "litros", "moneda", "moneda", "moneda"],
       filas: [
-        ...filtradas.map((c) => [fFecha(c.fecha), c.maquina, c.serie, c.obra, c.operador, num(c.litros), dinero(c.precioLitro), dinero(c.total), c.importeConIva ? dinero(c.importeConIva) : ""]),
-        ["", "", "", "", "TOTAL", Math.round(totalLitros * 10) / 10, dinero(precioProm), dinero(totalImporte), dinero(totalConIva)]
+        ...detalleOrdenado.map((c) => [fFecha(c.fecha), c.maquina, c.serie, c.obra, c.operador, num(c.litros), num(c.precioLitro), num(c.total), c.importeConIva ? num(c.importeConIva) : null]),
+        ["", "", "", "", "TOTAL", redondear(totalLitros), redondear(precioProm), redondear(totalImporte), redondear(totalConIva)]
       ],
+      tema: { enc: "3A3A3A", titulo: "8F1D2C", zebra: "F5F5F5", total: "E4E4E4", acento: "8F1D2C", logo: "nuevo" },
+      hojasExtra: [{
+        titulo: "Resumen por máquina",
+        subtitulo: etiquetaPeriodo,
+        columnas: ["Máquina", "Serie", "Cargas", "Litros", "Importe sin impuestos", "Importe con impuestos"],
+        formatos: [null, null, "entero", "litros", "moneda", "moneda"],
+        filas: [
+          ...porMaquina.map((m) => [m.maquina, m.serie || "", m.cargas, redondear(m.litros), redondear(m.importe), m.conIva ? redondear(m.conIva) : null]),
+          ["", "TOTAL", filtradas.length, redondear(totalLitros), redondear(totalImporte), redondear(totalConIva)]
+        ]
+      }],
       nombreArchivo: nombreArchivoSemana("DIESEL", lunes)
     });
   };
@@ -136,33 +150,64 @@ export default function CargasDiesel() {
     if (!filtradas.length) return alert("No hay cargas en este periodo.");
     const w = window.open("", "_blank");
     if (!w) return alert("El navegador bloqueó la ventana. Permite ventanas emergentes para este sitio.");
-    const logoUrl = new URL(logo, window.location.href).href;
     const resumen = porMaquina
-      .map((m) => `<tr><td>${esc(m.maquina)}</td><td>${esc(m.serie || "—")}</td><td style="text-align:center">${m.cargas}</td><td style="text-align:right">${litrosTxt(m.litros)}</td><td style="text-align:right"><b>${dinero(m.importe)}</b></td></tr>`)
+      .map((m) => `<tr><td>${esc(m.maquina)}</td><td>${esc(m.serie || "—")}</td><td class="c">${m.cargas}</td><td class="r">${litrosTxt(m.litros)}</td><td class="r b">${dinero(m.importe)}</td><td class="r b">${m.conIva ? dinero(m.conIva) : "—"}</td></tr>`)
       .join("");
     const detalle = filtradas
       .slice()
       .sort((a, b) => (a.fecha || "").localeCompare(b.fecha || ""))
-      .map((c) => `<tr><td>${fFecha(c.fecha)}</td><td>${esc(c.maquina)}</td><td>${esc(c.serie || "—")}</td><td>${esc(c.obra || "—")}</td><td>${esc(c.operador || "—")}</td><td style="text-align:right">${litrosTxt(num(c.litros))}</td><td style="text-align:right">${dinero(c.precioLitro)}</td><td style="text-align:right"><b>${dinero(c.total)}</b></td><td style="text-align:right"><b>${c.importeConIva ? dinero(c.importeConIva) : "—"}</b></td></tr>`)
+      .map((c) => `<tr><td class="c">${fFecha(c.fecha)}</td><td>${esc(c.maquina)}</td><td>${esc(c.serie || "—")}</td><td>${esc(c.obra || "—")}</td><td>${esc(c.operador || "—")}</td><td class="r">${litrosTxt(num(c.litros))}</td><td class="r">${dinero(c.precioLitro)}</td><td class="r b">${dinero(c.total)}</td><td class="r b">${c.importeConIva ? dinero(c.importeConIva) : "—"}</td></tr>`)
       .join("");
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Cargas de diesel</title>
       <style>
-        @page{size:auto;margin:0}
-        body{font-family:Arial,sans-serif;color:#222;margin:0;padding:12mm 12mm;font-size:12px}
-        .top{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #1d5c8f;padding-bottom:12px;margin-bottom:16px}
-        .top img{height:58px} h1{font-size:20px;margin:0;color:#1d5c8f} p{margin:3px 0;color:#555}
-        h2{font-size:14px;margin:20px 0 8px;color:#1d5c8f}
-        table{width:100%;border-collapse:collapse} th{background:#1d5c8f;color:#fff;text-align:left;padding:7px;font-size:11px}
-        td{padding:6px 7px;border-bottom:1px solid #ddd} tr:nth-child(even) td{background:#f6f9fc}
-        .tot{display:flex;gap:30px;justify-content:flex-end;margin-top:14px;font-size:14px}
-        @media print{body{padding:10mm 9mm}}
+        @page{size:letter landscape;margin:0}
+        *{box-sizing:border-box}
+        body{font-family:Arial,sans-serif;color:#222;margin:0;padding:11mm 12mm;font-size:11px}
+        .top{display:flex;align-items:center;gap:14px;border:1px solid #777;background:#ececec;padding:7px 12px}
+        .top img{height:15mm}
+        .tt{flex:1;text-align:center}
+        .tt h1{margin:0;font-size:20px;letter-spacing:1px;color:#222}
+        .tt div{font-size:10px;color:#555;margin-top:2px}
+        .gen{border:1px solid #777;background:#d9d9d9;text-align:center;padding:5px 14px}
+        .gen b{display:block;font-size:9px;letter-spacing:.8px;color:#444}
+        .gen span{font-size:12px;font-weight:700}
+        .linea{height:3px;background:#8f1d2c;margin:0 0 10px}
+        .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:10px 0 4px}
+        .kpi{border:1px solid #999;background:#f5f5f5;padding:7px 10px;text-align:center}
+        .kpi b{display:block;font-size:8.5px;letter-spacing:.7px;color:#555}
+        .kpi span{font-size:15px;font-weight:700;color:#222}
+        .kpi.g{background:#e4e4e4;border-color:#777}
+        h2{font-size:11px;letter-spacing:1px;margin:14px 0 6px;color:#fff;background:#3a3a3a;padding:5px 10px}
+        table{width:100%;border-collapse:collapse;font-size:10.5px}
+        thead{display:table-header-group}
+        th{background:#d9d9d9;color:#222;border:1px solid #777;padding:6px 6px;font-size:9px;letter-spacing:.4px;text-align:center}
+        td{border:1px solid #aaa;padding:5px 7px}
+        tr{page-break-inside:avoid}
+        tbody tr:nth-child(even) td{background:#f5f5f5}
+        .c{text-align:center}.r{text-align:right}.b{font-weight:700}
+        .tot td{background:#d9d9d9 !important;border:1px solid #777;font-weight:700;font-size:11px}
+        .pie{margin-top:10px;font-size:8.5px;color:#888;text-align:center}
       </style></head><body>
-      <div class="top"><div><h1>Cargas de Diesel</h1><p>${esc(etiquetaPeriodo)}</p><p>Generado: ${new Date().toLocaleDateString("es-MX")}</p></div><img src="${logoUrl}" alt="MAQSOL"></div>
-      <h2>Resumen por máquina</h2>
-      <table><thead><tr><th>Máquina</th><th>Serie</th><th style="text-align:center">Cargas</th><th style="text-align:right">Litros</th><th style="text-align:right">Importe</th></tr></thead><tbody>${resumen}</tbody></table>
-      <div class="tot"><span>Litros: <b>${litrosTxt(totalLitros)}</b></span><span>Precio prom.: <b>${dinero(precioProm)}</b></span><span>Total sin impuestos: <b>${dinero(totalImporte)}</b></span><span>Total con impuestos: <b>${dinero(totalConIva)}</b></span></div>
-      <h2>Detalle de cargas</h2>
-      <table><thead><tr><th>Fecha</th><th>Máquina</th><th>Serie</th><th>Obra</th><th>Operador</th><th style="text-align:right">Litros</th><th style="text-align:right">Precio/L</th><th style="text-align:right">Total sin imp.</th><th style="text-align:right">Con impuestos</th></tr></thead><tbody>${detalle}</tbody></table>
+      <div class="top">
+        <img src="${LOGO_MAQSOL_TRANSPARENTE}" alt="MAQSOL">
+        <div class="tt"><h1>CARGAS DE DIESEL</h1><div>MAQUINARIA SOPORTE Y LOGÍSTICA SA DE CV · ${esc(etiquetaPeriodo)}</div></div>
+        <div class="gen"><b>GENERADO</b><span>${new Date().toLocaleDateString("es-MX")}</span></div>
+      </div>
+      <div class="linea"></div>
+      <div class="kpis">
+        <div class="kpi"><b>CARGAS</b><span>${filtradas.length}</span></div>
+        <div class="kpi"><b>LITROS</b><span>${litrosTxt(totalLitros)}</span></div>
+        <div class="kpi"><b>PRECIO PROM. / LITRO</b><span>${dinero(precioProm)}</span></div>
+        <div class="kpi g"><b>TOTAL SIN IMPUESTOS</b><span>${dinero(totalImporte)}</span></div>
+        <div class="kpi g"><b>TOTAL CON IMPUESTOS</b><span>${dinero(totalConIva)}</span></div>
+      </div>
+      <h2>RESUMEN POR MÁQUINA</h2>
+      <table><thead><tr><th style="text-align:left">MÁQUINA</th><th>SERIE</th><th>CARGAS</th><th>LITROS</th><th>IMPORTE SIN IMPUESTOS</th><th>IMPORTE CON IMPUESTOS</th></tr></thead>
+        <tbody>${resumen}<tr class="tot"><td colspan="2" class="r">TOTAL</td><td class="c">${filtradas.length}</td><td class="r">${litrosTxt(totalLitros)}</td><td class="r">${dinero(totalImporte)}</td><td class="r">${dinero(totalConIva)}</td></tr></tbody></table>
+      <h2>DETALLE DE CARGAS</h2>
+      <table><thead><tr><th>FECHA</th><th style="text-align:left">MÁQUINA</th><th>SERIE</th><th>OBRA</th><th>OPERADOR</th><th>LITROS</th><th>PRECIO/L (SIN IMP.)</th><th>TOTAL SIN IMP.</th><th>CON IMPUESTOS</th></tr></thead>
+        <tbody>${detalle}<tr class="tot"><td colspan="5" class="r">TOTAL</td><td class="r">${litrosTxt(totalLitros)}</td><td class="r">${dinero(precioProm)}</td><td class="r">${dinero(totalImporte)}</td><td class="r">${dinero(totalConIva)}</td></tr></tbody></table>
+      <div class="pie">Documento generado desde MAQSISTEM · Los importes con impuestos son los capturados manualmente</div>
       <script>window.onload=function(){setTimeout(function(){window.print()},400)}</script>
       </body></html>`);
     w.document.close();
