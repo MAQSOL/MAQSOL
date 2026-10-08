@@ -72,15 +72,10 @@ function Sidebar() {
           <h4>Operaciones</h4>
           <RailNav
             onNavigate={cerrar}
-            items={[{ label: "Tareas", href: "/tareas" }]}
-          />
-        </div>
-
-        <div className="menu-section">
-          <h4>Recepción</h4>
-          <RailNav
-            onNavigate={cerrar}
-            items={[{ label: "Recepción Equipos", href: "/recepcion" }]}
+            items={[
+              { label: "Tareas", href: "/tareas" },
+              { label: "Recepción Equipos", href: "/recepcion" }
+            ]}
           />
         </div>
 
