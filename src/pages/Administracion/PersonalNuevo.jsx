@@ -42,6 +42,11 @@ const NUEVO = {
   beneficiarioNombre: "", beneficiarioParentesco: "", beneficiarioTelefono: "",
   emergenciaNombre: "", emergenciaParentesco: "", emergenciaTelefono: "",
   empleos: [{ ...EMPLEO }, { ...EMPLEO }],
+  codigoPostal: "", infonavit: "NO", infonavitNumero: "", fonacot: "NO", fonacotNumero: "",
+  ultimoEmpleo: "", ultimoPuesto: "", banco: "", cuenta: "", clabe: "", tarjeta: "",
+  emergenciaCorreo: "", emergencia2Nombre: "", emergencia2Parentesco: "", emergencia2Telefono: "", emergencia2Correo: "",
+  sueldoBase: "", horario: "08:00 A 18:00 HRS", horarioSabado: "08:00 A 13:00 HRS", horarioComida: "1:00 A 14:00 HRS",
+  lugarTrabajo: "Paseo Del Real Sur 313 Mza 103 lote 14 C.P. 77533 Benito Juarez",
   documentos: {}, noAplica: {}, notas: ""
 };
 
@@ -356,6 +361,57 @@ export default function PersonalNuevo() {
               <Campo etiqueta="NOMBRE"><input style={S.input} value={form.emergenciaNombre} onChange={(e) => set("emergenciaNombre", e.target.value)} /></Campo>
               <Campo etiqueta="PARENTESCO"><input style={S.input} value={form.emergenciaParentesco} onChange={(e) => set("emergenciaParentesco", e.target.value)} /></Campo>
               <Campo etiqueta="TELÉFONO"><input style={S.input} value={form.emergenciaTelefono} onChange={(e) => set("emergenciaTelefono", e.target.value)} /></Campo>
+            </div>
+
+            <h3 style={S.h3}>Datos de la ficha de ingreso</h3>
+            <div style={S.grid3}>
+              <Campo etiqueta="CÓDIGO POSTAL"><input style={S.input} value={form.codigoPostal} onChange={(e) => set("codigoPostal", e.target.value)} /></Campo>
+              <Campo etiqueta="¿CRÉDITO INFONAVIT?">
+                <select style={S.input} value={form.infonavit} onChange={(e) => set("infonavit", e.target.value)}><option>NO</option><option>SI</option></select>
+              </Campo>
+              <Campo etiqueta="NÚMERO DE CRÉDITO INFONAVIT"><input style={S.input} value={form.infonavitNumero} onChange={(e) => set("infonavitNumero", e.target.value)} /></Campo>
+            </div>
+            <div style={S.grid3}>
+              <Campo etiqueta="¿CRÉDITO FONACOT?">
+                <select style={S.input} value={form.fonacot} onChange={(e) => set("fonacot", e.target.value)}><option>NO</option><option>SI</option></select>
+              </Campo>
+              <Campo etiqueta="NO. DE CRÉDITO FONACOT"><input style={S.input} value={form.fonacotNumero} onChange={(e) => set("fonacotNumero", e.target.value)} /></Campo>
+              <Campo etiqueta="ÚLTIMO EMPLEO"><input style={S.input} value={form.ultimoEmpleo} onChange={(e) => set("ultimoEmpleo", e.target.value)} /></Campo>
+            </div>
+            <div style={S.grid3}>
+              <Campo etiqueta="PUESTO DESEMPEÑADO"><input style={S.input} value={form.ultimoPuesto} onChange={(e) => set("ultimoPuesto", e.target.value)} /></Campo>
+              <Campo etiqueta="BANCO (NÓMINA)"><input style={S.input} value={form.banco} onChange={(e) => set("banco", e.target.value)} /></Campo>
+              <Campo etiqueta="CUENTA"><input style={S.input} value={form.cuenta} onChange={(e) => set("cuenta", e.target.value)} /></Campo>
+            </div>
+            <div style={S.grid2}>
+              <Campo etiqueta="CLAVE INTERBANCARIA"><input style={S.input} value={form.clabe} onChange={(e) => set("clabe", e.target.value)} /></Campo>
+              <Campo etiqueta="TARJETA"><input style={S.input} value={form.tarjeta} onChange={(e) => set("tarjeta", e.target.value)} /></Campo>
+            </div>
+
+            <h3 style={S.h3}>Contacto de emergencia (correo y segundo contacto)</h3>
+            <div style={S.grid3}>
+              <Campo etiqueta="CORREO DEL CONTACTO 1"><input style={S.input} value={form.emergenciaCorreo} onChange={(e) => set("emergenciaCorreo", e.target.value)} /></Campo>
+              <div />
+              <div />
+            </div>
+            <div style={S.grid3}>
+              <Campo etiqueta="CONTACTO 2 · NOMBRE Y APELLIDOS"><input style={S.input} value={form.emergencia2Nombre} onChange={(e) => set("emergencia2Nombre", e.target.value)} /></Campo>
+              <Campo etiqueta="PARENTESCO"><input style={S.input} value={form.emergencia2Parentesco} onChange={(e) => set("emergencia2Parentesco", e.target.value)} /></Campo>
+              <Campo etiqueta="TELÉFONO"><input style={S.input} value={form.emergencia2Telefono} onChange={(e) => set("emergencia2Telefono", e.target.value)} /></Campo>
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <Campo etiqueta="CONTACTO 2 · CORREO ELECTRÓNICO"><input style={S.input} value={form.emergencia2Correo} onChange={(e) => set("emergencia2Correo", e.target.value)} /></Campo>
+            </div>
+
+            <h3 style={S.h3}>Datos del empleo</h3>
+            <div style={S.grid3}>
+              <Campo etiqueta="SUELDO BASE"><input style={S.input} value={form.sueldoBase} onChange={(e) => set("sueldoBase", e.target.value)} placeholder="Ej. 10000" /></Campo>
+              <Campo etiqueta="HORARIO DE TRABAJO"><input style={S.input} value={form.horario} onChange={(e) => set("horario", e.target.value)} /></Campo>
+              <Campo etiqueta="SÁBADOS"><input style={S.input} value={form.horarioSabado} onChange={(e) => set("horarioSabado", e.target.value)} /></Campo>
+            </div>
+            <div style={S.grid2}>
+              <Campo etiqueta="COMIDA"><input style={S.input} value={form.horarioComida} onChange={(e) => set("horarioComida", e.target.value)} /></Campo>
+              <Campo etiqueta="LUGAR DE TRABAJO"><input style={S.input} value={form.lugarTrabajo} onChange={(e) => set("lugarTrabajo", e.target.value)} /></Campo>
             </div>
 
             <h3 style={S.h3}>
