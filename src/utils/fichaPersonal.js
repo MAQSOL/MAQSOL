@@ -25,7 +25,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   const p = persona || {};
   const doc = new jsPDF({ unit: "mm", format: "letter" });
   const W = 216, M = 8, ancho = W - M * 2;
-  const H0 = 7.1;
+  const H0 = 6.3;
   const ROJO = [143, 29, 44];
   let y = 9;
 
@@ -107,31 +107,28 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   encabezado("DATOS PARA NUEVO INGRESO");
   fila([["NOMBRE DE LA EMPRESA", 4, "l"], ["MAQUINARIA SOPORTE Y LOGISTICA SA DE CV", 10, "v"], ["FECHA", 2, "l"], [hoyTxt, 4, "v"]]);
 
-  // ---- Datos del trabajador ----
-  encabezado("DATOS DEL TRABAJADOR");
-  fila([["NOMBRE TRABAJADOR", 4, "l"], [p.nombre, 6, "v"], ["FECHA DE INGRESO", 4, "l"], [f(p.fechaIngreso), 6, "v"]]);
-  fila([["REGISTRO FED. DE CAUSANTES", 4, "l"], [p.rfc, 6, "v"], ["CURP", 4, "l"], [p.curp, 6, "v"]]);
-  fila([["DIRECCION", 4, "l"], [p.domicilio, 16, "v"]]);
-  fila([["TIENE CREDITO INFONAVIT", 4, "l"], [p.infonavit, 3, "v"], ["NUMERO DE CREDITO", 4, "l"], [p.infonavitNumero, 3, "v"], ["COD. POSTAL", 3, "l"], [p.codigoPostal, 3, "v"]]);
-  fila([["NUMERO DE IMSS", 4, "l"], [p.nss, 6, "v"], ["CORREO ELECTRONICO", 4, "l"], [p.correo, 6, "v"]]);
-  fila([["LUGAR DE NACIMIENTO", 4, "l"], [p.lugarNacimiento, 6, "v"], ["FECHA DE NACIMIENTO", 4, "l"], [f(p.fechaNacimiento), 6, "v"]]);
-  fila([["TELEFONO CELULAR", 4, "l"], [p.telefono, 6, "v"], ["PUESTO SOLICITADO", 4, "l"], [p.puesto, 6, "v"]]);
-  fila([["TIENE CREDITO FONACOT", 4, "l"], [p.fonacot, 3, "v"], ["No. DE CREDITO", 4, "l"], [p.fonacotNumero, 3, "v"], ["GRADO ACADEMICO", 3, "l"], [p.escolaridad, 3, "v"]]);
+  // ---- Datos del trabajador (rejilla fija: etiqueta 4 | valor 6 | etiqueta 4 | valor 6) ----
+  const par = (e1, v1, e2, v2) => fila([[e1, 4, "l"], [v1, 6, "v"], [e2, 4, "l"], [v2, 6, "v"]]);
+  const completa = (e1, v1) => fila([[e1, 4, "l"], [v1, 16, "v"]]);
   const nHijos = p.numHijos !== undefined && p.numHijos !== "" ? p.numHijos : p.hijos ? (p.hijos || []).filter((h) => h.nombre).length : "";
-  fila([["TIPO DE SANGRE", 4, "l"], [p.tipoSangre, 3, "v"], ["ESTADO CIVIL", 4, "l"], [p.estadoCivil, 3, "v"], ["NUMERO DE HIJOS", 3, "l"], [String(nHijos), 3, "v"]]);
-  fila([["ULTIMO EMPLEO", 4, "l"], [p.ultimoEmpleo, 6, "v"], ["PUESTO DESEMPEÑADO", 4, "l"], [p.ultimoPuesto, 6, "v"]]);
 
-  // Cuenta para nómina (celda combinada de 2 renglones)
-  {
-    const wL = (ancho * 4) / 20;
-    doc.setFillColor(236, 236, 236);
-    doc.rect(M, y, wL, H0 * 2, "FD");
-    escribe("CUENTA PARA NOMINA", M, y, wL, H0 * 2, 7, true, true);
-    const xr = M + wL;
-    const wr = ancho - wL;
-    fila([["BANCO", 3, "l"], [p.banco, 7, "v"], ["CUENTA", 3, "l"], [p.cuenta, 3, "v"]], H0, xr, wr, 16);
-    fila([["CLAVE INTERBANCARIA", 3, "l"], [p.clabe, 7, "v"], ["TARJETA", 3, "l"], [p.tarjeta, 3, "v"]], H0, xr, wr, 16);
-  }
+  encabezado("DATOS DEL TRABAJADOR");
+  par("NOMBRE TRABAJADOR", p.nombre, "FECHA DE INGRESO", f(p.fechaIngreso));
+  par("RFC", p.rfc, "CURP", p.curp);
+  completa("DIRECCION", p.domicilio);
+  par("CODIGO POSTAL", p.codigoPostal, "CORREO ELECTRONICO", p.correo);
+  par("NUMERO DE IMSS", p.nss, "TELEFONO CELULAR", p.telefono);
+  par("LUGAR DE NACIMIENTO", p.lugarNacimiento, "FECHA DE NACIMIENTO", f(p.fechaNacimiento));
+  par("ESTADO CIVIL", p.estadoCivil, "TIPO DE SANGRE", p.tipoSangre);
+  par("NUMERO DE HIJOS", String(nHijos), "GRADO ACADEMICO", p.escolaridad);
+  par("TIENE CREDITO INFONAVIT", p.infonavit, "No. CREDITO INFONAVIT", p.infonavitNumero);
+  par("TIENE CREDITO FONACOT", p.fonacot, "No. CREDITO FONACOT", p.fonacotNumero);
+  par("ULTIMO EMPLEO", p.ultimoEmpleo, "PUESTO DESEMPEÑADO", p.ultimoPuesto);
+  completa("PUESTO SOLICITADO", p.puesto);
+
+  encabezado("CUENTA PARA NOMINA");
+  par("BANCO", p.banco, "CUENTA", p.cuenta);
+  par("CLAVE INTERBANCARIA", p.clabe, "TARJETA", p.tarjeta);
 
   // ---- Contacto en caso de emergencia ----
   encabezado("CONTACTO EN CASO DE EMERGENCIA");
@@ -140,18 +137,19 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
     [p.emergencia2Nombre, p.emergencia2Parentesco, p.emergencia2Telefono, p.emergencia2Correo]
   ];
   contactos.forEach((c) => {
-    fila([["NOMBRE Y APELLIDOS", 4, "l"], [c[0], 6, "v"], ["PARENTESCO", 4, "l"], [c[1], 6, "v"]]);
-    fila([["TELEFONO", 4, "l"], [c[2], 6, "v"], ["CORREO ELECTRONICO", 4, "l"], [c[3], 6, "v"]]);
+    par("NOMBRE Y APELLIDOS", c[0], "PARENTESCO", c[1]);
+    par("TELEFONO", c[2], "CORREO ELECTRONICO", c[3]);
   });
 
   // ---- Datos del empleo ----
   encabezado("DATOS DEL EMPLEO");
   const sueldo = p.sueldoBase ? (isNaN(Number(p.sueldoBase)) ? p.sueldoBase : "$" + Number(p.sueldoBase).toLocaleString("es-MX")) : "";
-  fila([["CARGO O PUESTO", 4, "l"], [p.puesto, 6, "v"], ["SUELDO BASE", 4, "l"], [sueldo, 6, "v"]]);
-  fila([["HORARIOS DE TRABAJO", 4, "l"], [p.horario, 3, "v"], ["SABADOS", 4, "l"], [p.horarioSabado, 3, "v"], ["COMIDA", 3, "l"], [p.horarioComida, 3, "v"]]);
-  fila([["LUGAR DE TRABAJO", 4, "l"], [p.lugarTrabajo, 16, "v"]]);
+  par("CARGO O PUESTO", p.puesto, "SUELDO BASE", sueldo);
+  par("HORARIOS DE TRABAJO", p.horario, "SABADOS", p.horarioSabado);
+  completa("COMIDA", p.horarioComida);
+  completa("LUGAR DE TRABAJO", p.lugarTrabajo);
   {
-    const alto = 21;
+    const alto = 13;
     const wL = (ancho * 4) / 20;
     doc.setFillColor(236, 236, 236);
     doc.rect(M, y, wL, alto, "FD");
@@ -169,7 +167,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   // ---- Firmas ----
   encabezado("FIRMAS");
   fila([["TRABAJADOR", 5, "l"], ["RECURSOS HUMANOS", 5, "l"], ["SUPERVISION", 5, "l"], ["VO. BO.", 5, "l"]], 6.5);
-  fila([["", 5, "v"], ["", 5, "v"], ["", 5, "v"], ["", 5, "v"]], 30);
+  fila([["", 5, "v"], ["", 5, "v"], ["", 5, "v"], ["", 5, "v"]], 24);
   fila([[(p.nombre || "").toUpperCase(), 5, "l"], ["LIC. ANABEL CERINO AVALOS", 5, "l"], ["CESAR ALEJANDRO BALAM MOGUEL", 5, "l"], ["LIC. FRANCISCO TORRES MORALES", 5, "l"]], 8);
 
   doc.setFillColor(...ROJO);
