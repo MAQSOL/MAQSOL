@@ -19,7 +19,7 @@ const PRIORIDADES = {
   baja: { texto: "Baja", color: "#666", fondo: "#f0f0f0" }
 };
 
-const NUEVA = { id: "", titulo: "", descripcion: "", estado: "pendiente", prioridad: "media", asignadoId: "", fechaLimite: "", comentarios: [] };
+const NUEVA = { id: "", titulo: "", descripcion: "", estado: "pendiente", prioridad: "media", asignadoId: "", asignadoNombre: "", fechaLimite: "", comentarios: [] };
 
 const diasPara = (f) => {
   if (!f) return null;
@@ -76,7 +76,7 @@ function TarjetaTarea({ t, perfiles, onAbrir, onMover }) {
             color: "#444"
           }}
         >
-          {nombreDe(perfiles, t.asignadoId)}
+          {t.asignadoId ? nombreDe(perfiles, t.asignadoId) : t.asignadoNombre || "Sin asignar"}
         </span>
         {t.fechaLimite && (
           <span style={{ color: vencida ? "#c62828" : "#999", fontWeight: vencida ? 700 : 500 }}>
@@ -153,7 +153,12 @@ export default function Tareas() {
   const guardar = () => {
     if (!form.titulo.trim()) return alert("Escribe el título de la tarea.");
     const existe = tareas.some((t) => t.id === form.id);
-    guardarTareas(existe ? tareas.map((t) => (t.id === form.id ? form : t)) : [...tareas, form]);
+    const registro = {
+      ...form,
+      asignadoId: form.asignadoId === "__otro__" ? "" : form.asignadoId,
+      asignadoNombre: form.asignadoId && form.asignadoId !== "__otro__" ? "" : (form.asignadoNombre || "").trim()
+    };
+    guardarTareas(existe ? tareas.map((t) => (t.id === form.id ? registro : t)) : [...tareas, registro]);
     setModal(null);
   };
 
@@ -241,10 +246,24 @@ export default function Tareas() {
             <div style={S.grid3}>
               <div>
                 <label style={S.label}>ASIGNAR A</label>
-                <select style={S.input} value={form.asignadoId} onChange={(e) => set("asignadoId", e.target.value)}>
+                <select
+                  style={S.input}
+                  value={form.asignadoId === "__otro__" || (!form.asignadoId && form.asignadoNombre) ? "__otro__" : form.asignadoId}
+                  onChange={(e) => setForm((f) => ({ ...f, asignadoId: e.target.value, asignadoNombre: e.target.value === "__otro__" ? f.asignadoNombre || "" : "" }))}
+                >
                   <option value="">— Sin asignar —</option>
                   {perfiles.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                  <option value="__otro__">✎ Otra persona (escribir nombre)</option>
                 </select>
+                {(form.asignadoId === "__otro__" || (!form.asignadoId && form.asignadoNombre)) && (
+                  <input
+                    style={{ ...S.input, marginTop: 8 }}
+                    autoFocus
+                    placeholder="Ej. nombre del practicante"
+                    value={form.asignadoNombre || ""}
+                    onChange={(e) => set("asignadoNombre", e.target.value)}
+                  />
+                )}
               </div>
               <div>
                 <label style={S.label}>PRIORIDAD</label>
