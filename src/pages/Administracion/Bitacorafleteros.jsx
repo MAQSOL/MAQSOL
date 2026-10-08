@@ -3,6 +3,7 @@ import { useListaCompartida, useListaCatalogo } from '../../hooks/useSharedTable
 import Sidebar from '../../components/Sidebar'
 import DeleteButton from '../../components/DeleteButton'
 import { descargarExcelBonito, nombreArchivoSemana } from '../../utils/exportExcel'
+import { LOGO_MAQSOL_TRANSPARENTE } from '../../utils/logoMaqsolTransparente'
 
 const VINO = 'var(--acento)'
 const KEY_FLETES = 'fletesMaqsol'
@@ -65,38 +66,75 @@ function textoOC(f){
 }
 function dinero(v){const n=parseFloat(String(v).replace(/[$,\s]/g,''));return isNaN(n)?(v||'—'):'$'+n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})}
 function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function pdfFlete(f){
-  const fila=(k,v)=>`<tr><th>${k}</th><td>${esc(v)||'—'}</td></tr>`
-  const html=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(f.folio)}</title><style>
-    @page{size:letter portrait;margin:0}
-    body{font-family:Arial,sans-serif;margin:0;padding:16mm;color:#222}
-    h1{color:#8f1d2c;font-size:22px;margin:0}
-    .sub{color:#777;font-size:12px;margin:2px 0 14px}
-    .bar{border-top:3px solid #8f1d2c;margin:8px 0 14px}
-    table{width:100%;border-collapse:collapse;font-size:13px}
-    th{width:34%;text-align:left;background:#f4e9eb;color:#8f1d2c;padding:8px 10px;border:1px solid #e3d3d6}
-    td{padding:8px 10px;border:1px solid #e3d3d6}
-    .imp{font-size:16px;font-weight:700}
-    .pie{margin-top:14px;font-size:10px;color:#999;text-align:center}
+function folioBitacora(){
+  const d=new Date()
+  const mmaa=String(d.getMonth()+1).padStart(2,'0')+d.getFullYear()
+  const llave='bitacoraFleterosSeq-'+mmaa
+  let n=1
+  try{n=(parseInt(localStorage.getItem(llave)||'0',10)||0)+1;localStorage.setItem(llave,String(n))}catch{ /* sin almacenamiento */ }
+  return 'BF'+String(n).padStart(2,'0')+'-'+mmaa
+}
+function pdfFletes(lista,periodo){
+  if(!lista.length){alert('No hay fletes para el PDF.');return}
+  const filas=[...lista].sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||'')||(a.folio||'').localeCompare(b.folio||''))
+  const folio=folioBitacora()
+  const num=v=>{const n=parseFloat(String(v==null?'':v).replace(/[$,\s]/g,''));return isNaN(n)?0:n}
+  const total=filas.reduce((a,f)=>a+num(f.costo),0)
+  const fila=(f,i)=>`<tr class="${i%2?'z':''}">
+    <td class="c b">${esc(f.folio)}</td>
+    <td class="c">${esc(fFecha(f.fecha))}${f.horaMovimiento?`<div class="m">${esc(f.horaMovimiento)} h</div>`:''}</td>
+    <td>${esc(f.empresa)||'—'}</td>
+    <td>${esc(f.proveedor)||'—'}</td>
+    <td>${esc(f.equipo)||'—'}${f.serieEquipo?`<div class="m">Serie: ${esc(f.serieEquipo)}</div>`:''}</td>
+    <td>${esc(f.origen)||'—'}<div class="m">→ ${esc(f.destino)||'—'}</div></td>
+    <td class="c">${esc(textoOC(f))}</td>
+    <td class="r b">${f.costo?esc(dinero(f.costo)):'—'}</td>
+    <td class="c">${esc(f.pagado||'Pendiente')}</td>
+    <td class="c">${esc(f.estado==='En Ruta'?'Programado':f.estado)}</td>
+  </tr>${f.observaciones?`<tr class="${i%2?'z':''}"><td colspan="10" class="obs">Obs.: ${esc(f.observaciones)}</td></tr>`:''}`
+  const html=`<!doctype html><html><head><meta charset="utf-8"><title>${folio}</title><style>
+    @page{size:letter landscape;margin:0}
+    *{box-sizing:border-box}
+    body{font-family:Arial,sans-serif;margin:0;padding:11mm 12mm;color:#222}
+    .top{display:flex;align-items:center;gap:14px;border:1px solid #777;background:#ececec;padding:7px 12px}
+    .top img{height:15mm}
+    .tt{flex:1;text-align:center}
+    .tt h1{margin:0;font-size:20px;letter-spacing:1px;color:#222}
+    .tt div{font-size:10px;color:#555;margin-top:2px}
+    .fol{border:1px solid #777;background:#d9d9d9;text-align:center;padding:5px 14px}
+    .fol b{display:block;font-size:9px;letter-spacing:.8px;color:#444}
+    .fol span{font-size:17px;font-weight:700}
+    .per{margin:6px 0 6px;font-size:10.5px;color:#444;display:flex;justify-content:space-between}
+    table{width:100%;border-collapse:collapse;font-size:10px}
+    thead{display:table-header-group}
+    th{background:#d9d9d9;color:#222;border:1px solid #777;padding:6px 5px;font-size:9px;letter-spacing:.4px}
+    td{border:1px solid #aaa;padding:5px 6px;vertical-align:middle}
+    tr{page-break-inside:avoid}
+    tr.z td{background:#f5f5f5}
+    .c{text-align:center}.r{text-align:right}.b{font-weight:700}
+    .m{font-size:8.5px;color:#666;margin-top:1px}
+    .obs{font-size:9px;color:#555;font-style:italic;border-top:none}
+    .tot td{background:#d9d9d9;border:1px solid #777;font-weight:700;font-size:11px}
+    .pie{margin-top:8px;font-size:8.5px;color:#888;text-align:center}
   </style></head><body>
-    <h1>BITÁCORA DE FLETE · ${esc(f.folio)}</h1>
-    <div class="sub">MAQUINARIA SOPORTE Y LOGÍSTICA SA DE CV · ${esc(fFecha(f.fecha))}</div><div class="bar"></div>
+    <div class="top">
+      <img src="${LOGO_MAQSOL_TRANSPARENTE}" alt=""/>
+      <div class="tt"><h1>BITÁCORA DE FLETEROS</h1><div>MAQUINARIA SOPORTE Y LOGÍSTICA SA DE CV</div></div>
+      <div class="fol"><b>FOLIO</b><span>${folio}</span></div>
+    </div>
+    <div class="per"><span>${esc(periodo)}</span><span>${filas.length} flete${filas.length===1?'':'s'}</span></div>
     <table>
-      ${fila('Empresa (solicitó y pagó el flete)',f.empresa)}
-      ${fila('Proveedor que dio el servicio',f.proveedor)}
-      ${fila('Equipo movido',f.equipo)}
-      ${fila('Serie del equipo',f.serieEquipo)}
-      ${fila('Origen',f.origen)}
-      ${fila('Destino',f.destino)}
-      ${fila('Hora de movimiento del equipo',f.horaMovimiento)}
-      ${fila('Orden de compra',textoOC(f))}
-      <tr><th>Importe (sin impuestos)</th><td class="imp">${esc(f.costo?dinero(f.costo):'—')}</td></tr>
-      ${fila('Pago',f.pagado||'Pendiente')}
-      ${fila('Estado del viaje',f.estado==='En Ruta'?'Programado':f.estado)}
-      ${fila('Observaciones',f.observaciones)}
+      <thead><tr>
+        <th style="width:8%">FOLIO</th><th style="width:8%">FECHA / HORA</th><th style="width:14%">EMPRESA (SOLICITÓ Y PAGÓ)</th><th style="width:12%">PROVEEDOR</th>
+        <th style="width:14%">EQUIPO</th><th style="width:13%">ORIGEN → DESTINO</th><th style="width:9%">ORDEN DE COMPRA</th><th style="width:10%">IMPORTE SIN IMPUESTOS</th><th style="width:6%">PAGO</th><th style="width:6%">ESTADO</th>
+      </tr></thead>
+      <tbody>
+        ${filas.map(fila).join('')}
+        <tr class="tot"><td colspan="7" class="r">TOTAL SIN IMPUESTOS</td><td class="r">${esc(dinero(total))}</td><td colspan="2"></td></tr>
+      </tbody>
     </table>
-    <div class="pie">Documento generado desde MAQSISTEM · ${esc(f.folio)}</div>
-    <script>window.onload=()=>setTimeout(()=>window.print(),300)</script>
+    <div class="pie">Documento generado desde MAQSISTEM · ${folio}</div>
+    <script>window.onload=()=>setTimeout(()=>window.print(),400)</script>
   </body></html>`
   const w=window.open('','_blank');if(!w){alert('Permite ventanas emergentes para ver el PDF.');return}
   w.document.write(html);w.document.close()
@@ -129,6 +167,8 @@ export default function BitacoraFleteros(){
   const[busqueda,setBusqueda]=useState('')
   const[fEstado,setFEstado]=useState('')
   const[fPagado,setFPagado]=useState('')
+  const[fDesde,setFDesde]=useState('')
+  const[fHasta,setFHasta]=useState('')
 
   function siguienteFolio(){
     const n=fletes.reduce((max,f)=>{
@@ -162,7 +202,7 @@ export default function BitacoraFleteros(){
 
   const filtrados=fletes.filter(f=>{
     const t=(f.folio+' '+f.origen+' '+f.destino+' '+f.empresa+' '+f.equipo+' '+f.serieEquipo+' '+(f.proveedor||'')+' '+(f.numOC||'')).toLowerCase()
-    return t.includes(busqueda.toLowerCase())&&(!fEstado||f.estado===fEstado)&&(!fPagado||f.pagado===fPagado)
+    return t.includes(busqueda.toLowerCase())&&(!fEstado||f.estado===fEstado)&&(!fPagado||f.pagado===fPagado)&&(!fDesde||(f.fecha||'')>=fDesde)&&(!fHasta||(f.fecha||'')<=fHasta)
   }).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''))
 
   const stats={
@@ -171,6 +211,10 @@ export default function BitacoraFleteros(){
     total:fletes.length
   }
 
+  function periodoTxt(){
+    if(fDesde||fHasta)return 'Periodo: '+(fDesde?fFecha(fDesde):'inicio')+' al '+(fHasta?fFecha(fHasta):'hoy')
+    return 'Periodo: '+new Date().toLocaleDateString('es-MX',{month:'long',year:'numeric'})
+  }
   function exportarLista(){
     const columnas=['Folio','Fecha','Empresa (cliente)','Proveedor del flete','Equipo','Serie','Origen','Destino','Hora','Orden de compra','Importe sin impuestos','Pagado','Estado','Observaciones']
     const filas=filtrados.map(f=>[f.folio,fFecha(f.fecha),f.empresa,f.proveedor,f.equipo,f.serieEquipo,f.origen,f.destino,f.horaMovimiento,textoOC(f),f.costo?'$'+f.costo:'',f.pagado,f.estado,f.observaciones])
@@ -186,7 +230,7 @@ export default function BitacoraFleteros(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={{...S.h1,display:'flex',alignItems:'center',gap:10}}><IconoFlete/> Bitácora Fleteros</h1><p style={S.sub}>Fletes de equipo entre origen y destino · {fletes.length} registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button style={S.btn} onClick={abrirNuevo}>+ Agregar flete</button></div>
+        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={exportarLista}>Descargar Excel</button><button style={S.btnVerde} onClick={()=>pdfFletes(filtrados,periodoTxt())}>PDF de la lista ({filtrados.length})</button><button style={S.btn} onClick={abrirNuevo}>+ Agregar flete</button></div>
       </div>
 
       <div style={{display:'flex',gap:16,marginBottom:22,flexWrap:'wrap'}}>
@@ -196,10 +240,12 @@ export default function BitacoraFleteros(){
       </div>
 
       <div style={S.card}>
-        <div style={{display:'grid',gridTemplateColumns:'1.6fr 1fr 1fr',gap:18,alignItems:'end'}}>
+        <div style={{display:'grid',gridTemplateColumns:'1.6fr 1fr 1fr 1fr 1fr',gap:14,alignItems:'end'}}>
           <div><label style={S.label}>BUSCAR</label><input style={S.input} placeholder="Folio, empresa, equipo, serie, origen o destino" value={busqueda} onChange={ev=>setBusqueda(ev.target.value)}/></div>
           <div><label style={S.label}>ESTADO</label><select style={S.input} value={fEstado} onChange={ev=>setFEstado(ev.target.value)}><option value="">Todos</option><option>Programado</option><option>Entregado</option><option>Cancelado</option></select></div>
           <div><label style={S.label}>PAGO</label><select style={S.input} value={fPagado} onChange={ev=>setFPagado(ev.target.value)}><option value="">Todos</option><option>Pagado</option><option>Pendiente</option></select></div>
+          <div><label style={S.label}>DESDE</label><input type="date" style={S.input} value={fDesde} onChange={ev=>setFDesde(ev.target.value)}/></div>
+          <div><label style={S.label}>HASTA</label><input type="date" style={S.input} value={fHasta} onChange={ev=>setFHasta(ev.target.value)}/></div>
         </div>
       </div>
 
@@ -221,7 +267,7 @@ export default function BitacoraFleteros(){
               <td style={S.td}><BadgePago pagado={f.pagado}/></td>
               <td style={S.td}><BadgeEstado estado={f.estado}/></td>
               <td style={{...S.td,textAlign:'center',whiteSpace:'nowrap'}}>
-                <button style={S.btnGrisSm} onClick={()=>pdfFlete(f)}>PDF</button> <button style={S.btnGrisSm} onClick={()=>abrirEditar(f)}>Editar</button>
+                <button style={S.btnGrisSm} onClick={()=>abrirEditar(f)}>Editar</button>
                 <span style={{marginLeft:6,display:'inline-block'}}><DeleteButton size="sm" title="Eliminar flete" onConfirm={()=>eliminarFlete(f)}/></span>
               </td>
             </tr>))}
@@ -270,7 +316,7 @@ export default function BitacoraFleteros(){
         <div style={{display:'flex',justifyContent:'space-between',gap:10}}>
           <DeleteButton title="Eliminar flete" onConfirm={()=>eliminarFlete(verFlete)}/>
           <div style={{display:'flex',gap:10}}>
-            <button style={S.btnGris} onClick={()=>pdfFlete(verFlete)}>Ver PDF</button>
+            <button style={S.btnGris} onClick={()=>pdfFletes([verFlete],'Flete individual')}>Ver PDF</button>
             <button style={S.btnGris} onClick={()=>setVerFlete(null)}>Cerrar</button>
             <button style={S.btn} onClick={()=>{abrirEditar(verFlete);setVerFlete(null)}}>Editar</button>
           </div>
