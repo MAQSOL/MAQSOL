@@ -1,5 +1,6 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 
 import Login from "./pages/Login";
 import EquipoQR from "./pages/EquipoQR";
@@ -30,9 +31,17 @@ import CargasDiesel from "./pages/Administracion/CargasDiesel";
 import PersonalNuevo from "./pages/Administracion/PersonalNuevo";
 import Tareas from "./pages/Operaciones/Tareas";
 
+// al cambiar de apartado, la página nueva empieza arriba (no donde se quedó la anterior)
+function ArribaAlNavegar() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <ArribaAlNavegar />
       <AuthProvider>
       <Routes>
 

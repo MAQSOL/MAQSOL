@@ -29,13 +29,20 @@ body{
    SIDEBAR
 ========================= */
 
+/* el menú se queda fijo y tiene su propio scroll: bajar en el menú no mueve
+   la página, y bajar en la página no mueve el menú */
 .sidebar{
   width:280px;
   min-width:280px;
   flex-shrink:0;
   background:#ffffff;
   border-right:1px solid #e5e5e5;
+  position:sticky;
+  top:0;
+  height:100vh;
+  align-self:flex-start;
   overflow-y:auto;
+  overscroll-behavior:contain;
 }
 
 .logo-container{

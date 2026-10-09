@@ -51,9 +51,7 @@ function Dashboard() {
   const { registros: alquileres } = useSharedTable("alquileres");
   const alquileresActivos = alquileres.filter((a) => !a.finalizado).length;
   const { registros: colaboradores } = useSharedTable("colaboradores");
-  const { registros: cotizacionesVenta } = useCotizaciones("venta");
   const { registros: cotizacionesRenta } = useCotizaciones("renta");
-  const { registros: cotizacionesRefaccion } = useCotizaciones("refaccion");
   const { registros: tareas } = useSharedTable("tareas");
 
   const tareasAbiertas = tareas.filter((t) => t.estado !== "hecho");
@@ -321,12 +319,6 @@ function Dashboard() {
             <h3>ALQUILERES ACTIVOS</h3>
             <div className="numero">{alquileresActivos}</div>
             <p>Equipos en renta ahora</p>
-          </Link>
-
-          <Link to="/ventas" className="card">
-            <h3>COTIZACIONES TOTALES</h3>
-            <div className="numero">{cotizacionesVenta.length + cotizacionesRenta.length + cotizacionesRefaccion.length}</div>
-            <p>Venta + renta + refacciones (tuyas)</p>
           </Link>
 
           <Link to="/internos" className="card">
