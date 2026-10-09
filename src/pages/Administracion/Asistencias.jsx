@@ -8,48 +8,14 @@ import { abrirDocPDF, encabezadoDoc, hoyMX, AZUL, AZUL_TENUE } from "../../utils
 import DeleteButton from "../../components/DeleteButton";
 import AsistenciaExterna from "./AsistenciaExterna";
 import { supabase } from "../../supabaseClient";
+import { DIAS, DIA_DESCANSO, lunesDeLaSemana, numeroDeSemana, formatoCorto, minutosATexto, extrasDelDia } from "../../utils/semanas";
+import HistorialAsistencias from "./HistorialAsistencias";
+import { IconoLapiz } from "../../components/Icons";
 import { useListaCompartida } from "../../hooks/useSharedTable";
-
-const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-const DIA_DESCANSO = 6;
 
 const VINO = "var(--acento)";
 const VERDE = "#2e7d32";
 const ROJO = "#b00020";
-
-const lunesDeLaSemana = (fecha) => {
-  const d = new Date(fecha);
-  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  d.setHours(0, 0, 0, 0);
-  return d;
-};
-
-const numeroDeSemana = (fecha) => {
-  const d = new Date(fecha);
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
-  const primerJueves = new Date(d.getFullYear(), 0, 4);
-  primerJueves.setDate(
-    primerJueves.getDate() + 3 - ((primerJueves.getDay() + 6) % 7)
-  );
-  return 1 + Math.round((d - primerJueves) / (7 * 24 * 60 * 60 * 1000));
-};
-
-const formatoCorto = (f) =>
-  f.toLocaleDateString("es-MX", { day: "2-digit", month: "2-digit" });
-
-const aMinutos = (hora) => {
-  if (!hora) return null;
-  const [h, m] = hora.split(":").map(Number);
-  return h * 60 + m;
-};
-
-const minutosATexto = (min) => {
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  if (h === 0) return `${m} min`;
-  return m === 0 ? `${h} h` : `${h} h ${m} min`;
-};
 
 const esMismoDia = (a, b) =>
   a.getDate() === b.getDate() &&
@@ -96,6 +62,22 @@ function Asistencias() {
 
   const eliminarColaborador = (id) => {
     guardarColaboradores(colaboradores.filter((c) => c.id !== id));
+  };
+
+  // editar nombre / puesto (el id no cambia: sus asistencias de todas las semanas siguen ligadas)
+  const [editando, setEditando] = useState(null);
+  const guardarEdicion = () => {
+    const nombre = (editando.nombre || "").trim();
+    if (!nombre) {
+      alert("El nombre no puede quedar vacío");
+      return;
+    }
+    guardarColaboradores(
+      colaboradores.map((c) =>
+        c.id === editando.id ? { ...c, nombre, puesto: (editando.puesto || "").trim() } : c
+      )
+    );
+    setEditando(null);
   };
 
   // ==========================
@@ -201,23 +183,6 @@ function Asistencias() {
   // HORAS EXTRAS
   // ==========================
 
-  const extrasDelDia = (dia, indice) => {
-    if (dia.estado !== "A") return 0;
-
-    const entrada = aMinutos(dia.entrada);
-    const salida = aMinutos(dia.salida);
-    if (salida === null) return 0;
-
-    // Domingo es descanso: todo lo trabajado cuenta como extra
-    if (indice === DIA_DESCANSO) {
-      if (entrada === null) return 0;
-      const trabajado = salida - entrada;
-      return trabajado > 0 ? trabajado : 0;
-    }
-
-    const jornada = aMinutos("18:00");
-    return salida > jornada ? salida - jornada : 0;
-  };
 
   const resumenColaborador = (id) => {
     let asistencias = 0;
@@ -553,6 +518,9 @@ function Asistencias() {
               <button style={tab(pestana === "externo")} onClick={() => setPestana("externo")}>
                 Personal externo
               </button>
+              <button style={tab(pestana === "historial")} onClick={() => setPestana("historial")}>
+                Historial
+              </button>
             </div>
           </div>
 
@@ -577,6 +545,18 @@ function Asistencias() {
           )}
 
           {pestana === "externo" && <AsistenciaExterna />}
+
+          {pestana === "historial" && (
+            <HistorialAsistencias
+              colaboradores={colaboradores}
+              registros={registros}
+              onAbrirSemana={(l) => {
+                setLunes(lunesDeLaSemana(l));
+                setPestana("semanal");
+                window.scrollTo(0, 0);
+              }}
+            />
+          )}
 
           {pestana === "semanal" && (
             <>
@@ -865,6 +845,23 @@ function Asistencias() {
                                 >
                                   {c.nombre}
                                 </strong>
+                                <button
+                                  onClick={() => setEditando({ id: c.id, nombre: c.nombre, puesto: c.puesto || "" })}
+                                  title="Editar nombre y puesto"
+                                  aria-label={"Editar " + c.nombre}
+                                  style={{
+                                    marginLeft: "6px",
+                                    background: "transparent",
+                                    border: "none",
+                                    padding: "2px",
+                                    cursor: "pointer",
+                                    color: "#888",
+                                    verticalAlign: "middle",
+                                    display: "inline-flex"
+                                  }}
+                                >
+                                  <IconoLapiz width={15} height={15} />
+                                </button>
                                 {c.baja && (
                                   <span
                                     style={{
@@ -1037,6 +1034,68 @@ function Asistencias() {
       </div>
 
       {/* OBSERVACIONES DEL EMPLEADO (SEMANA) */}
+      {editando && (
+        <div
+          onClick={() => setEditando(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,.5)",
+            zIndex: 2000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px"
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#fff",
+              borderRadius: "18px",
+              padding: "30px",
+              width: "100%",
+              maxWidth: "460px",
+              boxShadow: "0 20px 60px rgba(0,0,0,.3)"
+            }}
+          >
+            <h3 style={{ marginBottom: "18px" }}>Editar colaborador</h3>
+            <label style={{ fontWeight: "600", fontSize: "13px", color: "#777", display: "block" }}>Nombre</label>
+            <input
+              autoFocus
+              value={editando.nombre}
+              onChange={(e) => setEditando({ ...editando, nombre: e.target.value })}
+              onKeyDown={(e) => e.key === "Enter" && guardarEdicion()}
+              style={{ ...input, marginTop: "6px", marginBottom: "14px", textAlign: "left" }}
+            />
+            <label style={{ fontWeight: "600", fontSize: "13px", color: "#777", display: "block" }}>Puesto</label>
+            <input
+              value={editando.puesto}
+              onChange={(e) => setEditando({ ...editando, puesto: e.target.value })}
+              onKeyDown={(e) => e.key === "Enter" && guardarEdicion()}
+              style={{ ...input, marginTop: "6px", textAlign: "left" }}
+            />
+            <p style={{ color: "#999", fontSize: "12.5px", marginTop: "10px" }}>
+              Su historial de asistencias se conserva; solo cambia cómo aparece.
+            </p>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "18px" }}>
+              <button
+                onClick={() => setEditando(null)}
+                style={{ padding: "11px 22px", border: "none", borderRadius: "10px", background: "#f0f0f0", color: "#555", fontWeight: 700, cursor: "pointer" }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={guardarEdicion}
+                style={{ padding: "11px 22px", border: "none", borderRadius: "10px", background: VINO, color: "#fff", fontWeight: 700, cursor: "pointer" }}
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {obsModal && (
         <div
           onClick={() => setObsModal(null)}
