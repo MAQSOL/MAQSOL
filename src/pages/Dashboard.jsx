@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
 import RailNav from "../components/RailNav";
 import DeleteButton from "../components/DeleteButton";
 import UserMenu from "../components/UserMenu";
+import Contador from "../components/Contador";
 import { useSharedTable } from "../hooks/useSharedTable";
 import { useCotizaciones } from "../hooks/useCotizaciones";
 import { useAuth } from "../contexts/AuthContext";
@@ -175,6 +176,26 @@ function Dashboard() {
     eliminar(item.id);
   };
 
+  // Movimiento del panel: las tarjetas entran solas (CSS); los paneles aparecen
+  // conforme se ven en pantalla. useLayoutEffect para ocultarlos ANTES del primer
+  // pintado (si no, se verían un instante y luego desaparecerían).
+  const refDash = useRef(null);
+  useLayoutEffect(() => {
+    const dash = refDash.current;
+    if (!dash || !("IntersectionObserver" in window)) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    dash.classList.add("anim-lista");
+    const io = new IntersectionObserver((entradas) => {
+      entradas.filter((e) => e.isIntersecting).forEach((e, i) => {
+        e.target.style.transitionDelay = `${i * 90}ms`;   // los que entran juntos, escalonados
+        e.target.classList.add("visto");
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+    dash.querySelectorAll(".panel").forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   return (
     <div className="app">
 
@@ -245,7 +266,7 @@ function Dashboard() {
 
       </aside>
 
-      <main className="contenido">
+      <main className="contenido dash" ref={refDash}>
 
         <header
           className="header"
@@ -311,25 +332,25 @@ function Dashboard() {
 
           <Link to="/internos" className="card">
             <h3>EQUIPOS INTERNOS</h3>
-            <div className="numero">{equiposInternos.length}</div>
+            <div className="numero"><Contador valor={equiposInternos.length} /></div>
             <p>Unidades registradas</p>
           </Link>
 
           <Link to="/alquileres" className="card">
             <h3>ALQUILERES ACTIVOS</h3>
-            <div className="numero">{alquileresActivos}</div>
+            <div className="numero"><Contador valor={alquileresActivos} /></div>
             <p>Equipos en renta ahora</p>
           </Link>
 
           <Link to="/internos" className="card">
             <h3>MANTTOS PENDIENTES</h3>
-            <div className="numero">{manttosPendientes}</div>
+            <div className="numero"><Contador valor={manttosPendientes} /></div>
             <p>Próximos o vencidos</p>
           </Link>
 
           <Link to="/tareas" className="card">
             <h3>TAREAS ABIERTAS</h3>
-            <div className="numero">{tareasAbiertas.length}</div>
+            <div className="numero"><Contador valor={tareasAbiertas.length} /></div>
             <p>{misTareas.length} asignadas a ti</p>
           </Link>
 
@@ -487,11 +508,13 @@ function Dashboard() {
             </h3>
 
             <div style={{ display: "flex", alignItems: "flex-end", gap: "14px", height: "150px", marginTop: "10px" }}>
-              {mesesGrafica.map((m) => (
+              {mesesGrafica.map((m, i) => (
                 <div key={m.clave} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
                   <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--acento)" }}>{m.cantidad}</span>
                   <div
+                    className="barra-crece"
                     style={{
+                      animationDelay: `${i * 70}ms`,
                       width: "100%",
                       maxWidth: "34px",
                       height: `${Math.max(4, (m.cantidad / maxRentasMes) * 100)}px`,
@@ -520,7 +543,7 @@ function Dashboard() {
                     "Todavía no se captura asistencia esta semana."
                   ) : (
                     <>
-                      <strong style={{ fontSize: "28px", color: "var(--acento)" }}>{porcentajeAsistencia}%</strong>{" "}
+                      <strong style={{ fontSize: "28px", color: "var(--acento)" }}><Contador valor={porcentajeAsistencia} />%</strong>{" "}
                       de asistencia general ({presentes} asistencias, {faltas} faltas)
                     </>
                   )}
@@ -579,7 +602,7 @@ function Dashboard() {
 
                       <div style={{ width: "92px" }}>
                         <div style={{ height: "7px", borderRadius: "4px", background: "#eee", overflow: "hidden" }}>
-                          <div style={{ width: `${p.porcentaje ?? 0}%`, height: "100%", background: "var(--acento)" }} />
+                          <div className="barra-llena" style={{ width: `${p.porcentaje ?? 0}%`, height: "100%", background: "var(--acento)" }} />
                         </div>
                         <div style={{ fontSize: "11px", color: "#777", marginTop: "3px" }}>
                           {p.porcentaje === null ? "sin datos" : `${p.asistencias}/${p.asistencias + p.faltas} · ${p.porcentaje}%`}

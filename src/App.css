@@ -244,6 +244,49 @@ body{
 }
 
 /* =========================
+   MOVIMIENTO DEL PANEL EJECUTIVO (solo .dash)
+   - título y tarjetas entran escalonados al abrir
+   - los paneles aparecen al llegar a ellos (Dashboard.jsx agrega .anim-lista / .visto)
+   - barras de rentas crecen, barras de asistencia se llenan
+========================= */
+
+.dash{ --ease-dash:cubic-bezier(.22,1,.36,1); }
+
+@keyframes dash-entra{
+  from{ opacity:0; transform:translateY(16px); }
+  to{ opacity:1; transform:none; }
+}
+@keyframes dash-crece{ from{ transform:scaleY(0); } }
+@keyframes dash-llena{ from{ width:0; } }
+
+/* "backwards": al terminar suelta el transform y el hover de la tarjeta sigue funcionando */
+.dash .header > div,
+.dash .card{ animation:dash-entra .6s var(--ease-dash) backwards; }
+.dash .header > div:nth-child(2){ animation-delay:.08s; }
+.dash .cards-grid .card:nth-child(1){ animation-delay:.10s; }
+.dash .cards-grid .card:nth-child(2){ animation-delay:.18s; }
+.dash .cards-grid .card:nth-child(3){ animation-delay:.26s; }
+.dash .cards-grid .card:nth-child(4){ animation-delay:.34s; }
+.dash .cards-grid .card:nth-child(5){ animation-delay:.42s; }
+.dash .numero{ font-variant-numeric:tabular-nums; }
+.dash .card:hover .numero{ color:var(--acento); transition:color .25s; }
+
+.dash.anim-lista .panel{
+  transition:opacity .6s var(--ease-dash), transform .6s var(--ease-dash);
+}
+.dash.anim-lista .panel:not(.visto){ opacity:0; transform:translateY(22px); }
+
+.dash .barra-crece{ transform-origin:bottom; animation:dash-crece .8s var(--ease-dash) both; }
+.dash .barra-llena{ animation:dash-llena 1s var(--ease-dash) .2s both; }
+/* las barras esperan a que su panel aparezca para arrancar */
+.dash.anim-lista .panel:not(.visto) .barra-crece,
+.dash.anim-lista .panel:not(.visto) .barra-llena{ animation-play-state:paused; }
+
+@media (prefers-reduced-motion:reduce){
+  .dash *, .dash *::before, .dash *::after{ animation:none !important; transition:none !important; }
+}
+
+/* =========================
    PENDIENTES
 ========================= */
 
