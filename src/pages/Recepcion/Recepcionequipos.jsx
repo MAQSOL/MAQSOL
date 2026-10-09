@@ -7,6 +7,7 @@ import Sidebar from '../../components/Sidebar'
 import DeleteButton from '../../components/DeleteButton'
 import { descargarExcelBonito, nombreArchivoFecha } from '../../utils/exportExcel'
 import { abrirChecklistPDF, descargarChecklistExcel } from '../../utils/checklistForma'
+import { folioVisible, LARGO_NOMBRE_FOLIO } from '../../utils/folio'
 import { supabase } from '../../supabaseClient'
 import FirmaPad from '../../components/FirmaPad'
 import ExpedienteCliente from '../../components/ExpedienteCliente'
@@ -161,7 +162,7 @@ export default function Recepcionequipos(){
     return String(f.getMonth()+1).padStart(2,'0')+f.getFullYear()
   }
   function construirFolio(seq,cliente,fecha){
-    return 'CH-'+String(seq).padStart(3,'0')+'-'+(limpiarNombre(cliente)||'CLIENTE')+'-'+mmAAAA(fecha)
+    return 'CH-'+String(seq).padStart(3,'0')+'-'+(limpiarNombre(cliente)||'CLIENTE').slice(0,LARGO_NOMBRE_FOLIO)+'-'+mmAAAA(fecha)
   }
   function siguienteSeq(){
     const n=registros.reduce((max,r)=>{
@@ -481,7 +482,7 @@ export default function Recepcionequipos(){
           <tbody>
             {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={9}>No hay checklists registrados. Usa "+ Nuevo checklist".</td></tr>
             :filtrados.map(r=>(<tr key={r.id} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
-              <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>abrirEditar(r)}>{r.folio}{r.ligadoA?<div style={{color:'#999',fontSize:11,fontWeight:400}}>Liga: {r.ligadoA}</div>:null}</td>
+              <td style={{...S.td,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',fontVariantNumeric:'tabular-nums'}} title={r.folio} onClick={()=>abrirEditar(r)}>{folioVisible(r.folio)}{r.ligadoA?<div style={{color:'#999',fontSize:11,fontWeight:400}}>Liga: {folioVisible(r.ligadoA)}</div>:null}</td>
               <td style={S.td}>{r.cliente}</td>
               <td style={S.td}><BadgeTipo tipo={r.tipo}/></td>
               <td style={S.td}>{r.equipo}{r.serie?<div style={{color:'#999',fontSize:12}}>Serie: {r.serie}</div>:null}</td>
@@ -521,7 +522,7 @@ export default function Recepcionequipos(){
       {/* FOTOS E INE (desde oficina) */}
       {modal&&soloDocs&&(<div style={S.modalBg} onClick={cerrarModal}><div style={{...S.modal,maxWidth:760}} onClick={ev=>ev.stopPropagation()}>
         <h2 style={{fontSize:22,fontWeight:800,margin:0}}>Fotos e INE</h2>
-        <p style={{color:'#888',fontSize:13,margin:'4px 0 6px'}}>{form.folio} · {form.cliente} · {form.equipo}</p>
+        <p style={{color:'#888',fontSize:13,margin:'4px 0 6px'}}>{folioVisible(form.folio)} · {form.cliente} · {form.equipo}</p>
         {seccionDocs}
         <div style={{display:'flex',justifyContent:'flex-end',gap:10,marginTop:16}}>
           <button style={S.btnGris} onClick={cerrarModal} disabled={guardando}>Cancelar</button>
@@ -534,7 +535,7 @@ export default function Recepcionequipos(){
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <h2 style={{fontSize:22,fontWeight:800,margin:0}}>{registros.some(r=>r.id===form.id)?'Editar checklist':'Nuevo checklist'}</h2>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
-            {form.ligadoA&&<span style={{fontSize:12,color:'#999'}}>Ligado a {form.ligadoA}</span>}
+            {form.ligadoA&&<span style={{fontSize:12,color:'#999',whiteSpace:'nowrap'}}>Ligado a {folioVisible(form.ligadoA)}</span>}
             <select translate="no" className="notranslate" style={{...S.input,width:120}} value={form.tipo} onChange={ev=>setForm({...form,tipo:ev.target.value})}><option>Salida</option><option>Entrada</option></select>
             {folioManual?(
               <span style={{display:'inline-flex',alignItems:'center',gap:6}}>
@@ -544,7 +545,7 @@ export default function Recepcionequipos(){
               </span>
             ):(
               <span style={{display:'inline-flex',alignItems:'center',gap:8}}>
-                <span style={{fontWeight:700,color:VINO}}>Folio: {form.folio}</span>
+                <span style={{fontWeight:700,color:VINO,whiteSpace:'nowrap'}} title={form.folio}>Folio: {folioVisible(form.folio)}</span>
                 <button type="button" style={S.btnGrisSm} title="Cambiar el folio (pide NIP)" onClick={()=>setPideNip(true)}>✎ Cambiar</button>
               </span>
             )}

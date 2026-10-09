@@ -1,4 +1,5 @@
 import { LOGO_MAQSOL_TRANSPARENTE, LOGO_MAQSOL_TRANSPARENTE_RELACION } from "./logoMaqsolTransparente";
+import { folioVisible } from "./folio";
 
 const ROJO = "#d6001c";
 const NIVELES = [["electrica", "ELECTRICA", 2], ["1/4", "1/4", 1], ["1/2", "1/2", 1], ["3/4", "3/4", 1], ["full", "FULL", 1]];
@@ -15,7 +16,7 @@ const folioCorto = (r) => {
   const m = /^CH-(\d+)-.*?(\d{2})(\d{4})$/i.exec(f);
   return m ? String(parseInt(m[1], 10)).padStart(2, "0") + "-" + m[2] + m[3] : f;
 };
-const titulo = (r) => `ENTREGA Y SALIDA DE EQUIPO · ${(r.tipo || "Salida").toUpperCase()}${r.ligadoA ? " · LIGADO A " + r.ligadoA : ""}`;
+const titulo = (r) => `ENTREGA Y SALIDA DE EQUIPO · ${(r.tipo || "Salida").toUpperCase()}${r.ligadoA ? " · LIGADO A " + folioVisible(r.ligadoA) : ""}`;
 
 /** Documento HTML completo (una hoja carta horizontal) con el formato de Entrega y Salida de Equipo. */
 export function htmlChecklist(r, cols) {
@@ -240,7 +241,7 @@ export async function descargarChecklistExcel(r, cols, nombreArchivo) {
         { text: txt(folioCorto(r)), font: { name: "Calibri", size: 12, bold: true } }
       ]
     }, { fondo: GRIS, h: "center" });
-    caja(2, 5, 2, 20, `ENTREGA Y SALIDA DE EQUIPO · ${(r.tipo || "Salida").toUpperCase()}${r.ligadoA ? " · LIGADO A " + r.ligadoA : ""}`, { negrita: true, tam: 8, h: "center" });
+    caja(2, 5, 2, 20, `ENTREGA Y SALIDA DE EQUIPO · ${(r.tipo || "Salida").toUpperCase()}${r.ligadoA ? " · LIGADO A " + folioVisible(r.ligadoA) : ""}`, { negrita: true, tam: 8, h: "center" });
 
     etq(3, 5, 6, "CLIENTE"); val(3, 7, 20, r.cliente);
     etq(4, 5, 6, "FECHA"); val(4, 7, 10, fF(r.fecha)); etq(4, 11, 12, "HORA"); val(4, 13, 14, r.hora); etq(4, 15, 17, "NÚMERO DE ORDEN DE COMPRA"); val(4, 18, 20, r.ordenCompra);

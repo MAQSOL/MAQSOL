@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import { folioVisible } from "../utils/folio";
 import logo from "../assets/logo.png";
 
 const BUCKET = "checklist-fotos";
@@ -59,7 +60,7 @@ export default function FotosChecklist() {
         <h2 style={{ margin: "0 0 2px" }}>Fotos del equipo</h2>
         <div style={{ color: "#555" }}>{titulo}{datos.serie ? ` · Serie ${datos.serie}` : ""}</div>
         <div style={{ color: "#999", fontSize: 13, marginTop: 4 }}>
-          Folio {datos.folio}{datos.fecha ? ` · ${new Date(datos.fecha + "T00:00:00").toLocaleDateString("es-MX")}` : ""} · {fotos.length} {fotos.length === 1 ? "foto" : "fotos"}
+          Folio {folioVisible(datos.folio)}{datos.fecha ? ` · ${new Date(datos.fecha + "T00:00:00").toLocaleDateString("es-MX")}` : ""} · {fotos.length} {fotos.length === 1 ? "foto" : "fotos"}
         </div>
       </div>
 
