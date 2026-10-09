@@ -33,6 +33,14 @@ function resumenSemana(datos = {}) {
 export default function HistorialAsistencias({ colaboradores, registros, onAbrirSemana }) {
   const [quien, setQuien] = useState("todos");
   const [anio, setAnio] = useState("todos");
+  const [abiertas, setAbiertas] = useState(() => new Set());   // semanas desplegadas (vista "todos")
+  const alternar = (clave) =>
+    setAbiertas((prev) => {
+      const n = new Set(prev);
+      if (n.has(clave)) n.delete(clave);
+      else n.add(clave);
+      return n;
+    });
 
   // semanas guardadas, de la más reciente a la más vieja
   const semanas = Object.entries(registros || {})
@@ -61,6 +69,13 @@ export default function HistorialAsistencias({ colaboradores, registros, onAbrir
       const r = resumenSemana(s.datos[p.id]);
       if (r.capturada) filas.push({ ...r, semana: s, persona: p });
     });
+  });
+
+  const grupos = [];
+  filas.forEach((f) => {
+    const ultimo = grupos[grupos.length - 1];
+    if (ultimo && ultimo.semana.clave === f.semana.clave) ultimo.filas.push(f);
+    else grupos.push({ semana: f.semana, filas: [f] });
   });
 
   const sumar = (lista) =>
@@ -125,6 +140,7 @@ export default function HistorialAsistencias({ colaboradores, registros, onAbrir
       <div style={{ fontSize: "12px", color: "#888", fontWeight: 600, letterSpacing: ".4px" }}>{titulo}</div>
     </div>
   );
+  const botonChico = { padding: "7px 14px", border: "1px solid #e0e0e0", borderRadius: "8px", background: "#fff", color: "#555", fontWeight: 700, fontSize: "12.5px", cursor: "pointer" };
   const porcentaje = (a, f) => (pct(a, f) === null ? "—" : pct(a, f) + "%");
 
   return (
@@ -219,6 +235,14 @@ export default function HistorialAsistencias({ colaboradores, registros, onAbrir
             </div>
           ) : null}
 
+          {quien === "todos" && (
+            <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "8px", margin: "10px 0 6px" }}>
+              <span style={{ color: "#999", fontSize: "12.5px", marginRight: "auto" }}>Toca una semana para ver a cada colaborador</span>
+              <button style={botonChico} onClick={() => setAbiertas(new Set(grupos.map((g) => g.semana.clave)))}>Desplegar todo</button>
+              <button style={botonChico} onClick={() => setAbiertas(new Set())}>Contraer todo</button>
+            </div>
+          )}
+
           <div className="panel" style={{ padding: 0, overflowX: "auto", minHeight: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "900px" }}>
               <thead>
@@ -237,28 +261,44 @@ export default function HistorialAsistencias({ colaboradores, registros, onAbrir
                 </tr>
               </thead>
               <tbody>
-                {filas.map((f, idx) => {
-                  const a = f.semana.lunes.getFullYear();
+                {grupos.map((g, idx) => {
+                  const a = g.semana.lunes.getFullYear();
                   // con "todos los años", cada año arranca con su renglón separador
-                  const separador = anio === "todos" && (idx === 0 || filas[idx - 1].semana.lunes.getFullYear() !== a);
-                  return [
-                    separador && (
-                      <tr key={"anio-" + a}>
-                        <td colSpan={quien === "todos" ? 7 : 6} style={{ padding: "10px 18px", background: "#f6f6f6", fontWeight: 800, color: "#555", letterSpacing: ".5px" }}>{a}</td>
-                      </tr>
-                    ),
-                    <tr key={f.semana.clave + f.persona.id}>
-                      <td style={{ ...td, textAlign: "left", paddingLeft: "18px", whiteSpace: "nowrap" }}>
-                        <strong>Semana {numeroDeSemana(f.semana.lunes)}</strong>
-                        <div style={{ fontSize: "12px", color: "#999" }}>{rangoTexto(f.semana.lunes)}</div>
-                        <button
-                          onClick={() => onAbrirSemana(f.semana.lunes)}
-                          style={{ marginTop: "3px", background: "transparent", border: "none", padding: 0, color: VINO, fontSize: "11.5px", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}
-                        >
-                          Abrir semana
-                        </button>
-                      </td>
-                      {quien === "todos" && (
+                  const separador = anio === "todos" && (idx === 0 || grupos[idx - 1].semana.lunes.getFullYear() !== a);
+                  const agrupar = quien === "todos";   // con un solo colaborador no hace falta resumen: es un renglón por semana
+                  const abierta = abiertas.has(g.semana.clave);
+                  const suma = sumar(g.filas);
+                  const conNotas = g.filas.filter((f) => f.notas).length;
+
+                  const celdaSemana = (flecha) => (
+                    <td style={{ ...td, textAlign: "left", paddingLeft: "18px", whiteSpace: "nowrap" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        {flecha && (
+                          <span
+                            aria-hidden="true"
+                            style={{ display: "inline-block", color: VINO, fontSize: "12px", transition: "transform .2s", transform: abierta ? "rotate(90deg)" : "none" }}
+                          >
+                            ▶
+                          </span>
+                        )}
+                        <div>
+                          <strong>Semana {numeroDeSemana(g.semana.lunes)}</strong>
+                          <div style={{ fontSize: "12px", color: "#999" }}>{rangoTexto(g.semana.lunes)}</div>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onAbrirSemana(g.semana.lunes); }}
+                            style={{ marginTop: "3px", background: "transparent", border: "none", padding: 0, color: VINO, fontSize: "11.5px", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}
+                          >
+                            Abrir semana
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  );
+
+                  const renglonPersona = (f, dentro) => (
+                    <tr key={f.semana.clave + f.persona.id} style={dentro ? { background: "#fcfcfc" } : undefined}>
+                      {dentro ? <td style={{ ...td, borderLeft: "3px solid " + VINO }} /> : celdaSemana(false)}
+                      {agrupar && (
                         <td style={{ ...td, textAlign: "left", fontWeight: 600, color: f.persona.eliminado ? "#999" : "#222" }}>{f.persona.nombre}</td>
                       )}
                       <td style={td}>
@@ -273,6 +313,53 @@ export default function HistorialAsistencias({ colaboradores, registros, onAbrir
                       <td style={td}>{f.extras ? minutosATexto(f.extras) : "—"}</td>
                       <td style={{ ...td, textAlign: "left", fontSize: "12.5px", color: "#666", maxWidth: "320px" }}>{f.notas || "—"}</td>
                     </tr>
+                  );
+
+                  return [
+                    separador && (
+                      <tr key={"anio-" + a}>
+                        <td colSpan={agrupar ? 7 : 6} style={{ padding: "10px 18px", background: "#f6f6f6", fontWeight: 800, color: "#555", letterSpacing: ".5px" }}>{a}</td>
+                      </tr>
+                    ),
+                    agrupar && (
+                      <tr
+                        key={"res-" + g.semana.clave}
+                        onClick={() => alternar(g.semana.clave)}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); alternar(g.semana.clave); } }}
+                        tabIndex={0}
+                        role="button"
+                        aria-expanded={abierta}
+                        style={{ cursor: "pointer", background: abierta ? "#f9f9f9" : "#fff" }}
+                      >
+                        {celdaSemana(true)}
+                        <td style={{ ...td, textAlign: "left", color: "#555", fontWeight: 600 }}>
+                          {g.filas.length} colaborador{g.filas.length === 1 ? "" : "es"}
+                          <div style={{ fontSize: "12px", color: "#999", fontWeight: 400 }}>{porcentaje(suma.asistencias, suma.faltas)} de asistencia</div>
+                        </td>
+                        <td style={td}>
+                          <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
+                            {DIAS.map((nombreDia, i) => {
+                              const asis = g.filas.filter((f) => f.estados[i] === "A").length;
+                              const falt = g.filas.filter((f) => f.estados[i] === "F").length;
+                              return (
+                                <span
+                                  key={i}
+                                  style={cuadro(falt ? "F" : asis ? "A" : "", i)}
+                                  title={`${nombreDia}: ${asis} asistieron, ${falt} faltaron`}
+                                />
+                              );
+                            })}
+                          </div>
+                        </td>
+                        <td style={{ ...td, color: VERDE, fontWeight: 700 }}>{suma.asistencias}</td>
+                        <td style={{ ...td, color: suma.faltas ? ROJO : "#999", fontWeight: 700 }}>{suma.faltas}</td>
+                        <td style={td}>{suma.extras ? minutosATexto(suma.extras) : "—"}</td>
+                        <td style={{ ...td, textAlign: "left", fontSize: "12.5px", color: conNotas ? "#8a6d00" : "#999" }}>
+                          {conNotas ? `${conNotas} con observaciones` : "—"}
+                        </td>
+                      </tr>
+                    ),
+                    ...(agrupar ? (abierta ? g.filas.map((f) => renglonPersona(f, true)) : []) : g.filas.map((f) => renglonPersona(f, false)))
                   ];
                 })}
               </tbody>
