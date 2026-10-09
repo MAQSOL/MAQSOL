@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import { LOGO_MAQSOL_TRANSPARENTE, LOGO_MAQSOL_TRANSPARENTE_RELACION } from "./logoMaqsolTransparente";
+import { AZUL_RGB, AZUL_TENUE_RGB, encabezadoJsPDF } from "./pdfFormato";
 
 const f = (iso) => {
   if (!iso) return "";
@@ -26,11 +26,10 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   const doc = new jsPDF({ unit: "mm", format: "letter" });
   const W = 216, M = 8, ancho = W - M * 2;
   const H0 = 6.3;
-  const ROJO = [143, 29, 44];
-  let y = 9;
+  let y = 7;
 
   doc.setLineWidth(0.25);
-  doc.setDrawColor(70, 70, 70);
+  doc.setDrawColor(150, 170, 190);
 
   const hoy = new Date();
   const hoyTxt = `${String(hoy.getDate()).padStart(2, "0")}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${hoy.getFullYear()}`;
@@ -62,7 +61,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
     celdas.forEach(([txt, u, tipo]) => {
       const w = (anchoTotal * u) / unidades;
       if (tipo === "l") {
-        doc.setFillColor(236, 236, 236);
+        doc.setFillColor(...AZUL_TENUE_RGB);
         doc.rect(x, y, w, alto, "FD");
         escribe(txt, x, y, w, alto, 7, true, true);
       } else {
@@ -75,34 +74,19 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   };
 
   const encabezado = (txt) => {
-    doc.setFillColor(58, 58, 58);
+    doc.setFillColor(...AZUL_RGB);
     doc.rect(M, y, ancho, 7, "FD");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9.6);
     doc.setTextColor(255, 255, 255);
-    doc.text(txt, W / 2, y + 4.9, { align: "center" });
+    doc.text(txt, M + 3, y + 4.9);
     y += 7;
   };
 
-  // ---- Título: logo + FICHA DE INGRESO - MAQSOL ----
-  const altoTitulo = 20;
-  doc.setFillColor(246, 246, 246);
-  doc.rect(M, y, ancho, altoTitulo, "FD");
-  const hLogo = 15;
-  try { doc.addImage(LOGO_MAQSOL_TRANSPARENTE, "PNG", M + 4, y + (altoTitulo - hLogo) / 2, hLogo * LOGO_MAQSOL_TRANSPARENTE_RELACION, hLogo); } catch { /* sin logo */ }
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(19);
-  doc.setTextColor(25, 25, 25);
-  doc.text("FICHA DE INGRESO - MAQSOL", W / 2, y + 9.5, { align: "center" });
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.2);
-  doc.setTextColor(95, 95, 95);
-  doc.text("MAQUINARIA SOPORTE Y LOGISTICA SA DE CV", W / 2, y + 15, { align: "center" });
-  // folio de la ficha a la derecha
-  y += altoTitulo;
-  doc.setFillColor(...ROJO);
-  doc.rect(M, y, ancho, 1.4, "F");
-  y += 1.4;
+  // ---- Encabezado del diseño único (título azul, logo a la derecha, línea azul) ----
+  y = encabezadoJsPDF(doc, { titulo: "Ficha de Ingreso", lineas: ["MAQUINARIA SOPORTE Y LOGISTICA SA DE CV", "Fecha: " + hoyTxt], x: M, ancho, y, altoLogo: 14, separacion: 3 });
+  doc.setLineWidth(0.25);
+  doc.setDrawColor(150, 170, 190);
 
   encabezado("DATOS PARA NUEVO INGRESO");
   fila([["NOMBRE DE LA EMPRESA", 4, "l"], ["MAQUINARIA SOPORTE Y LOGISTICA SA DE CV", 10, "v"], ["FECHA", 2, "l"], [hoyTxt, 4, "v"]]);
@@ -151,7 +135,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   {
     const alto = 13;
     const wL = (ancho * 4) / 20;
-    doc.setFillColor(236, 236, 236);
+    doc.setFillColor(...AZUL_TENUE_RGB);
     doc.rect(M, y, wL, alto, "FD");
     escribe("OBSERVACIONES", M, y, wL, alto, 7, true, true);
     doc.rect(M + wL, y, ancho - wL, alto);
@@ -170,8 +154,8 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   fila([["", 5, "v"], ["", 5, "v"], ["", 5, "v"], ["", 5, "v"]], 24);
   fila([[(p.nombre || "").toUpperCase(), 5, "l"], ["LIC. ANABEL CERINO AVALOS", 5, "l"], ["CESAR ALEJANDRO BALAM MOGUEL", 5, "l"], ["LIC. FRANCISCO TORRES MORALES", 5, "l"]], 8);
 
-  doc.setFillColor(...ROJO);
-  doc.rect(M, y, ancho, 1.2, "F");
+  doc.setFillColor(...AZUL_RGB);
+  doc.rect(M, y, ancho, 0.8, "F");
   doc.setFont("helvetica", "normal");
   doc.setFontSize(6.8);
   doc.setTextColor(140);

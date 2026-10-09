@@ -1,7 +1,7 @@
 import { LOGO_MAQSOL_TRANSPARENTE, LOGO_MAQSOL_TRANSPARENTE_RELACION } from "./logoMaqsolTransparente";
 import { folioVisible } from "./folio";
+import { AZUL, AZUL_TENUE, CSS_ENCABEZADO, EMPRESA, encabezadoDoc } from "./pdfFormato";
 
-const ROJO = "#d6001c";
 const NIVELES = [["electrica", "ELECTRICA", 2], ["1/4", "1/4", 1], ["1/2", "1/2", 1], ["3/4", "3/4", 1], ["full", "FULL", 1]];
 
 const esc = (t) => String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -16,7 +16,6 @@ const folioCorto = (r) => {
   const m = /^CH-(\d+)-.*?(\d{2})(\d{4})$/i.exec(f);
   return m ? String(parseInt(m[1], 10)).padStart(2, "0") + "-" + m[2] + m[3] : f;
 };
-const titulo = (r) => `ENTREGA Y SALIDA DE EQUIPO · ${(r.tipo || "Salida").toUpperCase()}${r.ligadoA ? " · LIGADO A " + folioVisible(r.ligadoA) : ""}`;
 
 /** Documento HTML completo (una hoja carta horizontal) con el formato de Entrega y Salida de Equipo. */
 export function htmlChecklist(r, cols) {
@@ -34,18 +33,12 @@ export function htmlChecklist(r, cols) {
   const t1 = `
     <table class="t">
       <colgroup>${'<col style="width:4.1667%">'.repeat(24)}</colgroup>
-      <tr style="height:11mm">
-        <td class="logo" colspan="4" rowspan="8"><img src="${LOGO_MAQSOL_TRANSPARENTE}" alt=""/></td>
-        <td class="titulo" colspan="16">MAQUINARIA SOPORTE Y LOGISTICA SA DE CV</td>
-        <td class="folio" colspan="4" rowspan="4"><div class="fl">FOLIO</div><div class="fv">${v(folioCorto(r))}</div></td>
-      </tr>
-      <tr style="height:5.2mm">${td("sub", 16, esc(titulo(r)))}</tr>
-      <tr>${L("CLIENTE", 2)}${V(r.cliente, 14)}</tr>
-      <tr>${L("FECHA", 2)}${V(fF(r.fecha), 4)}${L("HORA", 2)}${V(r.hora, 2)}${L("NÚMERO DE ORDEN DE COMPRA", 3)}${V(r.ordenCompra, 3)}</tr>
-      <tr>${L("EQUIPO", 2)}${V(r.equipo, 5)}${L("NIVEL COMBUSTIBLE", 3)}${nivelCeldas}${L("HORÓMETRO", 2)}${V(r.horometro, 2)}</tr>
-      <tr>${L("MARCA", 2)}${V(r.marca, 5)}${L("MODELO", 2)}${V(r.modelo, 4)}${L("SERIE", 2)}${V(r.serie, 5)}</tr>
-      <tr>${L("ACCESORIO", 2)}${V(r.accesorio, 3)}${L("MARCA", 1)}${V(r.accMarca, 3)}${L("MODELO ACC.", 2)}${V(r.accModelo, 2)}${L("SERIE", 1)}${V(r.accSerie, 2)}${L("FLETE", 1)}${V(r.flete, 3)}</tr>
-      <tr>${L("NOMBRE CONTACTO", 3)}${V(r.nombreContacto, 6)}${L("TELÉFONO", 2)}${V(r.telefono, 3)}${L("CORREO", 2)}${V(r.correo, 4)}</tr>
+      <tr>${L("CLIENTE", 3)}${V(r.cliente, 21)}</tr>
+      <tr>${L("FECHA", 3)}${V(fF(r.fecha), 5)}${L("HORA", 2)}${V(r.hora, 3)}${L("NÚMERO DE ORDEN DE COMPRA", 4)}${V(r.ordenCompra, 7)}</tr>
+      <tr>${L("EQUIPO", 3)}${V(r.equipo, 6)}${L("NIVEL COMBUSTIBLE", 3)}${nivelCeldas}${L("HORÓMETRO", 3)}${V(r.horometro, 3)}</tr>
+      <tr>${L("MARCA", 3)}${V(r.marca, 6)}${L("MODELO", 3)}${V(r.modelo, 5)}${L("SERIE", 2)}${V(r.serie, 5)}</tr>
+      <tr>${L("ACCESORIO", 3)}${V(r.accesorio, 4)}${L("MARCA", 2)}${V(r.accMarca, 3)}${L("MODELO ACC.", 2)}${V(r.accModelo, 3)}${L("SERIE", 2)}${V(r.accSerie, 2)}${L("FLETE", 1)}${V(r.flete, 2)}</tr>
+      <tr>${L("NOMBRE CONTACTO", 3)}${V(r.nombreContacto, 7)}${L("TELÉFONO", 2)}${V(r.telefono, 4)}${L("CORREO", 2)}${V(r.correo, 6)}</tr>
       <tr class="alto">${L("UBICACIÓN", 4)}${L("HORA EN QUE SE ENTREGA", 2)}${L("FECHA DE ENTREGA", 3)}${L("FECHA DE RETIRO", 3)}${L("HORA DE RETIRO", 2)}${L("HORÓMETRO RETIRO", 2)}${L("NOMBRE DE QUIEN ENTREGA EL EQUIPO", 4)}${L("NOMBRE DE QUIEN RECIBE EL EQUIPO", 4)}</tr>
       <tr class="alto">${V(r.ubicacion, 4)}${V(r.horaEntrega, 2)}${V(fF(r.fechaEntrega), 3)}${V(fF(r.fechaRetiro), 3)}${V(r.horaRetiro, 2)}${V(r.horometroRetiro, 2)}${V(r.quienEntrega, 4)}${V(r.quienRecibe, 4)}</tr>
     </table>`;
@@ -101,26 +94,22 @@ export function htmlChecklist(r, cols) {
     body{font-family:Arial,Helvetica,sans-serif;color:#111;}
     #probe{position:absolute;visibility:hidden;width:0;height:202mm;}
     #hoja{width:263mm;margin:7mm auto 0;}
-    table.t{width:100%;table-layout:fixed;border-collapse:collapse;border:1.5px solid #000;margin-top:-1.5px;}
-    table.t td{border:.6px solid #000;padding:1px 3px;vertical-align:middle;overflow:hidden;}
-    .lbl{background:#d9d9d9;font-size:6.1px;font-weight:700;text-transform:uppercase;text-align:center;line-height:1.1;}
+    ${CSS_ENCABEZADO}
+    #hoja .top{padding-bottom:6px;margin-bottom:6px;}
+    #hoja .top img{height:46px;}
+    table.t{width:100%;table-layout:fixed;border-collapse:collapse;border:1.2px solid ${AZUL};margin-top:-1.2px;}
+    table.t td{border:.6px solid #a9bccf;padding:1px 3px;vertical-align:middle;overflow:hidden;}
+    .lbl{background:${AZUL_TENUE};color:#33475b;font-size:6.1px;font-weight:700;text-transform:uppercase;text-align:center;line-height:1.1;}
     .val{font-size:8.8px;font-weight:700;text-align:left;padding-left:5px;line-height:1.15;word-break:break-word;}
     tr{height:5.4mm;}
     tr.alto{height:8.4mm;}
-    .logo{text-align:center;padding:1mm;}
-    .logo img{max-width:100%;max-height:42mm;}
-    .titulo{font-family:Cambria,"Times New Roman",Times,serif;font-weight:700;font-size:21px;color:${ROJO};text-align:center;letter-spacing:.2px;}
-    .sub{font-size:7.4px;font-weight:700;text-align:center;letter-spacing:.4px;}
-    .folio{background:#d9d9d9;text-align:center;}
-    .folio .fl{font-family:Cambria,"Times New Roman",serif;font-size:14px;font-weight:700;}
-    .folio .fv{font-size:11.5px;font-weight:700;margin-top:3px;color:#000;word-break:break-all;}
     .opt{font-size:6.8px;text-align:center;font-weight:700;}
-    .opt.sel{background:#222;color:#fff;}
-    table.chk{margin-top:-1.5px;}
-    .leg td{background:#efefef;font-size:6.4px;letter-spacing:.3px;padding:2px 6px;height:4.2mm;}
+    .opt.sel{background:${AZUL};color:#fff;}
+    table.chk{margin-top:-1.2px;}
+    .leg td{background:#f6f9fc;font-size:6.4px;letter-spacing:.3px;padding:2px 6px;height:4.2mm;}
     .cabs{height:4.6mm;}
     .cabs td{font-size:6.4px;font-weight:800;text-align:center;}
-    .hn{background:#d9d9d9;}
+    .hn{background:${AZUL};color:#fff;}
     .hb{background:#92d050;}
     .hr{background:#ffff00;}
     .hm{background:#ff6b6b;}
@@ -135,7 +124,7 @@ export function htmlChecklist(r, cols) {
     .mk.sn{font-size:6.2px;color:#8a8a8a;font-weight:700;}
     .mk.sn.on.si{background:#d9f0c2;color:#111;}
     .mk.sn.on.no{background:#ffd3d3;color:#111;}
-    .mk.gris{background:#efefef;}
+    .mk.gris{background:#f6f9fc;}
     tr.serv{height:7.2mm;}
     tr.rep{height:18mm;}
     tr.obs{height:12mm;}
@@ -150,19 +139,21 @@ export function htmlChecklist(r, cols) {
     .fimg{display:block;margin:0 auto;max-width:94%;max-height:18.5mm;object-fit:contain;}
     .fimg.ch{max-height:7.5mm;margin-top:1mm;}
     .fen.conf{margin-top:0;}
-    .pie{background:#d9d9d9;text-align:center;}
+    .pie{background:${AZUL_TENUE};text-align:center;}
     .pn{font-size:7.2px;font-weight:700;}
     .pn.hint{color:#8a8a8a;font-weight:400;font-style:italic;}
-    .rojo{height:1.1mm;background:#e30613;margin-top:0;}
-    .pie-doc{margin-top:3px;text-align:center;font-size:6.6px;color:#888;letter-spacing:.3px;}
+    .pie-doc{margin-top:4px;text-align:center;font-size:6.6px;color:#888;letter-spacing:.3px;}
   </style></head>
   <body>
     <div id="probe"></div>
     <div id="hoja">
+      ${encabezadoDoc("Entrega y Salida de Equipo", [
+        (r.tipo || "Salida") + (r.ligadoA ? " · Ligado a " + folioVisible(r.ligadoA) : ""),
+        "Folio: " + folioCorto(r) + " · " + EMPRESA
+      ])}
       ${t1}
       ${t2}
       ${t3}
-      <div class="rojo"></div>
       <div class="pie-doc">${r.fotosUrl ? `Fotos del equipo: <a href="${esc(r.fotosUrl)}" style="color:#1d5c8f;font-weight:700;text-decoration:none">${esc(r.fotosUrl)}</a> &nbsp;·&nbsp; ` : ""}Documento generado desde MAQSISTEM · ${esc(folioCorto(r))}</div>
     </div>
     <script>

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import "../Clientes/Ventas.css";
 import { descargarExcelBonito, nombreArchivoSemana } from "../../utils/exportExcel";
+import { abrirDocPDF, encabezadoDoc, hoyMX, AZUL, AZUL_TENUE } from "../../utils/pdfFormato";
 import DeleteButton from "../../components/DeleteButton";
 import AsistenciaExterna from "./AsistenciaExterna";
 import { supabase } from "../../supabaseClient";
@@ -13,7 +14,6 @@ const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "
 const DIA_DESCANSO = 6;
 
 const VINO = "var(--acento)";
-const VINO_IMPRESION = "#8f1d2c"; // hex fijo para el PDF (ventana aparte, sin las variables CSS de la app)
 const VERDE = "#2e7d32";
 const ROJO = "#b00020";
 
@@ -332,7 +332,6 @@ function Asistencias() {
     `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
 
   const descargarPDF = () => {
-    const ventana = window.open("", "_blank");
     const mesCrudo = lunes.toLocaleDateString("es-MX", { month: "long" });
     const mesNombre =
       mesCrudo.charAt(0).toUpperCase() + mesCrudo.slice(1).toLowerCase();
@@ -393,40 +392,30 @@ function Asistencias() {
         </table>`;
     });
 
-    ventana.document.write(`
-      <html><head><title>${nombreArchivo}</title>
-      <style>
-        @page{size:auto;margin:0;}
-        *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-        body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:12mm 10mm;color:#000;}
-        h2{margin:0 0 16px;color:${VINO_IMPRESION};font-size:17px;}
+    // las tarjetas no llevan renglones alternos: cada celda tiene su color (A / F / descanso)
+    abrirDocPDF({
+      nombre: nombreArchivo,
+      css: `
         .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 24px;}
-        .tarjeta{border-collapse:collapse;width:100%;border:1px solid #000;page-break-inside:avoid;font-size:11px;}
-        .tarjeta td,.tarjeta th{border:1px solid #999;padding:5px 8px;}
-        .encabezado th{border:1px solid #000;border-bottom:3px solid ${VINO_IMPRESION};background:#fff;font-weight:700;text-align:left;padding:6px 8px;}
-        .encabezado th.centrado{text-align:center;}
-        .encabezado .mes{font-size:13px;letter-spacing:0.5px;text-align:center;}
-        .nombre{background:#d9d9d9;font-weight:700;text-align:center;vertical-align:middle;width:22%;}
+        table.tarjeta{border-collapse:collapse;width:100%;border:1px solid #c9d6e3;page-break-inside:avoid;font-size:11px;}
+        table.tarjeta tbody tr td,table.tarjeta th{border:1px solid #dde5ee;padding:5px 8px;background:#fff;}
+        table.tarjeta tr.encabezado th{background:${AZUL};color:#fff;border-color:${AZUL};font-weight:700;text-align:left;padding:6px 8px;}
+        table.tarjeta tr.encabezado th.centrado{text-align:center;}
+        table.tarjeta tr.encabezado th.mes{font-size:13px;letter-spacing:0.5px;text-align:center;}
+        table.tarjeta td.nombre{background:${AZUL_TENUE};font-weight:700;text-align:center;vertical-align:middle;width:22%;}
         .dia{text-transform:lowercase;width:16%;}
         .fecha{text-align:center;width:20%;}
         .estado{text-align:center;font-weight:800;width:20%;}
-        .estado.asistio{background:#a9d18e;color:#1a7f37;}
-        .estado.falta{background:#f4b6b6;color:#c62828;}
-        .fila-domingo td{background:#bcd4e6;}
-        .fila-domingo .estado{background:#bcd4e6;font-weight:700;color:#1a4d7a;}
-        .fila-obs td{background:#fff;}
-        .obs-label{background:#d9d9d9;font-weight:700;text-align:center;}
+        table.tarjeta td.estado.asistio{background:#a9d18e;color:#1a7f37;}
+        table.tarjeta td.estado.falta{background:#f4b6b6;color:#c62828;}
+        table.tarjeta tr.fila-domingo td{background:#bcd4e6;}
+        table.tarjeta tr.fila-domingo td.estado{background:#bcd4e6;font-weight:700;color:#1a4d7a;}
+        table.tarjeta td.obs-label{background:${AZUL_TENUE};font-weight:700;text-align:center;}
         .obs-texto{font-weight:700;text-align:center;padding:10px 8px;}
-        @media print{.grid{gap:16px 20px;}}
-      </style></head>
-      <body>
-        <h2>Lista de Asistencia · ${mesNombre} · Semana ${semana} · ${lunes.getFullYear()}</h2>
-        <div class="grid">${tarjetas}</div>
-      </body></html>
-    `);
-
-    ventana.document.close();
-    ventana.print();
+        @media print{.grid{gap:16px 20px;}}`,
+      cuerpo: `${encabezadoDoc("Lista de Asistencia", [`${mesNombre} · Semana ${semana} · ${lunes.getFullYear()}`, "Generado: " + hoyMX()])}
+        <div class="grid">${tarjetas}</div>`
+    });
   };
 
   // ==========================

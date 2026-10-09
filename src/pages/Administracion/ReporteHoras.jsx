@@ -2,7 +2,7 @@ import Layout from "../../components/Layout";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
-import logo from "../../assets/logo.png";
+import { abrirDocPDF, encabezadoDoc, pieDoc, hoyMX } from "../../utils/pdfFormato";
 import { useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
 import { descargarExcelBonito, nombreArchivoFecha } from "../../utils/exportExcel";
 import { S, fFecha, hoyISO, esc } from "./estilosAdmin";
@@ -103,38 +103,22 @@ export default function ReporteHoras() {
 
   const imprimirReporte = () => {
     if (filtrados.length === 0) return alert("No hay registros para el reporte con esos filtros.");
-    const w = window.open("", "_blank");
-    if (!w) return alert("El navegador bloqueó la ventana. Permite ventanas emergentes para este sitio.");
-    const logoUrl = new URL(logo, window.location.href).href;
     const filasResumen = porEquipo
-      .map((e) => `<tr><td>${esc(e.label)}</td><td>${esc(e.cliente || "—")}</td><td style="text-align:center">${e.dias}</td><td style="text-align:right"><b>${fmtHoras(e.horas)}</b></td></tr>`)
+      .map((e) => `<tr><td>${esc(e.label)}</td><td>${esc(e.cliente || "—")}</td><td class="c">${e.dias}</td><td class="r b">${fmtHoras(e.horas)}</td></tr>`)
       .join("");
     const filasDetalle = filtrados
-      .map((r) => `<tr><td>${fFecha(r.fecha)}</td><td>${esc(r.equipoLabel)}</td><td>${esc(r.cliente || "—")}</td><td>${esc(r.operador || "—")}</td><td style="text-align:right">${esc(r.horometroInicial || "—")}</td><td style="text-align:right">${esc(r.horometroFinal || "—")}</td><td style="text-align:right"><b>${fmtHoras(num(r.horas))}</b></td></tr>`)
+      .map((r) => `<tr><td>${fFecha(r.fecha)}</td><td>${esc(r.equipoLabel)}</td><td>${esc(r.cliente || "—")}</td><td>${esc(r.operador || "—")}</td><td class="r">${esc(r.horometroInicial || "—")}</td><td class="r">${esc(r.horometroFinal || "—")}</td><td class="r b">${fmtHoras(num(r.horas))}</td></tr>`)
       .join("");
-    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Reporte de horas</title>
-      <style>
-        @page{size:auto;margin:0}
-        body{font-family:Arial,sans-serif;color:#222;margin:0;padding:12mm 12mm;font-size:12px}
-        .top{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #1d5c8f;padding-bottom:12px;margin-bottom:18px}
-        .top img{height:60px} h1{font-size:20px;margin:0;color:#1d5c8f} p{margin:3px 0;color:#555}
-        h2{font-size:14px;margin:22px 0 8px;color:#1d5c8f}
-        table{width:100%;border-collapse:collapse} th{background:#1d5c8f;color:#fff;text-align:left;padding:7px;font-size:11px}
-        td{padding:6px 7px;border-bottom:1px solid #ddd} tr:nth-child(even) td{background:#f6f9fc}
-        .total{margin-top:16px;text-align:right;font-size:15px}
-        @media print{body{padding:10mm 9mm}}
-      </style></head><body>
-      <div class="top"><div><h1>Reporte de Horas de Maquinaria</h1><p>Periodo: ${esc(periodoTexto)}</p>
-      ${fCliente ? `<p>Cliente: ${esc(fCliente)}</p>` : ""}<p>Generado: ${new Date().toLocaleDateString("es-MX")}</p></div>
-      <img src="${logoUrl}" alt="MAQSOL"></div>
+    abrirDocPDF({
+      nombre: "Reporte de horas",
+      cuerpo: `${encabezadoDoc("Reporte de Horas de Maquinaria", ["Periodo: " + periodoTexto, fCliente ? "Cliente: " + fCliente : "", "Generado: " + hoyMX()])}
       <h2>Resumen por máquina</h2>
-      <table><thead><tr><th>Máquina</th><th>Cliente</th><th style="text-align:center">Registros</th><th style="text-align:right">Horas</th></tr></thead><tbody>${filasResumen}</tbody></table>
-      <div class="total">Total de horas: <b>${fmtHoras(totalHoras)}</b></div>
+      <table><thead><tr><th>Máquina</th><th>Cliente</th><th class="c">Registros</th><th class="r">Horas</th></tr></thead><tbody>${filasResumen}</tbody></table>
+      <div class="tot"><span>Total de horas: <b>${fmtHoras(totalHoras)}</b></span></div>
       <h2>Detalle</h2>
-      <table><thead><tr><th>Fecha</th><th>Máquina</th><th>Cliente</th><th>Operador</th><th style="text-align:right">Horóm. inicial</th><th style="text-align:right">Horóm. final</th><th style="text-align:right">Horas</th></tr></thead><tbody>${filasDetalle}</tbody></table>
-      <script>window.onload=function(){setTimeout(function(){window.print()},400)}</script>
-      </body></html>`);
-    w.document.close();
+      <table><thead><tr><th>Fecha</th><th>Máquina</th><th>Cliente</th><th>Operador</th><th class="r">Horóm. inicial</th><th class="r">Horóm. final</th><th class="r">Horas</th></tr></thead><tbody>${filasDetalle}</tbody></table>
+      ${pieDoc()}`
+    });
   };
 
   return (

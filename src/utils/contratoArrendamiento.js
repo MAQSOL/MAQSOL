@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { LOGO_MAQSOL_TRANSPARENTE, LOGO_MAQSOL_TRANSPARENTE_RELACION } from "./logoMaqsolTransparente";
 import { montoALetras } from "./numeroALetras";
 
 export const CODIGO_DOC = "MSL-COA0030-20062023";
@@ -265,27 +266,28 @@ export function construirDocumento(d) {
 }
 
 /** Genera y descarga el PDF a partir del modelo. */
-export function descargarContratoPDF(bloques, nombreArchivo, logoUrl) {
+export function descargarContratoPDF(bloques, nombreArchivo) {
   const doc = new jsPDF({ unit: "mm", format: "letter" });
   const W = 216, H = 279, M = 18, ancho = W - M * 2;
   let y = 0;
   let pagina = 1;
   const AZUL = [29, 92, 143];
 
+  // mismo diseño que los demás PDF (título azul, datos en gris, logo a la derecha, línea azul), en chico
   const cabecera = () => {
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.setTextColor(70, 70, 70);
-    doc.text("MAQUINARIA SOPORTE Y LOGISTICA SA DE CV", M, 12);
-    doc.text("pág. " + pagina, W - M, 12, { align: "right" });
+    doc.setFontSize(10);
+    doc.setTextColor(...AZUL);
+    doc.text("MAQUINARIA SOPORTE Y LOGISTICA SA DE CV", M, 10);
     doc.setFont("helvetica", "normal");
-    doc.text(CODIGO_DOC, M, 16);
-    if (logoUrl) {
-      try { doc.addImage(logoUrl, "PNG", W - M - 22, 4, 22, 11); } catch { /* sin logo */ }
-    }
+    doc.setFontSize(8);
+    doc.setTextColor(85, 85, 85);
+    doc.text(CODIGO_DOC + "  ·  pág. " + pagina, M, 14.5);
+    try { doc.addImage(LOGO_MAQSOL_TRANSPARENTE, "PNG", W - M - 12 * LOGO_MAQSOL_TRANSPARENTE_RELACION, 4.5, 12 * LOGO_MAQSOL_TRANSPARENTE_RELACION, 12); } catch { /* sin logo */ }
     doc.setDrawColor(...AZUL);
-    doc.setLineWidth(0.5);
-    doc.line(M, 18, W - M, 18);
+    doc.setLineWidth(0.8);
+    doc.line(M, 18.5, W - M, 18.5);
+    doc.setLineWidth(0.2);
     y = 25;
   };
   const nuevaPagina = () => { doc.addPage(); pagina += 1; cabecera(); };

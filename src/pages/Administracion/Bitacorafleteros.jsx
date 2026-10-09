@@ -3,7 +3,7 @@ import { useListaCompartida, useListaCatalogo } from '../../hooks/useSharedTable
 import Sidebar from '../../components/Sidebar'
 import DeleteButton from '../../components/DeleteButton'
 import { descargarExcelBonito, nombreArchivoSemana } from '../../utils/exportExcel'
-import { LOGO_MAQSOL_TRANSPARENTE } from '../../utils/logoMaqsolTransparente'
+import { abrirDocPDF, encabezadoDoc, pieDoc, hoyMX } from '../../utils/pdfFormato'
 
 const VINO = 'var(--acento)'
 const KEY_FLETES = 'fletesMaqsol'
@@ -80,7 +80,7 @@ function pdfFletes(lista,periodo){
   const folio=folioBitacora()
   const num=v=>{const n=parseFloat(String(v==null?'':v).replace(/[$,\s]/g,''));return isNaN(n)?0:n}
   const total=filas.reduce((a,f)=>a+num(f.costo),0)
-  const fila=(f,i)=>`<tr class="${i%2?'z':''}">
+  const fila=(f)=>`<tbody class="f"><tr>
     <td class="c b">${esc(f.folio)}</td>
     <td class="c">${esc(fFecha(f.fecha))}${f.horaMovimiento?`<div class="m">${esc(f.horaMovimiento)} h</div>`:''}</td>
     <td>${esc(f.empresa)||'—'}</td>
@@ -91,53 +91,23 @@ function pdfFletes(lista,periodo){
     <td class="r b">${f.costo?esc(dinero(f.costo)):'—'}</td>
     <td class="c">${esc(f.pagado||'Pendiente')}</td>
     <td class="c">${esc(f.estado==='En Ruta'?'Programado':f.estado)}</td>
-  </tr>${f.observaciones?`<tr class="${i%2?'z':''}"><td colspan="10" class="obs">Obs.: ${esc(f.observaciones)}</td></tr>`:''}`
-  const html=`<!doctype html><html><head><meta charset="utf-8"><title>${folio}</title><style>
-    @page{size:letter landscape;margin:0}
-    *{box-sizing:border-box}
-    body{font-family:Arial,sans-serif;margin:0;padding:11mm 12mm;color:#222}
-    .top{display:flex;align-items:center;gap:14px;border:1px solid #777;background:#ececec;padding:7px 12px}
-    .top img{height:15mm}
-    .tt{flex:1;text-align:center}
-    .tt h1{margin:0;font-size:20px;letter-spacing:1px;color:#222}
-    .tt div{font-size:10px;color:#555;margin-top:2px}
-    .fol{border:1px solid #777;background:#d9d9d9;text-align:center;padding:5px 14px}
-    .fol b{display:block;font-size:9px;letter-spacing:.8px;color:#444}
-    .fol span{font-size:17px;font-weight:700}
-    .per{margin:6px 0 6px;font-size:10.5px;color:#444;display:flex;justify-content:space-between}
-    table{width:100%;border-collapse:collapse;font-size:10px}
-    thead{display:table-header-group}
-    th{background:#d9d9d9;color:#222;border:1px solid #777;padding:6px 5px;font-size:9px;letter-spacing:.4px}
-    td{border:1px solid #aaa;padding:5px 6px;vertical-align:middle}
-    tr{page-break-inside:avoid}
-    tr.z td{background:#f5f5f5}
-    .c{text-align:center}.r{text-align:right}.b{font-weight:700}
-    .m{font-size:8.5px;color:#666;margin-top:1px}
-    .obs{font-size:9px;color:#555;font-style:italic;border-top:none}
-    .tot td{background:#d9d9d9;border:1px solid #777;font-weight:700;font-size:11px}
-    .pie{margin-top:8px;font-size:8.5px;color:#888;text-align:center}
-  </style></head><body>
-    <div class="top">
-      <img src="${LOGO_MAQSOL_TRANSPARENTE}" alt=""/>
-      <div class="tt"><h1>BITÁCORA DE FLETEROS</h1><div>MAQUINARIA SOPORTE Y LOGÍSTICA SA DE CV</div></div>
-      <div class="fol"><b>FOLIO</b><span>${folio}</span></div>
-    </div>
-    <div class="per"><span>${esc(periodo)}</span><span>${filas.length} flete${filas.length===1?'':'s'}</span></div>
+  </tr>${f.observaciones?`<tr class="obs"><td colspan="10">Obs.: ${esc(f.observaciones)}</td></tr>`:''}</tbody>`
+  abrirDocPDF({
+    nombre:folio,
+    hoja:'horizontal',
+    // cada flete es su propio <tbody>: el sombreado alterno abarca también su renglón de observaciones
+    css:'td{vertical-align:middle;font-size:11px}tbody tr:nth-child(even) td{background:none}tbody.f:nth-of-type(even) td{background:#f6f9fc}tbody.f tr:first-child:not(:last-child) td{border-bottom:none}tr.obs td{font-size:10px;color:#666;font-style:italic;padding-top:0}',
+    cuerpo:`${encabezadoDoc('Bitácora de Fleteros',[periodo,'Folio: '+folio+' · '+filas.length+' flete'+(filas.length===1?'':'s'),'Generado: '+hoyMX()])}
     <table>
       <thead><tr>
-        <th style="width:8%">FOLIO</th><th style="width:8%">FECHA / HORA</th><th style="width:14%">EMPRESA (SOLICITÓ Y PAGÓ)</th><th style="width:12%">PROVEEDOR</th>
-        <th style="width:14%">EQUIPO</th><th style="width:13%">ORIGEN → DESTINO</th><th style="width:9%">ORDEN DE COMPRA</th><th style="width:10%">IMPORTE SIN IMPUESTOS</th><th style="width:6%">PAGO</th><th style="width:6%">ESTADO</th>
+        <th>Folio</th><th>Fecha / hora</th><th>Empresa (solicitó y pagó)</th><th>Proveedor</th>
+        <th>Equipo</th><th>Origen → destino</th><th>Orden de compra</th><th class="r">Importe sin imp.</th><th class="c">Pago</th><th class="c">Estado</th>
       </tr></thead>
-      <tbody>
-        ${filas.map(fila).join('')}
-        <tr class="tot"><td colspan="7" class="r">TOTAL SIN IMPUESTOS</td><td class="r">${esc(dinero(total))}</td><td colspan="2"></td></tr>
-      </tbody>
+      ${filas.map(fila).join('')}
     </table>
-    <div class="pie">Documento generado desde MAQSISTEM · ${folio}</div>
-    <script>window.onload=()=>setTimeout(()=>window.print(),400)</script>
-  </body></html>`
-  const w=window.open('','_blank');if(!w){alert('Permite ventanas emergentes para ver el PDF.');return}
-  w.document.write(html);w.document.close()
+    <div class="tot"><span>Fletes: <b>${filas.length}</b></span><span>Total sin impuestos: <b>${esc(dinero(total))}</b></span></div>
+    ${pieDoc(folio)}`
+  })
 }
 
 function BadgeEstado({estado}){

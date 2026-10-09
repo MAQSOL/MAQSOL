@@ -3,9 +3,9 @@ import DeleteButton from "../../components/DeleteButton";
 import { supabase } from "../../supabaseClient";
 import { useListaCompartida } from "../../hooks/useSharedTable";
 import { descargarExcelBonito } from "../../utils/exportExcel";
+import { abrirDocPDF, encabezadoDoc, hoyMX, AZUL } from "../../utils/pdfFormato";
 
 const VINO = "var(--acento)";
-const VINO_IMPRESION = "#8f1d2c";
 const VERDE = "#2e7d32";
 const ROJO = "#b00020";
 
@@ -214,8 +214,6 @@ export default function AsistenciaExterna() {
   }
 
   function descargarPDF() {
-    const ventana = window.open("", "_blank");
-    if (!ventana) return alert("El navegador bloqueó la ventana. Permite ventanas emergentes para este sitio.");
     const cabDias = dias
       .map((f) => `<th class="d${f.getDay() === 0 ? " dom" : ""}">${LETRA_DIA[f.getDay()]}<br>${f.getDate()}</th>`)
       .join("");
@@ -234,36 +232,29 @@ export default function AsistenciaExterna() {
         return `<tr><td class="n">${esc(p.nombre)}${p.puesto ? `<small>${esc(p.puesto)}</small>` : ""}</td>${celdas}<td class="t">${r.asistencias}</td><td class="t">${r.faltas}</td><td class="o">${esc(obsDePersona(p.id))}</td></tr>`;
       })
       .join("");
-    ventana.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${nombreArchivo}</title>
-      <style>
-        @page{size:letter landscape;margin:0;}
-        *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-        body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:12mm 10mm;color:#000;}
-        h2{margin:0 0 4px;color:${VINO_IMPRESION};font-size:18px;}
-        p{margin:0 0 12px;color:#555;font-size:12px;}
-        table{width:100%;border-collapse:collapse;font-size:10px;}
-        th,td{border:1px solid #999;padding:4px 3px;text-align:center;}
-        thead th{background:#fff;border-bottom:3px solid ${VINO_IMPRESION};font-size:9px;}
-        thead th.dom{background:#bcd4e6;}
-        td.n{text-align:left;font-weight:700;padding-left:6px;min-width:120px;}
-        td.n small{display:block;font-weight:400;color:#777;font-size:8px;}
-        td.c{font-weight:800;width:22px;}
-        td.a{background:#a9d18e;color:#1a7f37;}
-        td.f{background:#f4b6b6;color:#c62828;}
-        td.dom{background:#bcd4e6;color:#1a4d7a;font-weight:700;}
-        td.t{font-weight:800;width:34px;}
-        td.o{text-align:left;font-size:8.5px;min-width:90px;}
-        th.o2,th.t2{background:#d9d9d9;}
-      </style></head><body>
-        <h2>Lista de Asistencia · Personal externo</h2>
-        <p>Quincena ${num} · ${anio} · ${esc(rangoTexto)}</p>
-        <table>
-          <thead><tr><th style="text-align:left;padding-left:6px">PRACTICANTE</th>${cabDias}<th class="t2">ASIST.</th><th class="t2">FALTAS</th><th class="o2">OBSERVACIONES</th></tr></thead>
+    // matriz persona x día: sin renglones alternos, cada celda lleva el color de su estado
+    abrirDocPDF({
+      nombre: nombreArchivo,
+      hoja: "horizontal",
+      css: `
+        table.q{font-size:10px;}
+        table.q th,table.q tbody tr td{border:1px solid #dde5ee;padding:4px 3px;text-align:center;background:#fff;}
+        table.q thead th{background:${AZUL};color:#fff;border-color:${AZUL};font-size:9px;}
+        table.q thead th.dom{background:#4a7fab;}
+        table.q tbody tr td.n{text-align:left;font-weight:700;padding-left:6px;min-width:120px;}
+        table.q td.n small{display:block;font-weight:400;color:#777;font-size:8px;}
+        table.q tbody tr td.c{font-weight:800;width:22px;}
+        table.q tbody tr td.a{background:#a9d18e;color:#1a7f37;}
+        table.q tbody tr td.f{background:#f4b6b6;color:#c62828;}
+        table.q tbody tr td.dom{background:#bcd4e6;color:#1a4d7a;font-weight:700;}
+        table.q tbody tr td.t{font-weight:800;width:34px;}
+        table.q tbody tr td.o{text-align:left;font-size:8.5px;min-width:90px;}`,
+      cuerpo: `${encabezadoDoc("Lista de Asistencia · Personal externo", [`Quincena ${num} · ${anio} · ${rangoTexto}`, "Generado: " + hoyMX()])}
+        <table class="q">
+          <thead><tr><th style="text-align:left;padding-left:6px">PRACTICANTE</th>${cabDias}<th>ASIST.</th><th>FALTAS</th><th>OBSERVACIONES</th></tr></thead>
           <tbody>${filas || '<tr><td colspan="99">Sin personal registrado.</td></tr>'}</tbody>
-        </table>
-        <script>window.onload=function(){setTimeout(function(){window.print()},300)}</script>
-      </body></html>`);
-    ventana.document.close();
+        </table>`
+    });
   }
 
   return (

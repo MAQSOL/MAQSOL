@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Sidebar from '../../components/Sidebar'
 import { descargarExcelBonito, nombreArchivoFecha } from '../../utils/exportExcel'
+import { abrirDocPDF, encabezadoDoc, pieDoc, hoyMX, esc } from '../../utils/pdfFormato'
 import DeleteButton from '../../components/DeleteButton'
 import { useSharedTable, useCatalogo } from '../../hooks/useSharedTable'
 import QrEquipoModal from '../../components/QrEquipoModal'
@@ -241,10 +242,15 @@ export default function EquiposInternos(){
     })
   }
   function descargarPDF(eq){
-    const l=manttosFiltrados(eq),w=window.open('','_blank')
-    const filas=l.map(m=>`<tr><td>${fFecha(m.fecha)}</td><td>${m.horometro||'—'}</td><td>${m.tipoMantto}</td><td>${m.descripcion||''}</td><td>${m.realizadoPor||''}</td><td>${m.autorizadoPor||''}</td><td>${m.lugarRealizado||''}</td><td>${m.costo?'$'+m.costo:''}</td></tr>`).join('')
-    w.document.write(`<!DOCTYPE html><html><head><title>Historial</title><style>@page{size:auto;margin:0}body{font-family:Arial;margin:0;padding:12mm 10mm;font-size:12px}table{width:100%;border-collapse:collapse;margin-top:14px}th{background:#222;color:#fff;padding:8px 6px;text-align:left}td{padding:7px 6px;border-bottom:1px solid #ddd}@media print{button{display:none}}</style></head><body><h2>Historial de Mantenimientos</h2><p>${eq.tipo} ${eq.marca} ${eq.modelo} — Serie: ${eq.serie||'s/n'}</p><table><thead><tr><th>Fecha</th><th>Hrm</th><th>Tipo</th><th>Descripción</th><th>Realizó</th><th>Autorizó</th><th>Lugar</th><th>Costo</th></tr></thead><tbody>${filas}</tbody></table><br><button onclick="window.print()">Imprimir / Guardar PDF</button></body></html>`)
-    w.document.close()
+    const l=manttosFiltrados(eq)
+    const filas=l.map(m=>`<tr><td>${fFecha(m.fecha)}</td><td class="r">${esc(m.horometro||'—')}</td><td>${esc(m.tipoMantto)}</td><td>${esc(m.descripcion||'')}</td><td>${esc(m.realizadoPor||'')}</td><td>${esc(m.autorizadoPor||'')}</td><td>${esc(m.lugarRealizado||'')}</td><td class="r b">${m.costo?'$'+esc(m.costo):''}</td></tr>`).join('')
+    abrirDocPDF({
+      nombre:'Historial '+(eq.serie||eq.tipo||''),
+      cuerpo:`${encabezadoDoc('Historial de Mantenimientos',[`${eq.tipo||''} ${eq.marca||''} ${eq.modelo||''}`.trim()+' — Serie: '+(eq.serie||'s/n'),'Generado: '+hoyMX()])}
+      <table><thead><tr><th>Fecha</th><th class="r">Hrm</th><th>Tipo</th><th>Descripción</th><th>Realizó</th><th>Autorizó</th><th>Lugar</th><th class="r">Costo</th></tr></thead>
+      <tbody>${filas||'<tr><td colspan="8" class="c">Sin mantenimientos registrados.</td></tr>'}</tbody></table>
+      ${pieDoc()}`
+    })
   }
 
   const filtrados=equipos.filter(e=>{

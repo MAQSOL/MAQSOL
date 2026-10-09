@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { encabezadoJsPDF, seccionJsPDF } from "./pdfFormato";
 
 const AZUL = [29, 92, 143];
 
@@ -9,25 +10,13 @@ const f = (iso) => {
 };
 
 /** Ficha técnica del equipo para el cliente (solo datos públicos, sin costos). */
-export function descargarFichaEquipoPDF(eq, logoUrl) {
+export function descargarFichaEquipoPDF(eq) {
   const doc = new jsPDF({ unit: "mm", format: "letter" });
   const W = 216, H = 279, M = 16, ancho = W - M * 2;
   let y = 0;
 
   const cabecera = () => {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.setTextColor(70, 70, 70);
-    doc.text("MAQUINARIA SOPORTE Y LOGISTICA SA DE CV", M, 11);
-    doc.setFont("helvetica", "normal");
-    doc.text("Ficha técnica del equipo", M, 15);
-    if (logoUrl) {
-      try { doc.addImage(logoUrl, "PNG", W - M - 22, 4, 22, 11); } catch { /* sin logo */ }
-    }
-    doc.setDrawColor(...AZUL);
-    doc.setLineWidth(0.5);
-    doc.line(M, 18, W - M, 18);
-    y = 25;
+    y = encabezadoJsPDF(doc, { titulo: "Ficha técnica del equipo", lineas: ["MAQUINARIA SOPORTE Y LOGISTICA SA DE CV"], x: M, ancho, y: 10 });
   };
   const nueva = () => { doc.addPage(); cabecera(); };
   const asegura = (alto) => { if (y + alto > H - 14) nueva(); };
@@ -35,7 +24,7 @@ export function descargarFichaEquipoPDF(eq, logoUrl) {
   cabecera();
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(17);
+  doc.setFontSize(14);
   doc.setTextColor(20, 20, 20);
   doc.text(eq.tipo || "Equipo", M, y + 5);
   doc.setFont("helvetica", "normal");
@@ -60,7 +49,7 @@ export function descargarFichaEquipoPDF(eq, logoUrl) {
 
   doc.setFontSize(10);
   datos.forEach(([k, v], i) => {
-    const yy = y + 4 + i * 8;
+    const yy = y + 4 + i * 10.5;
     doc.setFont("helvetica", "bold");
     doc.setTextColor(...AZUL);
     doc.text(k.toUpperCase(), M, yy - 3);
@@ -68,15 +57,9 @@ export function descargarFichaEquipoPDF(eq, logoUrl) {
     doc.setTextColor(20, 20, 20);
     doc.text(String(v), M, yy + 1.5, { maxWidth: ancho - anchoFoto });
   });
-  y += Math.max(datos.length * 8, eq.fotoUrl ? 48 : 0) + 8;
+  y += Math.max(datos.length * 10.5, eq.fotoUrl ? 48 : 0) + 6;
 
-  doc.setFillColor(...AZUL);
-  doc.rect(M, y, ancho, 7, "F");
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9.5);
-  doc.setTextColor(255, 255, 255);
-  doc.text("HISTORIAL DE MANTENIMIENTOS", M + 2, y + 4.8);
-  y += 10;
+  y = seccionJsPDF(doc, "Historial de mantenimientos", M, y) + 1;
 
   const lista = eq.mantenimientos || [];
   if (!lista.length) {
