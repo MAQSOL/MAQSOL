@@ -1260,7 +1260,7 @@ onChange={(e) =>
     className="btn-guardar"
     onClick={agregarRefaccion}
   >
-    + Agregar Refacción
+    <IconoMas />Agregar Refacción
   </button>
 
 </div>

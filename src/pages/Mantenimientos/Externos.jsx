@@ -104,7 +104,8 @@ export default function EquiposExternos(){
     if(!form.tipo.trim()){alert('Selecciona el tipo de equipo.');return}
     if(!form.proveedor.trim()){alert('Indica de qué proveedor se subarrienda el equipo.');return}
     const existe=equipos.some(e=>e.id===form.id)
-    const lista=existe?equipos.map(e=>e.id===form.id?{...e,...form}:e):[...equipos,form]
+    // al guardar desde el formulario ya cuenta como completo (los que vienen de Alquileres llegan incompletos)
+    const lista=existe?equipos.map(e=>e.id===form.id?{...e,...form,incompleto:false}:e):[...equipos,form]
     guardarEquipos(lista);setModal(false)
   }
   function eliminarEquipo(eq){
@@ -143,6 +144,12 @@ export default function EquiposExternos(){
         <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo subarrendado</button></div>
       </div>
 
+      {equipos.some(e=>e.incompleto)&&(
+        <div style={{background:'#fff8e1',border:'1px solid #f3d27a',color:'#7a5a00',borderRadius:10,padding:'12px 16px',fontSize:14,marginBottom:18}}>
+          <strong>Favor de terminar de rellenar la información.</strong> {equipos.filter(e=>e.incompleto).length} equipo(s) se dieron de alta desde Alquileres con datos incompletos (proveedor, contacto...). Tócalos en la lista para completarlos.
+        </div>
+      )}
+
       <div style={S.card}>
         <div style={{display:'grid',gridTemplateColumns:'1.6fr 1fr 1fr',gap:18,alignItems:'end'}}>
           <div><label style={S.label}>BUSCAR</label><input style={S.input} placeholder="Equipo, marca, modelo, cliente o proveedor" value={busqueda} onChange={ev=>setBusqueda(ev.target.value)}/></div>
@@ -162,7 +169,7 @@ export default function EquiposExternos(){
           <tbody>
             {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={12}>No hay equipos subarrendados registrados. Usa "Agregar equipo subarrendado".</td></tr>
             :filtrados.map(e=>(<tr key={e.id} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
-              <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>abrirEditar(e)}>{e.tipo}</td>
+              <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>abrirEditar(e)}>{e.tipo}{e.incompleto&&<div style={{marginTop:4,display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}><span style={{background:'#fff3c4',color:'#7a5a00',fontSize:11,fontWeight:700,padding:'2px 8px',borderRadius:10}}>Faltan datos</span><button onClick={ev=>{ev.stopPropagation();guardarEquipos(equipos.map(x=>x.id===e.id?{...x,incompleto:false}:x))}} style={{background:'none',border:'none',color:'#7a5a00',fontSize:11.5,fontWeight:700,cursor:'pointer',textDecoration:'underline',padding:0}}>No quiero rellenarlo</button></div>}</td>
               <td style={S.td}>{e.marca} {e.modelo}{e.serie?<div style={{color:'#999',fontSize:12}}>Serie: {e.serie}</div>:null}</td>
               <td style={S.td}>{e.proveedor}{e.telProveedor?<div style={{color:'#999',fontSize:12}}>{e.telProveedor}</div>:null}</td>
               <td style={S.td}>{e.cliente||<span style={{color:'#bbb'}}>—</span>}</td>

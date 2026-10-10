@@ -1,3 +1,4 @@
+import { IconoMas } from "../../components/Icons";
 import Layout from "../../components/Layout";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -607,7 +608,7 @@ function Asistencias() {
                       whiteSpace: "nowrap"
                     }}
                   >
-                    + Agregar
+                    <IconoMas />Agregar
                   </button>
                 </div>
               </div>

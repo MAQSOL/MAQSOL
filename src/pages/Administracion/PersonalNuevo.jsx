@@ -451,7 +451,7 @@ export default function PersonalNuevo() {
                   </div>
                   <div style={{ display: "flex", gap: 8, alignItems: "center", whiteSpace: "nowrap" }}>
                     <label style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13, cursor: "pointer" }}>
-                      + Subir
+                      <IconoMas />Subir
                       <input type="file" multiple accept="application/pdf,image/*" style={{ display: "none" }} onChange={(e) => { agregarArchivos(d.clave, e.target.files); e.target.value = ""; }} />
                     </label>
                     <label style={{ fontSize: 12, color: "#666", display: "flex", alignItems: "center", gap: 4 }}>

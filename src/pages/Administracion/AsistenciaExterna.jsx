@@ -1,3 +1,4 @@
+import { IconoMas } from "../../components/Icons";
 import { useEffect, useRef, useState } from "react";
 import DeleteButton from "../../components/DeleteButton";
 import { supabase } from "../../supabaseClient";
@@ -271,7 +272,7 @@ export default function AsistenciaExterna() {
             onClick={agregar}
             style={{ background: VERDE, color: "#fff", border: "none", borderRadius: "10px", padding: "13px 30px", cursor: "pointer", fontWeight: "700", fontSize: "15px", whiteSpace: "nowrap" }}
           >
-            + Agregar
+            <IconoMas />Agregar
           </button>
         </div>
       </div>

@@ -25,6 +25,24 @@ function GestionClientes() {
   const [ubicacion, setUbicacion] = useState("");
   const [equipo, setEquipo] = useState("");
   const [expedienteDe, setExpedienteDe] = useState(null);
+  const [editandoId, setEditandoId] = useState(null);
+  const incompletos = clientes.filter((c) => c.incompleto);
+
+  const limpiarForm = () => {
+    setCliente(""); setRfc(""); setContacto(""); setContactoObra(""); setCorreo(""); setTelefono(""); setUbicacion(""); setEquipo("");
+    setEditandoId(null);
+  };
+  const editarCliente = (c) => {
+    setCliente(c.cliente || ""); setRfc(c.rfc || ""); setContacto(c.contacto || ""); setContactoObra(c.contactoObra || "");
+    setCorreo(c.correo || ""); setTelefono(c.telefono || ""); setUbicacion(c.ubicacion || ""); setEquipo(c.equipo || "");
+    setEditandoId(c.id);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  // "No quiero rellenarlo": deja de pedir que se completen sus datos
+  const noRellenar = (c) => {
+    const { id, ...datos } = c;
+    guardar(id, { ...datos, incompleto: false });
+  };
 
   const guardarCliente = async () => {
     if (!cliente) {
@@ -43,17 +61,17 @@ function GestionClientes() {
       equipo
     };
 
-    const ok = await guardar(String(Date.now()), nuevoCliente);
+    let ok;
+    if (editandoId) {
+      // al editar se conserva lo demás (expediente, documentos) y ya no cuenta como incompleto
+      const previo = { ...(clientes.find((c) => c.id === editandoId) || {}) };
+      delete previo.id;
+      ok = await guardar(editandoId, { ...previo, ...nuevoCliente, incompleto: false });
+    } else {
+      ok = await guardar(String(Date.now()), nuevoCliente);
+    }
     if (!ok) return;
-
-    setCliente("");
-    setRfc("");
-    setContacto("");
-    setContactoObra("");
-    setCorreo("");
-    setTelefono("");
-    setUbicacion("");
-    setEquipo("");
+    limpiarForm();
   };
 
   const eliminarCliente = (id) => eliminar(id);
@@ -92,9 +110,15 @@ function GestionClientes() {
               </div>
             </div>
 
+            {incompletos.length > 0 && (
+              <div style={{ background: "#fff8e1", border: "1px solid #f3d27a", color: "#7a5a00", borderRadius: 10, padding: "12px 16px", fontSize: 14 }}>
+                <strong>Favor de terminar de rellenar los datos de tus clientes.</strong> {incompletos.length === 1 ? "1 cliente tiene" : `${incompletos.length} clientes tienen`} datos incompletos (se dieron de alta desde Alquileres). Usa <em>Completar</em> o <em>No quiero rellenarlo</em> en la lista.
+              </div>
+            )}
+
             {(
               <div className="panel" style={{ padding: "28px 32px" }}>
-                <h3 style={{ fontSize: "19px" }}>Agregar Cliente</h3>
+                <h3 style={{ fontSize: "19px" }}>{editandoId ? "Editar cliente" : "Agregar Cliente"}</h3>
 
                 <div className="form-grid" style={{ gap: "18px" }}>
                   <input
@@ -154,8 +178,13 @@ function GestionClientes() {
                     style={{ padding: "14px 28px", fontSize: "15px" }}
                     onClick={guardarCliente}
                   >
-                    Guardar Cliente
+                    {editandoId ? "Guardar cambios" : "Guardar Cliente"}
                   </button>
+                  {editandoId && (
+                    <button type="button" className="btn-panel" style={{ margin: "0 0 0 10px", border: "none", cursor: "pointer" }} onClick={limpiarForm}>
+                      Cancelar
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -192,6 +221,7 @@ function GestionClientes() {
                         {c.ubicacion}
                       </p>
                       <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginTop: "6px" }}>
+                        {c.incompleto && <span style={chip("#7a5a00", "#fff3c4")}>Datos incompletos</span>}
                         <span style={ex.contrato ? chip("#1b7a3f", "#e1f3e7") : chip("#b3202f", "#fbe0e4")}>{ex.contrato ? "Contrato firmado" : "Contrato sin firmar"}</span>
                         <span style={!ex.tipo ? chip("#666", "#eee") : ex.entregados === ex.total ? chip("#1b7a3f", "#e1f3e7") : chip("#a8730a", "#fdf0d4")}>
                           {!ex.tipo ? "Falta indicar persona física o moral" : `${ex.tipo === "moral" ? "Persona moral" : "Persona física"} · documentos ${ex.entregados}/${ex.total}${ex.noAplican ? ` (${ex.noAplican} no aplica${ex.noAplican === 1 ? "" : "n"})` : ""}`}
@@ -200,6 +230,14 @@ function GestionClientes() {
                     </div>
 
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      {c.incompleto && (
+                        <button type="button" onClick={() => noRellenar(c)} style={{ background: "none", border: "none", color: "#7a5a00", fontSize: 12.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>
+                          No quiero rellenarlo
+                        </button>
+                      )}
+                      <button type="button" className="btn-panel" style={{ margin: 0, border: "none", cursor: "pointer", background: c.incompleto ? "#c98a00" : undefined }} onClick={() => editarCliente(c)}>
+                        {c.incompleto ? "Completar" : "Editar"}
+                      </button>
                       <button type="button" className="btn-panel" style={{ margin: 0, border: "none", cursor: "pointer" }} onClick={() => setExpedienteDe(c.cliente)}>
                         Expediente
                       </button>

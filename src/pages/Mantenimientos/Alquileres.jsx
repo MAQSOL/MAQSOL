@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
 import { supabase } from "../../supabaseClient";
-import { useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
+import { useCatalogo, useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
+import { TIPOS_EQUIPO } from "../../utils/catalogoEquipos";
+import { buscarCliente } from "../../utils/expediente";
 import { descargarExcelBonito, nombreArchivoFecha } from "../../utils/exportExcel";
 import { S, fFecha, hoyISO } from "../Administracion/estilosAdmin";
 import { IconoMas } from "../../components/Icons";
@@ -124,9 +126,14 @@ const rutaUnica = (id, carpeta, ext) => `${id}/${carpeta}/${Date.now()}-${Math.r
 
 export default function Alquileres() {
   const [alquileres, guardarAlquileres] = useListaCompartida("alquileres");
-  const { registros: clientes } = useSharedTable("clientes");
+  const { registros: clientes, guardar: guardarCliente } = useSharedTable("clientes");
   const { registros: internos } = useSharedTable("equipos_internos");
-  const { registros: externos } = useSharedTable("equipos_externos");
+  const { registros: externos, guardar: guardarExterno } = useSharedTable("equipos_externos");
+  const { valores: tiposCatalogo } = useCatalogo("tipos_equipo");
+  const tiposEquipo = tiposCatalogo.length ? tiposCatalogo : TIPOS_EQUIPO;
+  const [tipoOtro, setTipoOtro] = useState(false);
+  // altas automáticas (cliente / equipo escritos a mano) que quedaron con datos por completar
+  const [altas, setAltas] = useState([]);
 
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState(NUEVO);
@@ -202,12 +209,23 @@ export default function Alquileres() {
     setNuevoPdf(null);
   };
 
+  // "No quiero rellenarlo": quita la marca de incompleto en lo que se dio de alta
+  const noRellenar = async () => {
+    for (const a of altas) {
+      if (a.tabla === "clientes") await guardarCliente(a.id, { ...a.datos, incompleto: false });
+      else await guardarExterno(a.id, { ...a.datos, incompleto: false });
+    }
+    setAltas([]);
+  };
+
   const abrirNuevo = () => {
+    setTipoOtro(false);
     resetArchivos();
     setForm({ ...NUEVO, id: "AL-" + Date.now(), fechaInicio: hoyISO() });
     setModal(true);
   };
   const abrirEditar = (a) => {
+    setTipoOtro(false);
     resetArchivos();
     setForm({ ...NUEVO, ...a, fotos: a.fotos || [] });
     setModal(true);
@@ -310,13 +328,47 @@ export default function Alquileres() {
         checklist = { path, nombre: nuevoPdf.name };
       }
 
-      const registro = { ...form, fotos, checklist };
+      // cliente o equipo escritos a mano: se dan de alta solos (con datos por completar)
+      let clienteId = form.clienteId;
+      let equipoId = form.equipoId;
+      const nuevasAltas = [];
+      if (!clienteId && form.cliente.trim()) {
+        const ya = buscarCliente(clientes, form.cliente);
+        if (ya) clienteId = ya.id;
+        else {
+          const datos = {
+            cliente: form.cliente.trim(), rfc: "", contacto: form.contactoCliente, contactoObra: form.encargadoObra, correo: "",
+            telefono: form.telefonoCliente, ubicacion: form.direccionObra, equipo: [form.tipo, form.marca, form.modelo].filter(Boolean).join(" "),
+            incompleto: true, origen: "Alquileres"
+          };
+          const id = String(Date.now());
+          if (await guardarCliente(id, datos)) { clienteId = id; nuevasAltas.push({ tabla: "clientes", id, datos, nombre: datos.cliente }); }
+        }
+      }
+      if (!equipoId && (form.tipo.trim() || form.modelo.trim())) {
+        const serie = form.serie.trim().toLowerCase();
+        const ya = serie ? catalogo.find((e) => (e.serie || "").trim().toLowerCase() === serie) : null;
+        if (ya) equipoId = ya.id;
+        else {
+          const datos = {
+            tipo: form.tipo.trim(), marca: form.marca, modelo: form.modelo, serie: form.serie,
+            proveedor: "", contactoProveedor: "", telProveedor: "", cliente: form.cliente.trim(), ubicacion: form.direccionObra || form.obra,
+            fechaInicio: form.fechaInicio, fechaFinEstimada: form.fechaFin, fechaDevolucion: "", estado: "Rentado", notas: "",
+            incompleto: true, origen: "Alquileres"
+          };
+          const id = "EX-" + Date.now();
+          if (await guardarExterno(id, datos)) { equipoId = id; nuevasAltas.push({ tabla: "equipos_externos", id, datos, nombre: [datos.tipo, datos.marca, datos.modelo].filter(Boolean).join(" ") }); }
+        }
+      }
+
+      const registro = { ...form, clienteId, equipoId, fotos, checklist };
       const existe = alquileres.some((a) => a.id === form.id);
       await guardarAlquileres(existe ? alquileres.map((a) => (a.id === form.id ? registro : a)) : [...alquileres, registro]);
 
       if (quitarPaths.length) await supabase.storage.from(BUCKET).remove(quitarPaths);
       resetArchivos();
       setModal(false);
+      if (nuevasAltas.length) setAltas(nuevasAltas);
     } catch (e) {
       if (subidos.length) await supabase.storage.from(BUCKET).remove(subidos);
       alert("No se pudo guardar: " + (e.message || e));
@@ -372,6 +424,19 @@ export default function Alquileres() {
             <button style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar equipo en renta</button>
           </div>
         </div>
+
+        {altas.length > 0 && (
+          <div style={{ background: "#fff8e1", border: "1px solid #f3d27a", color: "#7a5a00", borderRadius: 10, padding: "12px 16px", fontSize: 14, marginBottom: 18, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <strong>Favor de terminar de rellenar los datos.</strong>{" "}
+              Se dio de alta {altas.map((a) => (a.tabla === "clientes" ? `el cliente "${a.nombre}" en Gestión de Clientes` : `el equipo "${a.nombre}" en Equipos Externos`)).join(" y ")} con datos incompletos.
+            </div>
+            {altas.some((a) => a.tabla === "clientes") && <Link to="/clientes" className="btn-panel" style={{ margin: 0 }}>Completar cliente</Link>}
+            {altas.some((a) => a.tabla === "equipos_externos") && <Link to="/externos" className="btn-panel" style={{ margin: 0 }}>Completar equipo</Link>}
+            <button style={S.btnGris} onClick={noRellenar}>No quiero rellenarlo</button>
+            <button onClick={() => setAltas([])} aria-label="Cerrar aviso" style={{ border: "none", background: "none", cursor: "pointer", color: "#7a5a00", fontSize: 18 }}>✕</button>
+          </div>
+        )}
 
         <div style={S.card}>
           <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 18, alignItems: "end" }}>
@@ -556,7 +621,21 @@ export default function Alquileres() {
               </select>
             </div>
             <div style={S.grid3}>
-              <div><label style={S.label}>TIPO DE EQUIPO</label><input style={S.input} value={form.tipo} onChange={(e) => set("tipo", e.target.value)} /></div>
+              <div>
+                <label style={S.label}>TIPO DE EQUIPO</label>
+                <select
+                  style={S.input}
+                  value={tipoOtro || (form.tipo && !tiposEquipo.includes(form.tipo)) ? "__otro__" : form.tipo}
+                  onChange={(e) => { const v = e.target.value; if (v === "__otro__") { setTipoOtro(true); set("tipo", ""); } else { setTipoOtro(false); set("tipo", v); } }}
+                >
+                  <option value="">Selecciona el tipo…</option>
+                  {tiposEquipo.map((t) => <option key={t} value={t}>{t}</option>)}
+                  <option value="__otro__">Otro (escribir)</option>
+                </select>
+                {(tipoOtro || (form.tipo && !tiposEquipo.includes(form.tipo))) && (
+                  <input style={{ ...S.input, marginTop: 6 }} autoFocus placeholder="Escribe el tipo de equipo" value={form.tipo} onChange={(e) => set("tipo", e.target.value)} />
+                )}
+              </div>
               <div><label style={S.label}>MARCA</label><input style={S.input} value={form.marca} onChange={(e) => set("marca", e.target.value)} /></div>
               <div><label style={S.label}>MODELO</label><input style={S.input} value={form.modelo} onChange={(e) => set("modelo", e.target.value)} /></div>
             </div>
@@ -588,7 +667,7 @@ export default function Alquileres() {
               {enModal === 0 && <span style={{ color: "#aaa", fontSize: 13, alignSelf: "center" }}>Aún no hay fotos.</span>}
             </div>
             <label style={{ ...S.btnGris, display: "inline-block", marginBottom: 6 }}>
-              + Agregar fotos
+              <IconoMas />Agregar fotos
               <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={(e) => { agregarFotos(e.target.files); e.target.value = ""; }} />
             </label>
             <p style={{ color: "#999", fontSize: 12, margin: "0 0 16px" }}>Las fotos se reducen automáticamente. Se suben al guardar.</p>

@@ -1100,7 +1100,7 @@ return (
     className="btn-guardar"
     onClick={agregarDatoTecnico}
   >
-    + Agregar Dato Técnico
+    <IconoMas />Agregar Dato Técnico
   </button>
 
 </div>
@@ -1185,7 +1185,7 @@ Fecha de entrega: dependiendo del equipo, posterior a la confirmación y de reci
         }
         style={{ marginBottom: "10px" }}
       >
-        + Agregar Observación Estándar
+        <IconoMas />Agregar Observación Estándar
       </button>
 
       <textarea
@@ -1221,7 +1221,7 @@ En caso de aceptar nuestra oferta puede realizar el depósito bancario o transfe
         }
         style={{ marginBottom: "10px" }}
       >
-        + Agregar Cláusula Estándar
+        <IconoMas />Agregar Cláusula Estándar
       </button>
 
       <textarea

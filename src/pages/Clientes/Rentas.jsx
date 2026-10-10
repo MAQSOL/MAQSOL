@@ -1279,7 +1279,7 @@ return (
   className="btn-guardar"
   onClick={agregarRenta}
 >
-  + Agregar Renta
+  <IconoMas />Agregar Renta
 </button>
 
 <div style={{ marginTop: "15px" }}>
@@ -1396,7 +1396,7 @@ return (
     className="btn-guardar"
     onClick={agregarTraslado}
   >
-    + Agregar Traslado
+    <IconoMas />Agregar Traslado
   </button>
 
   <div style={{ marginTop: "15px" }}>
@@ -1535,7 +1535,7 @@ return (
         onClick={agregarClausulaEstandar}
         style={{ marginBottom: "10px" }}
       >
-        + Agregar Cláusula Estándar
+        <IconoMas />Agregar Cláusula Estándar
       </button>
 
       <textarea

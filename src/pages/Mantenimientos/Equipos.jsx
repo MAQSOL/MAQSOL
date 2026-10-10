@@ -1,3 +1,4 @@
+import { IconoMas } from "../../components/Icons";
 import { useState, useEffect } from 'react'
 
 const VINO = 'var(--acento)'
@@ -537,7 +538,7 @@ export default function EquiposInternos() {
             Descargar lista
           </button>
           <button style={S.btn} onClick={abrirNuevo}>
-            + Agregar equipo
+            <IconoMas />Agregar equipo
           </button>
         </div>
       </div>
@@ -586,7 +587,7 @@ export default function EquiposInternos() {
                   onClick={() => setModoNuevoTipoFiltro(true)}
                   title="Dar de alta un tipo de equipo nuevo"
                 >
-                  + Tipo
+                  <IconoMas />Tipo
                 </button>
               </div>
             )}
