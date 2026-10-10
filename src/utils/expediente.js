@@ -41,7 +41,9 @@ export function buscarCliente(clientes, nombre) {
 export function estadoExpediente(cliente) {
   if (!cliente) return null;
   const tipo = cliente.tipoPersona === "fisica" || cliente.tipoPersona === "moral" ? cliente.tipoPersona : "";
-  const lista = tipo ? REQUISITOS[tipo] : [];
+  const noAplica = cliente.docsNoAplica || {};
+  // los documentos marcados "No aplica" (p. ej. pagaré) no cuentan como requisito
+  const lista = (tipo ? REQUISITOS[tipo] : []).filter((d) => !noAplica[d.k]);
   const entregados = cliente.docsEntregados || {};
   const faltan = lista.filter((d) => !entregados[d.k]);
   return {
@@ -50,6 +52,7 @@ export function estadoExpediente(cliente) {
     contratoFecha: cliente.contratoFecha || "",
     total: lista.length,
     entregados: lista.length - faltan.length,
+    noAplican: tipo ? REQUISITOS[tipo].filter((d) => noAplica[d.k]).length : 0,
     faltan,
     completo: !!tipo && faltan.length === 0 && !!cliente.contratoFirmado
   };

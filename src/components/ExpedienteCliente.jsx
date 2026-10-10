@@ -12,17 +12,26 @@ export default function ExpedienteCliente({ nombreCliente, clientes, onGuardar, 
     tipoPersona: existente?.tipoPersona || "",
     contratoFirmado: !!existente?.contratoFirmado,
     contratoFecha: existente?.contratoFecha || "",
-    docsEntregados: { ...(existente?.docsEntregados || {}) }
+    docsEntregados: { ...(existente?.docsEntregados || {}) },
+    docsNoAplica: { ...(existente?.docsNoAplica || {}) }
   }));
   const [guardando, setGuardando] = useState(false);
 
   const lista = datos.tipoPersona ? REQUISITOS[datos.tipoPersona] : [];
-  const hechos = lista.filter((d) => datos.docsEntregados[d.k]).length;
-  const pct = lista.length ? Math.round((hechos / lista.length) * 100) : 0;
+  const requeridos = lista.filter((d) => !datos.docsNoAplica[d.k]);   // los "No aplica" no cuentan
+  const hechos = requeridos.filter((d) => datos.docsEntregados[d.k]).length;
+  const noAplican = lista.length - requeridos.length;
+  const pct = requeridos.length ? Math.round((hechos / requeridos.length) * 100) : 100;
 
   const set = (campo, valor) => setDatos((d) => ({ ...d, [campo]: valor }));
   const alternarDoc = (k) => setDatos((d) => ({ ...d, docsEntregados: { ...d.docsEntregados, [k]: !d.docsEntregados[k] } }));
-  const marcarTodos = () => setDatos((d) => ({ ...d, docsEntregados: Object.fromEntries(lista.map((x) => [x.k, true])) }));
+  const marcarTodos = () => setDatos((d) => ({ ...d, docsEntregados: Object.fromEntries(requeridos.map((x) => [x.k, true])) }));
+  const alternarNoAplica = (k) =>
+    setDatos((d) => ({
+      ...d,
+      docsNoAplica: { ...d.docsNoAplica, [k]: !d.docsNoAplica[k] },
+      docsEntregados: { ...d.docsEntregados, [k]: d.docsNoAplica[k] ? d.docsEntregados[k] : false }
+    }));
 
   async function guardar() {
     setGuardando(true);
@@ -95,13 +104,29 @@ export default function ExpedienteCliente({ nombreCliente, clientes, onGuardar, 
               <div style={{ height: 8, background: "#eee", borderRadius: 4, overflow: "hidden", marginBottom: 4 }}>
                 <div style={{ width: pct + "%", height: "100%", background: pct === 100 ? "#1f8b4c" : "var(--acento)" }} />
               </div>
-              <div style={{ fontSize: 12, color: "#777", marginBottom: 8 }}>{hechos} de {lista.length} entregados</div>
-              {lista.map((d) => (
-                <label key={d.k} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", borderTop: "1px solid #f3f3f3", cursor: "pointer", fontSize: 14 }}>
-                  <input type="checkbox" checked={!!datos.docsEntregados[d.k]} onChange={() => alternarDoc(d.k)} style={{ width: 17, height: 17 }} />
-                  <span style={{ textDecoration: datos.docsEntregados[d.k] ? "none" : "none", color: datos.docsEntregados[d.k] ? "#1f8b4c" : "#333", fontWeight: datos.docsEntregados[d.k] ? 700 : 400 }}>{d.n}</span>
-                </label>
-              ))}
+              <div style={{ fontSize: 12, color: "#777", marginBottom: 8 }}>
+                {hechos} de {requeridos.length} entregados{noAplican > 0 && ` · ${noAplican} no aplica${noAplican === 1 ? "" : "n"}`}
+              </div>
+              {lista.map((d) => {
+                const na = !!datos.docsNoAplica[d.k];
+                const ok = !na && !!datos.docsEntregados[d.k];
+                return (
+                  <div key={d.k} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", borderTop: "1px solid #f3f3f3", fontSize: 14 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, cursor: na ? "default" : "pointer", opacity: na ? 0.5 : 1 }}>
+                      <input type="checkbox" checked={ok} disabled={na} onChange={() => alternarDoc(d.k)} style={{ width: 17, height: 17 }} />
+                      <span style={{ textDecoration: na ? "line-through" : "none", color: ok ? "#1f8b4c" : "#333", fontWeight: ok ? 700 : 400 }}>{d.n}</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => alternarNoAplica(d.k)}
+                      title={na ? "Volver a pedir este documento" : "Este cliente no necesita este documento"}
+                      style={{ ...boton, padding: "3px 10px", fontSize: 11.5, borderRadius: 20, background: na ? "#555" : "#f1f1f1", color: na ? "#fff" : "#777" }}
+                    >
+                      No aplica
+                    </button>
+                  </div>
+                );
+              })}
             </>
           )}
         </div>

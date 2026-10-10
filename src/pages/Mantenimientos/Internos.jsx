@@ -25,6 +25,19 @@ const claseFiltro = (tipo) => !tipo ? 'Sin tipo' : /^aire/i.test(tipo) ? 'Aire' 
 const ordenarFiltros = (lista) => (lista||[]).map((f,i)=>({f,i})).sort((a,b)=>
   CLASES_FILTRO.indexOf(claseFiltro(a.f.tipo))-CLASES_FILTRO.indexOf(claseFiltro(b.f.tipo)) ||
   TIPOS_FILTRO.indexOf(a.f.tipo)-TIPOS_FILTRO.indexOf(b.f.tipo) || a.i-b.i).map(x=>x.f)
+// marcas más usadas; "Otra" deja escribir cualquier otra
+const MARCAS_FILTRO = ['Donaldson','Fleetguard','Baldwin','MANN-FILTER','WIX','Caterpillar (Cat)','John Deere','Genie original']
+function MarcaFiltro({valor,onGuardar}){
+  const[otra,setOtra]=useState(!!valor&&!MARCAS_FILTRO.includes(valor))
+  return(<div style={{display:'grid',gap:6}}>
+    <select style={S.inputSm} value={otra?'__otra__':(valor||'')} onChange={ev=>{const v=ev.target.value;if(v==='__otra__'){setOtra(true);return}setOtra(false);onGuardar(v)}}>
+      <option value="">Elige marca…</option>
+      {MARCAS_FILTRO.map(m=><option key={m} value={m}>{m}</option>)}
+      <option value="__otra__">Otra marca…</option>
+    </select>
+    {otra&&<CampoDiferido style={S.inputSm} valor={MARCAS_FILTRO.includes(valor)?'':valor} placeholder="Escribe la marca" onGuardar={onGuardar}/>}
+  </div>)
+}
 const tiposFiltroCon = (actual) => (actual && !TIPOS_FILTRO.includes(actual) ? [actual, ...TIPOS_FILTRO] : TIPOS_FILTRO)
 // botón chico para poner N/A (horómetro descompuesto, maquinaria sin placas)
 const botonNA = {border:'1px solid #ddd',background:'#fafafa',color:'#666',borderRadius:4,padding:'0 6px',fontSize:10.5,fontWeight:700,cursor:'pointer',lineHeight:'16px'}
@@ -444,7 +457,7 @@ export default function EquiposInternos(){
                 </td></tr>),
                 <tr key={f.id}>
                   <td style={S.td}><select style={S.inputSm} value={f.tipo} onChange={ev=>editarFiltro(f.id,'tipo',ev.target.value)}>{!f.tipo&&<option value="">Elige tipo…</option>}{tiposFiltroCon(f.tipo).map(t=><option key={t}>{t}</option>)}</select></td>
-                  <td style={S.td}><CampoDiferido style={S.inputSm} valor={f.marca} placeholder="Ej. Donaldson, Original" onGuardar={v=>editarFiltro(f.id,'marca',v)}/></td>
+                  <td style={S.td}><MarcaFiltro valor={f.marca} onGuardar={v=>editarFiltro(f.id,'marca',v)}/></td>
                   <td style={S.td}><CampoDiferido style={S.inputSm} valor={f.parte} placeholder="Número de parte" onGuardar={v=>editarFiltro(f.id,'parte',v)}/></td>
                   <td style={{...S.td,textAlign:'center'}}><button style={S.btnGrisSm} onClick={()=>{if(f.parte){navigator.clipboard.writeText(f.parte);alert('Copiado: '+f.parte)}}}>Copiar</button></td>
                   <td style={{...S.td,textAlign:'center'}}><DeleteButton size="sm" title="Quitar filtro" onConfirm={()=>quitarFiltro(f.id)}/></td>

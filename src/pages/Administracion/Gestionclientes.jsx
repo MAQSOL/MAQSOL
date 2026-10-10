@@ -194,7 +194,7 @@ function GestionClientes() {
                       <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginTop: "6px" }}>
                         <span style={ex.contrato ? chip("#1b7a3f", "#e1f3e7") : chip("#b3202f", "#fbe0e4")}>{ex.contrato ? "Contrato firmado" : "Contrato sin firmar"}</span>
                         <span style={!ex.tipo ? chip("#666", "#eee") : ex.entregados === ex.total ? chip("#1b7a3f", "#e1f3e7") : chip("#a8730a", "#fdf0d4")}>
-                          {!ex.tipo ? "Falta indicar persona física o moral" : `${ex.tipo === "moral" ? "Persona moral" : "Persona física"} · documentos ${ex.entregados}/${ex.total}`}
+                          {!ex.tipo ? "Falta indicar persona física o moral" : `${ex.tipo === "moral" ? "Persona moral" : "Persona física"} · documentos ${ex.entregados}/${ex.total}${ex.noAplican ? ` (${ex.noAplican} no aplica${ex.noAplican === 1 ? "" : "n"})` : ""}`}
                         </span>
                       </div>
                     </div>
