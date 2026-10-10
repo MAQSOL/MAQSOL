@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import { encabezadoJsPDF, seccionJsPDF } from "./pdfFormato";
+import { conHoras } from "./horometro";
 
 const AZUL = [29, 92, 143];
 
@@ -43,8 +44,8 @@ export function descargarFichaEquipoPDF(eq) {
   }
 
   const datos = [
-    ["Año", eq.anio], ["Motor", eq.motor], ["Capacidad", eq.capacidad], ["Combustible", eq.combustible],
-    ["Horómetro actual", eq.horometro ? `${eq.horometro}` : ""], ["Próximo mantenimiento", f(eq.proximoMantto)]
+    ["Año", eq.anio], ["Motor", eq.motor], ["Capacidad de carga", eq.capacidad], ["Altura máx. de trabajo", eq.alturaMaxima], ["Combustible", eq.combustible],
+    ["Horómetro actual", conHoras(eq.horometro)], ["Próximo mantenimiento", f(eq.proximoMantto)]
   ].filter(([, v]) => v);
 
   doc.setFontSize(10);
@@ -80,7 +81,7 @@ export function descargarFichaEquipoPDF(eq) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9.5);
     doc.setTextColor(20, 20, 20);
-    doc.text(`${f(m.fecha) || "Sin fecha"}  ·  ${m.tipoMantto || ""}${m.horometro ? `  ·  ${m.horometro} h` : ""}`, M, y + 4);
+    doc.text(`${f(m.fecha) || "Sin fecha"}  ·  ${m.tipoMantto || ""}${m.horometro ? `  ·  ${conHoras(m.horometro, "h")}` : ""}`, M, y + 4);
     if (m.realizadoPor) {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8.5);

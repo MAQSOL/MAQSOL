@@ -204,6 +204,7 @@ as $$
     'anio', e.data->>'anio',
     'motor', e.data->>'motor',
     'capacidad', e.data->>'capacidad',
+    'alturaMaxima', e.data->>'alturaMaxima',
     'combustible', e.data->>'combustible',
     'horometro', e.data->>'horometro',
     'proximoMantto', e.data->>'proximoMantto',

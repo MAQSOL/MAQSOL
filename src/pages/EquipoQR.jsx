@@ -4,6 +4,7 @@ import { supabase } from "../supabaseClient";
 import { useAuth } from "../contexts/AuthContext";
 import logo from "../assets/logo.png";
 import { descargarFichaEquipoPDF } from "../utils/fichaEquipo";
+import { conHoras, esHorometroNumerico } from "../utils/horometro";
 
 const fFecha = (f) => {
   if (!f) return "";
@@ -53,7 +54,7 @@ function Historial({ lista, max }) {
       </div>
       <div style={{ fontSize: 14.5, margin: "4px 0", whiteSpace: "pre-wrap" }}>{m.descripcion || "Sin descripción"}</div>
       <div style={{ fontSize: 12.5, color: "#888" }}>
-        {m.horometro ? `${m.horometro} h` : ""}
+        {conHoras(m.horometro, "h")}
         {m.horometro && m.realizadoPor ? " · " : ""}
         {m.realizadoPor ? `Realizó: ${m.realizadoPor}` : ""}
       </div>
@@ -63,8 +64,8 @@ function Historial({ lista, max }) {
 
 function DatosEquipo({ eq }) {
   const filas = [
-    ["Año", eq.anio], ["Motor", eq.motor], ["Capacidad", eq.capacidad], ["Combustible", eq.combustible],
-    ["Horómetro actual", eq.horometro], ["Próximo mantenimiento", fFecha(eq.proximoMantto)]
+    ["Año", eq.anio], ["Motor", eq.motor], ["Capacidad de carga", eq.capacidad], ["Altura máx. de trabajo", eq.alturaMaxima], ["Combustible", eq.combustible],
+    ["Horómetro actual", conHoras(eq.horometro)], ["Próximo mantenimiento", fFecha(eq.proximoMantto)]
   ].filter(([, v]) => v);
   return (
     <>
@@ -175,7 +176,7 @@ function PanelMecanico({ token }) {
         registradoPorQR: true
       };
       const nuevos = { ...datos, mantenimientos: [...(datos.mantenimientos || []), entrada] };
-      if (form.horometro) nuevos.horometro = /hrs/i.test(datos.horometro || "") ? `${form.horometro} hrs` : form.horometro;
+      if (form.horometro) nuevos.horometro = /hrs/i.test(datos.horometro || "") && esHorometroNumerico(form.horometro) ? `${form.horometro} hrs` : form.horometro;
       if (form.proximoMantto) nuevos.proximoMantto = form.proximoMantto;
       const { error: e2 } = await supabase.from("equipos_internos").upsert({ id: actual.id, data: nuevos, updated_at: new Date().toISOString() });
       if (e2) throw e2;

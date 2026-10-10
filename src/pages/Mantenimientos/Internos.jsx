@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Sidebar from '../../components/Sidebar'
 import { descargarExcelBonito, nombreArchivoFecha } from '../../utils/exportExcel'
 import { abrirDocPDF, encabezadoDoc, pieDoc, hoyMX, esc } from '../../utils/pdfFormato'
 import DeleteButton from '../../components/DeleteButton'
 import { useSharedTable, useCatalogo } from '../../hooks/useSharedTable'
 import QrEquipoModal from '../../components/QrEquipoModal'
+import { conHoras } from '../../utils/horometro'
+import CampoDiferido from '../../components/CampoDiferido'
 
 const VINO = 'var(--acento)'
 const KEY_EQUIPOS = 'equiposInternos'
@@ -14,11 +16,15 @@ const KEY_UBICACIONES = 'ubicacionesMaqsol'
 
 const TIPOS_INICIALES = ['Manipulador telescópico','Montacargas','Plataforma de tijera','Plataforma articulada','Minicargador','Retroexcavadora','Torre de iluminación','Generador']
 
-const TIPOS_FILTRO = ['Aceite','Aire','Combustible','Hidráulico','Otro']
+const TIPOS_FILTRO = ['Aceite','Aire primario','Aire secundario','Aire de cabina','Aire acondicionado','Aire (tercer filtro)','Combustible','Hidráulico','Otro']
+// filtros guardados antes como 'Aire' (sin especificar) siguen apareciendo en su lista hasta que se cambien
+const tiposFiltroCon = (actual) => (actual && !TIPOS_FILTRO.includes(actual) ? [actual, ...TIPOS_FILTRO] : TIPOS_FILTRO)
+// botón chico para poner N/A (horómetro descompuesto, maquinaria sin placas)
+const botonNA = {border:'1px solid #ddd',background:'#fafafa',color:'#666',borderRadius:4,padding:'0 6px',fontSize:10.5,fontWeight:700,cursor:'pointer',lineHeight:'16px'}
 
 const EQUIPO_NUEVO = {
   id:'',tipo:'',marca:'',modelo:'',serie:'',horometro:'',operador:'',ubicacion:'',
-  proximoMantto:'',anio:'',motor:'',capacidad:'',combustible:'',placas:'',notas:'',fotoUrl:'',
+  proximoMantto:'',anio:'',motor:'',capacidad:'',alturaMaxima:'',combustible:'',placas:'',notas:'',fotoUrl:'',
   filtros:[],suministros:[],pendientes:[],mantenimientos:[]
 }
 
@@ -96,6 +102,44 @@ function BadgeMantto({tipo}){
   return <span style={{background:prev?'#e8f5e9':'#fce4ec',color:prev?'#2e7d32':'#c62828',padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>{tipo}</span>
 }
 
+// observaciones del equipo: antes era un solo texto (notas); ahora es una lista con fecha.
+// La nota vieja aparece como la primera de la lista y se migra en cuanto se toca algo.
+const notasDe=(a)=>(a.notasLista&&a.notasLista.length)?a.notasLista:(a.notas?[{id:'nota-anterior',texto:a.notas,fecha:''}]:[])
+
+function NotasEquipo({lista,onCambiar}){
+  const[nueva,setNueva]=useState('')
+  const[editando,setEditando]=useState(null)   // {id, texto}
+  const hoy=()=>new Date().toISOString().slice(0,10)
+  const agregar=()=>{const t=nueva.trim();if(!t)return;onCambiar([{id:uid(),texto:t,fecha:hoy()},...lista]);setNueva('')}
+  const guardarEdicion=()=>{const t=editando.texto.trim();if(!t)return;onCambiar(lista.map(n=>n.id===editando.id?{...n,texto:t,editada:hoy()}:n));setEditando(null)}
+  const chico={...S.btnGris,padding:'6px 12px',fontSize:13}
+  return(<>
+    <h2 style={S.h2}>Notas y observaciones del equipo</h2>
+    <div style={{display:'flex',gap:10,alignItems:'flex-start',marginBottom:6}}>
+      <textarea style={{...S.input,minHeight:60,resize:'vertical',flex:1}} value={nueva} placeholder="Nueva observación de la máquina..." onChange={ev=>setNueva(ev.target.value)} onKeyDown={ev=>{if(ev.key==='Enter'&&(ev.ctrlKey||ev.metaKey))agregar()}}/>
+      <button style={S.btn} onClick={agregar}>Agregar</button>
+    </div>
+    {lista.length===0?<div style={{color:'#999',fontSize:14}}>Sin observaciones.</div>:lista.map(n=>(
+      <div key={n.id} style={{borderTop:'1px solid #eee',padding:'10px 0',display:'flex',gap:12,alignItems:'flex-start'}}>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:12,color:'#999',marginBottom:3}}>{n.fecha?fFecha(n.fecha):'Nota anterior'}{n.editada?' · editada '+fFecha(n.editada):''}</div>
+          {editando&&editando.id===n.id?(<>
+            <textarea autoFocus style={{...S.input,minHeight:60,resize:'vertical'}} value={editando.texto} onChange={ev=>setEditando({...editando,texto:ev.target.value})}/>
+            <div style={{display:'flex',gap:8,marginTop:6}}><button style={{...S.btn,padding:'6px 14px',fontSize:13}} onClick={guardarEdicion}>Guardar</button><button style={chico} onClick={()=>setEditando(null)}>Cancelar</button></div>
+          </>):<div style={{whiteSpace:'pre-wrap',fontSize:14.5}}>{n.texto}</div>}
+        </div>
+        {!(editando&&editando.id===n.id)&&<div style={{display:'flex',gap:6,alignItems:'center',flexShrink:0}}>
+          <button style={chico} onClick={()=>setEditando({id:n.id,texto:n.texto})}>Editar</button>
+          <DeleteButton size="sm" title="Eliminar observación" onConfirm={()=>onCambiar(lista.filter(x=>x.id!==n.id))}/>
+        </div>}
+      </div>
+    ))}
+  </>)
+}
+
+// dato de la ficha (etiqueta + valor); fuera del render para que React no lo recree en cada pintada
+function Dato({etiqueta,valor}){return(<div style={{marginBottom:14}}><div style={S.label}>{etiqueta}</div><div style={{fontSize:15}}>{valor||<span style={{color:'#bbb'}}>—</span>}</div></div>)}
+
 // migrar filtros viejos (strings) al formato nuevo (array)
 function migrarEquipo(eq){
   if(eq.filtros && Array.isArray(eq.filtros)) return eq
@@ -150,7 +194,17 @@ export default function EquiposInternos(){
   const[filtroDesde,setFiltroDesde]=useState('')
   const[filtroHasta,setFiltroHasta]=useState('')
 
-  function actualizarCampo(c,v){const a=getActivo();if(!a)return;guardarEquipoRow(a.id,{...a,[c]:v})}
+  // Mientras hay guardados en camino, cada cambio nuevo parte de lo ÚLTIMO que se mandó
+  // (no de lo que había en pantalla), para que dos cambios seguidos no se pisen.
+  const ultimoEnviado=useRef({})
+  const enVuelo=useRef(0)
+  async function guardarRapido(id,datos){
+    ultimoEnviado.current[id]=datos;enVuelo.current++
+    try{await guardarEquipoRow(id,datos)}finally{enVuelo.current--;if(enVuelo.current===0)ultimoEnviado.current={}}
+  }
+  function actual(){return ultimoEnviado.current[activoId]||getActivo()}
+  function actualizarCampo(c,v){const a=actual();if(!a)return;guardarRapido(a.id,{...a,[c]:v})}
+  function actualizarCampos(cambios){const a=actual();if(!a)return;guardarRapido(a.id,{...a,...cambios})}
   function getActivo(){return equipos.find(e=>e.id===activoId)}
 
   // --- equipo CRUD ---
@@ -182,19 +236,19 @@ export default function EquiposInternos(){
   }
 
   // --- filtros multi-marca ---
-  function agregarFiltro(){const a=getActivo();if(!a)return;actualizarCampo('filtros',[...(a.filtros||[]),{id:uid(),tipo:'Aceite',marca:'',parte:''}])}
-  function editarFiltro(fid,campo,valor){const a=getActivo();if(!a)return;actualizarCampo('filtros',(a.filtros||[]).map(f=>f.id===fid?{...f,[campo]:valor}:f))}
-  function quitarFiltro(fid){const a=getActivo();if(!a)return;actualizarCampo('filtros',(a.filtros||[]).filter(f=>f.id!==fid))}
+  function agregarFiltro(){const a=actual();if(!a)return;actualizarCampo('filtros',[...(a.filtros||[]),{id:uid(),tipo:'Aceite',marca:'',parte:''}])}
+  function editarFiltro(fid,campo,valor){const a=actual();if(!a)return;actualizarCampo('filtros',(a.filtros||[]).map(f=>f.id===fid?{...f,[campo]:valor}:f))}
+  function quitarFiltro(fid){const a=actual();if(!a)return;actualizarCampo('filtros',(a.filtros||[]).filter(f=>f.id!==fid))}
 
   // --- suministros ---
-  function agregarSuministro(){const a=getActivo();if(!a)return;actualizarCampo('suministros',[...(a.suministros||[]),{id:uid(),nombre:'',cantidad:'',especificacion:''}])}
-  function editarSuministro(sid,campo,valor){const a=getActivo();if(!a)return;actualizarCampo('suministros',(a.suministros||[]).map(s=>s.id===sid?{...s,[campo]:valor}:s))}
-  function quitarSuministro(sid){const a=getActivo();if(!a)return;actualizarCampo('suministros',(a.suministros||[]).filter(s=>s.id!==sid))}
+  function agregarSuministro(){const a=actual();if(!a)return;actualizarCampo('suministros',[...(a.suministros||[]),{id:uid(),nombre:'',cantidad:'',especificacion:''}])}
+  function editarSuministro(sid,campo,valor){const a=actual();if(!a)return;actualizarCampo('suministros',(a.suministros||[]).map(s=>s.id===sid?{...s,[campo]:valor}:s))}
+  function quitarSuministro(sid){const a=actual();if(!a)return;actualizarCampo('suministros',(a.suministros||[]).filter(s=>s.id!==sid))}
 
   // --- pendientes ---
-  function agregarPendiente(){const a=getActivo();if(!a)return;const txt=prompt('Escribe el pendiente:');if(!txt||!txt.trim())return;actualizarCampo('pendientes',[...(a.pendientes||[]),{id:uid(),texto:txt.trim(),hecho:false}])}
-  function togglePendiente(pid){const a=getActivo();if(!a)return;actualizarCampo('pendientes',(a.pendientes||[]).map(p=>p.id===pid?{...p,hecho:!p.hecho}:p))}
-  function quitarPendiente(pid){const a=getActivo();if(!a)return;actualizarCampo('pendientes',(a.pendientes||[]).filter(p=>p.id!==pid))}
+  function agregarPendiente(){const a=actual();if(!a)return;const txt=prompt('Escribe el pendiente:');if(!txt||!txt.trim())return;actualizarCampo('pendientes',[...(a.pendientes||[]),{id:uid(),texto:txt.trim(),hecho:false}])}
+  function togglePendiente(pid){const a=actual();if(!a)return;actualizarCampo('pendientes',(a.pendientes||[]).map(p=>p.id===pid?{...p,hecho:!p.hecho}:p))}
+  function quitarPendiente(pid){const a=actual();if(!a)return;actualizarCampo('pendientes',(a.pendientes||[]).filter(p=>p.id!==pid))}
 
   // --- mantenimientos ---
   function abrirNuevoMantto(){setMForm({...MANTTO_NUEVO,mid:'M-'+Date.now(),fecha:new Date().toISOString().slice(0,10),filtrosUsados:[]});setModalMantto(true)}
@@ -259,7 +313,7 @@ export default function EquiposInternos(){
   })
   function exportarLista(){
     const columnas=['Equipo','Marca','Modelo','Serie','Horómetro','Operador','Ubicación','Próx. Mantto']
-    const filas=filtrados.map(e=>[e.tipo,e.marca,e.modelo,e.serie,e.horometro?e.horometro+' hrs':'',e.operador||'Sin operador',e.ubicacion,fFecha(e.proximoMantto)])
+    const filas=filtrados.map(e=>[e.tipo,e.marca,e.modelo,e.serie,conHoras(e.horometro),e.operador||'Sin operador',e.ubicacion,fFecha(e.proximoMantto)])
     descargarExcelBonito({
       titulo:'Equipos Internos',
       subtitulo:'Maquinaria propiedad de MAQSOL \u00B7 '+filtrados.length+' equipos',
@@ -284,7 +338,7 @@ export default function EquiposInternos(){
         <div style={S.grid4}>
           <div><label style={S.label}>SERIE</label><input style={S.input} value={form.serie} onChange={ev=>setForm({...form,serie:ev.target.value})}/></div>
           <div><label style={S.label}>AÑO</label><input style={S.input} value={form.anio} onChange={ev=>setForm({...form,anio:ev.target.value})}/></div>
-          <div><label style={S.label}>HORÓMETRO</label><input style={S.input} value={form.horometro} onChange={ev=>setForm({...form,horometro:ev.target.value})} placeholder="Ej. 3450"/></div>
+          <div><label style={{...S.label,display:'flex',justifyContent:'space-between',alignItems:'center'}}>HORÓMETRO<button type="button" style={botonNA} title="El horómetro no sirve" onClick={()=>setForm(f=>({...f,horometro:'N/A'}))}>N/A</button></label><input style={S.input} value={form.horometro} onChange={ev=>setForm({...form,horometro:ev.target.value})} placeholder="Ej. 3450 o N/A"/></div>
           <div><label style={S.label}>PRÓXIMO MANTTO</label><input type="date" style={S.input} value={form.proximoMantto} onChange={ev=>setForm({...form,proximoMantto:ev.target.value})}/></div>
         </div>
         <div style={S.grid3}>
@@ -296,11 +350,12 @@ export default function EquiposInternos(){
             {modoNuevaUbicacion?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Bacalar" value={nuevaUbicacion} onChange={ev=>setNuevaUbicacion(ev.target.value)}/><button style={S.btnVerde} onClick={agregarUbicacion}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevaUbicacion(false)}>✕</button></div>)
             :(<select style={S.input} value={form.ubicacion} onChange={ev=>cambiarUbicacion(ev.target.value)}><option value="">Selecciona</option>{ubicaciones.map(u=><option key={u}>{u}</option>)}<option value="__nueva__">+ Agregar ubicación nueva</option></select>)}
           </div>
-          <div><label style={S.label}>PLACAS</label><input style={S.input} value={form.placas} onChange={ev=>setForm({...form,placas:ev.target.value})}/></div>
+          <div><label style={{...S.label,display:'flex',justifyContent:'space-between',alignItems:'center'}}>PLACAS O NÚMERO ECONÓMICO<button type="button" style={botonNA} title="Maquinaria sin placas" onClick={()=>setForm(f=>({...f,placas:'N/A'}))}>N/A</button></label><input style={S.input} value={form.placas} onChange={ev=>setForm({...form,placas:ev.target.value})} placeholder="Placas, No. económico o N/A"/></div>
         </div>
-        <div style={{...S.grid3,marginBottom:22}}>
+        <div style={{...S.grid4,marginBottom:22}}>
           <div><label style={S.label}>MOTOR</label><input style={S.input} value={form.motor} onChange={ev=>setForm({...form,motor:ev.target.value})}/></div>
-          <div><label style={S.label}>CAPACIDAD</label><input style={S.input} value={form.capacidad} onChange={ev=>setForm({...form,capacidad:ev.target.value})} placeholder="Ej. 4,000 kg / 17 m"/></div>
+          <div><label style={S.label}>CAPACIDAD DE CARGA</label><input style={S.input} value={form.capacidad} onChange={ev=>setForm({...form,capacidad:ev.target.value})} placeholder="Ej. 4,000 kg"/></div>
+          <div><label style={S.label}>ALTURA MÁX. DE TRABAJO</label><input style={S.input} value={form.alturaMaxima||''} onChange={ev=>setForm({...form,alturaMaxima:ev.target.value})} placeholder="Ej. 17 m"/></div>
           <div><label style={S.label}>COMBUSTIBLE</label><input style={S.input} value={form.combustible} onChange={ev=>setForm({...form,combustible:ev.target.value})} placeholder="Diésel / Gasolina"/></div>
         </div>
         <div style={{display:'flex',justifyContent:'flex-end',gap:10}}><button style={S.btnGris} onClick={()=>setModal(false)}>Cancelar</button><button style={S.btn} onClick={guardarForm}>Guardar y abrir ficha</button></div>
@@ -308,7 +363,6 @@ export default function EquiposInternos(){
 
   // ========================= FICHA =========================
   if(vista==='ficha'&&activo){
-    const Dato=({etiqueta,valor})=>(<div style={{marginBottom:14}}><div style={S.label}>{etiqueta}</div><div style={{fontSize:15}}>{valor||<span style={{color:'#bbb'}}>—</span>}</div></div>)
     const mFiltrados=manttosFiltrados(activo)
     const filtrosPorTipo={}
     ;(activo.filtros||[]).forEach(f=>{if(!filtrosPorTipo[f.tipo])filtrosPorTipo[f.tipo]=[];filtrosPorTipo[f.tipo].push(f)})
@@ -358,8 +412,9 @@ export default function EquiposInternos(){
           <h2 style={{...S.h2,marginBottom:18}}>Información General</h2>
           <div style={S.grid4}>
             <Dato etiqueta="TIPO DE EQUIPO" valor={activo.tipo}/><Dato etiqueta="MARCA" valor={activo.marca}/><Dato etiqueta="MODELO" valor={activo.modelo}/><Dato etiqueta="SERIE" valor={activo.serie}/>
-            <Dato etiqueta="AÑO" valor={activo.anio}/><Dato etiqueta="HORÓMETRO" valor={activo.horometro?activo.horometro+' hrs':''}/><Dato etiqueta="OPERADOR" valor={activo.operador||'Sin operador'}/><Dato etiqueta="UBICACIÓN" valor={activo.ubicacion}/>
-            <Dato etiqueta="MOTOR" valor={activo.motor}/><Dato etiqueta="CAPACIDAD" valor={activo.capacidad}/><Dato etiqueta="COMBUSTIBLE" valor={activo.combustible}/><Dato etiqueta="PLACAS" valor={activo.placas}/>
+            <Dato etiqueta="AÑO" valor={activo.anio}/><Dato etiqueta="HORÓMETRO" valor={conHoras(activo.horometro)}/><Dato etiqueta="OPERADOR" valor={activo.operador||'Sin operador'}/><Dato etiqueta="UBICACIÓN" valor={activo.ubicacion}/>
+            <Dato etiqueta="MOTOR" valor={activo.motor}/><Dato etiqueta="CAPACIDAD DE CARGA" valor={activo.capacidad}/><Dato etiqueta="ALTURA MÁX. DE TRABAJO" valor={activo.alturaMaxima}/><Dato etiqueta="COMBUSTIBLE" valor={activo.combustible}/>
+            <Dato etiqueta="PLACAS O NO. ECONÓMICO" valor={activo.placas}/>
           </div>
           <div style={{marginTop:6}}><div style={S.label}>PRÓXIMO MANTENIMIENTO</div><div style={{fontSize:15}}><Semaforo fecha={activo.proximoMantto}/></div></div>
         </div>
@@ -375,9 +430,9 @@ export default function EquiposInternos(){
               <thead><tr><th style={{...S.th,width:150}}>TIPO</th><th style={{...S.th,width:200}}>MARCA</th><th style={S.th}>NÚMERO DE PARTE</th><th style={{...S.th,width:80,textAlign:'center'}}>COPIAR</th><th style={{...S.th,width:50}}></th></tr></thead>
               <tbody>{(activo.filtros||[]).map(f=>(
                 <tr key={f.id}>
-                  <td style={S.td}><select style={S.inputSm} value={f.tipo} onChange={ev=>editarFiltro(f.id,'tipo',ev.target.value)}>{TIPOS_FILTRO.map(t=><option key={t}>{t}</option>)}</select></td>
-                  <td style={S.td}><input style={S.inputSm} value={f.marca} placeholder="Ej. Donaldson, Original" onChange={ev=>editarFiltro(f.id,'marca',ev.target.value)}/></td>
-                  <td style={S.td}><input style={S.inputSm} value={f.parte} placeholder="Número de parte" onChange={ev=>editarFiltro(f.id,'parte',ev.target.value)}/></td>
+                  <td style={S.td}><select style={S.inputSm} value={f.tipo} onChange={ev=>editarFiltro(f.id,'tipo',ev.target.value)}>{tiposFiltroCon(f.tipo).map(t=><option key={t}>{t}</option>)}</select></td>
+                  <td style={S.td}><CampoDiferido style={S.inputSm} valor={f.marca} placeholder="Ej. Donaldson, Original" onGuardar={v=>editarFiltro(f.id,'marca',v)}/></td>
+                  <td style={S.td}><CampoDiferido style={S.inputSm} valor={f.parte} placeholder="Número de parte" onGuardar={v=>editarFiltro(f.id,'parte',v)}/></td>
                   <td style={{...S.td,textAlign:'center'}}><button style={S.btnGrisSm} onClick={()=>{if(f.parte){navigator.clipboard.writeText(f.parte);alert('Copiado: '+f.parte)}}}>Copiar</button></td>
                   <td style={{...S.td,textAlign:'center'}}><DeleteButton size="sm" title="Quitar filtro" onConfirm={()=>quitarFiltro(f.id)}/></td>
                 </tr>
@@ -397,9 +452,9 @@ export default function EquiposInternos(){
               <thead><tr><th style={S.th}>SUMINISTRO</th><th style={{...S.th,width:200}}>CANTIDAD</th><th style={{...S.th,width:250}}>ESPECIFICACIÓN</th><th style={{...S.th,width:50}}></th></tr></thead>
               <tbody>{(activo.suministros||[]).map(s=>(
                 <tr key={s.id}>
-                  <td style={S.td}><input style={S.inputSm} value={s.nombre} placeholder="Ej. Aceite de motor" onChange={ev=>editarSuministro(s.id,'nombre',ev.target.value)}/></td>
-                  <td style={S.td}><input style={S.inputSm} value={s.cantidad} placeholder="Ej. 10-11 litros" onChange={ev=>editarSuministro(s.id,'cantidad',ev.target.value)}/></td>
-                  <td style={S.td}><input style={S.inputSm} value={s.especificacion} placeholder="Ej. 15W-40" onChange={ev=>editarSuministro(s.id,'especificacion',ev.target.value)}/></td>
+                  <td style={S.td}><CampoDiferido style={S.inputSm} valor={s.nombre} placeholder="Ej. Aceite de motor" onGuardar={v=>editarSuministro(s.id,'nombre',v)}/></td>
+                  <td style={S.td}><CampoDiferido style={S.inputSm} valor={s.cantidad} placeholder="Ej. 10-11 litros" onGuardar={v=>editarSuministro(s.id,'cantidad',v)}/></td>
+                  <td style={S.td}><CampoDiferido style={S.inputSm} valor={s.especificacion} placeholder="Ej. 15W-40" onGuardar={v=>editarSuministro(s.id,'especificacion',v)}/></td>
                   <td style={{...S.td,textAlign:'center'}}><DeleteButton size="sm" title="Quitar suministro" onConfirm={()=>quitarSuministro(s.id)}/></td>
                 </tr>
               ))}</tbody>
@@ -433,8 +488,7 @@ export default function EquiposInternos(){
 
         {/* NOTAS */}
         <div style={S.card}>
-          <h2 style={S.h2}>Notas del Equipo</h2>
-          <textarea style={{...S.input,minHeight:80,resize:'vertical'}} value={activo.notas||''} placeholder="Observaciones generales de la máquina..." onChange={ev=>actualizarCampo('notas',ev.target.value)}/>
+          <NotasEquipo lista={notasDe(activo)} onCambiar={nueva=>actualizarCampos({notasLista:nueva,notas:''})}/>
         </div>
 
         {/* PENDIENTES */}
@@ -593,7 +647,7 @@ export default function EquiposInternos(){
             {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={10}>No hay equipos. Usa "+ Agregar equipo".</td></tr>
             :filtrados.map(e=>(<tr key={e.id} style={{cursor:'pointer'}} onClick={()=>{setActivoId(e.id);setVista('ficha')}} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
               <td style={{...S.td,fontWeight:700}}>{e.tipo}</td><td style={S.td}>{e.marca}</td><td style={S.td}>{e.modelo}</td><td style={S.td}>{e.serie}</td>
-              <td style={S.td}>{e.horometro?e.horometro+' hrs':'—'}</td><td style={S.td}>{e.operador||<span style={{color:'#c98a00',fontWeight:700}}>Sin operador</span>}</td>
+              <td style={S.td}>{conHoras(e.horometro)||'—'}</td><td style={S.td}>{e.operador||<span style={{color:'#c98a00',fontWeight:700}}>Sin operador</span>}</td>
               <td style={S.td}>{e.ubicacion}</td><td style={S.td}><BadgeMantto tipo={ultimoMantto(e)?.tipoMantto}/></td><td style={S.td}><Semaforo fecha={e.proximoMantto}/></td>
               <td style={{...S.td,textAlign:'center'}} onClick={ev=>ev.stopPropagation()}><DeleteButton size="sm" title="Eliminar equipo" onConfirm={()=>eliminarEquipo(e)}/></td>
             </tr>))}
