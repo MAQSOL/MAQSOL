@@ -504,25 +504,59 @@ function Dashboard() {
               <IconoBarras style={{ color: "var(--acento)" }} /> Rentas por Mes
             </h3>
 
-            <div style={{ display: "flex", alignItems: "flex-end", gap: "14px", height: "150px", marginTop: "10px" }}>
-              {mesesGrafica.map((m, i) => (
-                <div key={m.clave} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-                  <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--acento)" }}>{m.cantidad}</span>
-                  <div
-                    className="barra-crece"
-                    style={{
-                      animationDelay: `${i * 70}ms`,
-                      width: "100%",
-                      maxWidth: "34px",
-                      height: `${Math.max(4, (m.cantidad / maxRentasMes) * 100)}px`,
-                      background: "var(--acento)",
-                      borderRadius: "5px 5px 0 0"
-                    }}
-                  />
-                  <span style={{ fontSize: "12px", color: "#999", textTransform: "capitalize" }}>{m.etiqueta}</span>
-                </div>
-              ))}
-            </div>
+            {(() => {
+              // escala "redonda" (1, 2, 5, 10…) con 4 líneas guía; la gráfica siempre ocupa su caja aunque todo esté en 0
+              const paso = [1, 2, 5, 10, 20, 50, 100].find((x) => x * 4 >= maxRentasMes) || Math.ceil(maxRentasMes / 4);
+              const tope = paso * 4;
+              const total = mesesGrafica.reduce((t, m) => t + m.cantidad, 0);
+              const ALTO = 170;
+              return (
+                <>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "baseline", margin: "0 0 14px" }}>
+                    <strong style={{ fontSize: "28px", color: "var(--acento)" }}>{total}</strong>
+                    <span style={{ color: "#777", fontSize: "14px" }}>cotizaciones de renta en los últimos 6 meses</span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "28px 1fr", gap: "8px" }}>
+                    <div style={{ position: "relative", height: ALTO }}>
+                      {[0, 1, 2, 3, 4].map((k) => (
+                        <span key={k} style={{ position: "absolute", right: 0, bottom: (k / 4) * ALTO - 7, fontSize: "11px", color: "#aaa" }}>{paso * k}</span>
+                      ))}
+                    </div>
+                    <div style={{ position: "relative", height: ALTO, borderBottom: "2px solid #d9dee5" }}>
+                      {[1, 2, 3, 4].map((k) => (
+                        <div key={k} style={{ position: "absolute", left: 0, right: 0, bottom: (k / 4) * ALTO, borderTop: "1px dashed #edf0f3" }} />
+                      ))}
+                      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "flex-end", gap: "14px", padding: "0 6px" }}>
+                        {mesesGrafica.map((m, i) => (
+                          <div key={m.clave} style={{ flex: 1, height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "center" }}>
+                            <span style={{ fontSize: "12px", fontWeight: 700, color: m.cantidad ? "var(--acento)" : "#c3c9d1", marginBottom: "4px" }}>{m.cantidad}</span>
+                            <div
+                              className="barra-crece"
+                              title={`${m.etiqueta}: ${m.cantidad}`}
+                              style={{
+                                animationDelay: `${i * 70}ms`,
+                                width: "100%",
+                                maxWidth: "40px",
+                                height: m.cantidad ? `${(m.cantidad / tope) * 100}%` : "3px",
+                                background: m.cantidad ? "linear-gradient(180deg, var(--acento), var(--acento-oscuro, var(--acento)))" : "#e3e7ec",
+                                borderRadius: "6px 6px 0 0"
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div />
+                    <div style={{ display: "flex", gap: "14px", padding: "0 6px" }}>
+                      {mesesGrafica.map((m) => (
+                        <span key={m.clave} style={{ flex: 1, textAlign: "center", fontSize: "12px", color: "#888", textTransform: "capitalize" }}>{m.etiqueta}</span>
+                      ))}
+                    </div>
+                  </div>
+                  {total === 0 && <p style={{ fontSize: "13px", color: "#999", margin: "12px 0 0" }}>Aún no hay cotizaciones de renta en estos meses.</p>}
+                </>
+              );
+            })()}
           </div>
 
           <div className="panel">

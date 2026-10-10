@@ -124,6 +124,78 @@ function comprimirImagen(file, max = 1600) {
 
 const rutaUnica = (id, carpeta, ext) => `${id}/${carpeta}/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
 
+/** El cliente renovó: nuevo periodo (desde el día siguiente al fin actual, editable). */
+function ModalRenovar({ alquiler, onGuardar, onCerrar }) {
+  const siguiente = (() => {
+    if (!alquiler.fechaFin) return hoyISO();
+    const d = new Date(alquiler.fechaFin + "T00:00:00");
+    d.setDate(d.getDate() + 1);
+    return isoDe(d);
+  })();
+  const planInicial = PLANES.some((x) => x.clave === alquiler.plan && x.dias) ? alquiler.plan : "28d";
+  const p0 = PLANES.find((x) => x.clave === planInicial);
+  const [plan, setPlan] = useState(planInicial);
+  const [inicio, setInicio] = useState(siguiente);
+  const [fin, setFin] = useState(finDePlan(siguiente, p0.dias));
+  const [horas, setHoras] = useState(String(p0.horas));
+  const [nota, setNota] = useState("");
+
+  const elegir = (clave) => {
+    const x = PLANES.find((y) => y.clave === clave);
+    setPlan(clave);
+    if (x?.dias && inicio) { setFin(finDePlan(inicio, x.dias)); setHoras(String(x.horas)); }
+  };
+  const cambiarInicio = (v) => {
+    setInicio(v);
+    const x = PLANES.find((y) => y.clave === plan);
+    if (x?.dias && v) setFin(finDePlan(v, x.dias));
+  };
+  const guardar = () => {
+    if (!inicio || !fin) return alert("Indica cuándo empieza y cuándo termina la renovación.");
+    if (fin < inicio) return alert("La fecha de fin no puede ser antes del inicio.");
+    onGuardar({ fechaInicio: inicio, fechaFin: fin, plan, horasIncluidas: horas, nota: nota.trim() });
+  };
+  const n = diasDe({ fechaInicio: inicio, fechaFin: fin });
+
+  return (
+    <div style={S.modalBg} onClick={onCerrar}>
+      <div style={{ ...S.modal, maxWidth: 620 }} onClick={(e) => e.stopPropagation()}>
+        <h2 style={{ margin: "0 0 4px" }}>Renovar renta</h2>
+        <p style={{ color: "#777", margin: "0 0 16px", fontSize: 14 }}>
+          {[alquiler.tipo, alquiler.marca, alquiler.modelo].filter(Boolean).join(" ")} · {alquiler.cliente}
+          <br />Periodo actual: {fFecha(alquiler.fechaInicio)} → {fFecha(alquiler.fechaFin)}
+        </p>
+        <label style={S.label}>NUEVO PERIODO</label>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+          {PLANES.map((x) => {
+            const on = plan === x.clave;
+            return (
+              <button key={x.clave} type="button" onClick={() => elegir(x.clave)}
+                style={{ padding: "9px 14px", borderRadius: 8, border: on ? "2px solid var(--acento)" : "1px solid #d8d8d8", background: on ? "var(--acento)" : "#fff", color: on ? "#fff" : "#333", cursor: "pointer", textAlign: "left", lineHeight: 1.25 }}>
+                <strong style={{ display: "block", fontSize: 14 }}>{x.etiqueta}</strong>
+                <span style={{ fontSize: 11.5, opacity: 0.85 }}>{x.detalle}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div style={S.grid2}>
+          <div><label style={S.label}>RENUEVA A PARTIR DE</label><input type="date" style={S.input} value={inicio} onChange={(e) => cambiarInicio(e.target.value)} /></div>
+          <div><label style={S.label}>TERMINA</label><input type="date" style={S.input} value={fin} onChange={(e) => { setFin(e.target.value); setPlan("manual"); }} /></div>
+        </div>
+        <div style={S.grid2}>
+          <div><label style={S.label}>HORAS INCLUIDAS</label><input style={S.input} value={horas} onChange={(e) => setHoras(e.target.value)} placeholder="Ej. 200" /></div>
+          <div><label style={S.label}>NOTA (OPCIONAL)</label><input style={S.input} value={nota} onChange={(e) => setNota(e.target.value)} placeholder="Ej. mismo precio, pago por adelantado" /></div>
+        </div>
+        {n > 0 && <p style={{ margin: "-4px 0 14px", fontSize: 13, color: "#555" }}>{n} {n === 1 ? "día" : "días"}{horas ? ` · ${horas} horas incluidas` : ""}</p>}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+          <button style={S.btnGris} onClick={onCerrar}>Cancelar</button>
+          <button style={S.btn} onClick={guardar}>Guardar renovación</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Alquileres() {
   const [alquileres, guardarAlquileres] = useListaCompartida("alquileres");
   const { registros: clientes, guardar: guardarCliente } = useSharedTable("clientes");
@@ -383,6 +455,17 @@ export default function Alquileres() {
     if (paths.length) await supabase.storage.from(BUCKET).remove(paths);
   };
 
+  const [renovando, setRenovando] = useState(null);
+  // el periodo anterior queda en el historial; la renta sigue con el nuevo periodo
+  const renovar = (a, r) => {
+    const anterior = { fechaInicio: a.fechaInicio, fechaFin: a.fechaFin, plan: a.plan, horasIncluidas: a.horasIncluidas };
+    const renovaciones = [...(a.renovaciones || []), { ...r, anterior, registrado: hoyISO() }];
+    guardarAlquileres(alquileres.map((x) => (x.id === a.id
+      ? { ...x, inicioOriginal: x.inicioOriginal || x.fechaInicio, fechaInicio: r.fechaInicio, fechaFin: r.fechaFin, plan: r.plan, horasIncluidas: r.horasIncluidas, renovaciones, finalizado: false, fechaFinalizado: "" }
+      : x)));
+    setRenovando(null);
+  };
+
   const finalizar = (a) =>
     guardarAlquileres(
       alquileres.map((x) =>
@@ -403,8 +486,8 @@ export default function Alquileres() {
     descargarExcelBonito({
       titulo: "Alquileres de Equipos",
       subtitulo: `${filtrados.length} registros`,
-      columnas: ["Equipo", "Marca", "Modelo", "Serie", "Cliente", "Obra", "Dirección de obra", "Inicio", "Fin", "Estado", "Fotos", "Checklist"],
-      filas: filtrados.map((a) => [a.tipo, a.marca, a.modelo, a.serie, a.cliente, a.obra, a.direccionObra, fFecha(a.fechaInicio), fFecha(a.fechaFin), estadoDe(a), (a.fotos || []).length, a.checklist ? "Sí" : "No"]),
+      columnas: ["Equipo", "Marca", "Modelo", "Serie", "Cliente", "Obra", "Dirección de obra", "Inicio", "Fin", "Estado", "Renovaciones", "Rentado desde", "Fotos", "Checklist"],
+      filas: filtrados.map((a) => [a.tipo, a.marca, a.modelo, a.serie, a.cliente, a.obra, a.direccionObra, fFecha(a.fechaInicio), fFecha(a.fechaFin), estadoDe(a), (a.renovaciones || []).length, fFecha(a.inicioOriginal || a.fechaInicio), (a.fotos || []).length, a.checklist ? "Sí" : "No"]),
       nombreArchivo: nombreArchivoFecha("ALQUILERES")
     });
 
@@ -462,7 +545,7 @@ export default function Alquileres() {
             <thead>
               <tr>
                 <th style={S.th}>FOTO</th><th style={S.th}>EQUIPO</th><th style={S.th}>CLIENTE</th><th style={S.th}>OBRA</th>
-                <th style={S.th}>PERIODO</th><th style={S.th}>ESTADO</th><th style={S.th}>CHECKLIST</th><th style={{ ...S.th, width: 130 }}></th>
+                <th style={S.th}>PERIODO</th><th style={S.th}>ESTADO</th><th style={S.th}>CHECKLIST</th><th style={{ ...S.th, width: 230 }}></th>
               </tr>
             </thead>
             <tbody>
@@ -499,6 +582,11 @@ export default function Alquileres() {
                           {diasDe(a)} {diasDe(a) === 1 ? "día" : "días"}{a.horasIncluidas ? ` · ${a.horasIncluidas} h` : ""}
                         </div>
                       )}
+                      {(a.renovaciones || []).length > 0 && (
+                        <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--acento)" }}>
+                          ↻ Renovó {a.renovaciones.length} {a.renovaciones.length === 1 ? "vez" : "veces"} · desde {fFecha(a.inicioOriginal)}
+                        </div>
+                      )}
                       {!a.finalizado && d !== null && (
                         <div style={{ fontSize: 12, fontWeight: 700, color: d < 0 ? "#c62828" : d <= 3 ? "#c98a00" : "#1f8b4c" }}>
                           {d < 0 ? `Vencido hace ${Math.abs(d)} d` : d === 0 ? "Vence hoy" : `Faltan ${d} d`}
@@ -512,6 +600,15 @@ export default function Alquileres() {
                       ) : a.checklist ? "…" : <span style={{ color: "#bbb" }}>Sin checklist</span>}
                     </td>
                     <td style={{ ...S.td, textAlign: "center", whiteSpace: "nowrap" }}>
+                      {!a.finalizado && (
+                        <button
+                          style={{ ...(d !== null && d <= 3 ? S.btn : S.btnGris), padding: "6px 12px", fontSize: 13, marginRight: 6 }}
+                          onClick={() => setRenovando(a)}
+                          title="El cliente renovó: registrar el nuevo periodo"
+                        >
+                          ↻ Renovar
+                        </button>
+                      )}
                       <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => finalizar(a)} title={a.finalizado ? "Reabrir alquiler" : "Marcar como terminado / devuelto"}>
                         {a.finalizado ? "Reabrir" : "✓ Terminar"}
                       </button>
@@ -526,6 +623,8 @@ export default function Alquileres() {
           </table>
         </div>
       </div>
+
+      {renovando && <ModalRenovar alquiler={renovando} onGuardar={(r) => renovar(renovando, r)} onCerrar={() => setRenovando(null)} />}
 
       {modal && (
         <div style={S.modalBg} onClick={() => !guardando && cerrar()}>
@@ -562,6 +661,16 @@ export default function Alquileres() {
                 );
               })}
             </div>
+            {(form.renovaciones || []).length > 0 && (
+              <div style={{ background: "#f6f9fc", borderRadius: 8, padding: "10px 12px", marginBottom: 14, fontSize: 13, color: "#444" }}>
+                <strong>Renovaciones</strong> · rentado desde {fFecha(form.inicioOriginal)}
+                {form.renovaciones.map((r, i) => (
+                  <div key={i} style={{ marginTop: 4 }}>
+                    {i + 1}. {fFecha(r.fechaInicio)} → {fFecha(r.fechaFin)}{r.horasIncluidas ? ` · ${r.horasIncluidas} h` : ""}{r.nota ? ` · ${r.nota}` : ""}
+                  </div>
+                ))}
+              </div>
+            )}
             <div style={S.grid2}>
               <div><label style={S.label}>INICIA</label><input type="date" style={S.input} value={form.fechaInicio} onChange={(e) => cambiarInicio(e.target.value)} /></div>
               <div><label style={S.label}>TERMINA</label><input type="date" style={S.input} value={form.fechaFin} onChange={(e) => cambiarFin(e.target.value)} /></div>

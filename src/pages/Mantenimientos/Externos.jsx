@@ -37,8 +37,8 @@ const S = {
   btnVerde:{background:'#1f8b4c',color:'#fff',border:'none',borderRadius:6,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
   input:{width:'100%',padding:'11px 12px',border:'1px solid #d8d8d8',borderRadius:6,fontSize:14,boxSizing:'border-box',background:'#fff'},
   label:{fontSize:12,fontWeight:700,color:'#666',marginBottom:5,display:'block'},
-  th:{textAlign:'left',padding:'12px 10px',fontSize:12,letterSpacing:0.5,color:'#fff',background:'#222',fontWeight:700,whiteSpace:'nowrap'},
-  td:{padding:'11px 10px',borderBottom:'1px solid #eee',fontSize:14},
+  th:{textAlign:'left',padding:'13px 16px',fontSize:12,letterSpacing:0.5,color:'#fff',background:'#222',fontWeight:700,whiteSpace:'nowrap'},
+  td:{padding:'14px 16px',borderBottom:'1px solid #eee',fontSize:14,whiteSpace:'nowrap'},
   equis:{background:'transparent',border:'none',color:'#c62828',fontSize:18,fontWeight:700,cursor:'pointer',lineHeight:1,padding:'2px 6px',borderRadius:4},
   modalBg:{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',display:'flex',alignItems:'flex-start',justifyContent:'center',padding:30,overflowY:'auto',zIndex:999},
   modal:{background:'#fff',borderRadius:10,padding:26,width:'100%',maxWidth:820},
@@ -159,7 +159,7 @@ export default function EquiposExternos(){
       </div>
 
       <div style={{...S.card,padding:0,overflowX:'auto'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',minWidth:1350}}>
+        <table style={{width:'100%',borderCollapse:'collapse',minWidth:1900}}>
           <thead><tr>
             <th style={S.th}>EQUIPO</th><th style={S.th}>MARCA / MODELO</th><th style={S.th}>PROVEEDOR</th><th style={S.th}>CLIENTE</th>
             <th style={S.th}>ESTADO</th><th style={S.th}>INICIO</th><th style={S.th}>FIN ESTIMADO</th>
