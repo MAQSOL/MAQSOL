@@ -8,6 +8,7 @@ import { abrirDocPDF, encabezadoDoc, hoyMX, AZUL, AZUL_TENUE } from "../../utils
 import DeleteButton from "../../components/DeleteButton";
 import AsistenciaExterna from "./AsistenciaExterna";
 import { supabase } from "../../supabaseClient";
+import { registrarActividad } from "../../utils/actividad";
 import { DIAS, DIA_DESCANSO, lunesDeLaSemana, numeroDeSemana, formatoCorto, minutosATexto, extrasDelDia } from "../../utils/semanas";
 import HistorialAsistencias from "./HistorialAsistencias";
 import { IconoLapiz } from "../../components/Icons";
@@ -146,6 +147,7 @@ function Asistencias() {
       updated_at: new Date().toISOString()
     });
     if (error) alert("No se pudo guardar la asistencia: " + error.message);
+    else registrarActividad("asistencias", "agregar", { semana: numeroDeSemana(lunes) }, claveSemana);
   };
 
   const obtenerDia = (id, i) =>

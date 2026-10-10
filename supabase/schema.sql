@@ -307,3 +307,177 @@ create table if not exists public.ordenes_compra (id text primary key, data json
 alter table public.ordenes_compra enable row level security;
 drop policy if exists "ordenes_compra_all_auth" on public.ordenes_compra;
 create policy "ordenes_compra_all_auth" on public.ordenes_compra for all using (auth.uid() is not null) with check (auth.uid() is not null);
+
+-- ---------- 13) Modo desarrollador (NIP) ----------
+-- Correr SOLO los bloques 13 y 14 (no todo el archivo: el inicio borra tablas con datos).
+-- Un usuario que no es admin escribe el NIP en Configuración y por 12 horas tiene permisos de admin.
+-- El NIP se guarda cifrado en "secretos": nadie lo puede leer, solo la función lo compara.
+create extension if not exists pgcrypto with schema extensions;
+
+alter table public.perfiles
+  add column if not exists modo_dev_hasta timestamptz,
+  add column if not exists puesto text,
+  add column if not exists correo text,
+  add column if not exists soporte boolean default false;
+
+create table if not exists public.secretos (clave text primary key, valor_hash text not null);
+alter table public.secretos enable row level security;   -- sin políticas: nadie la lee directo
+insert into public.secretos (clave, valor_hash)
+values ('nip_desarrollador', extensions.crypt('102028', extensions.gen_salt('bf')))
+on conflict (clave) do update set valor_hash = excluded.valor_hash;
+
+-- 5 NIP equivocados seguidos = 15 minutos sin poder intentar
+create table if not exists public.intentos_nip (id uuid primary key, fallos int not null default 0, bloqueado_hasta timestamptz);
+alter table public.intentos_nip enable row level security;
+
+-- admin por rol (el único que puede cambiar roles)
+create or replace function public.es_admin_real()
+returns boolean as $$
+  select exists (select 1 from public.perfiles where id = auth.uid() and rol = 'admin');
+$$ language sql security definer stable set search_path = public;
+
+-- admin para permisos: rol admin o modo desarrollador vigente
+create or replace function public.es_admin()
+returns boolean as $$
+  select exists (select 1 from public.perfiles where id = auth.uid()
+                 and (rol = 'admin' or (modo_dev_hasta is not null and modo_dev_hasta > now())));
+$$ language sql security definer stable set search_path = public;
+
+-- nadie (salvo un admin por rol) se cambia el rol, el folio, el soporte ni el modo desarrollador a mano
+create or replace function public.evitar_autoescalada_rol()
+returns trigger as $$
+begin
+  if not public.es_admin_real() then
+    new.rol := old.rol;
+    new.codigo_folio := old.codigo_folio;
+    new.soporte := old.soporte;
+    if coalesce(current_setting('maqsistem.modo_dev', true), '') <> '1' then
+      new.modo_dev_hasta := old.modo_dev_hasta;
+    end if;
+  end if;
+  return new;
+end;
+$$ language plpgsql security definer set search_path = public;
+
+create or replace function public.activar_modo_desarrollador(p_nip text)
+returns jsonb
+language plpgsql security definer set search_path = public, extensions
+as $$
+declare
+  v_hash text;
+  v_bloq timestamptz;
+  v_hasta timestamptz;
+begin
+  if auth.uid() is null then
+    return jsonb_build_object('ok', false, 'error', 'Sin sesión');
+  end if;
+  select bloqueado_hasta into v_bloq from public.intentos_nip where id = auth.uid();
+  if v_bloq is not null and v_bloq > now() then
+    return jsonb_build_object('ok', false, 'error', 'Demasiados intentos. Espera unos minutos.');
+  end if;
+  select valor_hash into v_hash from public.secretos where clave = 'nip_desarrollador';
+  if v_hash is null or extensions.crypt(coalesce(p_nip, ''), v_hash) <> v_hash then
+    insert into public.intentos_nip (id, fallos, bloqueado_hasta) values (auth.uid(), 1, null)
+    on conflict (id) do update set
+      fallos = public.intentos_nip.fallos + 1,
+      bloqueado_hasta = case when public.intentos_nip.fallos + 1 >= 5 then now() + interval '15 minutes' else null end;
+    return jsonb_build_object('ok', false, 'error', 'NIP incorrecto');
+  end if;
+  delete from public.intentos_nip where id = auth.uid();
+  v_hasta := now() + interval '12 hours';
+  perform set_config('maqsistem.modo_dev', '1', true);
+  update public.perfiles set modo_dev_hasta = v_hasta where id = auth.uid();
+  if not found then
+    return jsonb_build_object('ok', false, 'error', 'Tu usuario no tiene perfil; pide a un admin que lo dé de alta.');
+  end if;
+  return jsonb_build_object('ok', true, 'hasta', v_hasta);
+end;
+$$;
+
+create or replace function public.desactivar_modo_desarrollador()
+returns void
+language plpgsql security definer set search_path = public
+as $$
+begin
+  perform set_config('maqsistem.modo_dev', '1', true);
+  update public.perfiles set modo_dev_hasta = null where id = auth.uid();
+end;
+$$;
+
+revoke all on function public.activar_modo_desarrollador(text) from public, anon;
+revoke all on function public.desactivar_modo_desarrollador() from public, anon;
+grant execute on function public.activar_modo_desarrollador(text) to authenticated;
+grant execute on function public.desactivar_modo_desarrollador() to authenticated;
+
+-- ---------- 14) Chat interno y actividad en vivo ----------
+-- Canales: 'general' (todos), 'dm:<uid>:<uid>' (entre dos), 'soporte:<uid>' (esa persona con Soporte).
+create table if not exists public.chat_mensajes (
+  id uuid primary key default gen_random_uuid(),
+  canal text not null,
+  autor uuid not null default auth.uid(),
+  autor_nombre text,
+  subnombre text,
+  texto text,
+  adjuntos jsonb not null default '[]'::jsonb,
+  creado timestamptz not null default now()
+);
+create index if not exists chat_mensajes_canal_creado on public.chat_mensajes (canal, creado desc);
+alter table public.chat_mensajes enable row level security;
+
+create or replace function public.es_soporte()
+returns boolean as $$
+  select exists (select 1 from public.perfiles where id = auth.uid() and soporte);
+$$ language sql security definer stable set search_path = public;
+
+create or replace function public.puede_ver_canal(p_canal text)
+returns boolean as $$
+  select auth.uid() is not null and (
+    p_canal = 'general'
+    or (p_canal like 'dm:%' and position(auth.uid()::text in p_canal) > 0)
+    or p_canal = 'soporte:' || auth.uid()::text
+    or (p_canal like 'soporte:%' and public.es_soporte())
+  );
+$$ language sql security definer stable set search_path = public;
+
+drop policy if exists "chat_select" on public.chat_mensajes;
+create policy "chat_select" on public.chat_mensajes for select using (public.puede_ver_canal(canal));
+drop policy if exists "chat_insert" on public.chat_mensajes;
+create policy "chat_insert" on public.chat_mensajes for insert with check (autor = auth.uid() and public.puede_ver_canal(canal));
+drop policy if exists "chat_delete_propio" on public.chat_mensajes;
+create policy "chat_delete_propio" on public.chat_mensajes for delete using (autor = auth.uid());
+
+-- "Francisco agregó la máquina…", "Kevin registró una carga de diésel…"
+create table if not exists public.actividad (
+  id uuid primary key default gen_random_uuid(),
+  autor uuid not null default auth.uid(),
+  autor_nombre text,
+  tabla text,
+  accion text,
+  descripcion text not null,
+  creado timestamptz not null default now()
+);
+create index if not exists actividad_creado on public.actividad (creado desc);
+alter table public.actividad enable row level security;
+drop policy if exists "actividad_select" on public.actividad;
+create policy "actividad_select" on public.actividad for select using (auth.uid() is not null);
+drop policy if exists "actividad_insert" on public.actividad;
+create policy "actividad_insert" on public.actividad for insert with check (autor = auth.uid());
+
+-- en vivo (Realtime)
+do $$
+begin
+  begin alter publication supabase_realtime add table public.chat_mensajes; exception when duplicate_object then null; end;
+  begin alter publication supabase_realtime add table public.actividad; exception when duplicate_object then null; end;
+end $$;
+
+-- imágenes y archivos del chat: bucket privado (se ven con enlace firmado temporal)
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('chat-adjuntos', 'chat-adjuntos', false, 10485760)
+on conflict (id) do nothing;
+drop policy if exists "chat_adjuntos_select" on storage.objects;
+create policy "chat_adjuntos_select" on storage.objects for select using (bucket_id = 'chat-adjuntos' and auth.uid() is not null);
+drop policy if exists "chat_adjuntos_insert" on storage.objects;
+create policy "chat_adjuntos_insert" on storage.objects for insert with check (bucket_id = 'chat-adjuntos' and auth.uid() is not null);
+
+-- Soporte = Alejandro Balam
+update public.perfiles set soporte = true where id in (select id from auth.users where email = 'abalam@maqsol.com.mx');

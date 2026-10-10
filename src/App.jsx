@@ -28,6 +28,7 @@ import ListaPrecios from "./pages/Administracion/ListaPrecios";
 import ReporteHoras from "./pages/Administracion/ReporteHoras";
 import GeneradorContratos from "./pages/Administracion/GeneradorContratos";
 import OrdenesCompra from "./pages/Administracion/OrdenesCompra";
+import ChatFlotante from "./components/ChatFlotante";
 import CargasDiesel from "./pages/Administracion/CargasDiesel";
 import PersonalNuevo from "./pages/Administracion/PersonalNuevo";
 import Tareas from "./pages/Operaciones/Tareas";
@@ -75,6 +76,8 @@ function App() {
         <Route path="/tareas" element={<ProtectedRoute><Tareas /></ProtectedRoute>} />
 
       </Routes>
+      {/* chat del equipo y actividad en vivo: se muestra solo con sesión iniciada */}
+      <ChatFlotante />
       </AuthProvider>
     </BrowserRouter>
   );

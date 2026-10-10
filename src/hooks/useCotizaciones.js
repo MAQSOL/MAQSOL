@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import { registrarActividad } from "../utils/actividad";
 import { useAuth } from "../contexts/AuthContext";
 
 /**
@@ -41,6 +42,7 @@ export function useCotizaciones(tipo) {
       alert("No se pudo guardar la cotización: " + error.message);
       return false;
     }
+    registrarActividad("cotizaciones", "agregar", { tipo, folio: datos?.folio, cliente: datos?.cliente }, id);
     await recargar();
     return true;
   }

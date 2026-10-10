@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { supabase } from "../supabaseClient";
+import { fijarAutorActividad } from "../utils/actividad";
 
 const AuthContext = createContext(null);
 
@@ -35,6 +36,13 @@ export function AuthProvider({ children }) {
       .eq("id", sesion.user.id)
       .maybeSingle();
     const p = data || { id: sesion.user.id, rol: "vendedor" };
+    // modo desarrollador (NIP): vale hasta modo_dev_hasta; se calcula aquí, no en cada pintada
+    p.modoDevActivo = !!p.modo_dev_hasta && new Date(p.modo_dev_hasta) > new Date();
+    fijarAutorActividad({ uid: sesion.user.id, nombre: p.nombre_completo || p.apodo || (sesion.user.email || "").split("@")[0] });
+    // el correo se copia al perfil para que el chat lo muestre a los demás
+    if (data && data.correo !== sesion.user.email) {
+      supabase.from("perfiles").update({ correo: sesion.user.email }).eq("id", sesion.user.id).then(() => {}, () => {});
+    }
     setProfile(p);
     aplicarColor(p.color_acento);
     setCargando(false);
@@ -82,7 +90,21 @@ export function AuthProvider({ children }) {
     return true;
   }
 
-  const isAdmin = profile?.rol === "admin";
+  const esAdminReal = profile?.rol === "admin";
+  const modoDev = !esAdminReal && !!profile?.modoDevActivo;
+  // en modo desarrollador se trabaja con los mismos permisos que un admin (también en Supabase: es_admin())
+  const isAdmin = esAdminReal || modoDev;
+
+  async function activarModoDev(nip) {
+    const { data, error } = await supabase.rpc("activar_modo_desarrollador", { p_nip: nip });
+    if (error) return { ok: false, error: "No se pudo activar: " + error.message };
+    if (data?.ok) await cargarPerfil(session);
+    return data || { ok: false, error: "Sin respuesta" };
+  }
+  async function desactivarModoDev() {
+    await supabase.rpc("desactivar_modo_desarrollador");
+    await cargarPerfil(session);
+  }
 
   return (
     <AuthContext.Provider
@@ -91,6 +113,10 @@ export function AuthProvider({ children }) {
         user: session?.user || null,
         profile,
         isAdmin,
+        esAdminReal,
+        modoDev,
+        activarModoDev,
+        desactivarModoDev,
         cargando,
         actualizarPerfil
       }}

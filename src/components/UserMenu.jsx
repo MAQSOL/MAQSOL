@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useAuth, PALETA_COLORES } from "../contexts/AuthContext";
+import OtpInput from "./OtpInput";
 
 function nombreDeUsuario(profile, user) {
   if (profile?.apodo) return profile.apodo;
@@ -66,7 +67,7 @@ const estiloItem = {
 };
 
 export default function UserMenu() {
-  const { user, profile, isAdmin, actualizarPerfil } = useAuth();
+  const { user, profile, isAdmin, esAdminReal, modoDev, activarModoDev, desactivarModoDev, actualizarPerfil } = useAuth();
   const navigate = useNavigate();
   const [abierto, setAbierto] = useState(false);
   const [vista, setVista] = useState(null); // null | 'foto' | 'apodo' | 'config'
@@ -76,6 +77,10 @@ export default function UserMenu() {
   const [msgPass, setMsgPass] = useState("");
   const [telefono, setTelefono] = useState(profile?.telefono || "");
   const [guardandoTelefono, setGuardandoTelefono] = useState(false);
+  const [puesto, setPuesto] = useState(profile?.puesto || "");
+  const [nipDev, setNipDev] = useState("");
+  const [estadoNip, setEstadoNip] = useState("idle"); // idle | success | error
+  const [msgDev, setMsgDev] = useState("");
   const [subiendoFoto, setSubiendoFoto] = useState(false);
   const fileRef = useRef(null);
 
@@ -88,6 +93,26 @@ export default function UserMenu() {
     setVista(null);
     setMsgPass("");
     setTelefono(profile?.telefono || "");
+    setPuesto(profile?.puesto || "");
+    setNipDev("");
+    setEstadoNip("idle");
+    setMsgDev("");
+  }
+
+  async function guardarPuesto() {
+    await actualizarPerfil({ puesto: puesto.trim() });
+  }
+
+  async function entrarModoDev(nip) {
+    const r = await activarModoDev(nip);
+    if (r.ok) {
+      setEstadoNip("success");
+      setMsgDev("");
+    } else {
+      setEstadoNip("error");
+      setMsgDev(r.error || "NIP incorrecto");
+      setNipDev("");
+    }
   }
 
   async function guardarTelefono() {
@@ -190,7 +215,7 @@ export default function UserMenu() {
           <strong style={{ display: "block", fontSize: "14px" }}>
             ¡Hola, {nombreMostrado}!
           </strong>
-          <small style={{ color: "#999" }}>{isAdmin ? "Administrador" : "Usuario"}</small>
+          <small style={{ color: modoDev ? "#c98a00" : "#999" }}>{modoDev ? "Modo desarrollador" : isAdmin ? "Administrador" : "Usuario"}</small>
         </span>
       </button>
 
@@ -373,6 +398,22 @@ export default function UserMenu() {
             </button>
           </div>
 
+          <div style={{ fontSize: "12px", color: "#999" }}>PUESTO (aparece en el chat)</div>
+          <div style={{ display: "flex", gap: "6px", margin: "6px 0 14px" }}>
+            <input
+              placeholder="Ej. Gerente de operaciones"
+              value={puesto}
+              onChange={(e) => setPuesto(e.target.value)}
+              style={{ flex: 1, padding: "9px", borderRadius: "8px", border: "1px solid #ddd" }}
+            />
+            <button
+              onClick={guardarPuesto}
+              style={{ background: "var(--acento)", color: "#fff", border: "none", borderRadius: "8px", padding: "0 14px", fontWeight: "700", cursor: "pointer" }}
+            >
+              Guardar
+            </button>
+          </div>
+
           <div style={{ fontSize: "12px", color: "#999" }}>CAMBIAR CONTRASEÑA</div>
           <input
             type="password"
@@ -446,6 +487,29 @@ export default function UserMenu() {
               />
             ))}
           </div>
+
+          <div style={{ fontSize: "12px", color: "#999", margin: "16px 0 6px" }}>MODO DESARROLLADOR</div>
+          {esAdminReal ? (
+            <div style={{ fontSize: "12.5px", color: "#777" }}>Eres administrador: ya tienes todos los permisos.</div>
+          ) : modoDev ? (
+            <div>
+              <div style={{ fontSize: "12.5px", color: "#c98a00", fontWeight: 700, marginBottom: "8px" }}>
+                Activo hasta las {new Date(profile.modo_dev_hasta).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })} · tienes permisos de administrador
+              </div>
+              <button
+                onClick={desactivarModoDev}
+                style={{ width: "100%", background: "#f5f5f5", color: "#333", border: "none", borderRadius: "8px", padding: "9px", fontWeight: "700", cursor: "pointer" }}
+              >
+                Salir del modo desarrollador
+              </button>
+            </div>
+          ) : (
+            <div>
+              <div style={{ fontSize: "12.5px", color: "#777", marginBottom: "8px" }}>Escribe el NIP para trabajar con permisos de administrador por 12 horas.</div>
+              <OtpInput length={6} value={nipDev} status={estadoNip} onChange={(v) => { setNipDev(v); setEstadoNip("idle"); }} onComplete={entrarModoDev} />
+              {msgDev && <div style={{ fontSize: "12px", color: "#b00020", marginTop: "6px" }}>{msgDev}</div>}
+            </div>
+          )}
         </div>
       )}
     </div>

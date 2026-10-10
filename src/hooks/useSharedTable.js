@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import { registrarActividad } from "../utils/actividad";
 
 /**
  * Tabla compartida en Supabase con forma { id, data jsonb, updated_at }.
@@ -34,6 +35,7 @@ export function useSharedTable(tabla) {
   }, [recargar]);
 
   async function guardar(id, datos) {
+    const existia = rowsRaw.some((r) => r.id === id);
     const { error } = await supabase
       .from(tabla)
       .upsert({ id, data: datos, updated_at: new Date().toISOString() });
@@ -41,16 +43,19 @@ export function useSharedTable(tabla) {
       alert("No se pudo guardar (" + tabla + "): " + error.message);
       return false;
     }
+    registrarActividad(tabla, existia ? "editar" : "agregar", datos, id);
     await recargar();
     return true;
   }
 
   async function eliminar(id) {
+    const previo = rowsRaw.find((r) => r.id === id)?.data;
     const { error } = await supabase.from(tabla).delete().eq("id", id);
     if (error) {
       alert("No se pudo eliminar (" + tabla + "): " + error.message);
       return false;
     }
+    registrarActividad(tabla, "eliminar", previo, id);
     await recargar();
     return true;
   }
@@ -89,10 +94,12 @@ export function useListaCompartida(tabla) {
     if (cambiadas.length) {
       const { error } = await supabase.from(tabla).upsert(cambiadas);
       if (error) alert("No se pudo guardar (" + tabla + "): " + error.message);
+      else cambiadas.forEach((c) => registrarActividad(tabla, previasPorId.has(c.id) ? "editar" : "agregar", c.data, c.id));
     }
     if (borrar.length) {
       const { error } = await supabase.from(tabla).delete().in("id", borrar);
       if (error) alert("No se pudo eliminar (" + tabla + "): " + error.message);
+      else previa.filter((x) => borrar.includes(String(x.id))).forEach((x) => registrarActividad(tabla, "eliminar", x, String(x.id)));
     }
     await recargar();
   }
