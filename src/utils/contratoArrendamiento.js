@@ -271,20 +271,20 @@ export function descargarContratoPDF(bloques, nombreArchivo) {
   const W = 216, H = 279, M = 18, ancho = W - M * 2;
   let y = 0;
   let pagina = 1;
-  const AZUL = [29, 92, 143];
+  const GRIS = [58, 58, 58];   // el contrato va en gris oscuro (no en el azul de los reportes)
 
-  // mismo diseño que los demás PDF (título azul, datos en gris, logo a la derecha, línea azul), en chico
+  // encabezado de cada página: empresa y código a la izquierda, logo chico en la esquina derecha, línea gris oscuro
   const cabecera = () => {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...AZUL);
+    doc.setTextColor(...GRIS);
     doc.text("MAQUINARIA SOPORTE Y LOGISTICA SA DE CV", M, 10);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(85, 85, 85);
     doc.text(CODIGO_DOC + "  ·  pág. " + pagina, M, 14.5);
     try { doc.addImage(LOGO_MAQSOL_TRANSPARENTE, "PNG", W - M - 12 * LOGO_MAQSOL_TRANSPARENTE_RELACION, 4.5, 12 * LOGO_MAQSOL_TRANSPARENTE_RELACION, 12); } catch { /* sin logo */ }
-    doc.setDrawColor(...AZUL);
+    doc.setDrawColor(...GRIS);
     doc.setLineWidth(0.8);
     doc.line(M, 18.5, W - M, 18.5);
     doc.setLineWidth(0.2);
@@ -356,7 +356,7 @@ export function descargarContratoPDF(bloques, nombreArchivo) {
       const altoFilas = filas.reduce((s, f) => s + f.n * lh(tam) + 1.8, 0) + 1.5;
       asegura(altoTitulo + Math.min(altoFilas, 40));
 
-      doc.setFillColor(...AZUL);
+      doc.setFillColor(...GRIS);
       doc.rect(M, y, ancho, altoTitulo, "F");
       texto(9, true, [255, 255, 255]);
       doc.text(lt, M + 2, y + 4.2);
@@ -391,7 +391,7 @@ export function descargarContratoPDF(bloques, nombreArchivo) {
       const alto = nMax * lh(8.8) + 4;
       asegura(alto + 9);
       bl.cols.forEach((c, i) => {
-        doc.setFillColor(...AZUL);
+        doc.setFillColor(...GRIS);
         doc.rect(M + i * cw, y, cw, 7, "F");
         texto(8.5, true, [255, 255, 255]);
         doc.text(c.titulo, M + i * cw + cw / 2, y + 4.7, { align: "center" });
@@ -450,7 +450,7 @@ export async function descargarContratoWord(bloques, nombreArchivo, logoUrl) {
     BorderStyle, ShadingType, PageBreak, Header, Footer, PageNumber, ImageRun, VerticalAlign
   } = await import("docx");
 
-  const AZUL = "1D5C8F";
+  const GRIS = "3A3A3A";
   const ANCHO = 9360; // ancho útil en twips (carta, márgenes de 1")
   const linea = { style: BorderStyle.SINGLE, size: 4, color: "BBBBBB" };
   const bordes = { top: linea, bottom: linea, left: linea, right: linea };
@@ -506,7 +506,7 @@ export async function descargarContratoWord(bloques, nombreArchivo, logoUrl) {
             rows: [
               new TableRow({
                 cantSplit: true,
-                children: [celda([parrafo(bl.titulo, { bold: true, color: "FFFFFF", size: 18, despues: 0 })], ANCHO, { fondo: AZUL, span: 2 })]
+                children: [celda([parrafo(bl.titulo, { bold: true, color: "FFFFFF", size: 18, despues: 0 })], ANCHO, { fondo: GRIS, span: 2 })]
               }),
               ...bl.filas.map(
                 ([e, v]) =>
@@ -534,7 +534,7 @@ export async function descargarContratoWord(bloques, nombreArchivo, logoUrl) {
             rows: [
               new TableRow({
                 cantSplit: true,
-                children: bl.cols.map((c) => celda([parrafo(c.titulo, { centro: true, bold: true, color: "FFFFFF", size: 17, despues: 0 })], w, { fondo: AZUL }))
+                children: bl.cols.map((c) => celda([parrafo(c.titulo, { centro: true, bold: true, color: "FFFFFF", size: 17, despues: 0 })], w, { fondo: GRIS }))
               }),
               new TableRow({
                 cantSplit: true,
@@ -596,7 +596,7 @@ export async function descargarContratoWord(bloques, nombreArchivo, logoUrl) {
   const encabezado = new Header({
     children: [
       new Paragraph({
-        border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: AZUL, space: 4 } },
+        border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: GRIS, space: 4 } },
         spacing: { after: 120 },
         children: [
           ...(logo ? [new ImageRun({ type: "png", data: logo, transformation: { width: 70, height: 36 } }), run("   ")] : []),

@@ -3,6 +3,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
 import logo from "../../assets/logo.png";
+import { LOGO_MAQSOL_TRANSPARENTE } from "../../utils/logoMaqsolTransparente";
+
+const GRIS_CONTRATO = "#3a3a3a";   // mismo gris oscuro que el PDF y el Word del contrato
 import { useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
 import { construirDocumento, descargarContratoPDF, descargarContratoWord } from "../../utils/contratoArrendamiento";
 import { S, fFecha, hoyISO } from "./estilosAdmin";
@@ -51,18 +54,23 @@ function Campo({ etiqueta, children }) {
 }
 
 function Vista({ bloques }) {
-  const pagina = { background: "#fff", fontSize: 12, lineHeight: 1.5, color: "#222" };
+  const pagina = { background: "#fff", fontSize: 12, lineHeight: 1.5, color: "#222", position: "relative" };
   return (
     <div style={pagina}>
+      <img
+        src={LOGO_MAQSOL_TRANSPARENTE}
+        alt="MAQSOL"
+        style={{ position: "absolute", top: 0, right: 0, height: 34, pointerEvents: "none" }}
+      />
       {bloques.map((b, i) => {
         if (b.t === "salto") return <hr key={i} style={{ margin: "22px 0", border: "none", borderTop: "2px dashed #ccc" }} />;
-        if (b.t === "title") return <h3 key={i} style={{ textAlign: "center", fontSize: 15, margin: "6px 0 10px" }}>{b.text}</h3>;
+        if (b.t === "title") return <h3 key={i} style={{ textAlign: "center", fontSize: 15, margin: "6px 0 10px", padding: "0 44px" }}>{b.text}</h3>;
         if (b.t === "center") return <p key={i} style={{ textAlign: "center", color: "#777", margin: "0 0 8px" }}>{b.text}</p>;
         if (b.t === "h") return <h4 key={i} style={{ textAlign: "center", margin: "12px 0 8px" }}>{b.text}</h4>;
         if (b.t === "p") return <p key={i} style={{ margin: "0 0 8px", fontWeight: b.bold ? 700 : 400, textAlign: "justify" }}>{b.text}</p>;
         if (b.t === "box") return (
           <div key={i} style={{ border: "1px solid #ccc", marginBottom: 10 }}>
-            <div style={{ background: "#1d5c8f", color: "#fff", fontWeight: 700, padding: "4px 8px", fontSize: 11 }}>{b.titulo}</div>
+            <div style={{ background: GRIS_CONTRATO, color: "#fff", fontWeight: 700, padding: "4px 8px", fontSize: 11 }}>{b.titulo}</div>
             {b.filas.map(([e, val], k) => (
               <div key={k} style={{ display: "flex", gap: 8, padding: "3px 8px" }}>
                 <span style={{ fontWeight: 700, minWidth: 150, fontSize: 11 }}>{e}</span>
@@ -75,7 +83,7 @@ function Vista({ bloques }) {
           <div key={i} style={{ display: "grid", gridTemplateColumns: `repeat(${b.cols.length},1fr)`, border: "1px solid #ccc", marginBottom: 10 }}>
             {b.cols.map((c, k) => (
               <div key={k} style={{ borderRight: k < b.cols.length - 1 ? "1px solid #ccc" : "none" }}>
-                <div style={{ background: "#1d5c8f", color: "#fff", fontWeight: 700, padding: "4px 6px", fontSize: 10.5, textAlign: "center" }}>{c.titulo}</div>
+                <div style={{ background: GRIS_CONTRATO, color: "#fff", fontWeight: 700, padding: "4px 6px", fontSize: 10.5, textAlign: "center" }}>{c.titulo}</div>
                 <div style={{ padding: "6px" }}>{c.texto}</div>
               </div>
             ))}
