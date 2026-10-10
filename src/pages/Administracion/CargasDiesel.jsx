@@ -6,6 +6,7 @@ import { abrirDocPDF, encabezadoDoc, pieDoc, hoyMX } from "../../utils/pdfFormat
 import { useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
 import { descargarExcelBonito, nombreArchivoSemana, numeroSemanaISO } from "../../utils/exportExcel";
 import { S, fFecha, hoyISO, dinero, esc } from "./estilosAdmin";
+import { IconoMas } from "../../components/Icons";
 
 const NUEVO = {
   id: "", fecha: "", equipoId: "", maquina: "", serie: "", obra: "",
@@ -180,7 +181,7 @@ export default function CargasDiesel() {
             <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
             <button style={S.btnGris} onClick={exportarExcel}>Descargar Excel</button>
             <button style={S.btnVerde} onClick={generarPDF}>Generar PDF</button>
-            <button style={S.btn} onClick={abrirNuevo}>+ Registrar carga</button>
+            <button style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar carga</button>
           </div>
         </div>
 
@@ -257,7 +258,7 @@ export default function CargasDiesel() {
             <tbody>
               {filtradas.length === 0 ? (
                 <tr><td colSpan={10} style={{ ...S.td, textAlign: "center", color: "#999", padding: 40 }}>
-                  No hay cargas en este periodo. Usa "+ Registrar carga".
+                  No hay cargas en este periodo. Usa "Registrar carga".
                 </td></tr>
               ) : filtradas.map((c) => (
                 <tr key={c.id}>

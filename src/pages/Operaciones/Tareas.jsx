@@ -6,6 +6,7 @@ import { useListaCompartida } from "../../hooks/useSharedTable";
 import { usePerfiles } from "../../hooks/usePerfiles";
 import { useAuth } from "../../contexts/AuthContext";
 import { S, fFecha, hoyISO } from "../Administracion/estilosAdmin";
+import { IconoMas } from "../../components/Icons";
 
 const COLUMNAS = [
   { clave: "pendiente", titulo: "Pendiente", color: "#8a6d00", fondo: "#fff8e1" },
@@ -190,7 +191,7 @@ export default function Tareas() {
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
-            <button style={S.btn} onClick={abrirNueva}>+ Nueva tarea</button>
+            <button style={S.btn} onClick={abrirNueva}><IconoMas />Nueva tarea</button>
           </div>
         </div>
 

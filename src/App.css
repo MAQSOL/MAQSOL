@@ -481,3 +481,9 @@ body{
   }
 
 }
+
+/* botón cuadrado de "agregar" junto a un campo (p. ej. + cliente en las cotizaciones) */
+.btn-mas{display:inline-flex;align-items:center;justify-content:center;width:60px;height:60px;flex-shrink:0;box-sizing:border-box;border-radius:10px;border:1px solid #cfe3d3;background:#eef7f0;color:#1f7a3a;text-decoration:none;cursor:pointer;transition:background .2s,color .2s,border-color .2s,box-shadow .2s,transform .15s}
+.btn-mas:hover{background:#1f8b4c;border-color:#1f8b4c;color:#fff;box-shadow:0 4px 12px rgba(31,139,76,.28)}
+.btn-mas:active{transform:scale(.96)}
+.btn-mas svg{margin:0 !important}

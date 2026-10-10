@@ -6,6 +6,7 @@ import { abrirDocPDF, encabezadoDoc, pieDoc, hoyMX } from "../../utils/pdfFormat
 import { useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
 import { descargarExcelBonito, nombreArchivoFecha } from "../../utils/exportExcel";
 import { S, fFecha, hoyISO, esc } from "./estilosAdmin";
+import { IconoMas } from "../../components/Icons";
 
 const NUEVO = {
   id: "", fecha: "", equipoId: "", equipoLabel: "", cliente: "", operador: "",
@@ -133,7 +134,7 @@ export default function ReporteHoras() {
             <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
             <button style={S.btnGris} onClick={exportarExcel}>Descargar Excel</button>
             <button style={S.btnVerde} onClick={imprimirReporte}>Generar reporte (PDF)</button>
-            <button style={S.btn} onClick={abrirNuevo}>+ Registrar horas</button>
+            <button style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar horas</button>
           </div>
         </div>
 
@@ -193,7 +194,7 @@ export default function ReporteHoras() {
             <tbody>
               {filtrados.length === 0 ? (
                 <tr><td colSpan={8} style={{ ...S.td, textAlign: "center", color: "#999", padding: 40 }}>
-                  No hay horas registradas. Usa "+ Registrar horas".
+                  No hay horas registradas. Usa "Registrar horas".
                 </td></tr>
               ) : filtrados.map((r) => (
                 <tr key={r.id}>

@@ -629,7 +629,7 @@ export default function EquiposInternos() {
             {filtrados.length === 0 ? (
               <tr>
                 <td style={{ ...S.td, textAlign: 'center', color: '#999', padding: 40 }} colSpan={9}>
-                  No hay equipos que mostrar. Usa el botón "+ Agregar equipo" para dar de alta la primera máquina.
+                  No hay equipos que mostrar. Usa el botón "Agregar equipo" para dar de alta la primera máquina.
                 </td>
               </tr>
             ) : (

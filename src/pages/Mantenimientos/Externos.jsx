@@ -3,6 +3,7 @@ import { useListaCompartida, useListaCatalogo } from '../../hooks/useSharedTable
 import Sidebar from '../../components/Sidebar'
 import DeleteButton from '../../components/DeleteButton'
 import { descargarExcelBonito, nombreArchivoFecha } from '../../utils/exportExcel'
+import { IconoMas } from '../../components/Icons'
 
 const VINO = 'var(--acento)'
 const KEY_EXTERNOS = 'equiposExternos'
@@ -139,7 +140,7 @@ export default function EquiposExternos(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={S.h1}>Equipos Externos</h1><p style={S.sub}>Maquinaria que subarrendamos de terceros para clientes · {activos} activos de {equipos.length} registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button style={S.btn} onClick={abrirNuevo}>+ Agregar equipo subarrendado</button></div>
+        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo subarrendado</button></div>
       </div>
 
       <div style={S.card}>
@@ -159,7 +160,7 @@ export default function EquiposExternos(){
 <th style={{...S.th,width:90,textAlign:'center'}}></th>
           </tr></thead>
           <tbody>
-            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={12}>No hay equipos subarrendados registrados. Usa "+ Agregar equipo subarrendado".</td></tr>
+            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={12}>No hay equipos subarrendados registrados. Usa "Agregar equipo subarrendado".</td></tr>
             :filtrados.map(e=>(<tr key={e.id} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
               <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>abrirEditar(e)}>{e.tipo}</td>
               <td style={S.td}>{e.marca} {e.modelo}{e.serie?<div style={{color:'#999',fontSize:12}}>Serie: {e.serie}</div>:null}</td>

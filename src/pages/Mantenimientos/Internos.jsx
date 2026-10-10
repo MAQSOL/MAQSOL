@@ -7,6 +7,7 @@ import { useSharedTable, useCatalogo } from '../../hooks/useSharedTable'
 import QrEquipoModal from '../../components/QrEquipoModal'
 import { conHoras } from '../../utils/horometro'
 import CampoDiferido from '../../components/CampoDiferido'
+import { IconoMas } from '../../components/Icons'
 
 const VINO = 'var(--acento)'
 const KEY_EQUIPOS = 'equiposInternos'
@@ -443,7 +444,7 @@ export default function EquiposInternos(){
         <div style={S.card}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
             <div><h2 style={S.h2}>Filtros de la Máquina</h2><p style={{color:'#777',fontSize:13,margin:'-4px 0 0'}}>Puedes agregar varias marcas por tipo de filtro.</p></div>
-            <button style={S.btnSm} onClick={agregarFiltro}>+ Agregar filtro</button>
+            <button style={S.btnSm} onClick={agregarFiltro}><IconoMas />Agregar filtro</button>
           </div>
           {(!activo.filtros||activo.filtros.length===0)?<p style={{color:'#999',fontSize:14}}>No hay filtros registrados. Usa el botón de arriba para agregar.</p>:(
             <table style={{width:'100%',borderCollapse:'collapse'}}>
@@ -470,7 +471,7 @@ export default function EquiposInternos(){
         <div style={S.card}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
             <div><h2 style={S.h2}>Suministros del Equipo</h2><p style={{color:'#777',fontSize:13,margin:'-4px 0 0'}}>Capacidades y especificaciones de lo que lleva la máquina.</p></div>
-            <button style={S.btnSm} onClick={agregarSuministro}>+ Agregar suministro</button>
+            <button style={S.btnSm} onClick={agregarSuministro}><IconoMas />Agregar suministro</button>
           </div>
           {(!activo.suministros||activo.suministros.length===0)?<p style={{color:'#999',fontSize:14}}>No hay suministros registrados.</p>:(
             <table style={{width:'100%',borderCollapse:'collapse'}}>
@@ -520,7 +521,7 @@ export default function EquiposInternos(){
         <div style={S.card}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
             <h2 style={S.h2}>Pendientes del Equipo</h2>
-            <button style={S.btnSm} onClick={agregarPendiente}>+ Agregar pendiente</button>
+            <button style={S.btnSm} onClick={agregarPendiente}><IconoMas />Agregar pendiente</button>
           </div>
           {(!activo.pendientes||activo.pendientes.length===0)?<p style={{color:'#999',fontSize:14}}>No hay pendientes.</p>:(
             <div>{(activo.pendientes||[]).map(p=>(
@@ -537,7 +538,7 @@ export default function EquiposInternos(){
         <div style={S.card}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
             <h2 style={{...S.h2,margin:0}}>Historial de Mantenimientos</h2>
-            <button style={S.btn} onClick={abrirNuevoMantto}>+ Agregar mantenimiento</button>
+            <button style={S.btn} onClick={abrirNuevoMantto}><IconoMas />Agregar mantenimiento</button>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr auto auto',gap:10,alignItems:'end',marginBottom:14}}>
             <div><label style={S.label}>TIPO</label><select style={S.input} value={filtroTipoM} onChange={ev=>setFiltroTipoM(ev.target.value)}><option value="">Todos</option><option>Preventivo</option><option>Correctivo</option></select></div>
@@ -636,7 +637,7 @@ export default function EquiposInternos(){
             <div><label style={S.label}>LIGA DEL REPORTE PDF FIRMADO</label><input style={S.input} value={mForm.pdfUrl} onChange={ev=>setMForm({...mForm,pdfUrl:ev.target.value})} placeholder="Liga de OneDrive o Drive"/></div>
           </div>
           <div style={{marginBottom:14,marginTop:6}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><label style={{...S.label,margin:0}}>DATOS ADICIONALES</label><button style={S.btnGrisSm} onClick={agregarExtra}>+ Agregar dato</button></div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><label style={{...S.label,margin:0}}>DATOS ADICIONALES</label><button style={S.btnGrisSm} onClick={agregarExtra}><IconoMas />Agregar dato</button></div>
             {mForm.extras.map((ex,i)=>(<div key={i} style={{display:'flex',gap:8,marginBottom:6,alignItems:'center'}}><input style={{...S.input,width:'40%'}} placeholder="Nombre" value={ex.nombre} onChange={ev=>editarExtra(i,'nombre',ev.target.value)}/><input style={S.input} placeholder="Valor" value={ex.valor} onChange={ev=>editarExtra(i,'valor',ev.target.value)}/><DeleteButton size="sm" title="Quitar dato" onConfirm={()=>quitarExtra(i)}/></div>))}
           </div>
           <div style={{display:'flex',justifyContent:'flex-end',gap:10,marginTop:10}}><button style={S.btnGris} onClick={()=>setModalMantto(false)}>Cancelar</button><button style={S.btn} onClick={guardarMantto}>Guardar mantenimiento</button></div>
@@ -651,7 +652,7 @@ export default function EquiposInternos(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={S.h1}>Equipos Internos</h1><p style={S.sub}>Maquinaria propiedad de MAQSOL · {equipos.length} equipos registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button style={S.btn} onClick={abrirNuevo}>+ Agregar equipo</button></div>
+        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo</button></div>
       </div>
       <div style={S.card}>
         <div style={{display:'grid',gridTemplateColumns:'2fr 1.4fr',gap:18,alignItems:'start'}}>
@@ -659,7 +660,7 @@ export default function EquiposInternos(){
           <div>
             <label style={S.label}>TIPO DE EQUIPO</label>
             {modoNuevoTipoFiltro?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Excavadora" value={nuevoTipoFiltro} onChange={ev=>setNuevoTipoFiltro(ev.target.value)}/><button style={S.btnVerde} onClick={agregarTipoDesdeFiltro}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevoTipoFiltro(false)}>✕</button></div>):(
-              <div style={{display:'flex',gap:8}}><select style={S.input} value={fTipo} onChange={ev=>setFTipo(ev.target.value)}><option value="">Todos los tipos</option>{tipos.map(t=><option key={t}>{t}</option>)}</select><button style={{...S.btnGris,whiteSpace:'nowrap'}} onClick={()=>setModoNuevoTipoFiltro(true)}>+ Tipo</button></div>
+              <div style={{display:'flex',gap:8}}><select style={S.input} value={fTipo} onChange={ev=>setFTipo(ev.target.value)}><option value="">Todos los tipos</option>{tipos.map(t=><option key={t}>{t}</option>)}</select><button style={{...S.btnGris,whiteSpace:'nowrap'}} onClick={()=>setModoNuevoTipoFiltro(true)}><IconoMas />Tipo</button></div>
             )}
             {fTipo&&!modoNuevoTipoFiltro?<button onClick={eliminarTipo} style={{background:'none',border:'none',color:'#c62828',fontSize:12,cursor:'pointer',padding:'6px 0 0',textDecoration:'underline'}}>Quitar "{fTipo}"</button>:null}
           </div>
@@ -669,7 +670,7 @@ export default function EquiposInternos(){
         <table style={{width:'100%',borderCollapse:'collapse',minWidth:950}}>
           <thead><tr><th style={S.th}>EQUIPO</th><th style={S.th}>MARCA</th><th style={S.th}>MODELO</th><th style={S.th}>SERIE</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>OPERADOR</th><th style={S.th}>UBICACIÓN</th><th style={S.th}>TIPO MANTTO</th><th style={S.th}>PRÓX. MANTTO</th><th style={{...S.th,width:50,textAlign:'center'}}></th></tr></thead>
           <tbody>
-            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={10}>No hay equipos. Usa "+ Agregar equipo".</td></tr>
+            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={10}>No hay equipos. Usa "Agregar equipo".</td></tr>
             :filtrados.map(e=>(<tr key={e.id} style={{cursor:'pointer'}} onClick={()=>{setActivoId(e.id);setVista('ficha')}} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
               <td style={{...S.td,fontWeight:700}}>{e.tipo}</td><td style={S.td}>{e.marca}</td><td style={S.td}>{e.modelo}</td><td style={S.td}>{e.serie}</td>
               <td style={S.td}>{conHoras(e.horometro)||'—'}</td><td style={S.td}>{e.operador||<span style={{color:'#c98a00',fontWeight:700}}>Sin operador</span>}</td>

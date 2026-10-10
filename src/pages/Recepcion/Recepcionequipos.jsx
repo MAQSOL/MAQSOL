@@ -14,6 +14,7 @@ import ExpedienteCliente from '../../components/ExpedienteCliente'
 import { estadoExpediente, buscarCliente } from '../../utils/expediente'
 import { comprimirImagen, rutaUnica, extensionDe } from '../../utils/imagenes'
 import { nuevoToken, urlBase } from '../../utils/qrEquipo'
+import { IconoMas } from '../../components/Icons'
 
 const VINO = 'var(--acento)'
 
@@ -427,7 +428,7 @@ export default function Recepcionequipos(){
             </div>))}
           {!(form.fotos||[]).length&&!pend.fotos.length&&<span style={{color:'#aaa',fontSize:13,alignSelf:'center'}}>Sin fotos. Es opcional.</span>}
         </div>
-        <label style={{...S.btnGris,display:'inline-block',cursor:'pointer'}}>+ Agregar fotos<input type="file" accept="image/*" multiple style={{display:'none'}} onChange={ev=>{agregarArchivos('fotos',ev.target.files);ev.target.value=''}}/></label>
+        <label style={{...S.btnGris,display:'inline-block',cursor:'pointer'}}><IconoMas />Agregar fotos<input type="file" accept="image/*" multiple style={{display:'none'}} onChange={ev=>{agregarArchivos('fotos',ev.target.files);ev.target.value=''}}/></label>
         {linkFotos&&((form.fotos||[]).length>0||pend.fotos.length>0)&&(
           <div style={{marginTop:12,padding:'10px 12px',background:'#f1f7ff',border:'1px solid #cfe2ff',borderRadius:8}}>
             <div style={{fontSize:11.5,fontWeight:700,color:'#456'}}>ENLACE PARA VER LAS FOTOS · cualquiera que lo tenga puede abrirlo, sin iniciar sesión</div>
@@ -451,7 +452,7 @@ export default function Recepcionequipos(){
                 </span>)})}
               {pend[g].map(a=>(
                 <span key={a.id} style={{...estiloChipArchivo,outline:'1px dashed var(--acento)'}}>📄 {a.file.name}<button type="button" onClick={()=>quitarPendiente(g,a.id)} style={estiloXChip}>✕</button></span>))}
-              <label style={{...S.btnGrisSm,cursor:'pointer'}}>+ Subir (foto o PDF)<input type="file" multiple accept="application/pdf,image/*" style={{display:'none'}} onChange={ev=>{agregarArchivos(g,ev.target.files);ev.target.value=''}}/></label>
+              <label style={{...S.btnGrisSm,cursor:'pointer'}}><IconoMas />Subir (foto o PDF)<input type="file" multiple accept="application/pdf,image/*" style={{display:'none'}} onChange={ev=>{agregarArchivos(g,ev.target.files);ev.target.value=''}}/></label>
             </div>
           </div>
         ))}
@@ -462,7 +463,7 @@ export default function Recepcionequipos(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={S.h1}>Entrega y Salida de Equipo</h1><p style={S.sub}>Checklist de condición del equipo al entregar y al retirar · {registros.length} registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={descargarListaExcel}>Descargar lista</button><button style={S.btn} onClick={abrirNuevo}>+ Nuevo checklist</button></div>
+        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={descargarListaExcel}>Descargar lista</button><button style={S.btn} onClick={abrirNuevo}><IconoMas />Nuevo checklist</button></div>
       </div>
 
       <div style={S.card}>
@@ -480,7 +481,7 @@ export default function Recepcionequipos(){
             <th style={S.th}>ENTREGA</th><th style={S.th}>RECIBE</th><th style={S.th}>EXPEDIENTE</th><th style={{...S.th,width:300,textAlign:'center'}}></th>
           </tr></thead>
           <tbody>
-            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={9}>No hay checklists registrados. Usa "+ Nuevo checklist".</td></tr>
+            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={9}>No hay checklists registrados. Usa "Nuevo checklist".</td></tr>
             :filtrados.map(r=>(<tr key={r.id} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
               <td style={{...S.td,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',fontVariantNumeric:'tabular-nums'}} title={r.folio} onClick={()=>abrirEditar(r)}>{folioVisible(r.folio)}{r.ligadoA?<div style={{color:'#999',fontSize:11,fontWeight:400}}>Liga: {folioVisible(r.ligadoA)}</div>:null}</td>
               <td style={S.td}>{r.cliente}</td>
@@ -501,7 +502,7 @@ export default function Recepcionequipos(){
                 </button>)
               })()}</td>
               <td style={{...S.td,textAlign:'center',whiteSpace:'nowrap'}}>
-                {(r.tipo||'Salida')==='Salida'&&<button style={S.btnSm} onClick={()=>registrarEntrada(r)}>+ Entrada</button>}
+                {(r.tipo||'Salida')==='Salida'&&<button style={S.btnSm} onClick={()=>registrarEntrada(r)}><IconoMas />Entrada</button>}
                 <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>abrirEditar(r)}>Editar</button>
                 <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>abrirDocs(r)}>Fotos e INE</button>
                 <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>descargarPDF(r)}>PDF</button>

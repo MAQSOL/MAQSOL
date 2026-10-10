@@ -7,6 +7,7 @@ import { LOGO_MAQSOL_TRANSPARENTE } from "../../utils/logoMaqsolTransparente";
 import { useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
 import { construirDocumento, descargarContratoPDF, descargarContratoWord } from "../../utils/contratoArrendamiento";
 import { S, fFecha, hoyISO } from "./estilosAdmin";
+import { IconoMas } from "../../components/Icons";
 
 const GRIS_CONTRATO = "#3a3a3a";   // mismo gris oscuro que el PDF y el Word del contrato
 
@@ -282,7 +283,7 @@ export default function GeneradorContratos() {
                   </div>
                 </div>
               ))}
-              <button style={S.btnGris} onClick={() => setForm((f) => ({ ...f, equipos: [...f.equipos, { ...EQUIPO_FILA }] }))}>+ Agregar otro equipo</button>
+              <button style={S.btnGris} onClick={() => setForm((f) => ({ ...f, equipos: [...f.equipos, { ...EQUIPO_FILA }] }))}><IconoMas />Agregar otro equipo</button>
             </div>
 
             <div style={S.card}>

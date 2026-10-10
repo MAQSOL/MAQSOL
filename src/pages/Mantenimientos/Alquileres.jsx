@@ -6,6 +6,7 @@ import { supabase } from "../../supabaseClient";
 import { useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
 import { descargarExcelBonito, nombreArchivoFecha } from "../../utils/exportExcel";
 import { S, fFecha, hoyISO } from "../Administracion/estilosAdmin";
+import { IconoMas } from "../../components/Icons";
 
 const BUCKET = "alquileres";
 const MAX_PDF_MB = 15;
@@ -368,7 +369,7 @@ export default function Alquileres() {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
             <button style={S.btnGris} onClick={exportar}>Descargar lista</button>
-            <button style={S.btn} onClick={abrirNuevo}>+ Registrar equipo en renta</button>
+            <button style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar equipo en renta</button>
           </div>
         </div>
 
@@ -402,7 +403,7 @@ export default function Alquileres() {
             <tbody>
               {filtrados.length === 0 ? (
                 <tr><td colSpan={8} style={{ ...S.td, textAlign: "center", color: "#999", padding: 40 }}>
-                  No hay equipos en renta registrados. Usa "+ Registrar equipo en renta".
+                  No hay equipos en renta registrados. Usa "Registrar equipo en renta".
                 </td></tr>
               ) : filtrados.map((a) => {
                 const d = dias(a.fechaFin);
@@ -607,7 +608,7 @@ export default function Alquileres() {
                 <p style={{ margin: "0 0 8px", color: "#aaa", fontSize: 13 }}>Aún no hay checklist.</p>
               )}
               <label style={{ ...S.btnGris, display: "inline-block", marginRight: 8 }}>
-                {form.checklist || nuevoPdf ? "Reemplazar PDF" : "+ Subir checklist en PDF"}
+                {form.checklist || nuevoPdf ? "Reemplazar PDF" : <><IconoMas />Subir checklist en PDF</>}
                 <input type="file" accept="application/pdf" style={{ display: "none" }} onChange={(e) => { elegirPdf(e.target.files[0]); e.target.value = ""; }} />
               </label>
               {(form.checklist || nuevoPdf) && (

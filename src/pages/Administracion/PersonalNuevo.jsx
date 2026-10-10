@@ -8,6 +8,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useListaCompartida } from "../../hooks/useSharedTable";
 import { descargarFichaPDF, edadDe } from "../../utils/fichaPersonal";
 import { S, fFecha, hoyISO } from "./estilosAdmin";
+import { IconoMas } from "../../components/Icons";
 
 const BUCKET = "personal";
 const MAX_MB = 15;
@@ -220,7 +221,7 @@ export default function PersonalNuevo() {
             <button style={S.btnGris} onClick={() => descargarFichaPDF({}, logoUrl(), "FICHA-EMPLEADO-EN-BLANCO")}>
               Ficha en blanco (para que la llene el empleado)
             </button>
-            <button style={S.btn} onClick={abrirNuevo}>+ Nuevo empleado</button>
+            <button style={S.btn} onClick={abrirNuevo}><IconoMas />Nuevo empleado</button>
           </div>
         </div>
 
@@ -240,7 +241,7 @@ export default function PersonalNuevo() {
             <tbody>
               {filtradas.length === 0 ? (
                 <tr><td colSpan={5} style={{ ...S.td, textAlign: "center", color: "#999", padding: 40 }}>
-                  No hay empleados registrados. Usa "+ Nuevo empleado".
+                  No hay empleados registrados. Usa "Nuevo empleado".
                 </td></tr>
               ) : filtradas.map((p) => {
                 const e = estadoDocs(p);
@@ -349,7 +350,7 @@ export default function PersonalNuevo() {
                 <button type="button" style={{ ...S.btnGris, padding: "8px 12px" }} onClick={() => setForm((f) => ({ ...f, hijos: f.hijos.filter((_, k) => k !== i) }))}>✕</button>
               </div>
             ))}
-            <button type="button" style={{ ...S.btnGris, marginBottom: 14 }} onClick={() => setForm((f) => ({ ...f, hijos: [...f.hijos, { nombre: "", fechaNacimiento: "" }] }))}>+ Agregar hijo(a)</button>
+            <button type="button" style={{ ...S.btnGris, marginBottom: 14 }} onClick={() => setForm((f) => ({ ...f, hijos: [...f.hijos, { nombre: "", fechaNacimiento: "" }] }))}><IconoMas />Agregar hijo(a)</button>
             <div style={S.grid3}>
               <Campo etiqueta="BENEFICIARIO"><input style={S.input} value={form.beneficiarioNombre} onChange={(e) => set("beneficiarioNombre", e.target.value)} /></Campo>
               <Campo etiqueta="PARENTESCO"><input style={S.input} value={form.beneficiarioParentesco} onChange={(e) => set("beneficiarioParentesco", e.target.value)} /></Campo>

@@ -74,7 +74,11 @@ function Sidebar() {
             onNavigate={cerrar}
             items={[
               { label: "Tareas", href: "/tareas" },
-              { label: "Recepción Equipos", href: "/recepcion" }
+              { label: "Recepción Equipos", href: "/recepcion" },
+              { label: "Bitácora Fleteros", href: "/bitacora" },
+              { label: "Cargas de Diesel", href: "/diesel" },
+              { label: "Reporte de Horas", href: "/horas" },
+              { label: "Generador de Contratos", href: "/contratos" }
             ]}
           />
         </div>
@@ -85,13 +89,9 @@ function Sidebar() {
             onNavigate={cerrar}
             items={[
               { label: "Asistencias", href: "/asistencias" },
-              { label: "Bitácora Fleteros", href: "/bitacora" },
               { label: "Gestión de Clientes", href: "/clientes" },
               { label: "Lista de Precios", href: "/precios" },
-              { label: "Reporte de Horas", href: "/horas" },
-              { label: "Generador de Contratos", href: "/contratos" },
               { label: "Órdenes de Compra", href: "/ordenes" },
-              { label: "Cargas de Diesel", href: "/diesel" },
               ...(isAdmin ? [{ label: "Documentos de Personal", href: "/personal" }] : [])
             ]}
           />

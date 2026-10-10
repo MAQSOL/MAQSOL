@@ -1,3 +1,4 @@
+import { IconoMas } from "../../components/Icons";
 import Layout from "../../components/Layout";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
@@ -243,7 +244,7 @@ export default function OrdenesCompra() {
                   )}
                 </div>
               ))}
-              <button style={{ ...S.btnGris, padding: "8px 14px", fontSize: 13 }} onClick={agregarPartida}>+ Agregar partida</button>
+              <button style={{ ...S.btnGris, padding: "8px 14px", fontSize: 13 }} onClick={agregarPartida}><IconoMas />Agregar partida</button>
             </div>
 
             <div style={S.card}>

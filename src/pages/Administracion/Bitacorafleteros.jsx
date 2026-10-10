@@ -4,6 +4,7 @@ import Sidebar from '../../components/Sidebar'
 import DeleteButton from '../../components/DeleteButton'
 import { descargarExcelBonito, nombreArchivoSemana } from '../../utils/exportExcel'
 import { abrirDocPDF, encabezadoDoc, pieDoc, hoyMX } from '../../utils/pdfFormato'
+import { IconoMas } from '../../components/Icons'
 
 const VINO = 'var(--acento)'
 const KEY_FLETES = 'fletesMaqsol'
@@ -200,7 +201,7 @@ export default function BitacoraFleteros(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={{...S.h1,display:'flex',alignItems:'center',gap:10}}><IconoFlete/> Bitácora Fleteros</h1><p style={S.sub}>Fletes de equipo entre origen y destino · {fletes.length} registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={exportarLista}>Descargar Excel</button><button style={S.btnVerde} onClick={()=>pdfFletes(filtrados,periodoTxt())}>PDF de la lista ({filtrados.length})</button><button style={S.btn} onClick={abrirNuevo}>+ Agregar flete</button></div>
+        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={exportarLista}>Descargar Excel</button><button style={S.btnVerde} onClick={()=>pdfFletes(filtrados,periodoTxt())}>PDF de la lista ({filtrados.length})</button><button style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar flete</button></div>
       </div>
 
       <div style={{display:'flex',gap:16,marginBottom:22,flexWrap:'wrap'}}>
@@ -226,7 +227,7 @@ export default function BitacoraFleteros(){
             <th style={S.th}>ORIGEN → DESTINO</th><th style={S.th}>OC</th><th style={S.th}>PAGO</th><th style={S.th}>ESTADO</th><th style={{...S.th,width:120,textAlign:'center'}}></th>
           </tr></thead>
           <tbody>
-            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={9}>No hay fletes registrados. Usa "+ Agregar flete".</td></tr>
+            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={9}>No hay fletes registrados. Usa "Agregar flete".</td></tr>
             :filtrados.map(f=>(<tr key={f.id} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
               <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>setVerFlete(f)}>{f.folio}</td>
               <td style={S.td}>{fFecha(f.fecha)}</td>

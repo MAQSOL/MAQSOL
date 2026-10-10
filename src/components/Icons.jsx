@@ -137,3 +137,12 @@ export function IconoLapiz(props) {
     </svg>
   );
 }
+
+/** Signo de + de los botones de "agregar": el mismo trazo en todo el sistema. */
+export function IconoMas({ size = 16, style, ...props }) {
+  return (
+    <svg {...base} width={size} height={size} strokeWidth={2.4} aria-hidden="true" style={{ verticalAlign: "-3px", marginRight: 6, flexShrink: 0, ...style }} {...props}>
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}

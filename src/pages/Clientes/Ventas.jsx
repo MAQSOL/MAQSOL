@@ -1,3 +1,4 @@
+import { IconoMas } from "../../components/Icons";
 import Layout from "../../components/Layout";import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
@@ -851,27 +852,8 @@ return (
     <option value="__agregar__">+ Agregar Cliente</option>
   </select>
   
-<Link
-    to="/clientes"
-    style={{
-      background: "#2e7d32",
-      color: "white",
-      border: "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-      height: "60px",
-      boxSizing: "border-box",
-      padding: "0 18px",
-      fontWeight: "bold",
-      fontSize: "20px",
-      textDecoration: "none",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      whiteSpace: "nowrap"
-    }}
-  >
-    +
+  <Link to="/clientes" className="btn-mas" title="Agregar un cliente nuevo" aria-label="Agregar un cliente nuevo">
+    <IconoMas size={22} />
   </Link>
 
 </div>

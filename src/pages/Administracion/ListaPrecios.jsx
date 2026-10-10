@@ -6,6 +6,7 @@ import DeleteButton from "../../components/DeleteButton";
 import { useListaCompartida } from "../../hooks/useSharedTable";
 import { descargarExcelBonito, nombreArchivoFecha } from "../../utils/exportExcel";
 import { S, dinero } from "./estilosAdmin";
+import { IconoMas } from "../../components/Icons";
 
 const CATEGORIAS = ["Renta", "Venta", "Refacciones", "Servicio", "Flete", "Otro"];
 const UNIDADES = ["Día", "Semana", "Mes", "Hora", "Pieza", "Servicio", "Viaje", "Total del proyecto"];
@@ -66,7 +67,7 @@ export default function ListaPrecios() {
             <div style={{ display: "flex", gap: 10 }}>
               <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
               <button style={S.btnGris} onClick={exportar}>Descargar lista</button>
-              <button style={S.btn} onClick={abrirNuevo}>+ Agregar precio</button>
+              <button style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar precio</button>
             </div>
           </div>
 
@@ -97,7 +98,7 @@ export default function ListaPrecios() {
               <tbody>
                 {filtrados.length === 0 ? (
                   <tr><td colSpan={6} style={{ ...S.td, textAlign: "center", color: "#999", padding: 40 }}>
-                    No hay precios registrados. Usa "+ Agregar precio".
+                    No hay precios registrados. Usa "Agregar precio".
                   </td></tr>
                 ) : filtrados.map((p) => (
                   <tr key={p.id}>
