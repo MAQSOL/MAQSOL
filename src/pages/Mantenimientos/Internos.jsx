@@ -18,6 +18,13 @@ const TIPOS_INICIALES = ['Manipulador telescópico','Montacargas','Plataforma de
 
 const TIPOS_FILTRO = ['Aceite','Aire primario','Aire secundario','Aire de cabina','Aire acondicionado','Aire (tercer filtro)','Combustible','Hidráulico','Otro']
 // filtros guardados antes como 'Aire' (sin especificar) siguen apareciendo en su lista hasta que se cambien
+// clase del filtro para agruparlos en la ficha (los recién agregados, sin tipo, van arriba)
+const CLASES_FILTRO = ['Sin tipo','Aire','Aceite','Combustible','Hidráulico','Otro']
+const claseFiltro = (tipo) => !tipo ? 'Sin tipo' : /^aire/i.test(tipo) ? 'Aire' : (['Aceite','Combustible','Hidráulico'].includes(tipo) ? tipo : 'Otro')
+// orden: por clase, luego por tipo (primario, secundario, cabina...), y si empatan, como se capturaron
+const ordenarFiltros = (lista) => (lista||[]).map((f,i)=>({f,i})).sort((a,b)=>
+  CLASES_FILTRO.indexOf(claseFiltro(a.f.tipo))-CLASES_FILTRO.indexOf(claseFiltro(b.f.tipo)) ||
+  TIPOS_FILTRO.indexOf(a.f.tipo)-TIPOS_FILTRO.indexOf(b.f.tipo) || a.i-b.i).map(x=>x.f)
 const tiposFiltroCon = (actual) => (actual && !TIPOS_FILTRO.includes(actual) ? [actual, ...TIPOS_FILTRO] : TIPOS_FILTRO)
 // botón chico para poner N/A (horómetro descompuesto, maquinaria sin placas)
 const botonNA = {border:'1px solid #ddd',background:'#fafafa',color:'#666',borderRadius:4,padding:'0 6px',fontSize:10.5,fontWeight:700,cursor:'pointer',lineHeight:'16px'}
@@ -236,7 +243,7 @@ export default function EquiposInternos(){
   }
 
   // --- filtros multi-marca ---
-  function agregarFiltro(){const a=actual();if(!a)return;actualizarCampo('filtros',[...(a.filtros||[]),{id:uid(),tipo:'Aceite',marca:'',parte:''}])}
+  function agregarFiltro(){const a=actual();if(!a)return;actualizarCampo('filtros',[...(a.filtros||[]),{id:uid(),tipo:'',marca:'',parte:''}])}
   function editarFiltro(fid,campo,valor){const a=actual();if(!a)return;actualizarCampo('filtros',(a.filtros||[]).map(f=>f.id===fid?{...f,[campo]:valor}:f))}
   function quitarFiltro(fid){const a=actual();if(!a)return;actualizarCampo('filtros',(a.filtros||[]).filter(f=>f.id!==fid))}
 
@@ -428,15 +435,20 @@ export default function EquiposInternos(){
           {(!activo.filtros||activo.filtros.length===0)?<p style={{color:'#999',fontSize:14}}>No hay filtros registrados. Usa el botón de arriba para agregar.</p>:(
             <table style={{width:'100%',borderCollapse:'collapse'}}>
               <thead><tr><th style={{...S.th,width:150}}>TIPO</th><th style={{...S.th,width:200}}>MARCA</th><th style={S.th}>NÚMERO DE PARTE</th><th style={{...S.th,width:80,textAlign:'center'}}>COPIAR</th><th style={{...S.th,width:50}}></th></tr></thead>
-              <tbody>{(activo.filtros||[]).map(f=>(
+              <tbody>{ordenarFiltros(activo.filtros).map((f,i,lista)=>{
+                const clase=claseFiltro(f.tipo)
+                const inicioGrupo=i===0||claseFiltro(lista[i-1].tipo)!==clase
+                return[inicioGrupo&&(
+                <tr key={'clase-'+clase}><td colSpan={5} style={{padding:'12px 12px 6px',fontSize:12,fontWeight:800,letterSpacing:.6,color:clase==='Sin tipo'?'#c98a00':'var(--acento)',background:'#fafafa',borderBottom:'1px solid #eee'}}>
+                  {clase==='Sin tipo'?'SIN TIPO · elige de qué es el filtro':clase.toUpperCase()} · {lista.filter(x=>claseFiltro(x.tipo)===clase).length}
+                </td></tr>),
                 <tr key={f.id}>
-                  <td style={S.td}><select style={S.inputSm} value={f.tipo} onChange={ev=>editarFiltro(f.id,'tipo',ev.target.value)}>{tiposFiltroCon(f.tipo).map(t=><option key={t}>{t}</option>)}</select></td>
+                  <td style={S.td}><select style={S.inputSm} value={f.tipo} onChange={ev=>editarFiltro(f.id,'tipo',ev.target.value)}>{!f.tipo&&<option value="">Elige tipo…</option>}{tiposFiltroCon(f.tipo).map(t=><option key={t}>{t}</option>)}</select></td>
                   <td style={S.td}><CampoDiferido style={S.inputSm} valor={f.marca} placeholder="Ej. Donaldson, Original" onGuardar={v=>editarFiltro(f.id,'marca',v)}/></td>
                   <td style={S.td}><CampoDiferido style={S.inputSm} valor={f.parte} placeholder="Número de parte" onGuardar={v=>editarFiltro(f.id,'parte',v)}/></td>
                   <td style={{...S.td,textAlign:'center'}}><button style={S.btnGrisSm} onClick={()=>{if(f.parte){navigator.clipboard.writeText(f.parte);alert('Copiado: '+f.parte)}}}>Copiar</button></td>
                   <td style={{...S.td,textAlign:'center'}}><DeleteButton size="sm" title="Quitar filtro" onConfirm={()=>quitarFiltro(f.id)}/></td>
-                </tr>
-              ))}</tbody>
+                </tr>]})}</tbody>
             </table>
           )}
         </div>
@@ -587,10 +599,10 @@ export default function EquiposInternos(){
             <div style={{marginBottom:14}}>
               <label style={S.label}>FILTROS UTILIZADOS (de la lista del equipo)</label>
               <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:4}}>
-                {(activo.filtros||[]).map(f=>(
+                {ordenarFiltros(activo.filtros).map(f=>(
                   <label key={f.id} style={S.check}>
                     <input type="checkbox" checked={(mForm.filtrosUsados||[]).includes(f.id)} onChange={()=>toggleFiltroMantto(f.id)}/>
-                    <span>{f.tipo} — <strong>{f.marca}</strong> — {f.parte}</span>
+                    <span>{f.tipo||'Sin tipo'} — <strong>{f.marca}</strong> — {f.parte}</span>
                   </label>
                 ))}
               </div>
