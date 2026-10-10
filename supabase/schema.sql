@@ -299,3 +299,10 @@ create table if not exists public.personal_externo (id text primary key, data js
 alter table public.personal_externo enable row level security;
 drop policy if exists "personal_externo_all_auth" on public.personal_externo;
 create policy "personal_externo_all_auth" on public.personal_externo for all using (auth.uid() is not null) with check (auth.uid() is not null);
+
+-- ---------- 12) Órdenes de compra ----------
+-- Correr SOLO este bloque (no todo el archivo: el inicio borra tablas con datos).
+create table if not exists public.ordenes_compra (id text primary key, data jsonb not null default '{}'::jsonb, updated_at timestamptz default now());
+alter table public.ordenes_compra enable row level security;
+drop policy if exists "ordenes_compra_all_auth" on public.ordenes_compra;
+create policy "ordenes_compra_all_auth" on public.ordenes_compra for all using (auth.uid() is not null) with check (auth.uid() is not null);

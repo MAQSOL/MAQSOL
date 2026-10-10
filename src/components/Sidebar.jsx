@@ -90,6 +90,7 @@ function Sidebar() {
               { label: "Lista de Precios", href: "/precios" },
               { label: "Reporte de Horas", href: "/horas" },
               { label: "Generador de Contratos", href: "/contratos" },
+              { label: "Órdenes de Compra", href: "/ordenes" },
               { label: "Cargas de Diesel", href: "/diesel" },
               ...(isAdmin ? [{ label: "Documentos de Personal", href: "/personal" }] : [])
             ]}

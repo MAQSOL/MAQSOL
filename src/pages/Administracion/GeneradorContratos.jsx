@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
 import logo from "../../assets/logo.png";
 import { LOGO_MAQSOL_TRANSPARENTE } from "../../utils/logoMaqsolTransparente";
-
-const GRIS_CONTRATO = "#3a3a3a";   // mismo gris oscuro que el PDF y el Word del contrato
 import { useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
 import { construirDocumento, descargarContratoPDF, descargarContratoWord } from "../../utils/contratoArrendamiento";
 import { S, fFecha, hoyISO } from "./estilosAdmin";
+
+const GRIS_CONTRATO = "#3a3a3a";   // mismo gris oscuro que el PDF y el Word del contrato
 
 const EQUIPO_FILA = { descripcion: "", marca: "", modelo: "", serie: "", motor: "", valorUSD: "", importeRenta: "" };
 

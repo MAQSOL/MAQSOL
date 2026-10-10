@@ -11,6 +11,7 @@ export const AZUL = "#1d5c8f";
 export const AZUL_RGB = [29, 92, 143];
 export const AZUL_TENUE = "#eef3f8";      // celdas de etiqueta en formatos
 export const AZUL_TENUE_RGB = [238, 243, 248];
+export const ROJO = "#d6001c";            // rojo MAQSOL: solo para acentos (folio, total)
 export const EMPRESA = "MAQUINARIA SOPORTE Y LOGÍSTICA SA DE CV";
 
 export const esc = (t) =>
