@@ -75,6 +75,7 @@ function EquiposRenta({ equipos, guardar }) {
   const [form, setForm] = useState(NUEVO_EQUIPO);
   const [busqueda, setBusqueda] = useState("");
   const [fGrupo, setFGrupo] = useState("");
+  const [cerrados, setCerrados] = useState({});
 
   const grupos = useMemo(() => [...new Set([...GRUPOS_EQUIPO, ...equipos.map((e) => e.grupo).filter(Boolean)])], [equipos]);
   const set = (campo, valor) => setForm((f) => ({ ...f, [campo]: valor }));
@@ -156,7 +157,7 @@ function EquiposRenta({ equipos, guardar }) {
       )}
 
       <div style={S.card}>
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1.4fr", gap: 18, alignItems: "end" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1.4fr auto", gap: 18, alignItems: "end" }}>
           <div>
             <label style={S.label}>BUSCAR</label>
             <input style={S.input} placeholder="Marca, modelo, tipo, altura…" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
@@ -168,15 +169,24 @@ function EquiposRenta({ equipos, guardar }) {
               {grupos.map((g) => <option key={g}>{g}</option>)}
             </select>
           </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button style={S.btnGris} onClick={() => setCerrados(Object.fromEntries([...grupos, "SIN GRUPO"].map((g) => [g, true])))}>Minimizar todo</button>
+            <button style={S.btnGris} onClick={() => setCerrados({})}>Expandir todo</button>
+          </div>
         </div>
       </div>
 
       {porGrupo.map(({ grupo, filas }) => (
         <div key={grupo} style={{ ...S.card, padding: 0, overflowX: "auto" }}>
-          <div style={{ background: "#3a3a3a", color: "#fff", padding: "10px 14px", fontWeight: 800, letterSpacing: 0.6, fontSize: 13 }}>
-            {grupo} <span style={{ opacity: 0.7, fontWeight: 600 }}>· {filas.length}</span>
+          <div
+            onClick={() => setCerrados((c) => ({ ...c, [grupo]: !c[grupo] }))}
+            title={cerrados[grupo] ? "Expandir" : "Minimizar"}
+            style={{ background: "#3a3a3a", color: "#fff", padding: "10px 14px", fontWeight: 800, letterSpacing: 0.6, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 10, userSelect: "none" }}
+          >
+            <span style={{ display: "inline-block", width: 14, transition: "transform .15s", transform: cerrados[grupo] ? "rotate(-90deg)" : "none" }}>▾</span>
+            <span>{grupo} <span style={{ opacity: 0.7, fontWeight: 600 }}>· {filas.length}</span></span>
           </div>
-          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 1380 }}>
+          {!cerrados[grupo] && <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 1380 }}>
             <thead>
               <tr>
                 <th style={th}>MARCA</th><th style={th}>MODELO</th><th style={th}>TIPO</th>
@@ -202,7 +212,7 @@ function EquiposRenta({ equipos, guardar }) {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table>}
         </div>
       ))}
 
