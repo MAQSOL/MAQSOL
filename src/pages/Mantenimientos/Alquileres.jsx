@@ -568,7 +568,8 @@ export default function Alquileres() {
                     </td>
                     <td style={{ ...S.td, fontWeight: 700, cursor: "pointer" }} onClick={() => abrirEditar(a)}>
                       {a.tipo}
-                      <div style={{ fontWeight: 400, color: "#777", fontSize: 12 }}>{a.marca} {a.modelo}{a.serie ? ` · Serie ${a.serie}` : ""}</div>
+                      <div style={{ fontWeight: 400, color: "#777", fontSize: 12 }}>{a.marca} {a.modelo}</div>
+                      {a.serie && <div style={{ fontWeight: 400, color: "#777", fontSize: 12, whiteSpace: "nowrap" }}>Serie {a.serie}</div>}
                     </td>
                     <td style={S.td}>{a.cliente}</td>
                     <td style={S.td}>

@@ -7,6 +7,7 @@ import UserMenu from "../components/UserMenu";
 import Contador from "../components/Contador";
 import { useSharedTable } from "../hooks/useSharedTable";
 import { useCotizaciones } from "../hooks/useCotizaciones";
+import { usePerfiles } from "../hooks/usePerfiles";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../supabaseClient";
 import { migrarLocalStorage } from "../utils/migrarLocalStorage";
@@ -54,6 +55,8 @@ function Dashboard() {
   const { registros: colaboradores } = useSharedTable("colaboradores");
   const { registros: cotizacionesRenta } = useCotizaciones("renta");
   const { registros: tareas } = useSharedTable("tareas");
+  const { perfiles } = usePerfiles();
+  const nombreAsignado = (t) => (t.asignadoId ? perfiles.find((p) => p.id === t.asignadoId)?.nombre : "") || t.asignadoNombre || "Sin asignar";
 
   const tareasAbiertas = tareas.filter((t) => t.estado !== "hecho");
   const misTareas = tareasAbiertas.filter((t) => t.asignadoId === user?.id);
@@ -436,6 +439,21 @@ function Dashboard() {
             <div className="lista-pendientes">
 
               {loading && <p style={{ color: "#999" }}>Cargando…</p>}
+
+              {!loading && tareasAbiertas.map((t) => (
+                <div key={"tarea-" + t.id} className="pendiente-item">
+                  <span>
+                    {t.titulo}
+                    <span style={{ marginLeft: "8px", fontSize: "11px", fontWeight: "700", color: "var(--acento)", background: "#f7e6e9", padding: "2px 8px", borderRadius: "10px" }}>
+                      {nombreAsignado(t)}
+                    </span>
+                    <span style={{ marginLeft: "6px", fontSize: "11px", color: "#999" }}>Tarea{t.fechaLimite ? " · vence " + new Date(t.fechaLimite + "T00:00:00").toLocaleDateString("es-MX") : ""}</span>
+                  </span>
+                  <div className="acciones-pendiente">
+                    <Link to="/tareas" className="btn-check" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }} title="Abrir en Tareas">→</Link>
+                  </div>
+                </div>
+              ))}
 
               {!loading && pendientes.map((item) => (
 

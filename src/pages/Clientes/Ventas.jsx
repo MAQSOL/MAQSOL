@@ -1,6 +1,6 @@
 import { IconoMas } from "../../components/Icons";
 import Layout from "../../components/Layout";import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import jsPDF from "jspdf";
 
 import logo from "../../assets/logo.png";
@@ -17,7 +17,7 @@ import ListaCotizaciones from "../../components/ListaCotizaciones";
 function Ventas() {
 
   const { registros: cotizaciones, guardar: guardarCotizacionDB } = useCotizaciones("venta");
-  const { registros: clientesGuardados } = useSharedTable("clientes");
+  const { registros: clientesGuardados, guardar: guardarClienteDB } = useSharedTable("clientes");
   const { codigos, miCodigo, nombrePorCodigo, telefonoPorCodigo } = useCodigosFolio();
   const { isAdmin } = useAuth();
 
@@ -88,7 +88,6 @@ const agregarUsuario = () => {
 };
 const [cliente, setCliente] = useState("");
   const [clienteOtro, setClienteOtro] = useState("");
-  const navigate = useNavigate();
 
   const [atencion, setAtencion] = useState("");
   const [correo, setCorreo] = useState("");
@@ -708,6 +707,25 @@ setObservaciones(cotizacion.observaciones);
 
 const listaCotizaciones = cotizaciones;
 
+
+  // Cliente nuevo: se da de alta en Gestión de Clientes sin salir de la cotización
+  const guardarClienteNuevo = async () => {
+    const nombre = (clienteOtro || "").trim();
+    if (!nombre) { alert("Escribe el nombre del cliente nuevo."); return; }
+    const existente = clientesGuardados.find((c) => (c.cliente || "").trim().toLowerCase() === nombre.toLowerCase());
+    if (existente) {
+      setCliente(existente.cliente);
+      setClienteOtro("");
+      alert(`"${existente.cliente}" ya estaba en Gestión de Clientes; se seleccionó.`);
+      return;
+    }
+    const ok = await guardarClienteDB(String(Date.now()), {
+      cliente: nombre, rfc: "", contacto: atencion, contactoObra: "", correo, telefono,
+      ubicacion: ubicacion === "Otro" ? ubicacionOtro : ubicacion, equipo: "", incompleto: true, origen: "Cotización"
+    });
+    if (ok) { setCliente(nombre); setClienteOtro(""); }
+  };
+
 return (
   <Layout>
 
@@ -826,7 +844,7 @@ return (
     value={cliente}
     onChange={(e) => {
       if (e.target.value === "__agregar__") {
-        navigate("/clientes");
+        setCliente("Otro");
       } else {
         setCliente(e.target.value);
       }
@@ -849,21 +867,31 @@ return (
       <option key={c.id} value={c.cliente}>{c.cliente}</option>
     ))}
     <option value="Otro">Otro</option>
-    <option value="__agregar__">+ Agregar Cliente</option>
+    <option value="__agregar__">+ Cliente nuevo</option>
   </select>
   
-  <Link to="/clientes" className="btn-mas" title="Agregar un cliente nuevo" aria-label="Agregar un cliente nuevo">
+  <button type="button" className="btn-mas" title="Cliente nuevo" aria-label="Cliente nuevo" onClick={() => setCliente("Otro")}>
     <IconoMas size={22} />
-  </Link>
+  </button>
 
 </div>
 
 {cliente === "Otro" && (
-  <input
-    placeholder="Escribe el nombre del cliente"
-    value={clienteOtro}
-    onChange={(e) => setClienteOtro(e.target.value)}
-  />
+  <div style={{ display: "flex", flexDirection: "column", gap: "6px", width: "100%" }}>
+    <input
+      placeholder="Escribe el nombre del cliente nuevo"
+      value={clienteOtro}
+      onChange={(e) => setClienteOtro(e.target.value)}
+    />
+    <button
+      type="button"
+      onClick={guardarClienteNuevo}
+      style={{ background: "#1f8b4c", color: "#fff", border: "none", borderRadius: 8, padding: "10px 12px", fontWeight: 700, cursor: "pointer" }}
+    >
+      + Guardar como cliente nuevo
+    </button>
+    <small style={{ color: "#666" }}>Llena atención, correo y teléfono antes de guardar para que queden en su ficha.</small>
+  </div>
 )}
 
         <input
