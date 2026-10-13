@@ -89,25 +89,15 @@ function GestionClientes() {
             boxSizing: "border-box"
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>
-            <div className="panel" style={{ padding: "28px 32px" }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "20px"
-                }}
-              >
-                <div>
-                  <h2 style={{ fontSize: "26px" }}>Gestión de Clientes</h2>
-                  <p>Sistema MAQSISTEM · información compartida con todo el equipo</p>
-                </div>
-
-                <Link to="/" className="btn-panel">
-                  ← Dashboard
-                </Link>
+          <div style={{ display: "flex", flexDirection: "column", gap: "14px", width: "100%" }}>
+            <div className="panel" style={{ padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap", minWidth: 0 }}>
+                <h2 style={{ fontSize: "21px", margin: 0 }}>Gestión de Clientes</h2>
+                <span style={{ fontSize: 13, color: "#888" }}>{clientes.length} clientes · información compartida con todo el equipo</span>
               </div>
+              <Link to="/" className="btn-panel" style={{ margin: 0, padding: "8px 16px", fontSize: 14, whiteSpace: "nowrap" }}>
+                ← Dashboard
+              </Link>
             </div>
 
             {incompletos.length > 0 && (
