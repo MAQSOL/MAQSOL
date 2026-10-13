@@ -34,6 +34,7 @@ const OBJETO = {
   alquileres: (d) => `la renta de ${d.equipoLabel || d.equipo || d.tipo || "un equipo"}${d.cliente ? ` a ${d.cliente}` : ""}`,
   contratos: (d) => `el contrato ${d.folio || ""}`.trim(),
   ordenes_compra: (d) => `la orden de compra${d.folio ? " OC-" + String(d.folio).padStart(3, "0") : ""}${d.proveedor ? ` a ${d.proveedor}` : ""}`,
+  proveedores_compra: (d) => `al proveedor ${d.proveedor || ""}`.trim(),
   horas_maquina: (d) => `horas de ${d.equipoLabel || "una máquina"}`,
   lista_precios: (d) => `el precio de ${d.concepto || "un concepto"}`,
   colaboradores: (d) => `al colaborador ${d.nombre || ""}`.trim(),

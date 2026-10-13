@@ -6,6 +6,7 @@ import DeleteButton from "../../components/DeleteButton";
 import { useListaCompartida } from "../../hooks/useSharedTable";
 import { useAuth } from "../../contexts/AuthContext";
 import { usePerfiles } from "../../hooks/usePerfiles";
+import FirmaPad from "../../components/FirmaPad";
 import { S, fFecha, hoyISO } from "./estilosAdmin";
 import {
   ORDEN_NUEVA, PARTIDA_NUEVA, USOS_CFDI, FORMAS_PAGO, METODOS_PAGO, VIAS_EMBARQUE, ESTADOS_OC,
@@ -53,10 +54,12 @@ function VistaPrevia({ orden }) {
 
 export default function OrdenesCompra() {
   const [ordenes, guardarOrdenes] = useListaCompartida("ordenes_compra");
+  const [provGuardados, guardarProvGuardados] = useListaCompartida("proveedores_compra");
   const { profile } = useAuth();
   const miNombre = profile?.nombre_completo || profile?.apodo || "";
   const { perfiles } = usePerfiles();
   const [otroSolicito, setOtroSolicito] = useState(false);
+  const [firmando, setFirmando] = useState(null);
   const nombresSolicito = [...new Set([miNombre, ...perfiles.map((p) => p.nombre)].filter(Boolean))];
 
   const nueva = () => ({ ...ORDEN_NUEVA, partidas: [{ ...PARTIDA_NUEVA }], id: "OC-" + Date.now(), fecha: hoyISO() });
@@ -76,8 +79,33 @@ export default function OrdenesCompra() {
     [...ordenes]
       .sort((a, b) => (a.fecha || "").localeCompare(b.fecha || ""))
       .forEach((o) => { if (o.proveedor) m.set(o.proveedor.trim().toUpperCase(), o); });
+    // los proveedores guardados a propósito mandan sobre lo aprendido de órdenes anteriores
+    provGuardados.forEach((p) => { if (p.proveedor) m.set(p.proveedor.trim().toUpperCase(), p); });
     return m;
-  }, [ordenes]);
+  }, [ordenes, provGuardados]);
+
+  const claveProv = (n) => String(n || "").trim().toUpperCase();
+  const provGuardado = provGuardados.find((p) => claveProv(p.proveedor) === claveProv(form.proveedor));
+
+  const guardarProveedor = async () => {
+    const nombre = form.proveedor.trim();
+    if (!nombre) { alert("Escribe el nombre del proveedor."); return; }
+    const registro = {
+      id: provGuardado?.id || "PV-" + Date.now(),
+      proveedor: nombre,
+      proveedorContacto: form.proveedorContacto || "",
+      proveedorTelefono: form.proveedorTelefono || "",
+      proveedorCorreo: form.proveedorCorreo || "",
+      proveedorRfc: form.proveedorRfc || "",
+      proveedorDomicilio: form.proveedorDomicilio || ""
+    };
+    await guardarProvGuardados(provGuardado ? provGuardados.map((p) => (p.id === provGuardado.id ? registro : p)) : [...provGuardados, registro]);
+    alert(provGuardado ? "Proveedor actualizado: " + nombre : "Proveedor guardado: " + nombre + ". La próxima vez solo escribe o elige su nombre.");
+  };
+  const quitarProveedor = async () => {
+    if (!provGuardado || !window.confirm(`¿Quitar a "${provGuardado.proveedor}" de los proveedores guardados?`)) return;
+    await guardarProvGuardados(provGuardados.filter((p) => p.id !== provGuardado.id));
+  };
 
   const cambiarProveedor = (valor) =>
     setForm((f) => {
@@ -158,6 +186,39 @@ export default function OrdenesCompra() {
 
   const celdaPartida = { ...S.input, padding: "8px 9px", fontSize: 13 };
 
+  const selectorSolicito = (etiqueta) => (
+    <Campo etiqueta={etiqueta}>
+      <select
+        style={S.input}
+        value={valorSolicito}
+        onChange={(e) => {
+          if (e.target.value === "__otro__") { setOtroSolicito(true); set("solicito", ""); }
+          else { setOtroSolicito(false); set("solicito", e.target.value); }
+        }}
+      >
+        <option value="">{miNombre ? `— Yo (${miNombre}) —` : "— Elegir —"}</option>
+        {nombresSolicito.filter((n) => n !== miNombre).map((n) => <option key={n} value={n}>{n}</option>)}
+        <option value="__otro__">✎ Otra persona (escribir nombre)</option>
+      </select>
+      {valorSolicito === "__otro__" && (
+        <input style={{ ...S.input, marginTop: 8 }} autoFocus placeholder="Nombre de quien solicita" value={form.solicito} onChange={(e) => set("solicito", e.target.value)} />
+      )}
+    </Campo>
+  );
+
+  const cajaFirma = (clave) => (
+    <div style={{ marginTop: 10 }}>
+      <label style={S.label}>FIRMA DIGITAL (OPCIONAL)</label>
+      <div style={{ height: 70, display: "flex", alignItems: "center", justifyContent: "center", background: "#fafbfc", border: "1px dashed #d5d9dd", borderRadius: 8, marginBottom: 8 }}>
+        {form[clave] ? <img src={form[clave]} alt="Firma" style={{ maxHeight: "100%", maxWidth: "100%" }} /> : <span style={{ color: "#bbb", fontSize: 13 }}>Sin firma</span>}
+      </div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <button type="button" style={{ ...S.btn, padding: "8px 14px" }} onClick={() => setFirmando(clave)}>{form[clave] ? "Volver a firmar" : "✍ Firmar"}</button>
+        {form[clave] && <button type="button" style={{ ...S.btnGris, padding: "8px 14px" }} onClick={() => set(clave, "")}>Quitar</button>}
+      </div>
+    </div>
+  );
+
   return (
     <Layout>
       <div style={{ maxWidth: 1400, margin: "0 auto" }}>
@@ -189,23 +250,7 @@ export default function OrdenesCompra() {
               </div>
               <div style={S.grid3}>
                 <Campo etiqueta="VÍA DE EMBARQUE">{inp("viaEmbarque", { list: "oc-vias" })}</Campo>
-                <Campo etiqueta="SOLICITÓ">
-                  <select
-                    style={S.input}
-                    value={valorSolicito}
-                    onChange={(e) => {
-                      if (e.target.value === "__otro__") { setOtroSolicito(true); set("solicito", ""); }
-                      else { setOtroSolicito(false); set("solicito", e.target.value); }
-                    }}
-                  >
-                    <option value="">{miNombre ? `— Yo (${miNombre}) —` : "— Elegir —"}</option>
-                    {nombresSolicito.filter((n) => n !== miNombre).map((n) => <option key={n} value={n}>{n}</option>)}
-                    <option value="__otro__">✎ Otra persona (escribir nombre)</option>
-                  </select>
-                  {valorSolicito === "__otro__" && (
-                    <input style={{ ...S.input, marginTop: 8 }} autoFocus placeholder="Nombre de quien solicita" value={form.solicito} onChange={(e) => set("solicito", e.target.value)} />
-                  )}
-                </Campo>
+                {selectorSolicito("SOLICITÓ")}
                 <Campo etiqueta="COTIZACIÓN (REFERENCIA)">{inp("cotizacion", { placeholder: "Opcional" })}</Campo>
               </div>
               <datalist id="oc-vias">{VIAS_EMBARQUE.map((x) => <option key={x} value={x} />)}</datalist>
@@ -228,6 +273,15 @@ export default function OrdenesCompra() {
               <Campo etiqueta="DOMICILIO">
                 <textarea style={{ ...S.input, minHeight: 60, resize: "vertical", fontFamily: "inherit" }} value={form.proveedorDomicilio} onChange={(e) => set("proveedorDomicilio", e.target.value)} />
               </Campo>
+              <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 12, flexWrap: "wrap" }}>
+                <button type="button" style={S.btnVerde} onClick={guardarProveedor}>
+                  {provGuardado ? "Actualizar proveedor guardado" : "Guardar proveedor"}
+                </button>
+                {provGuardado && <button type="button" style={S.btnGris} onClick={quitarProveedor}>Quitar de guardados</button>}
+                <span style={{ fontSize: 12.5, color: "#888" }}>
+                  {provGuardado ? "Ya está guardado: al escribir su nombre se llenan sus datos." : "Guárdalo una vez y ya no tendrás que capturarlo de nuevo."}
+                </span>
+              </div>
             </div>
 
             <div style={S.card}>
@@ -314,10 +368,30 @@ export default function OrdenesCompra() {
               <Campo etiqueta="OBSERVACIONES">
                 <textarea style={{ ...S.input, minHeight: 70, resize: "vertical", fontFamily: "inherit" }} value={form.observaciones} onChange={(e) => set("observaciones", e.target.value)} placeholder="Ej. Birlos para retroexcavadora Terex TLB830" />
               </Campo>
-              <div style={{ ...S.grid2, marginTop: 14 }}>
-                <Campo etiqueta="AUTORIZA">{inp("autoriza")}</Campo>
-                <Campo etiqueta="PUESTO">{inp("puestoAutoriza")}</Campo>
+              <div style={{ ...S.grid2, marginTop: 14, alignItems: "start" }}>
+                <div>
+                  {selectorSolicito("SOLICITA")}
+                  <div style={{ marginTop: 14 }}>
+                    <Campo etiqueta="PUESTO">{inp("puestoSolicita", { placeholder: "Ej. Gerente de Ventas" })}</Campo>
+                  </div>
+                  {cajaFirma("firmaSolicita")}
+                </div>
+                <div>
+                  <Campo etiqueta="AUTORIZA">{inp("autoriza")}</Campo>
+                  <div style={{ marginTop: 14 }}>
+                    <Campo etiqueta="PUESTO">{inp("puestoAutoriza")}</Campo>
+                  </div>
+                  {cajaFirma("firmaAutoriza")}
+                </div>
               </div>
+              {firmando && (
+                <FirmaPad
+                  titulo={"Firma · " + (firmando === "firmaSolicita" ? "Solicita" : "Autoriza")}
+                  subtitulo="Firma con el dedo o el mouse dentro del recuadro"
+                  onGuardar={(d) => { set(firmando, d); setFirmando(null); }}
+                  onCancelar={() => setFirmando(null)}
+                />
+              )}
             </div>
           </div>
 

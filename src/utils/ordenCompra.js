@@ -69,6 +69,9 @@ export const ORDEN_NUEVA = {
   condicion: "Contado",
   diasCredito: "",
   moneda: "MXN",
+  puestoSolicita: "",
+  firmaSolicita: "",
+  firmaAutoriza: "",
   autoriza: "LIC. FRANCISCO TORRES MORALES",
   puestoAutoriza: "Gerente de Operaciones"
 };
@@ -125,7 +128,10 @@ const CSS_OC = `
   table.tot tr.gran td{border-top:2px solid #222;border-bottom:none;font-size:14px;font-weight:700;color:#111;padding-top:8px}
   .cond{margin-top:12px;font-size:11.5px;color:#555}
   .cond b{color:#222}
-  .firma{margin:46px 0 0 auto;width:280px;text-align:center}
+  .firmas{display:flex;justify-content:flex-end;gap:44px;margin-top:34px}
+  .firma{width:270px;text-align:center}
+  .firma .espacio{height:64px;display:flex;align-items:flex-end;justify-content:center}
+  .firma .espacio img{max-height:62px;max-width:100%}
   .firma .linea{border-top:1px solid #333;padding-top:6px;font-weight:700;font-size:12px}
   .firma small{display:block;color:#777;font-size:11px}
   .firma .et{color:${ROJO};font-size:10px;letter-spacing:1px;font-weight:700;margin-bottom:4px}
@@ -180,10 +186,19 @@ function cuerpoOrden(o) {
         <tr class="gran"><td>Importe total</td><td class="r">${d(t.total)}</td></tr>
       </tbody></table>
     </div>
-    <div class="firma">
-      <div class="et">AUTORIZÓ</div>
-      <div class="linea">${esc(o.autoriza || "")}</div>
-      <small>${esc(o.puestoAutoriza || "")}</small>
+    <div class="firmas">
+      <div class="firma">
+        <div class="et">SOLICITA</div>
+        <div class="espacio">${o.firmaSolicita ? `<img src="${o.firmaSolicita}" alt="">` : ""}</div>
+        <div class="linea">${esc(o.solicito || "")}</div>
+        <small>${esc(o.puestoSolicita || "")}</small>
+      </div>
+      <div class="firma">
+        <div class="et">AUTORIZÓ</div>
+        <div class="espacio">${o.firmaAutoriza ? `<img src="${o.firmaAutoriza}" alt="">` : ""}</div>
+        <div class="linea">${esc(o.autoriza || "")}</div>
+        <small>${esc(o.puestoAutoriza || "")}</small>
+      </div>
     </div>
     ${pieDoc(folioOC(o))}`;
 }

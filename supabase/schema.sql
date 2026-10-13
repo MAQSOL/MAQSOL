@@ -481,3 +481,9 @@ create policy "chat_adjuntos_insert" on storage.objects for insert with check (b
 
 -- Soporte = Alejandro Balam
 update public.perfiles set soporte = true where id in (select id from auth.users where email = 'abalam@maqsol.com.mx');
+
+-- ---------- 12) Proveedores guardados (órdenes de compra) ----------
+create table if not exists public.proveedores_compra (id text primary key, data jsonb not null default '{}'::jsonb, updated_at timestamptz default now());
+alter table public.proveedores_compra enable row level security;
+drop policy if exists "proveedores_compra_all_auth" on public.proveedores_compra;
+create policy "proveedores_compra_all_auth" on public.proveedores_compra for all using (auth.uid() is not null) with check (auth.uid() is not null);
