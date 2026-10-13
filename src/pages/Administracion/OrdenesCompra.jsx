@@ -233,16 +233,22 @@ export default function OrdenesCompra() {
             <div style={S.card}>
               <h3 style={S.h3}>Facturación</h3>
               <div style={S.grid3}>
-                <Campo etiqueta="USO DEL CFDI">{inp("usoCfdi", { list: "oc-cfdi" })}</Campo>
-                <Campo etiqueta="FORMA DE PAGO">{inp("formaPago", { list: "oc-formas" })}</Campo>
+                <Campo etiqueta="USO DEL CFDI">
+                  <select style={S.input} value={form.usoCfdi} onChange={(e) => set("usoCfdi", e.target.value)}>
+                    {[...new Set([...USOS_CFDI, form.usoCfdi].filter(Boolean))].map((x) => <option key={x}>{x}</option>)}
+                  </select>
+                </Campo>
+                <Campo etiqueta="FORMA DE PAGO">
+                  <select style={S.input} value={form.formaPago} onChange={(e) => set("formaPago", e.target.value)}>
+                    {[...new Set([...FORMAS_PAGO, form.formaPago].filter(Boolean))].map((x) => <option key={x}>{x}</option>)}
+                  </select>
+                </Campo>
                 <Campo etiqueta="MÉTODO DE PAGO">
                   <select style={S.input} value={form.metodoPago} onChange={(e) => set("metodoPago", e.target.value)}>
                     {METODOS_PAGO.map((x) => <option key={x}>{x}</option>)}
                   </select>
                 </Campo>
               </div>
-              <datalist id="oc-cfdi">{USOS_CFDI.map((x) => <option key={x} value={x} />)}</datalist>
-              <datalist id="oc-formas">{FORMAS_PAGO.map((x) => <option key={x} value={x} />)}</datalist>
             </div>
 
             <div style={S.card}>

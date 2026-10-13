@@ -15,8 +15,30 @@ export const EMPRESA_OC = {
   telefonos: "998 215 2665 · 998 215 7262"
 };
 
-export const USOS_CFDI = ["G01: Adquisición de mercancías", "G03: Gastos en general", "I04: Equipo de cómputo", "I08: Otra maquinaria y equipo", "P01: Por definir"];
-export const FORMAS_PAGO = ["Transferencia de fondos", "Cheque nominativo", "Efectivo", "Tarjeta de crédito", "Tarjeta de débito", "Por definir"];
+// Catálogo del SAT (uso del CFDI)
+export const USOS_CFDI = [
+  "G01: Adquisición de mercancías",
+  "G02: Devoluciones, descuentos o bonificaciones",
+  "G03: Gastos en general",
+  "I01: Construcciones",
+  "I02: Mobiliario y equipo de oficina por inversiones",
+  "I03: Equipo de transporte",
+  "I04: Equipo de cómputo y accesorios",
+  "I05: Dados, troqueles, moldes, matrices y herramental",
+  "I06: Comunicaciones telefónicas",
+  "I07: Comunicaciones satelitales",
+  "I08: Otra maquinaria y equipo",
+  "D01: Honorarios médicos, dentales y gastos hospitalarios",
+  "D02: Gastos médicos por incapacidad o discapacidad",
+  "D03: Gastos funerales",
+  "D04: Donativos",
+  "D10: Pagos por servicios educativos (colegiaturas)",
+  "S01: Sin efectos fiscales",
+  "CP01: Pagos",
+  "CN01: Nómina",
+  "P01: Por definir"
+];
+export const FORMAS_PAGO = ["Efectivo", "Cheque nominativo", "Transferencia de fondos", "Tarjeta de crédito", "Tarjeta de débito", "Tarjeta de servicios", "Monedero electrónico", "Vales de despensa", "Compensación", "Aplicación de anticipos", "Por definir"];
 export const METODOS_PAGO = ["PUE: Pago en una sola exhibición", "PPD: Pago en parcialidades o diferido"];
 export const VIAS_EMBARQUE = ["Terrestre", "Paquetería", "Recoge en sucursal", "Aérea", "Marítima"];
 export const ESTADOS_OC = ["Pendiente", "Recibida", "Cancelada"];
