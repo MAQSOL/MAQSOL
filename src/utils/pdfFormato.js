@@ -25,6 +25,10 @@ export const hoyMX = () => new Date().toLocaleDateString("es-MX");
 export const CSS_ENCABEZADO = `
     .top{display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:3px solid ${AZUL};padding-bottom:12px;margin-bottom:16px}
     .top img{height:58px}
+    .top .der{display:flex;align-items:center;gap:20px}
+    .top .folio-top{text-align:right;border-right:1px solid #ddd;padding-right:20px}
+    .top .folio-top small{display:block;font-size:10px;letter-spacing:1px;color:#888;text-transform:uppercase}
+    .top .folio-top b{display:block;font-size:24px;color:#d6001c;margin-top:2px}
     .top h1{font-size:20px;margin:0;color:${AZUL}}
     .top p{margin:3px 0;color:#555}`;
 
@@ -50,10 +54,11 @@ export function cssDoc({ hoja = "auto", extra = "" } = {}) {
     ${extra}`;
 }
 
-/** Encabezado: título y renglones de datos a la izquierda, logo a la derecha, línea azul. */
-export function encabezadoDoc(titulo, lineas = []) {
+/** Encabezado: título y renglones de datos a la izquierda, folio (opcional) y logo a la derecha, línea azul. */
+export function encabezadoDoc(titulo, lineas = [], { folio = "" } = {}) {
   const ps = lineas.filter(Boolean).map((l) => `<p>${esc(l)}</p>`).join("");
-  return `<div class="top"><div><h1>${esc(titulo)}</h1>${ps}</div><img src="${LOGO_MAQSOL_TRANSPARENTE}" alt="MAQSOL"></div>`;
+  const f = folio ? `<div class="folio-top"><small>Folio</small><b>${esc(folio)}</b></div>` : "";
+  return `<div class="top"><div><h1>${esc(titulo)}</h1>${ps}</div><div class="der">${f}<img src="${LOGO_MAQSOL_TRANSPARENTE}" alt="MAQSOL"></div></div>`;
 }
 
 /** Pie discreto al final del documento. */

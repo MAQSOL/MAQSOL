@@ -87,7 +87,6 @@ const CSS_OC = `
   .meta{display:flex;gap:28px;flex-wrap:wrap;margin:0 0 18px}
   .meta div{font-size:10px;color:#888;letter-spacing:.5px;text-transform:uppercase}
   .meta b{display:block;font-size:14px;color:#222;letter-spacing:0;text-transform:none;margin-top:2px}
-  .meta .folio b{color:${ROJO};font-size:20px}
   .partes{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:6px}
   .parte h2{margin:0 0 6px}
   .fila{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #eee;font-size:11.5px}
@@ -101,7 +100,7 @@ const CSS_OC = `
   table.tot td{padding:5px 8px;font-size:12px}
   table.tot tbody tr:nth-child(even) td{background:none}
   table.tot td.r{font-variant-numeric:tabular-nums}
-  table.tot tr.gran td{border-top:2px solid ${ROJO};border-bottom:none;font-size:14px;font-weight:700;color:${ROJO};padding-top:8px}
+  table.tot tr.gran td{border-top:2px solid #222;border-bottom:none;font-size:14px;font-weight:700;color:#111;padding-top:8px}
   .cond{margin-top:12px;font-size:11.5px;color:#555}
   .cond b{color:#222}
   .firma{margin:46px 0 0 auto;width:280px;text-align:center}
@@ -122,9 +121,8 @@ function cuerpoOrden(o) {
     : `<tr><td colspan="7" class="c" style="color:#999">Sin partidas</td></tr>`;
   const credito = o.condicion === "Crédito" ? `Crédito${o.diasCredito ? ` a <b>${esc(o.diasCredito)} días</b>` : ""}` : "<b>Contado</b>";
 
-  return `${encabezadoDoc("Orden de Compra", [EMPRESA_OC.nombre, EMPRESA_OC.giro, EMPRESA_OC.domicilio, `Tel. ${EMPRESA_OC.telefonos} · R.F.C. ${EMPRESA_OC.rfc}`])}
+  return `${encabezadoDoc("Orden de Compra", [EMPRESA_OC.nombre, EMPRESA_OC.giro, EMPRESA_OC.domicilio, `Tel. ${EMPRESA_OC.telefonos} · R.F.C. ${EMPRESA_OC.rfc}`], { folio: folioOC(o) })}
     <div class="meta">
-      <div class="folio">Folio<b>${esc(folioOC(o))}</b></div>
       <div>Fecha<b>${esc(fechaMX(o.fecha))}</b></div>
       <div>Vía de embarque<b>${esc(o.viaEmbarque || "—")}</b></div>
       <div>Moneda<b>${esc(m)}</b></div>

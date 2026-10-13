@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
 import { useListaCompartida } from "../../hooks/useSharedTable";
 import { useAuth } from "../../contexts/AuthContext";
+import { usePerfiles } from "../../hooks/usePerfiles";
 import { S, fFecha, hoyISO } from "./estilosAdmin";
 import {
   ORDEN_NUEVA, PARTIDA_NUEVA, USOS_CFDI, FORMAS_PAGO, METODOS_PAGO, VIAS_EMBARQUE, ESTADOS_OC,
@@ -54,10 +55,14 @@ export default function OrdenesCompra() {
   const [ordenes, guardarOrdenes] = useListaCompartida("ordenes_compra");
   const { profile } = useAuth();
   const miNombre = profile?.nombre_completo || profile?.apodo || "";
+  const { perfiles } = usePerfiles();
+  const [otroSolicito, setOtroSolicito] = useState(false);
+  const nombresSolicito = [...new Set([miNombre, ...perfiles.map((p) => p.nombre)].filter(Boolean))];
 
   const nueva = () => ({ ...ORDEN_NUEVA, partidas: [{ ...PARTIDA_NUEVA }], id: "OC-" + Date.now(), fecha: hoyISO() });
   const [form, setForm] = useState(nueva);
   const [busqueda, setBusqueda] = useState("");
+  const valorSolicito = otroSolicito || (form.solicito && !nombresSolicito.includes(form.solicito)) ? "__otro__" : form.solicito || "";
 
   const set = (campo, valor) => setForm((f) => ({ ...f, [campo]: valor }));
   // lo que se imprime: si no escribiste quién solicitó, va tu nombre de usuario
@@ -163,7 +168,7 @@ export default function OrdenesCompra() {
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
-            <button style={S.btnGris} onClick={() => setForm(nueva())}>Nueva orden</button>
+            <button style={S.btnGris} onClick={() => { setOtroSolicito(false); setForm(nueva()); }}>Nueva orden</button>
             <button style={S.btnGris} onClick={guardar}>Guardar</button>
             <button style={S.btn} onClick={descargar}>Descargar PDF</button>
           </div>
@@ -184,7 +189,23 @@ export default function OrdenesCompra() {
               </div>
               <div style={S.grid3}>
                 <Campo etiqueta="VÍA DE EMBARQUE">{inp("viaEmbarque", { list: "oc-vias" })}</Campo>
-                <Campo etiqueta="SOLICITÓ">{inp("solicito", { placeholder: miNombre || "Nombre" })}</Campo>
+                <Campo etiqueta="SOLICITÓ">
+                  <select
+                    style={S.input}
+                    value={valorSolicito}
+                    onChange={(e) => {
+                      if (e.target.value === "__otro__") { setOtroSolicito(true); set("solicito", ""); }
+                      else { setOtroSolicito(false); set("solicito", e.target.value); }
+                    }}
+                  >
+                    <option value="">{miNombre ? `— Yo (${miNombre}) —` : "— Elegir —"}</option>
+                    {nombresSolicito.filter((n) => n !== miNombre).map((n) => <option key={n} value={n}>{n}</option>)}
+                    <option value="__otro__">✎ Otra persona (escribir nombre)</option>
+                  </select>
+                  {valorSolicito === "__otro__" && (
+                    <input style={{ ...S.input, marginTop: 8 }} autoFocus placeholder="Nombre de quien solicita" value={form.solicito} onChange={(e) => set("solicito", e.target.value)} />
+                  )}
+                </Campo>
                 <Campo etiqueta="COTIZACIÓN (REFERENCIA)">{inp("cotizacion", { placeholder: "Opcional" })}</Campo>
               </div>
               <datalist id="oc-vias">{VIAS_EMBARQUE.map((x) => <option key={x} value={x} />)}</datalist>
@@ -277,7 +298,7 @@ export default function OrdenesCompra() {
                 {t.flete > 0 && <div style={{ display: "flex", justifyContent: "space-between" }}><span>Flete</span><span>{dineroOC(t.flete, m)}</span></div>}
                 <div style={{ display: "flex", justifyContent: "space-between" }}><span>I.V.A.</span><span>{form.conIva ? dineroOC(t.iva, m) : "No aplica"}</span></div>
                 <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, fontSize: 16, borderTop: "1px solid #dde5ee", paddingTop: 6, marginTop: 2 }}>
-                  <span>Importe total</span><span style={{ color: "#d6001c" }}>{dineroOC(t.total, m)}</span>
+                  <span>Importe total</span><span style={{ color: "#111" }}>{dineroOC(t.total, m)}</span>
                 </div>
               </div>
             </div>
