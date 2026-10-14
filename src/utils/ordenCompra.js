@@ -120,10 +120,10 @@ const CSS_OC = `
   .fila{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #eee;font-size:11.5px}
   .fila span{color:#888;min-width:92px;font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;padding-top:1px}
   .chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
-  .chip{background:${AZUL_TENUE};color:#33475b;border-radius:14px;padding:4px 11px;font-size:10.5px}
+  .chip{background:${AZUL_TENUE};color:#333;border-radius:14px;padding:4px 11px;font-size:10.5px}
   .chip b{color:${AZUL}}
   .abajo{display:grid;grid-template-columns:1fr 290px;gap:22px;margin-top:16px;align-items:start}
-  .obs{border-left:3px solid ${AZUL};background:#f6f9fc;padding:10px 12px;font-size:11.5px;white-space:pre-wrap;min-height:54px}
+  .obs{border-left:3px solid ${ROJO};background:#f5f5f5;padding:10px 12px;font-size:11.5px;white-space:pre-wrap;min-height:54px}
   .obs small{display:block;color:#888;font-size:10px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
   table.tot td{padding:5px 8px;font-size:12px}
   table.tot tbody tr:nth-child(even) td{background:none}

@@ -271,7 +271,7 @@ export function descargarContratoPDF(bloques, nombreArchivo) {
   const W = 216, H = 279, M = 18, ancho = W - M * 2;
   let y = 0;
   let pagina = 1;
-  const GRIS = [58, 58, 58];   // el contrato va en gris oscuro (no en el azul de los reportes)
+  const GRIS = [26, 26, 26];   // el contrato va en negro del sistema
 
   // encabezado de cada página: empresa y código a la izquierda, logo chico en la esquina derecha, línea gris oscuro
   const cabecera = () => {
@@ -450,7 +450,7 @@ export async function descargarContratoWord(bloques, nombreArchivo, logoUrl) {
     BorderStyle, ShadingType, PageBreak, Header, Footer, PageNumber, ImageRun, VerticalAlign
   } = await import("docx");
 
-  const GRIS = "3A3A3A";
+  const GRIS = "1A1A1A";
   const ANCHO = 9360; // ancho útil en twips (carta, márgenes de 1")
   const linea = { style: BorderStyle.SINGLE, size: 4, color: "BBBBBB" };
   const bordes = { top: linea, bottom: linea, left: linea, right: linea };

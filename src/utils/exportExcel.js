@@ -1,7 +1,7 @@
 import { LOGO_MAQSOL_BASE64 } from './logoBase64'
 import { LOGO_MAQSOL_TRANSPARENTE, LOGO_MAQSOL_TRANSPARENTE_RELACION } from './logoMaqsolTransparente'
 
-const VINO = '#1d5c8f'
+const VINO = '#d6001c'
 
 // número de semana ISO de una fecha
 export function numeroSemanaISO(fecha = new Date()) {
@@ -41,7 +41,7 @@ export async function descargarExcelBonito({ titulo, subtitulo, columnas, filas,
     const ExcelJS = (await import('exceljs')).default
     const texto = v => (v === null || v === undefined ? '' : String(v))
     const FILA_ENC = 5
-    const T = { enc: VINO.slice(1), titulo: VINO.slice(1), zebra: 'F3F7FB', total: 'DCE8F3', acento: VINO.slice(1), logo: 'viejo', ...tema }
+    const T = { enc: '1A1A1A', titulo: VINO.slice(1), zebra: 'F5F5F5', total: 'E4E4E4', acento: VINO.slice(1), logo: 'nuevo', ...tema }
     const FORMATOS = { moneda: '"$"#,##0.00', litros: '#,##0.0" L"', entero: '#,##0' }
     const argb = h => 'FF' + h.toUpperCase()
 

@@ -7,11 +7,14 @@ import { LOGO_MAQSOL_TRANSPARENTE, LOGO_MAQSOL_TRANSPARENTE_RELACION } from "./l
  * alternados. Lo usan TODOS los PDF menos las cotizaciones (Venta / Renta /
  * Refacciones), que conservan su diseño comercial a propósito.
  */
-export const AZUL = "#1d5c8f";
-export const AZUL_RGB = [29, 92, 143];
-export const AZUL_TENUE = "#eef3f8";      // celdas de etiqueta en formatos
-export const AZUL_TENUE_RGB = [238, 243, 248];
-export const ROJO = "#d6001c";            // rojo MAQSOL: solo para acentos (folio, total)
+// Colores del sistema: NEGRO (encabezados de tabla, rótulos) y ROJO MAQSOL (líneas, títulos de sección, folio).
+// Los nombres AZUL_* se conservan para no tocar a quienes los importan.
+export const AZUL = "#1a1a1a";
+export const AZUL_RGB = [26, 26, 26];
+export const AZUL_TENUE = "#f2f2f2";      // celdas de etiqueta en formatos
+export const AZUL_TENUE_RGB = [242, 242, 242];
+export const ROJO = "#d6001c";            // rojo MAQSOL
+export const ROJO_RGB = [214, 0, 28];
 export const EMPRESA = "MAQUINARIA SOPORTE Y LOGÍSTICA SA DE CV";
 
 export const esc = (t) =>
@@ -23,13 +26,13 @@ export const hoyMX = () => new Date().toLocaleDateString("es-MX");
 
 /** Solo el encabezado (para formatos con CSS propio, como el checklist). */
 export const CSS_ENCABEZADO = `
-    .top{display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:3px solid ${AZUL};padding-bottom:12px;margin-bottom:16px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:3px solid ${ROJO};padding-bottom:12px;margin-bottom:16px}
     .top img{height:58px}
     .top .der{display:flex;align-items:center;gap:20px}
     .top .folio-top{text-align:right;border-right:1px solid #ddd;padding-right:20px}
     .top .folio-top small{display:block;font-size:10px;letter-spacing:1px;color:#888;text-transform:uppercase}
     .top .folio-top b{display:block;font-size:24px;color:#d6001c;margin-top:2px}
-    .top h1{font-size:20px;margin:0;color:${AZUL}}
+    .top h1{font-size:20px;margin:0;color:#111}
     .top p{margin:3px 0;color:#555}`;
 
 /** CSS base. hoja: "auto" (el usuario elige al imprimir) o "horizontal" (carta apaisada). */
@@ -39,12 +42,12 @@ export function cssDoc({ hoja = "auto", extra = "" } = {}) {
     *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     body{font-family:Arial,sans-serif;color:#222;margin:0;padding:12mm 12mm;font-size:12px}
     ${CSS_ENCABEZADO}
-    h2{font-size:14px;margin:20px 0 8px;color:${AZUL}}
+    h2{font-size:14px;margin:20px 0 8px;color:${ROJO}}
     table{width:100%;border-collapse:collapse}
     thead{display:table-header-group}
     th{background:${AZUL};color:#fff;text-align:left;padding:7px;font-size:11px}
     td{padding:6px 7px;border-bottom:1px solid #ddd}
-    tbody tr:nth-child(even) td{background:#f6f9fc}
+    tbody tr:nth-child(even) td{background:#f5f5f5}
     tr{page-break-inside:avoid}
     .c{text-align:center}.r{text-align:right}.b{font-weight:700}
     .m{font-size:10px;color:#777;margin-top:1px}
@@ -92,14 +95,14 @@ export function encabezadoJsPDF(doc, { titulo, lineas = [], x, ancho, y = 10, al
   try { doc.addImage(LOGO_MAQSOL_TRANSPARENTE, "PNG", x + ancho - wLogo, y, wLogo, altoLogo); } catch { /* sin logo */ }
   doc.setFont("helvetica", "bold");
   doc.setFontSize(17);
-  doc.setTextColor(...AZUL_RGB);
+  doc.setTextColor(17, 17, 17);
   doc.text(titulo, x, y + 6);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(85, 85, 85);
   ls.forEach((l, i) => doc.text(l, x, y + 11.5 + i * 4.4, { maxWidth: ancho - wLogo - 6 }));
   const yl = y + Math.max(altoLogo, 8.5 + ls.length * 4.4) + 2.5;
-  doc.setDrawColor(...AZUL_RGB);
+  doc.setDrawColor(...ROJO_RGB);
   doc.setLineWidth(0.8);
   doc.line(x, yl, x + ancho, yl);
   doc.setLineWidth(0.2);
@@ -107,11 +110,11 @@ export function encabezadoJsPDF(doc, { titulo, lineas = [], x, ancho, y = 10, al
   return yl + separacion;
 }
 
-/** Subtítulo de sección en azul (como "Resumen por máquina"). Devuelve la y siguiente. */
+/** Subtítulo de sección en rojo (como "Resumen por máquina"). Devuelve la y siguiente. */
 export function seccionJsPDF(doc, texto, x, y) {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.setTextColor(...AZUL_RGB);
+  doc.setTextColor(...ROJO_RGB);
   doc.text(texto, x, y + 4);
   doc.setTextColor(20, 20, 20);
   return y + 8;

@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import { encabezadoJsPDF, seccionJsPDF } from "./pdfFormato";
 import { conHoras } from "./horometro";
 
-const AZUL = [29, 92, 143];
+const AZUL = [214, 0, 28]; // rojo MAQSOL
 
 const f = (iso) => {
   if (!iso) return "";

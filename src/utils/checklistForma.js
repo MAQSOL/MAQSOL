@@ -99,14 +99,14 @@ export function htmlChecklist(r, cols) {
     #hoja .top img{height:46px;}
     table.t{width:100%;table-layout:fixed;border-collapse:collapse;border:1.2px solid ${AZUL};margin-top:-1.2px;}
     table.t td{border:.6px solid #a9bccf;padding:1px 3px;vertical-align:middle;overflow:hidden;}
-    .lbl{background:${AZUL_TENUE};color:#33475b;font-size:6.1px;font-weight:700;text-transform:uppercase;text-align:center;line-height:1.1;}
+    .lbl{background:${AZUL_TENUE};color:#333;font-size:6.1px;font-weight:700;text-transform:uppercase;text-align:center;line-height:1.1;}
     .val{font-size:8.8px;font-weight:700;text-align:left;padding-left:5px;line-height:1.15;word-break:break-word;}
     tr{height:5.4mm;}
     tr.alto{height:8.4mm;}
     .opt{font-size:6.8px;text-align:center;font-weight:700;}
     .opt.sel{background:${AZUL};color:#fff;}
     table.chk{margin-top:-1.2px;}
-    .leg td{background:#f6f9fc;font-size:6.4px;letter-spacing:.3px;padding:2px 6px;height:4.2mm;}
+    .leg td{background:#f5f5f5;font-size:6.4px;letter-spacing:.3px;padding:2px 6px;height:4.2mm;}
     .cabs{height:4.6mm;}
     .cabs td{font-size:6.4px;font-weight:800;text-align:center;}
     .hn{background:${AZUL};color:#fff;}
@@ -124,7 +124,7 @@ export function htmlChecklist(r, cols) {
     .mk.sn{font-size:6.2px;color:#8a8a8a;font-weight:700;}
     .mk.sn.on.si{background:#d9f0c2;color:#111;}
     .mk.sn.on.no{background:#ffd3d3;color:#111;}
-    .mk.gris{background:#f6f9fc;}
+    .mk.gris{background:#f5f5f5;}
     tr.serv{height:7.2mm;}
     tr.rep{height:18mm;}
     tr.obs{height:12mm;}
@@ -154,7 +154,7 @@ export function htmlChecklist(r, cols) {
       ${t1}
       ${t2}
       ${t3}
-      <div class="pie-doc">${r.fotosUrl ? `Fotos del equipo: <a href="${esc(r.fotosUrl)}" style="color:#1d5c8f;font-weight:700;text-decoration:none">${esc(r.fotosUrl)}</a> &nbsp;·&nbsp; ` : ""}Documento generado desde MAQSISTEM · ${esc(folioCorto(r))}</div>
+      <div class="pie-doc">${r.fotosUrl ? `Fotos del equipo: <a href="${esc(r.fotosUrl)}" style="color:#d6001c;font-weight:700;text-decoration:none">${esc(r.fotosUrl)}</a> &nbsp;·&nbsp; ` : ""}Documento generado desde MAQSISTEM · ${esc(folioCorto(r))}</div>
     </div>
     <script>
       window.onload=function(){

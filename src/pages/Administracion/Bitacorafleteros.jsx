@@ -99,7 +99,7 @@ function pdfFletes(lista,periodo){
     nombre:folio,
     hoja:'horizontal',
     // cada flete es su propio <tbody>: el sombreado alterno abarca también su renglón de observaciones
-    css:'td{vertical-align:middle;font-size:11px}tbody tr:nth-child(even) td{background:none}tbody.f:nth-of-type(even) td{background:#f6f9fc}tbody.f tr:first-child:not(:last-child) td{border-bottom:none}tr.obs td{font-size:10px;color:#666;font-style:italic;padding-top:0}',
+    css:'td{vertical-align:middle;font-size:11px}tbody tr:nth-child(even) td{background:none}tbody.f:nth-of-type(even) td{background:#f5f5f5}tbody.f tr:first-child:not(:last-child) td{border-bottom:none}tr.obs td{font-size:10px;color:#666;font-style:italic;padding-top:0}',
     cuerpo:`${encabezadoDoc('Bitácora de Fleteros',[periodo,'Folio: '+folio+' · '+filas.length+' flete'+(filas.length===1?'':'s'),'Generado: '+hoyMX()])}
     <table>
       <thead><tr>

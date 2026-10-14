@@ -36,8 +36,10 @@ export function descargarEtiquetaQR(equipo, dataUrl, url, logoUrl) {
   const doc = new jsPDF({ unit: "mm", format: [100, 140] });
   const W = 100;
 
-  doc.setFillColor(29, 92, 143);
+  doc.setFillColor(26, 26, 26);
   doc.rect(0, 0, W, 22, "F");
+  doc.setFillColor(214, 0, 28);
+  doc.rect(0, 22, W, 1.6, "F");
   if (logoUrl) {
     try { doc.addImage(logoUrl, "PNG", 5, 3, 15, 16); } catch { /* sin logo */ }
   }
