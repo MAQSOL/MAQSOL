@@ -16,7 +16,7 @@ const FLETE_NUEVO = {
   empresa:'',proveedor:'',equipo:'',serieEquipo:'',
   oc:'',numOC:'',horaMovimiento:'',
   origen:'',destino:'',
-  costo:'',pagado:'Pendiente',
+  costo:'',pagado:'Pendiente',clientePago:'Pendiente',
   estado:'Programado',observaciones:''
 }
 
@@ -92,8 +92,9 @@ function pdfFletes(lista,periodo){
     <td class="c">${esc(textoOC(f))}</td>
     <td class="r b">${f.costo?esc(dinero(f.costo)):'—'}</td>
     <td class="c">${esc(f.pagado||'Pendiente')}</td>
+    <td class="c">${f.clientePago==='Pagado'?'Sí':'No'}</td>
     <td class="c">${esc(f.estado==='En Ruta'?'Programado':f.estado)}</td>
-  </tr>${f.observaciones?`<tr class="obs"><td colspan="10">Obs.: ${esc(f.observaciones)}</td></tr>`:''}</tbody>`
+  </tr>${f.observaciones?`<tr class="obs"><td colspan="11">Obs.: ${esc(f.observaciones)}</td></tr>`:''}</tbody>`
   abrirDocPDF({
     nombre:folio,
     hoja:'horizontal',
@@ -103,7 +104,7 @@ function pdfFletes(lista,periodo){
     <table>
       <thead><tr>
         <th>Folio</th><th>Fecha / hora</th><th>Empresa (solicitó y pagó)</th><th>Proveedor</th>
-        <th>Equipo</th><th>Origen → destino</th><th>Orden de compra</th><th class="r">Importe sin imp.</th><th class="c">Pago</th><th class="c">Estado</th>
+        <th>Equipo</th><th>Origen → destino</th><th>Orden de compra</th><th class="r">Importe sin imp.</th><th class="c">Pago al proveedor</th><th class="c">Cliente pagó</th><th class="c">Estado</th>
       </tr></thead>
       ${filas.map(fila).join('')}
     </table>
@@ -122,6 +123,10 @@ function BadgeEstado({estado}){
   const s=map[e]||map['Programado']
   return <span style={{background:s.bg,color:s.c,padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>{e}</span>
 }
+function BadgeCliente({pagado}){
+  const ok=pagado==='Pagado'
+  return <span style={{background:ok?'#e8f5e9':'#fff3e0',color:ok?'#2e7d32':'#c98a00',padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>{ok?'Sí pagó':'No ha pagado'}</span>
+}
 function BadgePago({pagado}){
   const ok=pagado==='Pagado'
   return <span style={{background:ok?'#e8f5e9':'#fce4ec',color:ok?'#2e7d32':'#c62828',padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>{pagado||'Pendiente'}</span>
@@ -139,6 +144,7 @@ export default function BitacoraFleteros(){
   const[busqueda,setBusqueda]=useState('')
   const[fEstado,setFEstado]=useState('')
   const[fPagado,setFPagado]=useState('')
+  const[fCliente,setFCliente]=useState('')
   const[fDesde,setFDesde]=useState('')
   const[fHasta,setFHasta]=useState('')
 
@@ -174,7 +180,7 @@ export default function BitacoraFleteros(){
 
   const filtrados=fletes.filter(f=>{
     const t=(f.folio+' '+f.origen+' '+f.destino+' '+f.empresa+' '+f.equipo+' '+f.serieEquipo+' '+(f.proveedor||'')+' '+(f.numOC||'')).toLowerCase()
-    return t.includes(busqueda.toLowerCase())&&(!fEstado||f.estado===fEstado)&&(!fPagado||f.pagado===fPagado)&&(!fDesde||(f.fecha||'')>=fDesde)&&(!fHasta||(f.fecha||'')<=fHasta)
+    return t.includes(busqueda.toLowerCase())&&(!fEstado||f.estado===fEstado)&&(!fPagado||f.pagado===fPagado)&&(!fCliente||(fCliente==='Pagado'?f.clientePago==='Pagado':f.clientePago!=='Pagado'))&&(!fDesde||(f.fecha||'')>=fDesde)&&(!fHasta||(f.fecha||'')<=fHasta)
   }).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''))
 
   const stats={
@@ -188,8 +194,8 @@ export default function BitacoraFleteros(){
     return 'Periodo: '+new Date().toLocaleDateString('es-MX',{month:'long',year:'numeric'})
   }
   function exportarLista(){
-    const columnas=['Folio','Fecha','Empresa (cliente)','Proveedor del flete','Equipo','Serie','Origen','Destino','Hora','Orden de compra','Importe sin impuestos','Pagado','Estado','Observaciones']
-    const filas=filtrados.map(f=>[f.folio,fFecha(f.fecha),f.empresa,f.proveedor,f.equipo,f.serieEquipo,f.origen,f.destino,f.horaMovimiento,textoOC(f),f.costo?'$'+f.costo:'',f.pagado,f.estado,f.observaciones])
+    const columnas=['Folio','Fecha','Empresa (cliente)','Proveedor del flete','Equipo','Serie','Origen','Destino','Hora','Orden de compra','Importe sin impuestos','Pago al proveedor','Cliente ya pagó','Estado','Observaciones']
+    const filas=filtrados.map(f=>[f.folio,fFecha(f.fecha),f.empresa,f.proveedor,f.equipo,f.serieEquipo,f.origen,f.destino,f.horaMovimiento,textoOC(f),f.costo?'$'+f.costo:'',f.pagado,f.clientePago==='Pagado'?'Sí':'No',f.estado,f.observaciones])
     descargarExcelBonito({
       titulo:'Bitácora de Fleteros',
       subtitulo:'MAQUINARIA SOPORTE Y LOGISTICA SA DE CV · '+filtrados.length+' fletes',
@@ -207,28 +213,30 @@ export default function BitacoraFleteros(){
 
       <div style={{display:'flex',gap:16,marginBottom:22,flexWrap:'wrap'}}>
         <div style={S.stat}><div style={S.statN}>{stats.programados}</div><div style={S.statK}>PROGRAMADOS</div></div>
-        <div style={S.stat}><div style={S.statN}>{stats.pendientesPago}</div><div style={S.statK}>PENDIENTES DE PAGO</div></div>
+        <div style={S.stat}><div style={S.statN}>{stats.pendientesPago}</div><div style={S.statK}>POR PAGAR AL PROVEEDOR</div></div>
+        <div style={S.stat}><div style={S.statN}>{fletes.filter(f=>f.clientePago!=='Pagado'&&f.estado!=='Cancelado').length}</div><div style={S.statK}>CLIENTE SIN PAGAR</div></div>
         <div style={S.stat}><div style={S.statN}>{stats.total}</div><div style={S.statK}>TOTAL REGISTRADOS</div></div>
       </div>
 
       <div style={S.card}>
-        <div style={{display:'grid',gridTemplateColumns:'1.6fr 1fr 1fr 1fr 1fr',gap:14,alignItems:'end'}}>
+        <div style={{display:'grid',gridTemplateColumns:'1.6fr 1fr 1fr 1fr 1fr 1fr',gap:14,alignItems:'end'}}>
           <div><label style={S.label}>BUSCAR</label><input style={S.input} placeholder="Folio, empresa, equipo, serie, origen o destino" value={busqueda} onChange={ev=>setBusqueda(ev.target.value)}/></div>
           <div><label style={S.label}>ESTADO</label><select style={S.input} value={fEstado} onChange={ev=>setFEstado(ev.target.value)}><option value="">Todos</option><option>Programado</option><option>Entregado</option><option>Cancelado</option></select></div>
-          <div><label style={S.label}>PAGO</label><select style={S.input} value={fPagado} onChange={ev=>setFPagado(ev.target.value)}><option value="">Todos</option><option>Pagado</option><option>Pendiente</option></select></div>
+          <div><label style={S.label}>PAGO AL PROVEEDOR</label><select style={S.input} value={fPagado} onChange={ev=>setFPagado(ev.target.value)}><option value="">Todos</option><option>Pagado</option><option>Pendiente</option></select></div>
+          <div><label style={S.label}>CLIENTE PAGÓ</label><select style={S.input} value={fCliente} onChange={ev=>setFCliente(ev.target.value)}><option value="">Todos</option><option value="Pagado">Sí pagó</option><option value="Pendiente">No ha pagado</option></select></div>
           <div><label style={S.label}>DESDE</label><CampoFecha  style={S.input} value={fDesde} onChange={ev=>setFDesde(ev.target.value)}/></div>
           <div><label style={S.label}>HASTA</label><CampoFecha  style={S.input} value={fHasta} onChange={ev=>setFHasta(ev.target.value)}/></div>
         </div>
       </div>
 
       <div style={{...S.card,padding:0,overflowX:'auto'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',minWidth:1250}}>
+        <table style={{width:'100%',borderCollapse:'collapse',minWidth:1350}}>
           <thead><tr>
             <th style={S.th}>FOLIO</th><th style={S.th}>FECHA</th><th style={S.th}>EMPRESA</th><th style={S.th}>EQUIPO</th>
-            <th style={S.th}>ORIGEN → DESTINO</th><th style={S.th}>OC</th><th style={S.th}>PAGO</th><th style={S.th}>ESTADO</th><th style={{...S.th,width:120,textAlign:'center'}}></th>
+            <th style={S.th}>ORIGEN → DESTINO</th><th style={S.th}>OC</th><th style={S.th}>PAGO PROVEEDOR</th><th style={S.th}>CLIENTE PAGÓ</th><th style={S.th}>ESTADO</th><th style={{...S.th,width:120,textAlign:'center'}}></th>
           </tr></thead>
           <tbody>
-            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={9}>No hay fletes registrados. Usa "Agregar flete".</td></tr>
+            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={10}>No hay fletes registrados. Usa "Agregar flete".</td></tr>
             :filtrados.map(f=>(<tr key={f.id} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
               <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>setVerFlete(f)}>{f.folio}</td>
               <td style={S.td}>{fFecha(f.fecha)}</td>
@@ -237,6 +245,7 @@ export default function BitacoraFleteros(){
               <td style={S.td}>{f.origen||'—'} → {f.destino}{f.horaMovimiento?<div style={{color:'#999',fontSize:12}}>{f.horaMovimiento} h</div>:null}</td>
               <td style={S.td}>{textoOC(f)}</td>
               <td style={S.td}><BadgePago pagado={f.pagado}/></td>
+              <td style={S.td}><BadgeCliente pagado={f.clientePago}/></td>
               <td style={S.td}><BadgeEstado estado={f.estado}/></td>
               <td style={{...S.td,textAlign:'center',whiteSpace:'nowrap'}}>
                 <button style={S.btnGrisSm} onClick={()=>abrirEditar(f)}>Editar</button>
@@ -268,7 +277,16 @@ export default function BitacoraFleteros(){
         {verFlete.observaciones&&<div style={{marginBottom:14}}><div style={S.label}>OBSERVACIONES</div><div style={{whiteSpace:'pre-wrap'}}>{verFlete.observaciones}</div></div>}
 
         <div style={{marginBottom:14}}>
-          <div style={S.label}>¿YA SE PAGÓ?</div>
+          <div style={S.label}>¿EL CLIENTE YA PAGÓ?</div>
+          <div style={{display:'flex',gap:8}}>
+            {[['Pendiente','No ha pagado'],['Pagado','Sí pagó']].map(([v,t])=>(
+              <button key={v} style={(verFlete.clientePago||'Pendiente')===v?S.btnSm:S.btnGrisSm} onClick={()=>{guardarFletes(fletes.map(x=>x.id===verFlete.id?{...x,clientePago:v}:x));setVerFlete({...verFlete,clientePago:v})}}>{t}</button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{marginBottom:14}}>
+          <div style={S.label}>¿YA SE LE PAGÓ AL PROVEEDOR?</div>
           <div style={{display:'flex',gap:8}}>
             {['Pendiente','Pagado'].map(p=>(
               <button key={p} style={verFlete.pagado===p?S.btnSm:S.btnGrisSm} onClick={()=>{cambiarPago(verFlete,p);setVerFlete({...verFlete,pagado:p})}}>{p}</button>
@@ -333,9 +351,18 @@ export default function BitacoraFleteros(){
           </div>
         </div>
 
+        <div style={{marginBottom:14}}>
+          <label style={S.label}>¿EL CLIENTE YA PAGÓ?</label>
+          <div style={{display:'flex',gap:8}}>
+            {[['Pendiente','No ha pagado'],['Pagado','Sí pagó']].map(([v,t])=>(
+              <button key={v} type="button" style={(form.clientePago||'Pendiente')===v?S.btnSm:S.btnGrisSm} onClick={()=>setForm({...form,clientePago:v})}>{t}</button>
+            ))}
+          </div>
+        </div>
+
         <div style={S.grid3}>
           <div><label style={S.label}>IMPORTE (SIN IMPUESTOS)</label><input style={S.input} value={form.costo} onChange={ev=>setForm({...form,costo:ev.target.value})} placeholder="Ej. 1500 antes de IVA"/></div>
-          <div><label style={S.label}>PAGO</label><select style={S.input} value={form.pagado} onChange={ev=>setForm({...form,pagado:ev.target.value})}><option>Pendiente</option><option>Pagado</option></select></div>
+          <div><label style={S.label}>PAGO AL PROVEEDOR</label><select style={S.input} value={form.pagado} onChange={ev=>setForm({...form,pagado:ev.target.value})}><option>Pendiente</option><option>Pagado</option></select></div>
           <div><label style={S.label}>ESTADO DEL VIAJE</label><select style={S.input} value={form.estado} onChange={ev=>setForm({...form,estado:ev.target.value})}><option>Programado</option><option>Entregado</option><option>Cancelado</option></select></div>
         </div>
 
