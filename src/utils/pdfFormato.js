@@ -35,7 +35,7 @@ export const CSS_ENCABEZADO = `
 /** CSS base. hoja: "auto" (el usuario elige al imprimir) o "horizontal" (carta apaisada). */
 export function cssDoc({ hoja = "auto", extra = "" } = {}) {
   return `
-    @page{size:${hoja === "horizontal" ? "letter landscape" : "auto"};margin:0}
+    @page{size:${hoja === "horizontal" ? "letter landscape" : hoja === "vertical" ? "letter portrait" : "auto"};margin:0}
     *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     body{font-family:Arial,sans-serif;color:#222;margin:0;padding:12mm 12mm;font-size:12px}
     ${CSS_ENCABEZADO}

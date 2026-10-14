@@ -131,7 +131,8 @@ const CSS_OC = `
   table.tot tr.gran td{border-top:2px solid #222;border-bottom:none;font-size:14px;font-weight:700;color:#111;padding-top:8px}
   .cond{margin-top:12px;font-size:11.5px;color:#555}
   .cond b{color:#222}
-  .firmas{display:flex;justify-content:flex-end;gap:44px;margin-top:34px}
+  .cierre{page-break-inside:avoid;break-inside:avoid}
+  .firmas{display:flex;justify-content:flex-end;gap:44px;margin-top:30px}
   .firma{width:270px;text-align:center}
   .firma .espacio{height:64px;display:flex;align-items:flex-end;justify-content:center}
   .firma .espacio img{max-height:62px;max-width:100%}
@@ -176,6 +177,7 @@ function cuerpoOrden(o) {
     <h2>Partidas</h2>
     <table><thead><tr><th class="c" style="width:34px">#</th><th class="c" style="width:52px">Cant.</th><th>No. de parte</th><th>No. de serie</th><th>Descripción</th><th class="r">P. unitario</th><th class="r">Importe</th></tr></thead>
       <tbody>${filasPartidas}</tbody></table>
+    <div class="cierre">
     <div class="abajo">
       <div>
         <div class="obs"><small>Observaciones</small>${esc(o.observaciones || "—")}</div>
@@ -204,15 +206,16 @@ function cuerpoOrden(o) {
         <small>${esc(o.puestoAutoriza || "")}</small>
       </div>
     </div>
+    </div>
     ${pieDoc(folioOC(o))}`;
 }
 
 /** Documento completo para la vista previa (iframe), sin lanzar la impresión. */
 export function htmlOrden(o) {
-  return `<!doctype html><html><head><meta charset="utf-8"><style>${cssDoc({ extra: CSS_OC })}</style></head><body>${cuerpoOrden(o)}</body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><style>${cssDoc({ hoja: "vertical", extra: CSS_OC })}</style></head><body>${cuerpoOrden(o)}</body></html>`;
 }
 
 /** Abre la ventana de impresión → "Guardar como PDF". */
 export function abrirOrdenPDF(o) {
-  abrirDocPDF({ nombre: nombreArchivoOC(o), cuerpo: cuerpoOrden(o), css: CSS_OC });
+  abrirDocPDF({ nombre: nombreArchivoOC(o), cuerpo: cuerpoOrden(o), css: CSS_OC, hoja: "vertical" });
 }
