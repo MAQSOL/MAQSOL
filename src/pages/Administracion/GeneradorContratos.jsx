@@ -8,6 +8,7 @@ import { useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
 import { construirDocumento, descargarContratoPDF, descargarContratoWord } from "../../utils/contratoArrendamiento";
 import { S, fFecha, hoyISO } from "./estilosAdmin";
 import { IconoMas } from "../../components/Icons";
+import CampoFecha from "../../components/CampoFecha";
 
 const GRIS_CONTRATO = "#3a3a3a";   // mismo gris oscuro que el PDF y el Word del contrato
 
@@ -197,9 +198,12 @@ export default function GeneradorContratos() {
 
   const nuevo = () => setForm({ ...NUEVO, id: "CT-" + Date.now(), fechaContrato: hoyISO() });
 
-  const inp = (campo, extra = {}) => (
-    <input style={S.input} value={form[campo]} onChange={(e) => set(campo, e.target.value)} {...extra} />
-  );
+  const inp = (campo, extra = {}) =>
+    extra.type === "date" ? (
+      <CampoFecha style={S.input} value={form[campo] ?? ""} onChange={(e) => set(campo, e.target.value)} />
+    ) : (
+      <input style={S.input} value={form[campo]} onChange={(e) => set(campo, e.target.value)} {...extra} />
+    );
 
   return (
     <Layout>

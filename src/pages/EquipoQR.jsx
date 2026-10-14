@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import logo from "../assets/logo.png";
 import { descargarFichaEquipoPDF } from "../utils/fichaEquipo";
 import { conHoras, esHorometroNumerico } from "../utils/horometro";
+import CampoFecha from "../components/CampoFecha";
 
 const fFecha = (f) => {
   if (!f) return "";
@@ -236,7 +237,7 @@ function PanelMecanico({ token }) {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
           <div>
             <label style={etiqueta}>FECHA</label>
-            <input style={campo} type="date" value={form.fecha} onChange={(e) => set("fecha", e.target.value)} />
+            <CampoFecha style={campo}  value={form.fecha} onChange={(e) => set("fecha", e.target.value)} />
           </div>
           <div>
             <label style={etiqueta}>HORÓMETRO ACTUAL</label>
@@ -253,7 +254,7 @@ function PanelMecanico({ token }) {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
           <div>
             <label style={etiqueta}>PRÓXIMO MANTTO (opcional)</label>
-            <input style={campo} type="date" value={form.proximoMantto} onChange={(e) => set("proximoMantto", e.target.value)} />
+            <CampoFecha style={campo}  value={form.proximoMantto} onChange={(e) => set("proximoMantto", e.target.value)} />
           </div>
           <div>
             <label style={etiqueta}>REALIZÓ</label>

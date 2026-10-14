@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { REQUISITOS, NOMBRE_TIPO, buscarCliente } from "../utils/expediente";
+import CampoFecha from "./CampoFecha";
 
 const caja = { border: "1px solid #e6e6e6", borderRadius: 10, padding: 14, marginBottom: 14 };
 const boton = { border: "none", borderRadius: 8, padding: "10px 18px", fontWeight: 700, cursor: "pointer", fontSize: 14 };
@@ -83,7 +84,7 @@ export default function ExpedienteCliente({ nombreCliente, clientes, onGuardar, 
           {datos.contratoFirmado && (
             <div style={{ marginTop: 10 }}>
               <label style={{ fontSize: 12, fontWeight: 700, color: "#666", display: "block", marginBottom: 4 }}>FECHA DE FIRMA</label>
-              <input type="date" value={datos.contratoFecha} onChange={(e) => set("contratoFecha", e.target.value)} style={{ padding: "9px 11px", border: "1px solid #d8d8d8", borderRadius: 6 }} />
+              <CampoFecha  value={datos.contratoFecha} onChange={(e) => set("contratoFecha", e.target.value)} style={{ padding: "9px 11px", border: "1px solid #d8d8d8", borderRadius: 6 }} />
             </div>
           )}
         </div>

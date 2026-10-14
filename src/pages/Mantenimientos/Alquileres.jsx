@@ -9,6 +9,7 @@ import { buscarCliente } from "../../utils/expediente";
 import { descargarExcelBonito, nombreArchivoFecha } from "../../utils/exportExcel";
 import { S, fFecha, hoyISO } from "../Administracion/estilosAdmin";
 import { IconoMas } from "../../components/Icons";
+import CampoFecha from "../../components/CampoFecha";
 
 const BUCKET = "alquileres";
 const MAX_PDF_MB = 15;
@@ -179,8 +180,8 @@ function ModalRenovar({ alquiler, onGuardar, onCerrar }) {
           })}
         </div>
         <div style={S.grid2}>
-          <div><label style={S.label}>RENUEVA A PARTIR DE</label><input type="date" style={S.input} value={inicio} onChange={(e) => cambiarInicio(e.target.value)} /></div>
-          <div><label style={S.label}>TERMINA</label><input type="date" style={S.input} value={fin} onChange={(e) => { setFin(e.target.value); setPlan("manual"); }} /></div>
+          <div><label style={S.label}>RENUEVA A PARTIR DE</label><CampoFecha  style={S.input} value={inicio} onChange={(e) => cambiarInicio(e.target.value)} /></div>
+          <div><label style={S.label}>TERMINA</label><CampoFecha  style={S.input} value={fin} onChange={(e) => { setFin(e.target.value); setPlan("manual"); }} /></div>
         </div>
         <div style={S.grid2}>
           <div><label style={S.label}>HORAS INCLUIDAS</label><input style={S.input} value={horas} onChange={(e) => setHoras(e.target.value)} placeholder="Ej. 200" /></div>
@@ -673,8 +674,8 @@ export default function Alquileres() {
               </div>
             )}
             <div style={S.grid2}>
-              <div><label style={S.label}>INICIA</label><input type="date" style={S.input} value={form.fechaInicio} onChange={(e) => cambiarInicio(e.target.value)} /></div>
-              <div><label style={S.label}>TERMINA</label><input type="date" style={S.input} value={form.fechaFin} onChange={(e) => cambiarFin(e.target.value)} /></div>
+              <div><label style={S.label}>INICIA</label><CampoFecha  style={S.input} value={form.fechaInicio} onChange={(e) => cambiarInicio(e.target.value)} /></div>
+              <div><label style={S.label}>TERMINA</label><CampoFecha  style={S.input} value={form.fechaFin} onChange={(e) => cambiarFin(e.target.value)} /></div>
             </div>
             {form.fechaInicio && form.fechaFin && diasDe(form) > 0 && (
               <p style={{ margin: "-4px 0 14px", fontSize: 13, color: "#555" }}>

@@ -7,6 +7,7 @@ import { useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
 import { descargarExcelBonito, nombreArchivoSemana, numeroSemanaISO } from "../../utils/exportExcel";
 import { S, fFecha, hoyISO, dinero, esc } from "./estilosAdmin";
 import { IconoMas } from "../../components/Icons";
+import CampoFecha from "../../components/CampoFecha";
 
 const NUEVO = {
   id: "", fecha: "", equipoId: "", maquina: "", serie: "", obra: "",
@@ -289,7 +290,7 @@ export default function CargasDiesel() {
             </h2>
 
             <div style={S.grid2}>
-              <div><label style={S.label}>FECHA</label><input type="date" style={S.input} value={form.fecha} onChange={(e) => set("fecha", e.target.value)} /></div>
+              <div><label style={S.label}>FECHA</label><CampoFecha  style={S.input} value={form.fecha} onChange={(e) => set("fecha", e.target.value)} /></div>
               <div>
                 <label style={S.label}>TOMAR DE EQUIPOS REGISTRADOS</label>
                 <select style={S.input} value="" onChange={(e) => elegirMaquina(e.target.value)}>

@@ -9,6 +9,7 @@ import { useListaCompartida } from "../../hooks/useSharedTable";
 import { descargarFichaPDF, edadDe } from "../../utils/fichaPersonal";
 import { S, fFecha, hoyISO } from "./estilosAdmin";
 import { IconoMas } from "../../components/Icons";
+import CampoFecha from "../../components/CampoFecha";
 
 const BUCKET = "personal";
 const MAX_MB = 15;
@@ -293,11 +294,11 @@ export default function PersonalNuevo() {
             <div style={S.grid3}>
               <Campo etiqueta="NOMBRE COMPLETO"><input style={S.input} value={form.nombre} onChange={(e) => set("nombre", e.target.value)} /></Campo>
               <Campo etiqueta="PUESTO"><input style={S.input} value={form.puesto} onChange={(e) => set("puesto", e.target.value)} /></Campo>
-              <Campo etiqueta="FECHA DE INGRESO"><input type="date" style={S.input} value={form.fechaIngreso} onChange={(e) => set("fechaIngreso", e.target.value)} /></Campo>
+              <Campo etiqueta="FECHA DE INGRESO"><CampoFecha  style={S.input} value={form.fechaIngreso} onChange={(e) => set("fechaIngreso", e.target.value)} /></Campo>
             </div>
             <div style={S.grid3}>
               <Campo etiqueta={`FECHA DE NACIMIENTO${form.fechaNacimiento ? ` (${edadDe(form.fechaNacimiento)} años)` : ""}`}>
-                <input type="date" style={S.input} value={form.fechaNacimiento} onChange={(e) => set("fechaNacimiento", e.target.value)} />
+                <CampoFecha  style={S.input} value={form.fechaNacimiento} onChange={(e) => set("fechaNacimiento", e.target.value)} />
               </Campo>
               <Campo etiqueta="LUGAR DE NACIMIENTO"><input style={S.input} value={form.lugarNacimiento} onChange={(e) => set("lugarNacimiento", e.target.value)} /></Campo>
               <Campo etiqueta="ESTADO CIVIL">
@@ -346,7 +347,7 @@ export default function PersonalNuevo() {
             {form.hijos.map((h, i) => (
               <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1fr auto", gap: 10, marginBottom: 8 }}>
                 <input style={S.input} placeholder="Nombre del hijo(a)" value={h.nombre} onChange={(e) => setHijo(i, "nombre", e.target.value)} />
-                <input type="date" style={S.input} value={h.fechaNacimiento || ""} onChange={(e) => setHijo(i, "fechaNacimiento", e.target.value)} />
+                <CampoFecha  style={S.input} value={h.fechaNacimiento || ""} onChange={(e) => setHijo(i, "fechaNacimiento", e.target.value)} />
                 <button type="button" style={{ ...S.btnGris, padding: "8px 12px" }} onClick={() => setForm((f) => ({ ...f, hijos: f.hijos.filter((_, k) => k !== i) }))}>✕</button>
               </div>
             ))}

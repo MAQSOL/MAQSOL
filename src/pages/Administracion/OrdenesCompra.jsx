@@ -12,6 +12,7 @@ import {
   ORDEN_NUEVA, PARTIDA_NUEVA, USOS_CFDI, FORMAS_PAGO, METODOS_PAGO, VIAS_EMBARQUE, ESTADOS_OC,
   calcularTotales, importePartida, dineroOC, folioOC, htmlOrden, abrirOrdenPDF
 } from "../../utils/ordenCompra";
+import CampoFecha from "../../components/CampoFecha";
 
 const COLOR_ESTADO = {
   Pendiente: { c: "#c98a00", bg: "#fff3e0" },
@@ -169,9 +170,12 @@ export default function OrdenesCompra() {
   const t = calcularTotales(form);
   const m = form.moneda;
 
-  const inp = (campo, extra = {}) => (
-    <input style={S.input} value={form[campo] ?? ""} onChange={(e) => set(campo, e.target.value)} {...extra} />
-  );
+  const inp = (campo, extra = {}) =>
+    extra.type === "date" ? (
+      <CampoFecha style={S.input} value={form[campo] ?? ""} onChange={(e) => set(campo, e.target.value)} />
+    ) : (
+      <input style={S.input} value={form[campo] ?? ""} onChange={(e) => set(campo, e.target.value)} {...extra} />
+    );
 
   const filtradas = ordenes
     .filter((o) => {

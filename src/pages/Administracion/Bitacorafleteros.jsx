@@ -5,6 +5,7 @@ import DeleteButton from '../../components/DeleteButton'
 import { descargarExcelBonito, nombreArchivoSemana } from '../../utils/exportExcel'
 import { abrirDocPDF, encabezadoDoc, pieDoc, hoyMX } from '../../utils/pdfFormato'
 import { IconoMas } from '../../components/Icons'
+import CampoFecha from "../../components/CampoFecha"
 
 const VINO = 'var(--acento)'
 const KEY_FLETES = 'fletesMaqsol'
@@ -215,8 +216,8 @@ export default function BitacoraFleteros(){
           <div><label style={S.label}>BUSCAR</label><input style={S.input} placeholder="Folio, empresa, equipo, serie, origen o destino" value={busqueda} onChange={ev=>setBusqueda(ev.target.value)}/></div>
           <div><label style={S.label}>ESTADO</label><select style={S.input} value={fEstado} onChange={ev=>setFEstado(ev.target.value)}><option value="">Todos</option><option>Programado</option><option>Entregado</option><option>Cancelado</option></select></div>
           <div><label style={S.label}>PAGO</label><select style={S.input} value={fPagado} onChange={ev=>setFPagado(ev.target.value)}><option value="">Todos</option><option>Pagado</option><option>Pendiente</option></select></div>
-          <div><label style={S.label}>DESDE</label><input type="date" style={S.input} value={fDesde} onChange={ev=>setFDesde(ev.target.value)}/></div>
-          <div><label style={S.label}>HASTA</label><input type="date" style={S.input} value={fHasta} onChange={ev=>setFHasta(ev.target.value)}/></div>
+          <div><label style={S.label}>DESDE</label><CampoFecha  style={S.input} value={fDesde} onChange={ev=>setFDesde(ev.target.value)}/></div>
+          <div><label style={S.label}>HASTA</label><CampoFecha  style={S.input} value={fHasta} onChange={ev=>setFHasta(ev.target.value)}/></div>
         </div>
       </div>
 
@@ -300,7 +301,7 @@ export default function BitacoraFleteros(){
         <p style={{color:'#888',fontSize:13,margin:'4px 0 18px'}}>Folio: <strong>{form.folio}</strong></p>
 
         <div style={S.grid2}>
-          <div><label style={S.label}>FECHA</label><input type="date" style={S.input} value={form.fecha} onChange={ev=>setForm({...form,fecha:ev.target.value})}/></div>
+          <div><label style={S.label}>FECHA</label><CampoFecha  style={S.input} value={form.fecha} onChange={ev=>setForm({...form,fecha:ev.target.value})}/></div>
           <div><label style={S.label}>HORA EN QUE SE MOVIÓ EL EQUIPO</label><input type="time" style={S.input} value={form.horaMovimiento||''} onChange={ev=>setForm({...form,horaMovimiento:ev.target.value})}/></div>
           <div><label style={S.label}>EMPRESA (QUE SOLICITÓ Y PAGÓ EL FLETE)</label>
             <input style={S.input} list="lista-empresas-cliente" value={form.empresa} onChange={ev=>setForm({...form,empresa:ev.target.value})} placeholder="Escribe o elige un cliente"/>

@@ -7,6 +7,7 @@ import { useListaCompartida, useSharedTable } from "../../hooks/useSharedTable";
 import { descargarExcelBonito, nombreArchivoFecha } from "../../utils/exportExcel";
 import { S, fFecha, hoyISO, esc } from "./estilosAdmin";
 import { IconoMas } from "../../components/Icons";
+import CampoFecha from "../../components/CampoFecha";
 
 const NUEVO = {
   id: "", fecha: "", equipoId: "", equipoLabel: "", cliente: "", operador: "",
@@ -156,11 +157,11 @@ export default function ReporteHoras() {
             </div>
             <div>
               <label style={S.label}>DESDE</label>
-              <input type="date" style={S.input} value={desde} onChange={(e) => setDesde(e.target.value)} />
+              <CampoFecha  style={S.input} value={desde} onChange={(e) => setDesde(e.target.value)} />
             </div>
             <div>
               <label style={S.label}>HASTA</label>
-              <input type="date" style={S.input} value={hasta} onChange={(e) => setHasta(e.target.value)} />
+              <CampoFecha  style={S.input} value={hasta} onChange={(e) => setHasta(e.target.value)} />
             </div>
           </div>
         </div>
@@ -231,7 +232,7 @@ export default function ReporteHoras() {
               </div>
               <div>
                 <label style={S.label}>FECHA</label>
-                <input type="date" style={S.input} value={form.fecha} onChange={(e) => setForm({ ...form, fecha: e.target.value })} />
+                <CampoFecha  style={S.input} value={form.fecha} onChange={(e) => setForm({ ...form, fecha: e.target.value })} />
               </div>
             </div>
             <div style={S.grid2}>

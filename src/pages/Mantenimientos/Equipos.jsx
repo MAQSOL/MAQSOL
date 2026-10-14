@@ -1,5 +1,6 @@
 import { IconoMas } from "../../components/Icons";
 import { useState, useEffect } from 'react'
+import CampoFecha from "../../components/CampoFecha";
 
 const VINO = 'var(--acento)'
 const KEY_EQUIPOS = 'equiposInternos'
@@ -764,8 +765,8 @@ export default function EquiposInternos() {
               </div>
               <div>
                 <label style={S.label}>PRÓXIMO MANTENIMIENTO</label>
-                <input
-                  type="date"
+                <CampoFecha
+                  
                   style={S.input}
                   value={form.proximoMantto}
                   onChange={(ev) => setForm({ ...form, proximoMantto: ev.target.value })}

@@ -8,6 +8,7 @@ import QrEquipoModal from '../../components/QrEquipoModal'
 import { conHoras } from '../../utils/horometro'
 import CampoDiferido from '../../components/CampoDiferido'
 import { IconoMas } from '../../components/Icons'
+import CampoFecha from "../../components/CampoFecha"
 
 const VINO = 'var(--acento)'
 const KEY_EQUIPOS = 'equiposInternos'
@@ -360,7 +361,7 @@ export default function EquiposInternos(){
           <div><label style={S.label}>SERIE</label><input style={S.input} value={form.serie} onChange={ev=>setForm({...form,serie:ev.target.value})}/></div>
           <div><label style={S.label}>AÑO</label><input style={S.input} value={form.anio} onChange={ev=>setForm({...form,anio:ev.target.value})}/></div>
           <div><label style={{...S.label,display:'flex',justifyContent:'space-between',alignItems:'center'}}>HORÓMETRO<button type="button" style={botonNA} title="El horómetro no sirve" onClick={()=>setForm(f=>({...f,horometro:'N/A'}))}>N/A</button></label><input style={S.input} value={form.horometro} onChange={ev=>setForm({...form,horometro:ev.target.value})} placeholder="Ej. 3450 o N/A"/></div>
-          <div><label style={S.label}>PRÓXIMO MANTTO</label><input type="date" style={S.input} value={form.proximoMantto} onChange={ev=>setForm({...form,proximoMantto:ev.target.value})}/></div>
+          <div><label style={S.label}>PRÓXIMO MANTTO</label><CampoFecha  style={S.input} value={form.proximoMantto} onChange={ev=>setForm({...form,proximoMantto:ev.target.value})}/></div>
         </div>
         <div style={S.grid3}>
           <div><label style={S.label}>OPERADOR</label>
@@ -542,8 +543,8 @@ export default function EquiposInternos(){
           </div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr auto auto',gap:10,alignItems:'end',marginBottom:14}}>
             <div><label style={S.label}>TIPO</label><select style={S.input} value={filtroTipoM} onChange={ev=>setFiltroTipoM(ev.target.value)}><option value="">Todos</option><option>Preventivo</option><option>Correctivo</option></select></div>
-            <div><label style={S.label}>DESDE</label><input type="date" style={S.input} value={filtroDesde} onChange={ev=>setFiltroDesde(ev.target.value)}/></div>
-            <div><label style={S.label}>HASTA</label><input type="date" style={S.input} value={filtroHasta} onChange={ev=>setFiltroHasta(ev.target.value)}/></div>
+            <div><label style={S.label}>DESDE</label><CampoFecha  style={S.input} value={filtroDesde} onChange={ev=>setFiltroDesde(ev.target.value)}/></div>
+            <div><label style={S.label}>HASTA</label><CampoFecha  style={S.input} value={filtroHasta} onChange={ev=>setFiltroHasta(ev.target.value)}/></div>
             <button style={S.btnGris} onClick={()=>descargarExcel(activo)}>Excel</button>
             <button style={S.btnGris} onClick={()=>descargarPDF(activo)}>PDF</button>
           </div>
@@ -602,9 +603,9 @@ export default function EquiposInternos(){
           <p style={{color:'#888',fontSize:13,margin:'0 0 18px'}}>{activo.tipo} {activo.marca} {activo.modelo}</p>
           <div style={S.grid4}>
             <div><label style={S.label}>TIPO DE MANTTO</label><select style={S.input} value={mForm.tipoMantto} onChange={ev=>setMForm({...mForm,tipoMantto:ev.target.value})}><option>Preventivo</option><option>Correctivo</option></select></div>
-            <div><label style={S.label}>FECHA</label><input type="date" style={S.input} value={mForm.fecha} onChange={ev=>setMForm({...mForm,fecha:ev.target.value})}/></div>
+            <div><label style={S.label}>FECHA</label><CampoFecha  style={S.input} value={mForm.fecha} onChange={ev=>setMForm({...mForm,fecha:ev.target.value})}/></div>
             <div><label style={S.label}>HORÓMETRO O FECHA</label><input style={S.input} value={mForm.horometro} onChange={ev=>setMForm({...mForm,horometro:ev.target.value})} placeholder="Ej. 3450 hrs"/></div>
-            <div><label style={S.label}>PRÓX. MANTENIMIENTO</label><input type="date" style={S.input} value={mForm.proximoMantto} onChange={ev=>setMForm({...mForm,proximoMantto:ev.target.value})}/></div>
+            <div><label style={S.label}>PRÓX. MANTENIMIENTO</label><CampoFecha  style={S.input} value={mForm.proximoMantto} onChange={ev=>setMForm({...mForm,proximoMantto:ev.target.value})}/></div>
           </div>
           <div style={{marginBottom:14}}><label style={S.label}>DESCRIPCIÓN DE TRABAJOS</label><textarea style={{...S.input,minHeight:70,resize:'vertical'}} value={mForm.descripcion} onChange={ev=>setMForm({...mForm,descripcion:ev.target.value})} placeholder="Detalla los trabajos realizados..."/></div>
 

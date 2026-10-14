@@ -7,6 +7,7 @@ import { usePerfiles } from "../../hooks/usePerfiles";
 import { useAuth } from "../../contexts/AuthContext";
 import { S, fFecha, hoyISO } from "../Administracion/estilosAdmin";
 import { IconoMas } from "../../components/Icons";
+import CampoFecha from "../../components/CampoFecha";
 
 const COLUMNAS = [
   { clave: "pendiente", titulo: "Pendiente", color: "#8a6d00", fondo: "#fff8e1" },
@@ -276,7 +277,7 @@ export default function Tareas() {
               </div>
               <div>
                 <label style={S.label}>FECHA LÍMITE</label>
-                <input type="date" style={S.input} value={form.fechaLimite} onChange={(e) => set("fechaLimite", e.target.value)} min={hoyISO()} />
+                <CampoFecha  style={S.input} value={form.fechaLimite} onChange={(e) => set("fechaLimite", e.target.value)} min={hoyISO()} />
               </div>
             </div>
 

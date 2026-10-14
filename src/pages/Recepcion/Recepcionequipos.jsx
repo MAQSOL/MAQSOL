@@ -15,6 +15,7 @@ import { estadoExpediente, buscarCliente } from '../../utils/expediente'
 import { comprimirImagen, rutaUnica, extensionDe } from '../../utils/imagenes'
 import { nuevoToken, urlBase } from '../../utils/qrEquipo'
 import { IconoMas } from '../../components/Icons'
+import CampoFecha from "../../components/CampoFecha"
 
 const VINO = 'var(--acento)'
 
@@ -556,7 +557,7 @@ export default function Recepcionequipos(){
         <div style={S.seccion}>Datos generales</div>
         <div style={S.grid3}>
           <div><label style={S.label}>CLIENTE</label><CampoOpciones opciones={opcionesCliente} valor={form.cliente} onChange={cambiarCliente} vacio="Selecciona el cliente" placeholder="Escribe el nombre del cliente" textoOtro="Cliente nuevo (escribir)"/></div>
-          <div><label style={S.label}>FECHA</label><input type="date" style={S.input} value={form.fecha} onChange={ev=>cambiarFecha(ev.target.value)}/></div>
+          <div><label style={S.label}>FECHA</label><CampoFecha  style={S.input} value={form.fecha} onChange={ev=>cambiarFecha(ev.target.value)}/></div>
           <div><label style={S.label}>HORA</label><input type="time" style={S.input} value={form.hora} onChange={ev=>setForm({...form,hora:ev.target.value})}/></div>
         </div>
         {form.cliente.trim()&&(
@@ -622,8 +623,8 @@ export default function Recepcionequipos(){
         <div style={S.seccion}>Entrega y retiro</div>
         <div style={S.grid4}>
           <div><label style={S.label}>HORA EN QUE SE ENTREGA</label><input type="time" style={S.input} value={form.horaEntrega} onChange={ev=>setForm({...form,horaEntrega:ev.target.value})}/></div>
-          <div><label style={S.label}>FECHA DE ENTREGA</label><input type="date" style={S.input} value={form.fechaEntrega} onChange={ev=>setForm({...form,fechaEntrega:ev.target.value})}/></div>
-          <div><label style={S.label}>FECHA DE RETIRO</label><input type="date" style={S.input} value={form.fechaRetiro} onChange={ev=>setForm({...form,fechaRetiro:ev.target.value})}/></div>
+          <div><label style={S.label}>FECHA DE ENTREGA</label><CampoFecha  style={S.input} value={form.fechaEntrega} onChange={ev=>setForm({...form,fechaEntrega:ev.target.value})}/></div>
+          <div><label style={S.label}>FECHA DE RETIRO</label><CampoFecha  style={S.input} value={form.fechaRetiro} onChange={ev=>setForm({...form,fechaRetiro:ev.target.value})}/></div>
           <div><label style={S.label}>HORA DE RETIRO</label><input type="time" style={S.input} value={form.horaRetiro} onChange={ev=>setForm({...form,horaRetiro:ev.target.value})}/></div>
         </div>
         <div style={S.grid3}>
@@ -653,7 +654,7 @@ export default function Recepcionequipos(){
               </div>
               {x.na?(<p style={{color:'#888',fontSize:13,margin:0}}>No aplica: saldrá N/A en el documento.</p>):(
                 <div style={S.grid2}>
-                  <div><label style={S.label}>FECHA</label><input type="date" style={S.input} value={form[x.f]} onChange={ev=>setForm({...form,[x.f]:ev.target.value})}/></div>
+                  <div><label style={S.label}>FECHA</label><CampoFecha  style={S.input} value={form[x.f]} onChange={ev=>setForm({...form,[x.f]:ev.target.value})}/></div>
                   <div><label style={S.label}>HORÓMETRO</label><input style={S.input} value={form[x.h]} onChange={ev=>setForm({...form,[x.h]:ev.target.value})}/></div>
                 </div>
               )}

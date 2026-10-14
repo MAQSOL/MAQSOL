@@ -4,6 +4,7 @@ import Sidebar from '../../components/Sidebar'
 import DeleteButton from '../../components/DeleteButton'
 import { descargarExcelBonito, nombreArchivoFecha } from '../../utils/exportExcel'
 import { IconoMas } from '../../components/Icons'
+import CampoFecha from "../../components/CampoFecha"
 
 const VINO = 'var(--acento)'
 const KEY_EXTERNOS = 'equiposExternos'
@@ -222,14 +223,14 @@ export default function EquiposExternos(){
         <h3 style={{fontSize:15,fontWeight:800,margin:'8px 0 10px',color:VINO}}>Cliente y fechas</h3>
         <div style={S.grid3}>
           <div><label style={S.label}>CLIENTE ASIGNADO</label><input style={S.input} value={form.cliente} onChange={ev=>setForm({...form,cliente:ev.target.value})} placeholder="A quién se le renta"/></div>
-          <div><label style={S.label}>FECHA INICIO</label><input type="date" style={S.input} value={form.fechaInicio} onChange={ev=>setForm({...form,fechaInicio:ev.target.value})}/></div>
-          <div><label style={S.label}>FECHA FIN ESTIMADA</label><input type="date" style={S.input} value={form.fechaFinEstimada} onChange={ev=>setForm({...form,fechaFinEstimada:ev.target.value})}/></div>
+          <div><label style={S.label}>FECHA INICIO</label><CampoFecha  style={S.input} value={form.fechaInicio} onChange={ev=>setForm({...form,fechaInicio:ev.target.value})}/></div>
+          <div><label style={S.label}>FECHA FIN ESTIMADA</label><CampoFecha  style={S.input} value={form.fechaFinEstimada} onChange={ev=>setForm({...form,fechaFinEstimada:ev.target.value})}/></div>
         </div>
 
         <h3 style={{fontSize:15,fontWeight:800,margin:'8px 0 10px',color:VINO}}>Mantenimiento</h3>
         <div style={S.grid3}>
-          <div><label style={S.label}>ÚLTIMO MANTTO</label><input type="date" style={S.input} value={form.ultimoMantto} onChange={ev=>setForm({...form,ultimoMantto:ev.target.value})}/></div>
-          <div><label style={S.label}>PRÓXIMO MANTTO</label><input type="date" style={S.input} value={form.proximoMantto} onChange={ev=>setForm({...form,proximoMantto:ev.target.value})}/></div>
+          <div><label style={S.label}>ÚLTIMO MANTTO</label><CampoFecha  style={S.input} value={form.ultimoMantto} onChange={ev=>setForm({...form,ultimoMantto:ev.target.value})}/></div>
+          <div><label style={S.label}>PRÓXIMO MANTTO</label><CampoFecha  style={S.input} value={form.proximoMantto} onChange={ev=>setForm({...form,proximoMantto:ev.target.value})}/></div>
           <div><label style={S.label}>REALIZADO POR</label><input style={S.input} value={form.realizadoPor} onChange={ev=>setForm({...form,realizadoPor:ev.target.value})} placeholder="Técnico o empresa que lo hizo"/></div>
         </div>
         <div style={{marginBottom:14}}>
