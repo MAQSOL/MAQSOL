@@ -72,7 +72,7 @@ export const ORDEN_NUEVA = {
   puestoSolicita: "",
   firmaSolicita: "",
   firmaAutoriza: "",
-  autoriza: "LIC. FRANCISCO TORRES MORALES",
+  autoriza: "Lic. Francisco Torres Morales",
   puestoAutoriza: "Gerente de Operaciones"
 };
 
@@ -80,6 +80,9 @@ const num = (v) => {
   const n = parseFloat(String(v ?? "").replace(/[$,\s]/g, ""));
   return isNaN(n) ? 0 : n;
 };
+
+/** Las órdenes guardadas antes con el nombre en mayúsculas se muestran con inicial mayúscula. */
+export const ordenNormalizada = (o) => (o && o.autoriza === "LIC. FRANCISCO TORRES MORALES" ? { ...o, autoriza: "Lic. Francisco Torres Morales" } : o);
 
 export const importePartida = (p) => num(p.cantidad) * num(p.precio);
 
@@ -139,6 +142,7 @@ const CSS_OC = `
 
 /** Cuerpo del documento (sin <html>), para el PDF y para la vista previa. */
 function cuerpoOrden(o) {
+  o = ordenNormalizada(o);
   const t = calcularTotales(o);
   const m = o.moneda || "MXN";
   const d = (n) => esc(dineroOC(n, m));

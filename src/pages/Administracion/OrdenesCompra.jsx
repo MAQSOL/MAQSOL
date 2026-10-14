@@ -10,7 +10,7 @@ import FirmaPad from "../../components/FirmaPad";
 import { S, fFecha, hoyISO } from "./estilosAdmin";
 import {
   ORDEN_NUEVA, PARTIDA_NUEVA, USOS_CFDI, FORMAS_PAGO, METODOS_PAGO, VIAS_EMBARQUE, ESTADOS_OC,
-  calcularTotales, importePartida, dineroOC, folioOC, htmlOrden, abrirOrdenPDF
+  calcularTotales, importePartida, dineroOC, folioOC, htmlOrden, abrirOrdenPDF, ordenNormalizada
 } from "../../utils/ordenCompra";
 import CampoFecha from "../../components/CampoFecha";
 
@@ -416,7 +416,7 @@ export default function OrdenesCompra() {
                 const est = COLOR_ESTADO[o.estado] || COLOR_ESTADO.Pendiente;
                 return (
                   <div key={o.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, padding: "10px 18px", borderTop: "1px solid #eee", background: o.id === form.id ? "#f6f9fc" : "transparent" }}>
-                    <div style={{ cursor: "pointer", minWidth: 0 }} onClick={() => setForm({ ...ORDEN_NUEVA, ...o })} title="Abrir para ver o editar">
+                    <div style={{ cursor: "pointer", minWidth: 0 }} onClick={() => setForm(ordenNormalizada({ ...ORDEN_NUEVA, ...o }))} title="Abrir para ver o editar">
                       <strong>{folioOC(o)}</strong>{" "}
                       <span style={{ background: est.bg, color: est.c, borderRadius: 10, padding: "1px 8px", fontSize: 11, fontWeight: 700 }}>{o.estado || "Pendiente"}</span>
                       <div style={{ fontSize: 12, color: "#777", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
