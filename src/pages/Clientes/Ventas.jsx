@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import jsPDF from "jspdf";
 
 import logo from "../../assets/logo.png";
-import logoCamion from "../../assets/logo-maqsol-camion.png";
+import logoM from "../../assets/logo-maqsol-m.png";
 import margen from "../../assets/margen.png";
 import "./Ventas.css";
 import DeleteButton from "../../components/DeleteButton";
@@ -234,31 +234,31 @@ doc.rect(0, 23, 19, 12, "F");
 
 // LOGO
 doc.addImage(
-  logoCamion,
+  logoM,
   "PNG",
-  20,
-  13,
-  36,
-  22.1
+  23,
+  12,
+  22,
+  25.8
 );
 
 // NOMBRE Y DESCRIPCIÓN DE EMPRESA
 doc.setFont("helvetica", "bold");
 doc.setFontSize(23);
 doc.setTextColor(0, 0, 0);
-doc.text("MAQSOL", 60, 23);
+doc.text("MAQSOL", 54, 23);
 
 doc.setFont("helvetica", "normal");
 doc.setFontSize(9);
 doc.setTextColor(100, 100, 100);
 doc.text(
   "Soluciones prácticas y eficientes en la renta y venta",
-  60,
+  54,
   30
 );
 doc.text(
   "de maquinaria pesada para la industria y la construcción",
-  60,
+  54,
   35
 );
 
