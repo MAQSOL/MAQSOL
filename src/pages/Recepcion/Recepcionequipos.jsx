@@ -538,7 +538,7 @@ export default function Recepcionequipos(){
           <h2 style={{fontSize:22,fontWeight:800,margin:0}}>{registros.some(r=>r.id===form.id)?'Editar checklist':'Nuevo checklist'}</h2>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             {form.ligadoA&&<span style={{fontSize:12,color:'#999',whiteSpace:'nowrap'}}>Ligado a {folioVisible(form.ligadoA)}</span>}
-            <select translate="no" className="notranslate" style={{...S.input,width:120}} value={form.tipo} onChange={ev=>setForm({...form,tipo:ev.target.value})}><option>Salida</option><option>Entrada</option></select>
+            <select translate="no" className="notranslate" style={{...S.input,width:120}} value={form.tipo} onChange={ev=>{const t=ev.target.value;setForm(t==='Entrada'?{...form,tipo:t,fechaRetiro:'',horaRetiro:'',horometroRetiro:''}:{...form,tipo:t})}}><option>Salida</option><option>Entrada</option></select>
             {folioManual?(
               <span style={{display:'inline-flex',alignItems:'center',gap:6}}>
                 <span style={{fontWeight:700,color:VINO}}>Folio:</span>
@@ -624,11 +624,11 @@ export default function Recepcionequipos(){
         <div style={S.grid4}>
           <div><label style={S.label}>HORA EN QUE SE ENTREGA</label><input type="time" style={S.input} value={form.horaEntrega} onChange={ev=>setForm({...form,horaEntrega:ev.target.value})}/></div>
           <div><label style={S.label}>FECHA DE ENTREGA</label><CampoFecha  style={S.input} value={form.fechaEntrega} onChange={ev=>setForm({...form,fechaEntrega:ev.target.value})}/></div>
-          <div><label style={S.label}>FECHA DE RETIRO</label><CampoFecha  style={S.input} value={form.fechaRetiro} onChange={ev=>setForm({...form,fechaRetiro:ev.target.value})}/></div>
-          <div><label style={S.label}>HORA DE RETIRO</label><input type="time" style={S.input} value={form.horaRetiro} onChange={ev=>setForm({...form,horaRetiro:ev.target.value})}/></div>
+          {form.tipo!=='Entrada'&&<div><label style={S.label}>FECHA DE RETIRO</label><CampoFecha  style={S.input} value={form.fechaRetiro} onChange={ev=>setForm({...form,fechaRetiro:ev.target.value})}/></div>}
+          {form.tipo!=='Entrada'&&<div><label style={S.label}>HORA DE RETIRO</label><input type="time" style={S.input} value={form.horaRetiro} onChange={ev=>setForm({...form,horaRetiro:ev.target.value})}/></div>}
         </div>
         <div style={S.grid3}>
-          <div><label style={S.label}>HORÓMETRO DE RETIRO</label><input style={S.input} value={form.horometroRetiro} onChange={ev=>setForm({...form,horometroRetiro:ev.target.value})}/></div>
+          {form.tipo!=='Entrada'&&<div><label style={S.label}>HORÓMETRO DE RETIRO</label><input style={S.input} value={form.horometroRetiro} onChange={ev=>setForm({...form,horometroRetiro:ev.target.value})}/></div>}
           <div><label style={S.label}>NOMBRE DE QUIEN ENTREGA</label><input style={S.input} value={form.quienEntrega} onChange={ev=>setForm({...form,quienEntrega:ev.target.value})}/></div>
           <div><label style={S.label}>NOMBRE DE QUIEN RECIBE</label><input style={S.input} value={form.quienRecibe} onChange={ev=>setForm({...form,quienRecibe:ev.target.value})}/></div>
         </div>
