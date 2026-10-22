@@ -114,7 +114,7 @@ export default function FotosChecklist() {
         ) : (
           <div className="fk-grid">
             {fotos.map((f, i) => (
-              <button key={f} type="button" className={`fk-foto${i === 0 && fotos.length > 2 ? " fk-grande" : ""}`} onClick={() => setIdx(i)}>
+              <button key={f} type="button" className="fk-foto" onClick={() => setIdx(i)}>
                 <img src={urlDe(f)} alt={`Foto ${i + 1}`} loading={i < 4 ? "eager" : "lazy"} />
                 <span className="fk-num">{String(i + 1).padStart(2, "0")}</span>
                 <span className="fk-zoom">⤢</span>
@@ -192,7 +192,7 @@ function Estilos() {
 .fk-pill-rojo{background:#d6001c;border-color:#d6001c;color:#fff}
 
 .fk-contenido{flex:1;max-width:1100px;margin:0 auto;width:100%;box-sizing:border-box;padding:28px 20px 50px}
-.fk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));grid-auto-flow:dense;gap:14px}
+.fk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
 .fk-foto{position:relative;border:0;padding:0;margin:0;cursor:zoom-in;overflow:hidden;border-radius:16px;background:#e9ebee;aspect-ratio:4/3;box-shadow:0 2px 10px rgba(0,0,0,.08);outline:2px solid transparent;transition:transform .25s,box-shadow .25s,outline-color .25s}
 .fk-foto img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
 .fk-foto::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.45));opacity:.7;transition:opacity .25s}
@@ -201,7 +201,7 @@ function Estilos() {
 .fk-num{position:absolute;left:12px;bottom:10px;z-index:2;font-size:12px;font-weight:700;letter-spacing:1.5px;color:#fff}
 .fk-zoom{position:absolute;right:12px;top:10px;z-index:2;width:30px;height:30px;border-radius:50%;background:#fff;color:#d6001c;font-size:15px;display:grid;place-items:center;opacity:0;transform:scale(.85);transition:opacity .2s,transform .2s}
 .fk-foto:hover .fk-zoom{opacity:1;transform:none}
-@media (min-width:640px){.fk-grande{grid-column:span 2;grid-row:span 2;aspect-ratio:auto}}
+
 
 .fk-centro{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:70px 24px;text-align:center;color:#7a7f87;font-size:14px}
 .fk-centro h3{margin:0;color:#111}

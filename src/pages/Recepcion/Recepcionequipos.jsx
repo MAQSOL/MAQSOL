@@ -7,7 +7,7 @@ import Sidebar from '../../components/Sidebar'
 import DeleteButton from '../../components/DeleteButton'
 import { descargarExcelBonito, nombreArchivoFecha } from '../../utils/exportExcel'
 import { abrirChecklistPDF, descargarChecklistExcel } from '../../utils/checklistForma'
-import { folioVisible, LARGO_NOMBRE_FOLIO } from '../../utils/folio'
+import { folioVisible, LARGO_NOMBRE_FOLIO, consecutivo, modeloParaFolio } from '../../utils/folio'
 import { supabase } from '../../supabaseClient'
 import FirmaPad from '../../components/FirmaPad'
 import ExpedienteCliente from '../../components/ExpedienteCliente'
@@ -181,8 +181,9 @@ export default function Recepcionequipos(){
     const f=fechaISO?new Date(fechaISO+'T00:00:00'):new Date()
     return String(f.getMonth()+1).padStart(2,'0')+f.getFullYear()
   }
-  function construirFolio(seq,cliente,fecha){
-    return 'CH-'+String(seq).padStart(3,'0')+'-'+(limpiarNombre(cliente)||'CLIENTE').slice(0,LARGO_NOMBRE_FOLIO)+'-'+mmAAAA(fecha)
+  function construirFolio(seq,cliente,fecha,modelo){
+    const mod=modeloParaFolio(modelo)
+    return 'CH-'+consecutivo(seq)+'-'+(limpiarNombre(cliente)||'CLIENTE').slice(0,LARGO_NOMBRE_FOLIO)+(mod?'-'+mod:'')+'-'+mmAAAA(fecha)
   }
   function siguienteSeq(){
     const n=registros.reduce((max,r)=>{
@@ -213,7 +214,7 @@ export default function Recepcionequipos(){
     reiniciarArchivos()
     setFolioManual(false)
     setForm({
-      ...CHECKLIST_NUEVO,id:uid(),folioSeq:seq,folio:construirFolio(seq,salida.cliente,fecha),
+      ...CHECKLIST_NUEVO,id:uid(),folioSeq:seq,folio:construirFolio(seq,salida.cliente,fecha,salida.modelo),
       tipo:'Entrada',ligadoA:salida.folio,fecha,
       cliente:salida.cliente,nombreContacto:salida.nombreContacto,telefono:salida.telefono,correo:salida.correo,
       equipo:salida.equipo,marca:salida.marca,modelo:salida.modelo,serie:salida.serie,
@@ -227,16 +228,20 @@ export default function Recepcionequipos(){
     const conocido=buscarCliente(clientesDB,cliente)
     setForm(f=>({...f,cliente,
       ...(conocido?{nombreContacto:f.nombreContacto||conocido.contacto||'',telefono:f.telefono||conocido.telefono||'',correo:f.correo||conocido.correo||''}:{}),
-      ...(esNuevo&&!folioManual?{folio:construirFolio(f.folioSeq,cliente,f.fecha)}:{})}))
+      ...(esNuevo&&!folioManual?{folio:construirFolio(f.folioSeq,cliente,f.fecha,f.modelo)}:{})}))
   }
-  function cambiarFecha(fecha){setForm(f=>({...f,fecha,...(esNuevo&&!folioManual?{folio:construirFolio(f.folioSeq,f.cliente,fecha)}:{})}))}
+  function conModelo(f,extra){
+    const n={...f,...extra}
+    return esNuevo&&!folioManual?{...n,folio:construirFolio(n.folioSeq,n.cliente,n.fecha,n.modelo)}:n
+  }
+  function cambiarFecha(fecha){setForm(f=>({...f,fecha,...(esNuevo&&!folioManual?{folio:construirFolio(f.folioSeq,f.cliente,fecha,f.modelo)}:{})}))}
   function editarFolio(texto){
     const m=/^CH-(\d+)-/i.exec(texto)
     setForm(f=>({...f,folio:texto,...(m?{folioSeq:parseInt(m[1],10)}:{})}))
   }
   function folioAutomatico(){
     setFolioManual(false)
-    setForm(f=>({...f,folio:construirFolio(f.folioSeq,f.cliente,f.fecha)}))
+    setForm(f=>({...f,folio:construirFolio(f.folioSeq,f.cliente,f.fecha,f.modelo)}))
   }
   function alternarNA(grupo){
     setForm(f=>{
@@ -261,7 +266,7 @@ export default function Recepcionequipos(){
     const lista=[...internos.map(e=>({...e,origen:'internos'})),...externos.map(e=>({...e,origen:'externos'}))]
     const e=lista.find(x=>x.origen+':'+x.id===clave)
     if(!e)return
-    setForm(f=>({...f,equipo:e.tipo||'',marca:e.marca||'',modelo:e.modelo||'',serie:e.serie||'',horometro:e.horometro||f.horometro,ubicacion:f.ubicacion||e.ubicacion||''}))
+    setForm(f=>conModelo(f,{equipo:e.tipo||'',marca:e.marca||'',modelo:e.modelo||'',serie:e.serie||'',horometro:e.horometro||f.horometro,ubicacion:f.ubicacion||e.ubicacion||''}))
   }
   async function guardarForm(){
     if(!form.cliente.trim()){alert('Indica el cliente.');return}
@@ -613,7 +618,7 @@ export default function Recepcionequipos(){
         <div style={S.grid4}>
           <div><label style={S.label}>EQUIPO</label><CampoOpciones opciones={opcionesTipo} valor={form.equipo} onChange={v=>setForm(f=>({...f,equipo:v}))} vacio="Selecciona el equipo" placeholder="Ej. Excavadora" textoOtro="Otro equipo (escribir)"/></div>
           <div><label style={S.label}>MARCA</label><CampoOpciones opciones={opcionesMarca} valor={form.marca} onChange={v=>setForm(f=>({...f,marca:v}))} vacio="Selecciona la marca" placeholder="Escribe la marca" textoOtro="Otra marca (escribir)"/></div>
-          <div><label style={S.label}>MODELO</label><CampoOpciones opciones={opcionesModelo} valor={form.modelo} onChange={v=>setForm(f=>({...f,modelo:v}))} vacio="Selecciona el modelo" placeholder="Escribe el modelo" textoOtro="Otro modelo (escribir)"/></div>
+          <div><label style={S.label}>MODELO</label><CampoOpciones opciones={opcionesModelo} valor={form.modelo} onChange={v=>setForm(f=>conModelo(f,{modelo:v}))} vacio="Selecciona el modelo" placeholder="Escribe el modelo" textoOtro="Otro modelo (escribir)"/></div>
           <div><label style={S.label}>SERIE</label><input style={S.input} value={form.serie} onChange={ev=>setForm({...form,serie:ev.target.value})}/></div>
         </div>
         <div style={S.grid4}>
