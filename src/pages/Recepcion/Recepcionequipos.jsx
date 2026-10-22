@@ -33,6 +33,24 @@ const COL3 = ['MARCHA AVANTE-REVERSA','ELEVACION DEL BRAZO','MOTOR AUXILIAR',
 ].map(x=>typeof x==='string'?{n:x}:x)
 const COL4 = ['ALARMA DE REVERSA','BOTON DE PARO EMERGENCIA (JIB)','CADENA DE LA PLUMA','MANGUERAS Y CONEXIONES','TOMA DE CORRIENTE (CLAVIJA)','JIB','PANEL DE CONTROL AEREO'].map(n=>({n}))
 
+// Qué renglones del checklist NO aplican según el tipo de equipo (editar aquí para ajustar).
+const SOLO_PLATAFORMAS = ['CANASTILLA', 'PANEL DE CONTROL AEREO', 'JIB', 'BOTON DE PARO EMERGENCIA (JIB)']
+const NO_APLICA = {
+  'plataforma de tijera': ['JIB', 'BOTON DE PARO EMERGENCIA (JIB)', 'EXTENSIONES DEL BRAZO', 'RADIADOR', 'MOTOR AUXILIAR', 'BRAZO TELESCOPICO', 'CADENA DE LA PLUMA'],
+  'plataforma articulada': [],
+  'plataforma telescopica': [],
+  'manipulador telescopico': ['JIB', 'BOTON DE PARO EMERGENCIA (JIB)', 'CANASTILLA', 'PANEL DE CONTROL AEREO'],
+  '*': SOLO_PLATAFORMAS // minicargador, retroexcavadora, montacargas, excavadora, etc.
+}
+const normTipo = (t) => (t || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim()
+function columnasPara(equipo) {
+  const t = normTipo(equipo)
+  const todas = [COL1, COL2, COL3, COL4]
+  if (!t) return todas
+  const fuera = NO_APLICA[t] || NO_APLICA['*']
+  return todas.map((c) => c.filter((it) => !fuera.includes(it.n)))
+}
+
 
 const CHECKLIST_NUEVO = {
   id:'',folio:'',tipo:'Salida',ligadoA:'',
@@ -396,7 +414,7 @@ export default function Recepcionequipos(){
   // ================= EXPORTES =================
 
   function descargarExcel(r){
-    descargarChecklistExcel(conLinkFotos(r),[COL1,COL2,COL3,COL4],nombreArchivoFecha((r.tipo==='Entrada'?'CH-ENTRADA-':'CH-SALIDA-')+(r.folio||'equipo').toString().toUpperCase().replace(/[^A-Z0-9]/g,'')))
+    descargarChecklistExcel(conLinkFotos(r),columnasPara(r.equipo),nombreArchivoFecha((r.tipo==='Entrada'?'CH-ENTRADA-':'CH-SALIDA-')+(r.folio||'equipo').toString().toUpperCase().replace(/[^A-Z0-9]/g,'')))
   }
 
   function descargarListaExcel(){
@@ -411,7 +429,7 @@ export default function Recepcionequipos(){
   }
 
   function descargarPDF(r){
-    abrirChecklistPDF(conLinkFotos(r),[COL1,COL2,COL3,COL4])
+    abrirChecklistPDF(conLinkFotos(r),columnasPara(r.equipo))
   }
 
   const seccionDocs=(<>
@@ -635,10 +653,10 @@ export default function Recepcionequipos(){
 
         <div style={S.seccion}>Checklist de condición — B: Bueno · R: Regular · M: Malo</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:14}}>
-          <ColumnaChecklist titulo="ESTRUCTURA" items={COL1} valores={form.items} porcentajes={form.porcentajes} onCambiar={cambiarItem} onCambiarPct={cambiarPct}/>
-          <ColumnaChecklist titulo="LLANTAS / BATERÍA" items={COL2} valores={form.items} porcentajes={form.porcentajes} onCambiar={cambiarItem} onCambiarPct={cambiarPct}/>
-          <ColumnaChecklist titulo="NIVELES / MANDOS" items={COL3} valores={form.items} porcentajes={form.porcentajes} onCambiar={cambiarItem} onCambiarPct={cambiarPct}/>
-          <ColumnaChecklist titulo="ACCESORIOS / SEGURIDAD" items={COL4} valores={form.items} porcentajes={form.porcentajes} onCambiar={cambiarItem} onCambiarPct={cambiarPct}/>
+          <ColumnaChecklist titulo="ESTRUCTURA" items={columnasPara(form.equipo)[0]} valores={form.items} porcentajes={form.porcentajes} onCambiar={cambiarItem} onCambiarPct={cambiarPct}/>
+          <ColumnaChecklist titulo="LLANTAS / BATERÍA" items={columnasPara(form.equipo)[1]} valores={form.items} porcentajes={form.porcentajes} onCambiar={cambiarItem} onCambiarPct={cambiarPct}/>
+          <ColumnaChecklist titulo="NIVELES / MANDOS" items={columnasPara(form.equipo)[2]} valores={form.items} porcentajes={form.porcentajes} onCambiar={cambiarItem} onCambiarPct={cambiarPct}/>
+          <ColumnaChecklist titulo="ACCESORIOS / SEGURIDAD" items={columnasPara(form.equipo)[3]} valores={form.items} porcentajes={form.porcentajes} onCambiar={cambiarItem} onCambiarPct={cambiarPct}/>
         </div>
 
         <div style={S.seccion}>Servicio</div>
