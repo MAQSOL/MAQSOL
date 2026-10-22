@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 :root{
   --acento:#1d5c8f;
   --acento-oscuro:#154970;
