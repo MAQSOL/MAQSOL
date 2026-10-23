@@ -10,6 +10,7 @@ import { descargarFichaPDF, edadDe } from "../../utils/fichaPersonal";
 import { S, fFecha, hoyISO } from "./estilosAdmin";
 import { IconoMas } from "../../components/Icons";
 import CampoFecha from "../../components/CampoFecha";
+import CartaResponsivaModal from "../../components/CartaResponsivaModal";
 
 const BUCKET = "personal";
 const MAX_MB = 15;
@@ -78,6 +79,7 @@ export default function PersonalNuevo() {
   const { isAdmin } = useAuth();
   const [personas, guardarPersonas] = useListaCompartida("personal");
   const [modal, setModal] = useState(false);
+  const [carta, setCarta] = useState(null); // null = cerrada; { persona } = abierta
   const [form, setForm] = useState(NUEVO);
   const [nuevos, setNuevos] = useState({});
   const [quitar, setQuitar] = useState([]);
@@ -222,6 +224,7 @@ export default function PersonalNuevo() {
             <button style={S.btnGris} onClick={() => descargarFichaPDF({}, logoUrl(), "FICHA-EMPLEADO-EN-BLANCO")}>
               Ficha en blanco (para que la llene el empleado)
             </button>
+            <button style={S.btnGris} onClick={() => setCarta({ persona: null })}>Carta responsiva de equipo</button>
             <button style={S.btn} onClick={abrirNuevo}><IconoMas />Nuevo empleado</button>
           </div>
         </div>
@@ -268,6 +271,7 @@ export default function PersonalNuevo() {
                     <td style={{ ...S.td, whiteSpace: "nowrap", textAlign: "right" }}>
                       <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => abrirEditar(p)}>Editar</button>{" "}
                       <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => descargarFichaPDF(p, logoUrl(), "FICHA-" + p.nombre.replace(/\s+/g, "-").toUpperCase())}>Ficha PDF</button>{" "}
+                      <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => setCarta({ persona: p })}>Responsiva</button>{" "}
                       <span style={{ display: "inline-block" }}>
                         <DeleteButton size="sm" title="Eliminar empleado y sus documentos" onConfirm={() => eliminar(p)} />
                       </span>
@@ -482,6 +486,7 @@ export default function PersonalNuevo() {
           </div>
         </div>
       )}
+      {carta && <CartaResponsivaModal personas={personas} persona={carta.persona} onClose={() => setCarta(null)} />}
     </Layout>
   );
 }
