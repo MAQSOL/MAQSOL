@@ -29,6 +29,7 @@ const DOCUMENTOS = [
   { clave: "contrato", nombre: "Contrato laboral firmado" },
   { clave: "licencia", nombre: "Licencia de conducir (operadores)", opcional: true },
   { clave: "recomendacion", nombre: "Cartas de recomendación", opcional: true },
+  { clave: "responsiva", nombre: "Carta responsiva de equipo firmada", opcional: true },
   { clave: "fotos", nombre: "Fotografías tamaño infantil", opcional: true }
 ];
 
@@ -155,6 +156,27 @@ export default function PersonalNuevo() {
   const quitarGuardado = (clave, path) => {
     setForm((f) => ({ ...f, documentos: { ...f.documentos, [clave]: (f.documentos[clave] || []).filter((a) => a.path !== path) } }));
     setQuitar((q) => [...q, path]);
+  };
+
+  // Sube el escaneo de la carta responsiva al expediente del empleado.
+  const subirEscaneoCarta = async (personaId, archivo) => {
+    if (!(archivo.type === "application/pdf" || archivo.type.startsWith("image/"))) return alert("Sube un PDF o una imagen.");
+    if (archivo.size > MAX_MB * 1024 * 1024) return alert("El archivo pesa más de " + MAX_MB + " MB.");
+    const path = rutaUnica(personaId, "responsiva", archivo.name);
+    const { error } = await supabase.storage.from(BUCKET).upload(path, archivo, { contentType: archivo.type });
+    if (error) return alert("No se pudo subir el archivo: " + error.message);
+    try {
+      await guardarPersonas(personas.map((p) => (p.id === personaId
+        ? { ...p, documentos: { ...(p.documentos || {}), responsiva: [...(p.documentos?.responsiva || []), { path, nombre: archivo.name, fecha: hoyISO() }] } }
+        : p)));
+    } catch (e) {
+      await supabase.storage.from(BUCKET).remove([path]);
+      alert("No se pudo guardar en el expediente: " + (e.message || e));
+    }
+  };
+  const abrirArchivoCarta = async (a) => {
+    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(a.path, 3600);
+    if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener");
   };
 
   const guardarForm = async () => {
@@ -486,7 +508,7 @@ export default function PersonalNuevo() {
           </div>
         </div>
       )}
-      {carta && <CartaResponsivaModal personas={personas} persona={carta.persona} onClose={() => setCarta(null)} />}
+      {carta && <CartaResponsivaModal personas={personas} persona={carta.persona} onClose={() => setCarta(null)} onSubirEscaneo={subirEscaneoCarta} onAbrirArchivo={abrirArchivoCarta} />}
     </Layout>
   );
 }
