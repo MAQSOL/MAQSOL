@@ -1,6 +1,6 @@
 import { IconoMas } from "../../components/Icons";
 import Layout from "../../components/Layout";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import "../Clientes/Ventas.css";
@@ -23,6 +23,20 @@ const esMismoDia = (a, b) =>
   a.getDate() === b.getDate() &&
   a.getMonth() === b.getMonth() &&
   a.getFullYear() === b.getFullYear();
+
+// Caja de observaciones con su propio estado: escribir no re-renderiza la tabla completa.
+function AreaObservaciones({ inicial, onTexto, estilo }) {
+  const [v, setV] = useState(inicial);
+  return (
+    <textarea
+      autoFocus
+      value={v}
+      onChange={(e) => { setV(e.target.value); onTexto(e.target.value); }}
+      placeholder="Permisos, retardos, incapacidad, motivo de las horas extra, notas..."
+      style={estilo}
+    />
+  );
+}
 
 function Asistencias() {
 
@@ -219,6 +233,7 @@ function Asistencias() {
 
   const [obsModal, setObsModal] = useState(null);
   const [obsTexto, setObsTexto] = useState("");
+  const obsRef = useRef("");
 
   const obsSemana = (id) => registros?.[claveSemana]?.[id]?.obs || "";
 
@@ -231,7 +246,9 @@ function Asistencias() {
   };
 
   const abrirObs = (c) => {
-    setObsTexto(obsSemana(c.id));
+    const t = obsSemana(c.id);
+    obsRef.current = t;
+    setObsTexto(t);
     setObsModal(c);
   };
 
@@ -1172,12 +1189,11 @@ function Asistencias() {
             <label style={{ fontWeight: "600", fontSize: "13px", color: "#777", display: "block" }}>
               Tus observaciones de la semana
             </label>
-            <textarea
-              autoFocus
-              value={obsTexto}
-              onChange={(e) => setObsTexto(e.target.value)}
-              placeholder="Permisos, retardos, incapacidad, motivo de las horas extra, notas..."
-              style={{ ...input, marginTop: "6px", minHeight: "110px", resize: "vertical", textAlign: "left" }}
+            <AreaObservaciones
+              key={obsModal.id}
+              inicial={obsTexto}
+              onTexto={(t) => { obsRef.current = t; }}
+              estilo={{ ...input, marginTop: "6px", minHeight: "110px", resize: "vertical", textAlign: "left" }}
             />
 
             {DIAS.some((_, i) => obtenerDia(obsModal.id, i).observaciones) && (
@@ -1203,7 +1219,7 @@ function Asistencias() {
               </button>
               <button
                 onClick={() => {
-                  guardarObsSemana(obsModal.id, obsTexto);
+                  guardarObsSemana(obsModal.id, obsRef.current);
                   setObsModal(null);
                 }}
                 style={{ flex: 1, background: VINO, color: "#fff", border: "none", borderRadius: "10px", padding: "14px", cursor: "pointer", fontWeight: "700" }}
