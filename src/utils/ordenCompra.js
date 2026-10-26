@@ -115,10 +115,11 @@ const CSS_OC = `
   .meta{display:flex;gap:28px;flex-wrap:wrap;margin:0 0 18px}
   .meta div{font-size:10px;color:#888;letter-spacing:.5px;text-transform:uppercase}
   .meta b{display:block;font-size:14px;color:#222;letter-spacing:0;text-transform:none;margin-top:2px}
-  .partes{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:6px}
+  .partes{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-bottom:6px}
   .parte h2{margin:0 0 6px}
   .fila{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #eee;font-size:11.5px}
   .fila span{color:#888;min-width:92px;font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;padding-top:1px}
+  .fila.una div{white-space:nowrap;font-size:10.5px}
   .chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
   .chip{background:${AZUL_TENUE};color:#333;border-radius:14px;padding:4px 11px;font-size:10.5px}
   .chip b{color:${AZUL}}
@@ -147,7 +148,7 @@ function cuerpoOrden(o) {
   const t = calcularTotales(o);
   const m = o.moneda || "MXN";
   const d = (n) => esc(dineroOC(n, m));
-  const fila = (etq, val) => (val ? `<div class="fila"><span>${etq}</span><div>${esc(val)}</div></div>` : "");
+  const fila = (etq, val, extra = "") => (val ? `<div class="fila${extra}"><span>${etq}</span><div>${esc(val)}</div></div>` : "");
   const partidas = (o.partidas || []).filter((p) => p.descripcion || p.numeroParte || p.cantidad);
   const filasPartidas = partidas.length
     ? partidas.map((p, i) => `<tr><td class="c">${i + 1}</td><td class="c num">${esc(p.cantidad)}</td><td>${esc(p.numeroParte)}</td><td>${esc(p.serie)}</td><td>${esc(p.descripcion)}</td><td class="r num">${p.precio !== "" ? d(num(p.precio)) : "—"}</td><td class="r b num">${d(importePartida(p))}</td></tr>`).join("")
@@ -163,7 +164,7 @@ function cuerpoOrden(o) {
     </div>
     <div class="partes">
       <div class="parte"><h2>Facturar a</h2>
-        ${fila("Razón social", EMPRESA_OC.razonSocial)}${fila("R.F.C.", EMPRESA_OC.rfc)}${fila("Domicilio", EMPRESA_OC.domicilio)}${fila("Solicitó", o.solicito)}
+        ${fila("Razón social", EMPRESA_OC.razonSocial, " una")}${fila("R.F.C.", EMPRESA_OC.rfc)}${fila("Domicilio", EMPRESA_OC.domicilio)}${fila("Solicitó", o.solicito)}
       </div>
       <div class="parte"><h2>Proveedor</h2>
         ${fila("Proveedor", o.proveedor || "—")}${fila("Atención", o.proveedorContacto)}${fila("Teléfono", o.proveedorTelefono)}${fila("Correo", o.proveedorCorreo)}${fila("R.F.C.", o.proveedorRfc)}${fila("Domicilio", o.proveedorDomicilio)}
