@@ -89,7 +89,7 @@ export function abrirDocPDF({ nombre, cuerpo, hoja = "auto", css = "" }) {
  * Encabezado del diseño dibujado con jsPDF (medidas en mm). Devuelve la y donde
  * sigue el contenido, ya debajo de la línea azul.
  */
-export function encabezadoJsPDF(doc, { titulo, lineas = [], x, ancho, y = 10, altoLogo = 15, separacion = 5 }) {
+export function encabezadoJsPDF(doc, { titulo, lineas = [], x, ancho, y = 10, altoLogo = 15, separacion = 5, color = ROJO_RGB }) {
   const ls = lineas.filter(Boolean).map(String);
   const wLogo = altoLogo * LOGO_MAQSOL_TRANSPARENTE_RELACION;
   try { doc.addImage(LOGO_MAQSOL_TRANSPARENTE, "PNG", x + ancho - wLogo, y, wLogo, altoLogo); } catch { /* sin logo */ }
@@ -102,7 +102,7 @@ export function encabezadoJsPDF(doc, { titulo, lineas = [], x, ancho, y = 10, al
   doc.setTextColor(85, 85, 85);
   ls.forEach((l, i) => doc.text(l, x, y + 11.5 + i * 4.4, { maxWidth: ancho - wLogo - 6 }));
   const yl = y + Math.max(altoLogo, 8.5 + ls.length * 4.4) + 2.5;
-  doc.setDrawColor(...ROJO_RGB);
+  doc.setDrawColor(...color);
   doc.setLineWidth(0.8);
   doc.line(x, yl, x + ancho, yl);
   doc.setLineWidth(0.2);
@@ -111,10 +111,10 @@ export function encabezadoJsPDF(doc, { titulo, lineas = [], x, ancho, y = 10, al
 }
 
 /** Subtítulo de sección en rojo (como "Resumen por máquina"). Devuelve la y siguiente. */
-export function seccionJsPDF(doc, texto, x, y) {
+export function seccionJsPDF(doc, texto, x, y, color = ROJO_RGB) {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.setTextColor(...ROJO_RGB);
+  doc.setTextColor(...color);
   doc.text(texto, x, y + 4);
   doc.setTextColor(20, 20, 20);
   return y + 8;

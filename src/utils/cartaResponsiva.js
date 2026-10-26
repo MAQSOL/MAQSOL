@@ -1,7 +1,9 @@
 // Carta responsiva de resguardo de equipo para operadores de maquinaria.
 // Se descarga directo como PDF (jsPDF) con el mismo estilo rojo y negro del sistema.
 import { jsPDF } from "jspdf";
-import { encabezadoJsPDF, seccionJsPDF, EMPRESA, ROJO_RGB } from "./pdfFormato";
+import { encabezadoJsPDF, seccionJsPDF, EMPRESA } from "./pdfFormato";
+
+const GRIS = [58, 58, 58]; // gris oscuro (#3a3a3a), como el contrato
 
 export const CARTA_NUEVA = {
   personaId: "",
@@ -48,6 +50,7 @@ export function descargarCartaResponsiva(d) {
     x,
     ancho,
     y: 12,
+    color: GRIS,
   });
 
   const nueva = (alto) => {
@@ -120,7 +123,7 @@ export function descargarCartaResponsiva(d) {
   // daños previos, a mano
   y += 1;
   nueva(40);
-  y = seccionJsPDF(doc, "Daños o detalles que ya tiene el equipo al recibirlo (escribir a mano)", x, y);
+  y = seccionJsPDF(doc, "Daños o detalles que ya tiene el equipo al recibirlo (escribir a mano)", x, y, GRIS);
   doc.setDrawColor(150, 150, 150);
   doc.setLineWidth(0.25);
   for (let i = 0; i < 4; i++) {
@@ -172,7 +175,6 @@ export function descargarCartaResponsiva(d) {
   doc.setFontSize(7.5);
   doc.setTextColor(150, 150, 150);
   doc.text("Documento generado desde MAQSISTEM · Carta responsiva", W / 2, H - 9, { align: "center" });
-  doc.setDrawColor(...ROJO_RGB);
 
   const archivo = "CARTA-RESPONSIVA-" + (d.nombre || "OPERADOR").toUpperCase().replace(/[^A-Z0-9]+/g, "-") + ".pdf";
   doc.save(archivo);
