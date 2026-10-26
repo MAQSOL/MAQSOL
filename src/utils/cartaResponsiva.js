@@ -116,9 +116,14 @@ export function descargarCartaResponsiva(d) {
       ? "Recibo de MAQSOL el equipo descrito, sin llaves, en buenas condiciones de funcionamiento y presentación, a mi entera satisfacción."
       : `Recibo de MAQSOL el equipo descrito, junto con ${frase(d.llaves)}, en buenas condiciones de funcionamiento y presentación, a mi entera satisfacción.`,
     `Me obligo a cuidar el equipo${sinLlaves ? "" : " y su llave"}, a operarlo conforme a las indicaciones de MAQSOL y a las instrucciones del fabricante, únicamente para el trabajo que se me asigne, y a no prestarlo ni permitir que lo opere una persona no autorizada.`,
-    `En caso de ${sinLlaves ? "" : "pérdida de la llave, "}robo o daños ocasionados por mala operación, negligencia, descuido o uso indebido, autorizo a MAQSOL a descontar de mi nómina el costo de la reparación o reposición correspondiente, en los términos y con los límites que permite la ley.`,
+    `En caso de robo o daños ocasionados por mala operación, negligencia, descuido o uso indebido, se realizará la cotización de la reparación o reposición correspondiente y se me pasará a cobro, autorizando a MAQSOL a descontarla de mi nómina en los términos y con los límites que permite la ley.`,
+    ...(sinLlaves ? [] : ["En caso de pérdida de la llave del equipo, autorizo a MAQSOL a descontar de mi nómina la cantidad de $350.00 (trescientos cincuenta pesos 00/100 M.N.)."]),
     "Los daños o desgaste originados por el paso del tiempo, el uso normal o la vida útil del equipo no me serán cobrados.",
     "Me comprometo a reportar de inmediato a MAQSOL cualquier falla, golpe, fuga, accidente o anomalía que detecte en el equipo.",
+    "No realizaré adaptaciones, modificaciones ni reparaciones eléctricas o mecánicas al equipo sin la autorización previa de mi supervisor directo.",
+    "Mantendré el equipo limpio y, cuando la limpieza esté fuera de mi alcance (por ejemplo, por fugas de aceite), la programaré con mi supervisor.",
+    "Queda prohibido operar el equipo en estado inconveniente, como bajo los efectos del alcohol o de drogas. Si ocurre un accidente en ese estado, MAQSOL (Maquinaria, Soporte y Logística) se deslinda de toda responsabilidad, y podrá programar una prueba antidoping cuando lo considere necesario.",
+    "No trabajaré en horarios fuera de mi jornada sin autorización previa.",
     `Devolveré el equipo${sinLlaves ? "" : " y su llave"} a MAQSOL cuando se me solicite o al concluir el trabajo asignado.`,
   ];
   clausulas.forEach((c, i) => parrafo(`${i + 1}.  ${c}`));
