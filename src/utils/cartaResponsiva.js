@@ -30,7 +30,7 @@ const fechaLarga = (iso) => {
   return d.toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
 };
 
-const textoLlaves = (n) => (String(n) === "2" ? "Dos (2)" : "Una (1)");
+const textoLlaves = (n) => ({ 0: "Sin llaves", 2: "Dos (2)" }[String(n)] || "Una (1)");
 const frase = (n) => (String(n) === "2" ? "las dos llaves del equipo" : "la llave del equipo");
 
 export function descargarCartaResponsiva(d) {
@@ -110,13 +110,16 @@ export function descargarCartaResponsiva(d) {
   });
   y += filas.length * hFila + 4;
 
+  const sinLlaves = String(d.llaves) === "0";
   const clausulas = [
-    `Recibo de MAQSOL el equipo descrito, junto con ${frase(d.llaves)}, en buenas condiciones de funcionamiento y presentación, a mi entera satisfacción.`,
-    "Me obligo a cuidar el equipo y su llave, a operarlo conforme a las indicaciones de MAQSOL y a las instrucciones del fabricante, únicamente para el trabajo que se me asigne, y a no prestarlo ni permitir que lo opere una persona no autorizada.",
-    "En caso de pérdida de la llave, robo o daños ocasionados por mala operación, negligencia, descuido o uso indebido, autorizo a MAQSOL a descontar de mi nómina el costo de la reparación o reposición correspondiente, en los términos y con los límites que permite la ley.",
+    sinLlaves
+      ? "Recibo de MAQSOL el equipo descrito, sin llaves, en buenas condiciones de funcionamiento y presentación, a mi entera satisfacción."
+      : `Recibo de MAQSOL el equipo descrito, junto con ${frase(d.llaves)}, en buenas condiciones de funcionamiento y presentación, a mi entera satisfacción.`,
+    `Me obligo a cuidar el equipo${sinLlaves ? "" : " y su llave"}, a operarlo conforme a las indicaciones de MAQSOL y a las instrucciones del fabricante, únicamente para el trabajo que se me asigne, y a no prestarlo ni permitir que lo opere una persona no autorizada.`,
+    `En caso de ${sinLlaves ? "" : "pérdida de la llave, "}robo o daños ocasionados por mala operación, negligencia, descuido o uso indebido, autorizo a MAQSOL a descontar de mi nómina el costo de la reparación o reposición correspondiente, en los términos y con los límites que permite la ley.`,
     "Los daños o desgaste originados por el paso del tiempo, el uso normal o la vida útil del equipo no me serán cobrados.",
     "Me comprometo a reportar de inmediato a MAQSOL cualquier falla, golpe, fuga, accidente o anomalía que detecte en el equipo.",
-    "Devolveré el equipo y su llave a MAQSOL cuando se me solicite o al concluir el trabajo asignado.",
+    `Devolveré el equipo${sinLlaves ? "" : " y su llave"} a MAQSOL cuando se me solicite o al concluir el trabajo asignado.`,
   ];
   clausulas.forEach((c, i) => parrafo(`${i + 1}.  ${c}`));
 

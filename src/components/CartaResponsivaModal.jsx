@@ -98,6 +98,7 @@ export default function CartaResponsivaModal({ personas, persona, onClose, onSub
           <div>
             <label style={S.label}>LLAVES ENTREGADAS</label>
             <select style={S.input} value={f.llaves} onChange={set("llaves")}>
+              <option value="0">Sin llaves</option>
               <option value="1">Una llave</option>
               <option value="2">Dos llaves</option>
             </select>
