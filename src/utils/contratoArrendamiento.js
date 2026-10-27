@@ -283,7 +283,7 @@ export function descargarContratoPDF(bloques, nombreArchivo) {
     doc.setFontSize(8);
     doc.setTextColor(85, 85, 85);
     doc.text(CODIGO_DOC + "  ·  pág. " + pagina, M, 14.5);
-    try { doc.addImage(LOGO_MAQSOL_TRANSPARENTE, "PNG", W - M - 12 * LOGO_MAQSOL_TRANSPARENTE_RELACION, 4.5, 12 * LOGO_MAQSOL_TRANSPARENTE_RELACION, 12); } catch { /* sin logo */ }
+    try { doc.addImage(LOGO_MAQSOL_TRANSPARENTE, "PNG", W - M - 12 * LOGO_MAQSOL_TRANSPARENTE_RELACION, 3, 12 * LOGO_MAQSOL_TRANSPARENTE_RELACION, 12); } catch { /* sin logo */ }
     doc.setDrawColor(...GRIS);
     doc.setLineWidth(0.8);
     doc.line(M, 18.5, W - M, 18.5);

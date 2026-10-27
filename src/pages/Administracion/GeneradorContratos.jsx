@@ -62,7 +62,7 @@ function Vista({ bloques }) {
       <img
         src={LOGO_MAQSOL_TRANSPARENTE}
         alt="MAQSOL"
-        style={{ position: "absolute", top: 0, right: 0, height: 34, pointerEvents: "none" }}
+        style={{ position: "absolute", top: -14, right: 0, height: 34, pointerEvents: "none" }}
       />
       {bloques.map((b, i) => {
         if (b.t === "salto") return <hr key={i} style={{ margin: "22px 0", border: "none", borderTop: "2px dashed #ccc" }} />;
@@ -207,7 +207,7 @@ export default function GeneradorContratos() {
 
   return (
     <Layout>
-      <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+      <div style={{ width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, gap: 10, flexWrap: "wrap" }}>
           <div>
             <h1 style={S.h1}>Generador de Contratos de Arrendamiento</h1>
