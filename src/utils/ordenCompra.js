@@ -133,7 +133,7 @@ const CSS_OC = `
   .cond{margin-top:12px;font-size:11.5px;color:#555}
   .cond b{color:#222}
   .cierre{page-break-inside:avoid;break-inside:avoid}
-  .firmas{display:flex;justify-content:flex-end;gap:44px;margin-top:30px}
+  .firmas{display:flex;justify-content:center;gap:44px;margin-top:30px}
   .firma{width:270px;text-align:center}
   .firma .espacio{height:64px;display:flex;align-items:flex-end;justify-content:center}
   .firma .espacio img{max-height:62px;max-width:100%}

@@ -310,12 +310,12 @@ export default function OrdenesCompra() {
             </div>
 
             <div style={{ ...S.card, paddingTop: 10 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "60px 1fr 1fr 2fr 100px 28px", gap: 6, fontSize: 11, fontWeight: 700, color: "#666", marginBottom: 6 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "60px 95px 1fr 2fr 100px 28px", gap: 6, fontSize: 11, fontWeight: 700, color: "#666", marginBottom: 6 }}>
                 <span>CANT.</span><span>NO. DE PARTE</span><span>NO. DE SERIE</span><span>DESCRIPCIÓN</span><span>P. UNITARIO</span><span />
               </div>
               {form.partidas.map((p, i) => (
                 <div key={i} style={{ marginBottom: 8 }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "60px 1fr 1fr 2fr 100px 28px", gap: 6, alignItems: "center" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "60px 95px 1fr 2fr 100px 28px", gap: 6, alignItems: "center" }}>
                     <input style={celdaPartida} value={p.cantidad} onChange={(e) => cambiarPartida(i, "cantidad", e.target.value)} inputMode="decimal" />
                     <input style={celdaPartida} value={p.numeroParte} onChange={(e) => cambiarPartida(i, "numeroParte", e.target.value)} />
                     <input style={celdaPartida} value={p.serie} onChange={(e) => cambiarPartida(i, "serie", e.target.value)} />
