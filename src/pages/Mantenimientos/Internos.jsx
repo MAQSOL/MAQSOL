@@ -3,7 +3,7 @@ import Sidebar from '../../components/Sidebar'
 import { descargarExcelBonito, nombreArchivoFecha } from '../../utils/exportExcel'
 import { abrirDocPDF, encabezadoDoc, pieDoc, hoyMX, esc } from '../../utils/pdfFormato'
 import DeleteButton from '../../components/DeleteButton'
-import { useSharedTable, useCatalogo } from '../../hooks/useSharedTable'
+import { useSharedTable, useCatalogo, useListaCompartida } from '../../hooks/useSharedTable'
 import QrEquipoModal from '../../components/QrEquipoModal'
 import { conHoras } from '../../utils/horometro'
 import CampoDiferido from '../../components/CampoDiferido'
@@ -189,7 +189,9 @@ function migrarEquipo(eq){
 export default function EquiposInternos(){
   const{registros:equiposRaw,loading:cargandoEquipos,guardar:guardarEquipoRow,eliminar:eliminarEquipoRow}=useSharedTable('equipos_internos')
   const equipos=equiposRaw.map(migrarEquipo)
-  const{valores:operadores,agregar:agregarOperadorCat}=useCatalogo('operadores')
+  // los operadores son los colaboradores de Asistencias: una sola lista para todo el sistema
+  const[colaboradores,guardarColaboradores]=useListaCompartida('colaboradores')
+  const operadores=colaboradores.filter(c=>!c.baja).map(c=>c.nombre).sort((a,b)=>a.localeCompare(b,'es'))
   const{valores:tiposRaw,agregar:agregarTipoCat,quitar:quitarTipoCat}=useCatalogo('tipos_equipo')
   const tipos=tiposRaw.length?tiposRaw:TIPOS_INICIALES
   const{valores:ubicacionesRaw,agregar:agregarUbicacionCat}=useCatalogo('ubicaciones')
@@ -244,7 +246,7 @@ export default function EquiposInternos(){
   async function eliminarEquipo(eq){
     await eliminarEquipoRow(eq.id);setVista('lista')
   }
-  function agregarOperador(){const n=nuevoOperador.trim();if(!n)return;agregarOperadorCat(n);setForm({...form,operador:n});setNuevoOperador('');setModoNuevoOperador(false)}
+  function agregarOperador(){const n=nuevoOperador.trim();if(!n)return;if(!colaboradores.some(c=>(c.nombre||'').trim().toLowerCase()===n.toLowerCase()))guardarColaboradores([...colaboradores,{id:String(Date.now()),nombre:n,puesto:'Operador',baja:false}]);setForm({...form,operador:n});setNuevoOperador('');setModoNuevoOperador(false)}
   function agregarUbicacion(){const n=nuevaUbicacion.trim();if(!n)return;agregarUbicacionCat(n);setForm({...form,ubicacion:n});setNuevaUbicacion('');setModoNuevaUbicacion(false)}
   function cambiarUbicacion(v){if(v==='__nueva__'){setModoNuevaUbicacion(true);return};setModoNuevaUbicacion(false);setForm({...form,ubicacion:v})}
   function cambiarOperador(v){if(v==='__nuevo__'){setModoNuevoOperador(true);return};setModoNuevoOperador(false);setForm({...form,operador:v})}
@@ -366,7 +368,7 @@ export default function EquiposInternos(){
         <div style={S.grid3}>
           <div><label style={S.label}>OPERADOR</label>
             {modoNuevoOperador?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Nombre" value={nuevoOperador} onChange={ev=>setNuevoOperador(ev.target.value)}/><button style={S.btnVerde} onClick={agregarOperador}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevoOperador(false)}>✕</button></div>)
-            :(<select style={S.input} value={form.operador} onChange={ev=>cambiarOperador(ev.target.value)}><option value="">Sin operador</option>{operadores.map(o=><option key={o}>{o}</option>)}<option value="__nuevo__">+ Agregar operador</option></select>)}
+            :(<select style={S.input} value={form.operador} onChange={ev=>cambiarOperador(ev.target.value)}><option value="">Sin operador</option>{(form.operador&&!operadores.includes(form.operador)?[...operadores,form.operador]:operadores).map(o=><option key={o}>{o}</option>)}<option value="__nuevo__">+ Agregar operador</option></select>)}
           </div>
           <div><label style={S.label}>UBICACIÓN</label>
             {modoNuevaUbicacion?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Bacalar" value={nuevaUbicacion} onChange={ev=>setNuevaUbicacion(ev.target.value)}/><button style={S.btnVerde} onClick={agregarUbicacion}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevaUbicacion(false)}>✕</button></div>)
@@ -414,7 +416,8 @@ export default function EquiposInternos(){
             ):(
               <div style={{width:220,height:160,borderRadius:10,background:'#f5f5f5',border:'2px dashed #ccc',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8,color:'#aaa',fontSize:13}}>Sin foto</div>
             )}
-            <div style={{display:'flex',gap:6,justifyContent:'center'}}>
+            <div style={{display:'flex',gap:6,justifyContent:'center',alignItems:'center'}}>
+              <button type="button" title="Editar información general" aria-label="Editar información general" onClick={()=>abrirEditar(activo)} style={{...S.btnGrisSm,display:'inline-flex',alignItems:'center',justifyContent:'center',padding:'6px 9px'}}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
               <label style={{...S.btnSm,cursor:'pointer',display:'inline-block'}}>
                 Subir foto
                 <input type="file" accept="image/*" style={{display:'none'}} onChange={async(ev)=>{
