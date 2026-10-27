@@ -120,7 +120,7 @@ const CSS_OC = `
   .fila{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #eee;font-size:11.5px}
   .fila span{color:#888;min-width:92px;font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;padding-top:1px}
   .fila.una div{white-space:nowrap;font-size:10.5px}
-  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 10px}
   .chip{background:${AZUL_TENUE};color:#333;border-radius:14px;padding:4px 11px;font-size:10.5px}
   .chip b{color:${AZUL}}
   .abajo{display:grid;grid-template-columns:1fr 290px;gap:22px;margin-top:16px;align-items:start}
@@ -175,7 +175,6 @@ function cuerpoOrden(o) {
       <span class="chip">Forma de pago: <b>${esc(o.formaPago || "—")}</b></span>
       <span class="chip">Método de pago: <b>${esc(o.metodoPago || "—")}</b></span>
     </div>
-    <h2>Partidas</h2>
     <table><thead><tr><th class="c" style="width:34px">#</th><th class="c" style="width:52px">Cant.</th><th>No. de parte</th><th>No. de serie</th><th>Descripción</th><th class="r">P. unitario</th><th class="r">Importe</th></tr></thead>
       <tbody>${filasPartidas}</tbody></table>
     <div class="cierre">

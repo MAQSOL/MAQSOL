@@ -309,8 +309,7 @@ export default function OrdenesCompra() {
               </div>
             </div>
 
-            <div style={S.card}>
-              <h3 style={S.h3}>Partidas</h3>
+            <div style={{ ...S.card, paddingTop: 10 }}>
               <div style={{ display: "grid", gridTemplateColumns: "60px 1fr 1fr 2fr 100px 28px", gap: 6, fontSize: 11, fontWeight: 700, color: "#666", marginBottom: 6 }}>
                 <span>CANT.</span><span>NO. DE PARTE</span><span>NO. DE SERIE</span><span>DESCRIPCIÓN</span><span>P. UNITARIO</span><span />
               </div>
