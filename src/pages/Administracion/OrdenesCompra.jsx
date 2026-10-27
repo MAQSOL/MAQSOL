@@ -225,7 +225,7 @@ export default function OrdenesCompra() {
 
   return (
     <Layout>
-      <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+      <div style={{ width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, gap: 10, flexWrap: "wrap" }}>
           <div>
             <h1 style={S.h1}>Órdenes de Compra</h1>
