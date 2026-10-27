@@ -115,6 +115,7 @@ export function nombreArchivoOC(o) {
 }
 
 const CSS_OC = `
+  .top h1{font-size:30px;margin-bottom:4px}
   .meta{display:flex;gap:28px;flex-wrap:wrap;margin:0 0 18px}
   .meta div{font-size:10px;color:#888;letter-spacing:.5px;text-transform:uppercase}
   .meta b{display:block;font-size:14px;color:#222;letter-spacing:0;text-transform:none;margin-top:2px}
