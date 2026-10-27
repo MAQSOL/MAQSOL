@@ -167,7 +167,7 @@ function cuerpoOrden(o) {
     </div>
     <div class="partes">
       <div class="parte"><h2>Facturar a</h2>
-        ${fila("Razón social", EMPRESA_OC.razonSocial, " una")}${fila("R.F.C.", EMPRESA_OC.rfc)}${fila("Domicilio", EMPRESA_OC.domicilio)}${fila("Solicitó", o.solicito)}
+        ${fila("Razón social", cap(EMPRESA_OC.razonSocial), " una")}${fila("R.F.C.", EMPRESA_OC.rfc)}${fila("Domicilio", EMPRESA_OC.domicilio)}${fila("Solicitó", o.solicito)}
       </div>
       <div class="parte"><h2>Proveedor</h2>
         ${fila("Proveedor", o.proveedor ? cap(o.proveedor) : "—")}${fila("Atención", cap(o.proveedorContacto))}${fila("Teléfono", o.proveedorTelefono)}${fila("Correo", o.proveedorCorreo)}${fila("R.F.C.", o.proveedorRfc)}${fila("Domicilio", cap(o.proveedorDomicilio))}
