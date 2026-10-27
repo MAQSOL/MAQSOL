@@ -84,6 +84,9 @@ const num = (v) => {
 /** Las órdenes guardadas antes con el nombre en mayúsculas se muestran con inicial mayúscula. */
 export const ordenNormalizada = (o) => (o && o.autoriza === "LIC. FRANCISCO TORRES MORALES" ? { ...o, autoriza: "Lic. Francisco Torres Morales" } : o);
 
+/** Texto que se llena a mano: primera letra en mayúscula y el resto en minúsculas (RFC, razón social y folios no pasan por aquí). */
+const cap = (v) => { const t = String(v ?? "").trim().toLowerCase(); return t.charAt(0).toUpperCase() + t.slice(1); };
+
 export const importePartida = (p) => num(p.cantidad) * num(p.precio);
 
 /** Igual que el Excel: suma → descuento → importe → flete → subtotal → IVA 16 % → total. */
@@ -151,7 +154,7 @@ function cuerpoOrden(o) {
   const fila = (etq, val, extra = "") => (val ? `<div class="fila${extra}"><span>${etq}</span><div>${esc(val)}</div></div>` : "");
   const partidas = (o.partidas || []).filter((p) => p.descripcion || p.numeroParte || p.cantidad);
   const filasPartidas = partidas.length
-    ? partidas.map((p, i) => `<tr><td class="c">${i + 1}</td><td class="c num">${esc(p.cantidad)}</td><td>${esc(p.numeroParte)}</td><td>${esc(p.serie)}</td><td>${esc(p.descripcion)}</td><td class="r num">${p.precio !== "" ? d(num(p.precio)) : "—"}</td><td class="r b num">${d(importePartida(p))}</td></tr>`).join("")
+    ? partidas.map((p, i) => `<tr><td class="c">${i + 1}</td><td class="c num">${esc(p.cantidad)}</td><td>${esc(p.numeroParte)}</td><td>${esc(p.serie)}</td><td>${esc(cap(p.descripcion))}</td><td class="r num">${p.precio !== "" ? d(num(p.precio)) : "—"}</td><td class="r b num">${d(importePartida(p))}</td></tr>`).join("")
     : `<tr><td colspan="7" class="c" style="color:#999">Sin partidas</td></tr>`;
   const credito = o.condicion === "Crédito" ? `Crédito${o.diasCredito ? ` a <b>${esc(o.diasCredito)} días</b>` : ""}` : "<b>Contado</b>";
 
@@ -167,7 +170,7 @@ function cuerpoOrden(o) {
         ${fila("Razón social", EMPRESA_OC.razonSocial, " una")}${fila("R.F.C.", EMPRESA_OC.rfc)}${fila("Domicilio", EMPRESA_OC.domicilio)}${fila("Solicitó", o.solicito)}
       </div>
       <div class="parte"><h2>Proveedor</h2>
-        ${fila("Proveedor", o.proveedor || "—")}${fila("Atención", o.proveedorContacto)}${fila("Teléfono", o.proveedorTelefono)}${fila("Correo", o.proveedorCorreo)}${fila("R.F.C.", o.proveedorRfc)}${fila("Domicilio", o.proveedorDomicilio)}
+        ${fila("Proveedor", o.proveedor ? cap(o.proveedor) : "—")}${fila("Atención", cap(o.proveedorContacto))}${fila("Teléfono", o.proveedorTelefono)}${fila("Correo", o.proveedorCorreo)}${fila("R.F.C.", o.proveedorRfc)}${fila("Domicilio", cap(o.proveedorDomicilio))}
       </div>
     </div>
     <div class="chips">
@@ -180,7 +183,7 @@ function cuerpoOrden(o) {
     <div class="cierre">
     <div class="abajo">
       <div>
-        <div class="obs"><small>Observaciones</small>${esc(o.observaciones || "—")}</div>
+        <div class="obs"><small>Observaciones</small>${esc(o.observaciones ? cap(o.observaciones) : "—")}</div>
         <div class="cond">Condiciones: ${credito} · Moneda <b>${esc(m)}</b></div>
       </div>
       <table class="tot"><tbody>
