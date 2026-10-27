@@ -171,6 +171,23 @@ function Dashboard() {
     setNuevoAsignado("");
   };
 
+  // Etiqueta de estado: En proceso (azul) o Sin iniciar (gris)
+  const chipEstado = (enProceso, onClick) => {
+    const estilo = {
+      marginLeft: "8px", fontSize: "11px", fontWeight: "700", padding: "2px 8px", borderRadius: "10px", border: "none",
+      color: enProceso ? "#1565c0" : "#777", background: enProceso ? "#e8f1fb" : "#eee",
+      cursor: onClick ? "pointer" : "default"
+    };
+    const texto = enProceso ? "En proceso" : "Sin iniciar";
+    return onClick
+      ? <button type="button" style={estilo} onClick={onClick} title="Clic para cambiar el estado">{texto}</button>
+      : <span style={estilo}>{texto}</span>;
+  };
+
+  const cambiarEstadoPendiente = (item) => {
+    guardar(item.id, { ...item, enProceso: !item.enProceso });
+  };
+
   const togglePendiente = (item) => {
     guardar(item.id, { ...item, completado: !item.completado });
   };
@@ -447,6 +464,7 @@ function Dashboard() {
                     <span style={{ marginLeft: "8px", fontSize: "11px", fontWeight: "700", color: "var(--acento)", background: "#f7e6e9", padding: "2px 8px", borderRadius: "10px" }}>
                       {nombreAsignado(t)}
                     </span>
+                    {chipEstado(t.estado === "progreso")}
                     <span style={{ marginLeft: "6px", fontSize: "11px", color: "#999" }}>Tarea{t.fechaLimite ? " · vence " + new Date(t.fechaLimite + "T00:00:00").toLocaleDateString("es-MX") : ""}</span>
                   </span>
                   <div className="acciones-pendiente">
@@ -486,6 +504,7 @@ function Dashboard() {
                         {item.asignado}
                       </span>
                     )}
+                    {!item.completado && chipEstado(!!item.enProceso, () => cambiarEstadoPendiente(item))}
                   </span>
 
                   <div className="acciones-pendiente">
