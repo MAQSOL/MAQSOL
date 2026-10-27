@@ -672,13 +672,13 @@ export default function EquiposInternos(){
       </div>
       <div style={{...S.card,padding:0,overflowX:'auto'}}>
         <table style={{width:'100%',borderCollapse:'collapse',minWidth:950}}>
-          <thead><tr><th style={S.th}>EQUIPO</th><th style={S.th}>MARCA</th><th style={S.th}>MODELO</th><th style={S.th}>SERIE</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>OPERADOR</th><th style={S.th}>UBICACIÓN</th><th style={S.th}>TIPO MANTTO</th><th style={S.th}>PRÓX. MANTTO</th><th style={{...S.th,width:50,textAlign:'center'}}></th></tr></thead>
+          <thead><tr><th style={S.th}>EQUIPO</th><th style={S.th}>MARCA</th><th style={S.th}>MODELO</th><th style={S.th}>SERIE</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>OPERADOR</th><th style={S.th}>UBICACIÓN</th><th style={S.th}>ÚLTIMO MANTTO</th><th style={S.th}>PRÓX. MANTTO</th><th style={{...S.th,width:50,textAlign:'center'}}></th></tr></thead>
           <tbody>
             {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={10}>No hay equipos. Usa "Agregar equipo".</td></tr>
             :filtrados.map(e=>(<tr key={e.id} style={{cursor:'pointer'}} onClick={()=>{setActivoId(e.id);setVista('ficha')}} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
               <td style={{...S.td,fontWeight:700}}>{e.tipo}</td><td style={S.td}>{e.marca}</td><td style={S.td}>{e.modelo}</td><td style={S.td}>{e.serie}</td>
               <td style={S.td}>{conHoras(e.horometro)||'—'}</td><td style={S.td}>{e.operador||<span style={{color:'#c98a00',fontWeight:700}}>Sin operador</span>}</td>
-              <td style={S.td}>{e.ubicacion}</td><td style={S.td}><BadgeMantto tipo={ultimoMantto(e)?.tipoMantto}/></td><td style={S.td}><Semaforo fecha={e.proximoMantto}/></td>
+              <td style={S.td}>{e.ubicacion}</td><td style={S.td}>{ultimoMantto(e)?<span style={{display:"inline-flex",alignItems:"center",gap:8,flexWrap:"wrap"}}><span style={{whiteSpace:"nowrap"}}>{fFecha(ultimoMantto(e).fecha)}</span><BadgeMantto tipo={ultimoMantto(e).tipoMantto}/></span>:<span style={{color:"#999"}}>Sin registro</span>}</td><td style={S.td}><Semaforo fecha={e.proximoMantto}/></td>
               <td style={{...S.td,textAlign:'center'}} onClick={ev=>ev.stopPropagation()}><DeleteButton size="sm" title="Eliminar equipo" onConfirm={()=>eliminarEquipo(e)}/></td>
             </tr>))}
           </tbody>
