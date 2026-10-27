@@ -243,7 +243,6 @@ export default function EquiposExternos(){
 
         <h3 style={{fontSize:15,fontWeight:800,margin:'8px 0 10px',color:VINO}}>Costos</h3>
         <div style={S.grid3}>
-          <div><label style={S.label}>COSTO AL PROVEEDOR</label><input style={S.input} value={form.costoProveedor} onChange={ev=>setForm({...form,costoProveedor:ev.target.value})} placeholder="Ej. 2500"/></div>
           <div><label style={S.label}>PERIODO DEL COSTO</label><select style={S.input} value={form.periodoCosto} onChange={ev=>setForm({...form,periodoCosto:ev.target.value})}>{PERIODOS.map(p=><option key={p}>{p}</option>)}</select></div>
           <div><label style={S.label}>PRECIO AL CLIENTE (opcional)</label><input style={S.input} value={form.precioCliente} onChange={ev=>setForm({...form,precioCliente:ev.target.value})} placeholder="Para ver el margen"/></div>
         </div>
