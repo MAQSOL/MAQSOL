@@ -48,88 +48,51 @@ const CSS = `
     font-weight: 700;
   }
 
-  /* switch */
-  .mq-switch {
-    position: relative;
+  /* ---- toggle tabs + card ---- */
+  .mq-tabs {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 30px;
-    width: 50px;
-    height: 20px;
-    margin-bottom: 28px;
-  }
-
-  .mq-card-side::before {
-    position: absolute;
-    content: 'ACCEDER';
-    left: -80px;
-    top: 0;
-    width: 110px;
-    text-decoration: underline;
-    color: var(--acc);
-    font-weight: 700;
-    font-size: 12px;
-    letter-spacing: 2px;
-  }
-  .mq-card-side::after {
-    position: absolute;
-    content: 'RECUPERAR';
-    left: 60px;
-    top: 0;
-    width: 120px;
-    text-decoration: none;
-    color: var(--sub);
-    font-size: 12px;
-    letter-spacing: 2px;
-    font-weight: 700;
-  }
-
-  .mq-toggle { opacity: 0; width: 0; height: 0; }
-
-  .mq-slider {
-    box-sizing: border-box;
+    gap: 0;
+    margin-bottom: 22px;
+    border: 2px solid #111;
     border-radius: 4px;
-    border: 2px solid var(--acc);
+    overflow: hidden;
     box-shadow: 3px 3px 0 #111;
-    position: absolute;
+  }
+  .mq-tab {
+    flex: 1;
+    padding: 7px 18px;
+    border: none;
+    background: #f4f4f4;
+    color: #888;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
     cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #fff;
-    transition: 0.3s;
+    text-transform: uppercase;
+    transition: background .2s, color .2s;
   }
-  .mq-slider:before {
-    box-sizing: border-box;
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    border: 2px solid var(--acc);
-    border-radius: 4px;
-    left: -2px;
-    bottom: 2px;
-    background-color: var(--acc);
-    box-shadow: 0 3px 0 #5a0f1a;
-    transition: 0.3s;
+  .mq-tab + .mq-tab { border-left: 2px solid #111; }
+  .mq-tab.active {
+    background: var(--acc);
+    color: #fff;
   }
-  .mq-toggle:checked + .mq-slider { background-color: #fff; }
-  .mq-toggle:checked + .mq-slider:before { transform: translateX(30px); }
-  .mq-toggle:checked ~ .mq-card-side::before { text-decoration: none; color: var(--sub); }
-  .mq-toggle:checked ~ .mq-card-side::after { text-decoration: underline; color: var(--acc); }
 
   /* flip card */
-  .mq-flip-inner {
+  .mq-flip-outer {
+    perspective: 1000px;
     width: 340px;
     height: 340px;
+  }
+  .mq-flip-inner {
+    width: 100%;
+    height: 100%;
     position: relative;
-    background-color: transparent;
-    perspective: 1000px;
     text-align: center;
-    transition: transform 0.8s cubic-bezier(0.4,0.2,0.2,1);
+    transition: transform 0.75s cubic-bezier(0.4,0.2,0.2,1);
     transform-style: preserve-3d;
   }
-  .mq-toggle:checked ~ .mq-flip-inner { transform: rotateY(180deg); }
+  .mq-flip-inner.flipped { transform: rotateY(180deg); }
 
   .mq-flip-front, .mq-flip-back {
     padding: 32px 28px;
@@ -249,6 +212,7 @@ function Login() {
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [cargando, setCargando] = useState(false);
+  const [modo, setModo] = useState("acceder"); // "acceder" | "recuperar"
   const navigate = useNavigate();
 
   const iniciarSesion = async (e) => {
@@ -282,13 +246,14 @@ function Login() {
           <span className="mq-sys-label">Sistema Integral</span>
         </div>
 
-        <div className="card-switch" style={{ position: "relative" }}>
-          <label className="mq-switch">
-            <input type="checkbox" className="mq-toggle" />
-            <span className="mq-slider"></span>
-            <span className="mq-card-side"></span>
+        <div>
+          <div className="mq-tabs">
+            <button type="button" className={`mq-tab${modo === "acceder" ? " active" : ""}`} onClick={() => { setModo("acceder"); setError(""); setMensaje(""); }}>Acceder</button>
+            <button type="button" className={`mq-tab${modo === "recuperar" ? " active" : ""}`} onClick={() => { setModo("recuperar"); setError(""); setMensaje(""); }}>Recuperar</button>
+          </div>
 
-            <div className="mq-flip-inner">
+          <div className="mq-flip-outer">
+            <div className={`mq-flip-inner${modo === "recuperar" ? " flipped" : ""}`}>
               {/* FRENTE — Login */}
               <div className="mq-flip-front">
                 <div className="mq-card-title">Acceder</div>
@@ -360,7 +325,8 @@ function Login() {
                 </form>
               </div>
             </div>
-          </label>
+            </div>
+          </div>
         </div>
       </div>
     </div>

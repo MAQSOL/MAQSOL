@@ -1,0 +1,106 @@
+.cmaq-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 40px 20px;
+}
+
+.cmaq-wrapper {
+  width: 220px;
+  height: 90px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+/* La máquina sube/baja (suspensión) */
+.cmaq-machine {
+  width: 160px;
+  height: auto;
+  margin-bottom: 4px;
+  animation: cmaq-bounce 0.9s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes cmaq-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(3px); }
+}
+
+/* Ruedas girando — se animan con CSS filter trick via transform en el propio SVG */
+
+/* Poste de luz que aparece por la derecha y sale por la izquierda */
+.cmaq-lamppost {
+  position: absolute;
+  bottom: 2px;
+  right: -30%;
+  width: 22px;
+  height: 90px;
+  animation: cmaq-road 1.6s linear infinite;
+}
+
+@keyframes cmaq-road {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-300px); }
+}
+
+/* Carretera */
+.cmaq-road {
+  width: 100%;
+  height: 2px;
+  background: #1d5c8f;
+  border-radius: 2px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Líneas discontinuas de la carretera */
+.cmaq-road::before {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 100%;
+  background: #1d5c8f;
+  right: -60%;
+  border-radius: 2px;
+  border-left: 10px solid #f4f4f4;
+  animation: cmaq-road 1.4s linear infinite;
+}
+.cmaq-road::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 100%;
+  background: #1d5c8f;
+  right: -80%;
+  border-radius: 2px;
+  border-left: 6px solid #f4f4f4;
+  animation: cmaq-road 1.4s linear infinite;
+}
+
+/* Texto */
+.cmaq-texto {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1d5c8f;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  animation: cmaq-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes cmaq-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmaq-machine, .cmaq-lamppost, .cmaq-road::before,
+  .cmaq-road::after, .cmaq-texto {
+    animation: none !important;
+  }
+}
