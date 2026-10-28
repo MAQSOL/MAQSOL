@@ -83,11 +83,9 @@ function GestionClientes() {
       <Layout>
         <div
           style={{
-            display: "block",
             width: "100%",
             maxWidth: "1400px",
-            margin: "0 auto",
-            padding: "0 20px",
+            padding: "24px 28px",
             boxSizing: "border-box"
           }}
         >
