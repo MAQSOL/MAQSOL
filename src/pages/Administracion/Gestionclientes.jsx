@@ -84,9 +84,7 @@ function GestionClientes() {
         <div
           style={{
             width: "100%",
-            maxWidth: "1400px",
-            padding: "24px 28px",
-            boxSizing: "border-box"
+            maxWidth: "1400px"
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: "14px", width: "100%" }}>
