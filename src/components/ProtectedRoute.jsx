@@ -10,7 +10,10 @@ function ProtectedRoute({ children }) {
 
   useEffect(() => {
 
-    supabase.auth.getSession().then(({ data }) => {
+    Promise.all([
+      supabase.auth.getSession(),
+      new Promise(resolve => setTimeout(resolve, 8000))
+    ]).then(([{ data }]) => {
       setSesion(data.session);
       setCargando(false);
     });
