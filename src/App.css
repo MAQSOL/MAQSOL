@@ -231,20 +231,25 @@ body{
 
 .panel{
   background:#fff;
-  border-radius:20px;
+  border:3px solid #111;
+  border-radius:4px;
   padding:25px;
   min-height:250px;
-  box-shadow:0 4px 12px rgba(0,0,0,.06);
+  box-shadow:6px 6px 0 #111;
 }
 
 .panel h3{
-  font-size:24px;
-  margin-bottom:20px;
-  color:#222;
+  font-size:18px;
+  font-weight:800;
+  margin-bottom:16px;
+  color:#111;
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
 
 .panel p{
-  color:#666;
+  color:#555;
   line-height:1.8;
 }
 
@@ -500,16 +505,6 @@ body{
    (los inline-styles no soportan :hover, esto los complementa)
 ================================================ */
 button:active { transform:translate(3px,3px) !important; box-shadow:0 0 0 transparent !important; }
-
-/* panel */
-.panel{
-  background:#fff;
-  border:3px solid #111;
-  border-radius:4px;
-  padding:25px;
-  min-height:250px;
-  box-shadow:6px 6px 0 #111;
-}
 
 /* sidebar actualizado */
 .sidebar{

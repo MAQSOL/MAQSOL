@@ -127,6 +127,21 @@ export default function DeleteButton({
       <div className="delbtn-panel">
         <button
           type="button"
+          aria-label="Cancelar"
+          className="delbtn-circle delbtn-circle-no"
+          onClick={cancelar}
+        >
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none">
+            <path
+              d="M6 6 18 18M18 6 6 18"
+              stroke="#c62828"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+        <button
+          type="button"
           aria-label="Confirmar borrado"
           className="delbtn-circle delbtn-circle-ok"
           onClick={confirmar}
@@ -138,21 +153,6 @@ export default function DeleteButton({
               strokeWidth="3.2"
               strokeLinecap="round"
               strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-        <button
-          type="button"
-          aria-label="Cancelar"
-          className="delbtn-circle delbtn-circle-no"
-          onClick={cancelar}
-        >
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="none">
-            <path
-              d="M6 6 18 18M18 6 6 18"
-              stroke="#c62828"
-              strokeWidth="3.2"
-              strokeLinecap="round"
             />
           </svg>
         </button>
