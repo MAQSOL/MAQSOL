@@ -49,38 +49,19 @@
   100% { transform: translateX(-300px); }
 }
 
-/* Carretera */
+/* Carretera — negra sólida */
 .cmaq-road {
   width: 100%;
-  height: 2px;
-  background: #1d5c8f;
-  border-radius: 2px;
+  height: 3px;
+  background: #111;
+  border-radius: 0;
   position: relative;
   flex-shrink: 0;
 }
 
-/* Líneas discontinuas de la carretera */
-.cmaq-road::before {
-  content: "";
-  position: absolute;
-  width: 24px;
-  height: 100%;
-  background: #1d5c8f;
-  right: -60%;
-  border-radius: 2px;
-  border-left: 10px solid #f4f4f4;
-  animation: cmaq-road 1.4s linear infinite;
-}
+.cmaq-road::before,
 .cmaq-road::after {
-  content: "";
-  position: absolute;
-  width: 14px;
-  height: 100%;
-  background: #1d5c8f;
-  right: -80%;
-  border-radius: 2px;
-  border-left: 6px solid #f4f4f4;
-  animation: cmaq-road 1.4s linear infinite;
+  display: none;
 }
 
 /* Texto */
