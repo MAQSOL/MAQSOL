@@ -5,8 +5,8 @@
 }
 
 :root{
-  --acento:#1d5c8f;
-  --acento-oscuro:#154970;
+  --acento:#8F1D2C;
+  --acento-oscuro:#5a0f1a;
 }
 
 *{
@@ -186,17 +186,18 @@ body{
 
 .card{
   background:#fff;
-  border-radius:20px;
-  padding:30px;
-  box-shadow:0 4px 12px rgba(0,0,0,.06);
+  border:3px solid #111;
+  border-radius:4px;
+  padding:28px;
+  box-shadow:6px 6px 0 #111;
   text-decoration:none;
   color:inherit;
-  transition:.25s;
+  transition:box-shadow .15s, transform .15s;
 }
 
 .card:hover{
-  transform:translateY(-6px);
-  box-shadow:0 10px 24px rgba(0,0,0,.10);
+  transform:translate(-3px,-3px);
+  box-shadow:10px 10px 0 #111;
 }
 
 .card h3{
@@ -362,13 +363,21 @@ body{
   background:var(--acento);
   color:white;
   text-decoration:none;
-  border-radius:8px;
-  font-weight:600;
-  transition:.3s;
+  border-radius:4px;
+  border:2px solid #111;
+  font-weight:700;
+  box-shadow:3px 3px 0 #111;
+  transition:box-shadow .1s, transform .1s;
 }
 
 .btn-panel:hover{
-  background:var(--acento-oscuro);
+  transform:translate(-2px,-2px);
+  box-shadow:5px 5px 0 #111;
+}
+
+.btn-panel:active{
+  transform:translate(3px,3px);
+  box-shadow:0 0 0 #111;
 }
 
 .btn-agregar{
@@ -484,6 +493,31 @@ body{
     font-size:42px;
   }
 
+}
+
+/* ================================================
+   NEO-BRUTALIST — hover effects para S.btn / S.btnGris
+   (los inline-styles no soportan :hover, esto los complementa)
+================================================ */
+button:active { transform:translate(3px,3px) !important; box-shadow:0 0 0 transparent !important; }
+
+/* panel */
+.panel{
+  background:#fff;
+  border:3px solid #111;
+  border-radius:4px;
+  padding:25px;
+  min-height:250px;
+  box-shadow:6px 6px 0 #111;
+}
+
+/* sidebar actualizado */
+.sidebar{
+  border-right:3px solid #111 !important;
+}
+
+.logo-container{
+  border-bottom:3px solid #111 !important;
 }
 
 /* botón cuadrado de "agregar" junto a un campo (p. ej. + cliente en las cotizaciones) */
