@@ -4,47 +4,23 @@ import { supabase } from "../supabaseClient";
 import logo from "../assets/logo.png";
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap');
 
   .mq-login-bg {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #0a0a0a;
-    background-image:
-      linear-gradient(rgba(143,29,44,0.07) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(143,29,44,0.07) 1px, transparent 1px);
-    background-size: 40px 40px;
-    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    background: #f4f4f4;
+    font-family: 'Montserrat', sans-serif;
     position: relative;
-    overflow: hidden;
-  }
-
-  .mq-login-bg::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.18) 2px,
-      rgba(0,0,0,0.18) 4px
-    );
-    pointer-events: none;
-    z-index: 0;
   }
 
   /* wrapper */
   .mq-wrapper {
     --acc: #8F1D2C;
     --acc2: #c0392b;
-    --bg: #111;
-    --bg2: #1a1a1a;
-    --border: #8F1D2C;
-    --shadow: #5a0f1a;
-    --text: #e8e8e8;
+    --shadow: #111;
     --sub: #888;
     position: relative;
     z-index: 1;
@@ -55,13 +31,11 @@ const CSS = `
   }
 
   .mq-logo-wrap {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     text-align: center;
   }
   .mq-logo-wrap img {
-    width: 100px;
-    filter: brightness(0) invert(1);
-    opacity: 0.9;
+    width: 120px;
   }
   .mq-logo-wrap .mq-sys-label {
     display: block;
@@ -70,12 +44,12 @@ const CSS = `
     letter-spacing: 6px;
     color: var(--acc);
     text-transform: uppercase;
-    margin-top: 4px;
+    margin-top: 6px;
+    font-weight: 700;
   }
 
   /* switch */
   .mq-switch {
-    transform: translateY(0);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -109,6 +83,7 @@ const CSS = `
     color: var(--sub);
     font-size: 12px;
     letter-spacing: 2px;
+    font-weight: 700;
   }
 
   .mq-toggle { opacity: 0; width: 0; height: 0; }
@@ -117,11 +92,11 @@ const CSS = `
     box-sizing: border-box;
     border-radius: 4px;
     border: 2px solid var(--acc);
-    box-shadow: 3px 3px var(--shadow);
+    box-shadow: 3px 3px 0 #111;
     position: absolute;
     cursor: pointer;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-color: var(--bg2);
+    background-color: #fff;
     transition: 0.3s;
   }
   .mq-slider:before {
@@ -135,18 +110,18 @@ const CSS = `
     left: -2px;
     bottom: 2px;
     background-color: var(--acc);
-    box-shadow: 0 3px 0 var(--shadow);
+    box-shadow: 0 3px 0 #5a0f1a;
     transition: 0.3s;
   }
-  .mq-toggle:checked + .mq-slider { background-color: var(--bg2); }
+  .mq-toggle:checked + .mq-slider { background-color: #fff; }
   .mq-toggle:checked + .mq-slider:before { transform: translateX(30px); }
   .mq-toggle:checked ~ .mq-card-side::before { text-decoration: none; color: var(--sub); }
   .mq-toggle:checked ~ .mq-card-side::after { text-decoration: underline; color: var(--acc); }
 
   /* flip card */
   .mq-flip-inner {
-    width: 320px;
-    height: 360px;
+    width: 340px;
+    height: 340px;
     position: relative;
     background-color: transparent;
     perspective: 1000px;
@@ -155,10 +130,9 @@ const CSS = `
     transform-style: preserve-3d;
   }
   .mq-toggle:checked ~ .mq-flip-inner { transform: rotateY(180deg); }
-  .mq-toggle:checked ~ .mq-flip-front { box-shadow: none; }
 
   .mq-flip-front, .mq-flip-back {
-    padding: 28px 24px;
+    padding: 32px 28px;
     position: absolute;
     width: 100%;
     height: 100%;
@@ -168,11 +142,10 @@ const CSS = `
     justify-content: center;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    background: var(--bg2);
-    gap: 0;
+    background: #fff;
     border-radius: 4px;
-    border: 2px solid var(--border);
-    box-shadow: 6px 6px 0 var(--shadow);
+    border: 3px solid #111;
+    box-shadow: 8px 8px 0 #111;
   }
   .mq-flip-back { transform: rotateY(180deg); }
 
@@ -200,20 +173,20 @@ const CSS = `
     box-sizing: border-box;
     height: 42px;
     border-radius: 4px;
-    border: 2px solid #333;
-    background-color: #0d0d0d;
-    box-shadow: 3px 3px 0 #000;
-    font-family: 'Share Tech Mono', monospace;
+    border: 2px solid #222;
+    background-color: #fff;
+    box-shadow: 2px 2px 0 #111;
+    font-family: 'Montserrat', sans-serif;
     font-size: 14px;
-    color: var(--text);
+    color: #111;
     padding: 5px 12px;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .mq-input::placeholder { color: #555; }
+  .mq-input::placeholder { color: #aaa; }
   .mq-input:focus {
     border-color: var(--acc);
-    box-shadow: 3px 3px 0 var(--shadow);
+    box-shadow: 3px 3px 0 var(--acc);
   }
 
   .mq-input-wrap { position: relative; width: 100%; }
@@ -226,7 +199,7 @@ const CSS = `
     border: none;
     cursor: pointer;
     padding: 0;
-    color: #555;
+    color: #aaa;
     display: flex;
     align-items: center;
   }
@@ -236,9 +209,9 @@ const CSS = `
     width: 100%;
     height: 42px;
     border-radius: 4px;
-    border: 2px solid var(--acc);
+    border: 2px solid #111;
     background-color: var(--acc);
-    box-shadow: 4px 4px 0 var(--shadow);
+    box-shadow: 4px 4px 0 #111;
     font-family: 'Rajdhani', sans-serif;
     font-size: 16px;
     font-weight: 700;
@@ -250,46 +223,17 @@ const CSS = `
     margin-top: 6px;
   }
   .mq-btn:active {
-    box-shadow: 0 0 0 var(--shadow);
+    box-shadow: 0 0 0 #111;
     transform: translate(4px, 4px);
   }
   .mq-btn:hover { background-color: var(--acc2); }
 
-  .mq-btn-ghost {
-    background: transparent;
-    border: 2px solid #333;
-    box-shadow: 3px 3px 0 #000;
-    color: var(--sub);
-    width: 100%;
-    height: 38px;
-    border-radius: 4px;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: border-color 0.2s, color 0.2s;
-  }
-  .mq-btn-ghost:hover { border-color: var(--acc); color: var(--acc); }
-
-  .mq-error { color: #e53935; font-size: 12px; margin-top: -4px; letter-spacing: 1px; }
-  .mq-ok    { color: #43a047; font-size: 12px; margin-top: -4px; letter-spacing: 1px; }
-
-  .mq-corner {
-    position: fixed;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    color: rgba(143,29,44,0.3);
-    letter-spacing: 2px;
-    pointer-events: none;
-  }
-  .mq-corner.tl { top: 16px; left: 20px; }
-  .mq-corner.br { bottom: 16px; right: 20px; }
+  .mq-error { color: #e53935; font-size: 12px; margin-top: -4px; }
+  .mq-ok    { color: #1f8b4c; font-size: 12px; margin-top: -4px; }
 
   .mq-spinner {
-    width: 40px; height: 40px;
-    border: 3px solid #333;
+    width: 36px; height: 36px;
+    border: 3px solid #eee;
     border-top-color: var(--acc);
     border-radius: 50%;
     animation: mq-spin 0.7s linear infinite;
@@ -331,9 +275,6 @@ function Login() {
   return (
     <div className="mq-login-bg">
       <style>{CSS}</style>
-
-      <span className="mq-corner tl">MAQSISTEM // v2.0</span>
-      <span className="mq-corner br">SISTEMA INTEGRAL // ACCESO RESTRINGIDO</span>
 
       <div className="mq-wrapper">
         <div className="mq-logo-wrap">
