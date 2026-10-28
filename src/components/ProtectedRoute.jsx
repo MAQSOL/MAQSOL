@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import CargandoMaq from "./CargandoMaq";
 
 function ProtectedRoute({ children }) {
 
@@ -28,9 +29,9 @@ function ProtectedRoute({ children }) {
 
   if (cargando) {
     return (
-      <p style={{ textAlign: "center", marginTop: "50px" }}>
-        Cargando...
-      </p>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f4f4f4" }}>
+        <CargandoMaq texto="Iniciando sistema…" />
+      </div>
     );
   }
 
