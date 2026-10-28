@@ -7,6 +7,7 @@ import { supabase } from "../../supabaseClient";
 import { useAuth } from "../../contexts/AuthContext";
 import { useListaCompartida } from "../../hooks/useSharedTable";
 import { descargarFichaPDF, edadDe } from "../../utils/fichaPersonal";
+import { generarGafete } from "../../utils/generarGafete";
 import { S, fFecha, hoyISO } from "./estilosAdmin";
 import { IconoMas } from "../../components/Icons";
 import CampoFecha from "../../components/CampoFecha";
@@ -293,6 +294,7 @@ export default function PersonalNuevo() {
                     <td style={{ ...S.td, whiteSpace: "nowrap", textAlign: "right" }}>
                       <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => abrirEditar(p)}>Editar</button>{" "}
                       <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => descargarFichaPDF(p, logoUrl(), "FICHA-" + p.nombre.replace(/\s+/g, "-").toUpperCase())}>Ficha PDF</button>{" "}
+                      <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => generarGafete(p, logoUrl())}>Generar Gafete</button>{" "}
                       <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => setCarta({ persona: p })}>Responsiva</button>{" "}
                       <span style={{ display: "inline-block" }}>
                         <DeleteButton size="sm" title="Eliminar empleado y sus documentos" onConfirm={() => eliminar(p)} />

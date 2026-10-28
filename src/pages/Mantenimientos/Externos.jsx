@@ -21,7 +21,7 @@ const EQUIPO_NUEVO = {
   cliente:'',ubicacion:'',
   fechaInicio:'',fechaFinEstimada:'',fechaDevolucion:'',
   costoProveedor:'',periodoCosto:'Diario',precioCliente:'',
-  estado:'Rentado',notas:'',
+  estado:'Rentado',renovada:false,notas:'',
   ultimoMantto:'',proximoMantto:'',realizadoPor:'',linkReporte:''
 }
 
@@ -64,6 +64,18 @@ function linkSeguro(u){
   const t=(u||'').trim()
   if(!t)return ''
   return /^https?:\/\//i.test(t)?t:'https://'+t
+}
+
+function BadgeRenovada({renovada,onClick}){
+  return(
+    <span
+      onClick={onClick}
+      title={onClick?'Click para cambiar':''}
+      style={{background:renovada?'#e8f5e9':'#f5f5f5',color:renovada?'#2e7d32':'#999',
+        padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700,whiteSpace:'nowrap',
+        cursor:onClick?'pointer':'default',userSelect:'none'}}
+    >{renovada?'Renovada':'No renovada'}</span>
+  )
 }
 
 function BadgeEstado({estado}){
@@ -111,6 +123,9 @@ export default function EquiposExternos(){
   }
   function eliminarEquipo(eq){
     guardarEquipos(equipos.filter(e=>e.id!==eq.id))
+  }
+  function toggleRenovada(eq){
+    guardarEquipos(equipos.map(e=>e.id===eq.id?{...e,renovada:!e.renovada}:e))
   }
   function marcarDevuelto(eq){
     guardarEquipos(equipos.map(e=>e.id===eq.id?{...e,estado:'Devuelto',fechaDevolucion:new Date().toISOString().slice(0,10)}:e))
@@ -163,7 +178,7 @@ export default function EquiposExternos(){
         <table style={{width:'100%',borderCollapse:'collapse',minWidth:1900}}>
           <thead><tr>
             <th style={S.th}>EQUIPO</th><th style={S.th}>MARCA / MODELO</th><th style={S.th}>PROVEEDOR</th><th style={S.th}>CLIENTE</th>
-            <th style={S.th}>ESTADO</th><th style={S.th}>INICIO</th><th style={S.th}>FIN ESTIMADO</th>
+            <th style={S.th}>ESTADO</th><th style={S.th}>RENOVADA</th><th style={S.th}>INICIO</th><th style={S.th}>FIN ESTIMADO</th>
             <th style={S.th}>ÚLTIMO MANTTO</th><th style={S.th}>PRÓXIMO MANTTO</th><th style={S.th}>REALIZÓ</th><th style={S.th}>REPORTE</th>
 <th style={{...S.th,width:90,textAlign:'center'}}></th>
           </tr></thead>
@@ -175,6 +190,7 @@ export default function EquiposExternos(){
               <td style={S.td}>{e.proveedor}{e.telProveedor?<div style={{color:'#999',fontSize:12}}>{e.telProveedor}</div>:null}</td>
               <td style={S.td}>{e.cliente||<span style={{color:'#bbb'}}>—</span>}</td>
               <td style={S.td}><BadgeEstado estado={e.estado}/></td>
+              <td style={S.td}><BadgeRenovada renovada={!!e.renovada} onClick={()=>toggleRenovada(e)}/></td>
               <td style={S.td}>{fFecha(e.fechaInicio)}</td>
               <td style={S.td}><SemaforoFin fecha={e.fechaFinEstimada} estado={e.estado}/></td>
               <td style={S.td}>{fFecha(e.ultimoMantto)}</td>
@@ -208,6 +224,13 @@ export default function EquiposExternos(){
           <div><label style={S.label}>SERIE</label><input style={S.input} value={form.serie} onChange={ev=>setForm({...form,serie:ev.target.value})}/></div>
           <div><label style={S.label}>UBICACIÓN / OBRA</label><input style={S.input} value={form.ubicacion} onChange={ev=>setForm({...form,ubicacion:ev.target.value})}/></div>
           <div><label style={S.label}>ESTADO</label><select style={S.input} value={form.estado} onChange={ev=>setForm({...form,estado:ev.target.value})}><option>Reservado</option><option>Rentado</option><option>Devuelto</option></select></div>
+        </div>
+        <div style={{marginBottom:14,display:'flex',alignItems:'center',gap:12}}>
+          <label style={{...S.label,margin:0}}>RENOVADA</label>
+          <label style={{display:'flex',alignItems:'center',gap:8,cursor:'pointer',userSelect:'none'}}>
+            <input type="checkbox" checked={!!form.renovada} onChange={ev=>setForm({...form,renovada:ev.target.checked})} style={{width:16,height:16,cursor:'pointer'}}/>
+            <span style={{fontSize:13,color:form.renovada?'#2e7d32':'#777',fontWeight:700}}>{form.renovada?'Sí, esta renta fue renovada':'No renovada'}</span>
+          </label>
         </div>
 
         <h3 style={{fontSize:15,fontWeight:800,margin:'8px 0 10px',color:VINO}}>Proveedor (de quién lo subarrendamos)</h3>

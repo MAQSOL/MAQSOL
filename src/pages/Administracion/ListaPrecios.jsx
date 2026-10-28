@@ -17,10 +17,11 @@ const NUEVO_OTRO = { id: "", concepto: "", categoria: "Servicio", unidad: "Servi
 // ---------- Equipos en renta ----------
 const NUEVO_EQUIPO = {
   id: "", grupo: GRUPOS_EQUIPO[0], marca: "", modelo: "", tipo: "", alturaPlataforma: "", alturaMaxima: "", capacidad: "",
-  semana: "", mes: "", semanaOperacion: "", mesOperacion: "", semanaOperacionCombustible: "", mesOperacionCombustible: "", notas: ""
+  dia: "", semana: "", mes: "", semanaOperacion: "", mesOperacion: "", semanaOperacionCombustible: "", mesOperacionCombustible: "", notas: ""
 };
 
 const COLUMNAS_PRECIO = [
+  ["dia", "DÍA"],
   ["semana", "SEMANA"],
   ["mes", "MES"],
   ["semanaOperacion", "SEMANA CON OPERACIÓN"],
@@ -119,8 +120,8 @@ function EquiposRenta({ equipos, guardar }) {
     descargarExcelBonito({
       titulo: "Lista de Precios de Equipos en Renta · MAQSOL",
       subtitulo: `${filtrados.length} equipos · precios sin IVA`,
-      columnas: ["Grupo", "Marca", "Modelo", "Tipo", "Altura a nivel de plataforma", "Altura máxima", "Capacidad", "Semana", "Mes", "Semana con operación", "Mes con operación", "Semana con operación y combustible", "Mes con operación y combustible", "Notas"],
-      formatos: [null, null, null, null, null, null, null, "moneda", "moneda", "moneda", "moneda", "moneda", "moneda", null],
+      columnas: ["Grupo", "Marca", "Modelo", "Tipo", "Altura a nivel de plataforma", "Altura máxima", "Capacidad", "Día", "Semana", "Mes", "Semana con operación", "Mes con operación", "Semana con operación y combustible", "Mes con operación y combustible", "Notas"],
+      formatos: [null, null, null, null, null, null, null, "moneda", "moneda", "moneda", "moneda", "moneda", "moneda", "moneda", null],
       filas: filtrados.map((e) => [e.grupo, e.marca, e.modelo, e.tipo, e.alturaPlataforma, e.alturaMaxima, e.capacidad, ...COLUMNAS_PRECIO.map(([k]) => (num(e[k]) === "" ? "N/A" : num(e[k]))), e.notas || ""]),
       nombreArchivo: nombreArchivoFecha("LISTA-PRECIOS-EQUIPOS")
     });
