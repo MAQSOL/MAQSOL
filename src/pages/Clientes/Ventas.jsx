@@ -765,13 +765,6 @@ return (
           </div>
         </div>
 
-        <Link
-          to="/"
-          className="btn-panel"
-        >
-          ← Dashboard
-        </Link>
-
       </div>
 
     </div>
