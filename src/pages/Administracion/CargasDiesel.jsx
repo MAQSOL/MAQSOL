@@ -295,7 +295,23 @@ export default function CargasDiesel() {
                 <label style={S.label}>TOMAR DE EQUIPOS REGISTRADOS</label>
                 <select style={S.input} value="" onChange={(e) => elegirMaquina(e.target.value)}>
                   <option value="">— Elegir o escribir abajo —</option>
-                  {catalogo.map((m, k) => <option key={k} value={k}>{`${m.label} · ${m.serie || "s/n"} (${m.origen})`}</option>)}
+                  {catalogo.filter((m) => m.origen === "propio").length > 0 && (
+                    <optgroup label="Equipos MAQSOL (propios)">
+                      {catalogo.filter((m) => m.origen === "propio").map((m) => {
+                        const idx = catalogo.indexOf(m);
+                        return <option key={idx} value={idx}>{`${m.label} · ${m.serie || "s/n"}`}</option>;
+                      })}
+                    </optgroup>
+                  )}
+                  {catalogo.filter((m) => m.origen === "externo").length > 0 && (
+                    <optgroup label="Equipos subarrendados (de terceros)">
+                      {catalogo.filter((m) => m.origen === "externo").map((m) => {
+                        const idx = catalogo.indexOf(m);
+                        const eq = externos.find((e) => e.id === m.id);
+                        return <option key={idx} value={idx}>{`${m.label} · ${m.serie || "s/n"}${eq?.proveedor ? ` · ${eq.proveedor}` : ""}`}</option>;
+                      })}
+                    </optgroup>
+                  )}
                 </select>
               </div>
             </div>
