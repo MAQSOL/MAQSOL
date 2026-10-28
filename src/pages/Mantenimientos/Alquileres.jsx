@@ -61,7 +61,8 @@ const NUEVO = {
   fotos: [],
   checklist: null,
   finalizado: false,
-  fechaFinalizado: ""
+  fechaFinalizado: "",
+  origen: ""
 };
 
 const dias = (f) => {
@@ -330,7 +331,8 @@ export default function Alquileres() {
       marca: e.marca || "",
       modelo: e.modelo || "",
       serie: e.serie || "",
-      horometroEntrega: f.horometroEntrega || e.horometro || ""
+      horometroEntrega: f.horometroEntrega || e.horometro || "",
+      origen: e.origen || ""
     }));
   };
 
@@ -571,6 +573,12 @@ export default function Alquileres() {
                       {a.tipo}
                       <div style={{ fontWeight: 400, color: "#777", fontSize: 12 }}>{a.marca} {a.modelo}</div>
                       {a.serie && <div style={{ fontWeight: 400, color: "#777", fontSize: 12, whiteSpace: "nowrap" }}>Serie {a.serie}</div>}
+                      {a.origen === "propio" && (
+                        <span style={{ background: "#e3f2fd", color: "#1565c0", fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20, marginTop: 3, display: "inline-block" }}>Propia MAQSOL</span>
+                      )}
+                      {a.origen === "externo" && (
+                        <span style={{ background: "#fff3e0", color: "#c98a00", fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20, marginTop: 3, display: "inline-block" }}>Subarrendada</span>
+                      )}
                     </td>
                     <td style={S.td}>{a.cliente}</td>
                     <td style={S.td}>
@@ -722,13 +730,36 @@ export default function Alquileres() {
             </div>
 
             <h3 style={S.h3}>Equipo</h3>
+            {form.origen === "propio" && (
+              <div style={{ background: "#e3f2fd", border: "1px solid #90caf9", borderRadius: 8, padding: "8px 14px", marginBottom: 12, fontSize: 13, color: "#1565c0", fontWeight: 700 }}>
+                🔵 Equipo propio de MAQSOL
+              </div>
+            )}
+            {form.origen === "externo" && (
+              <div style={{ background: "#fff3e0", border: "1px solid #ffd54f", borderRadius: 8, padding: "8px 14px", marginBottom: 12, fontSize: 13, color: "#c98a00", fontWeight: 700 }}>
+                🟡 Equipo subarrendado (de tercero)
+              </div>
+            )}
             <div style={{ marginBottom: 14 }}>
-              <label style={S.label}>TOMAR DE EQUIPOS REGISTRADOS (propios y subarrendados)</label>
+              <label style={S.label}>TOMAR DE EQUIPOS REGISTRADOS</label>
               <select style={S.input} value="" onChange={(e) => elegirEquipo(e.target.value)}>
                 <option value="">— Elegir o llenar a mano —</option>
-                {catalogo.map((q, k) => (
-                  <option key={k} value={k}>{`${q.tipo || ""} ${q.marca || ""} ${q.modelo || ""} · ${q.serie || "s/n"} (${q.origen})`}</option>
-                ))}
+                {internos.length > 0 && (
+                  <optgroup label="Equipos MAQSOL (propios)">
+                    {catalogo.filter((q) => q.origen === "propio").map((q, _) => {
+                      const idx = catalogo.indexOf(q);
+                      return <option key={idx} value={idx}>{`${q.tipo || ""} ${q.marca || ""} ${q.modelo || ""} · ${q.serie || "s/n"}`}</option>;
+                    })}
+                  </optgroup>
+                )}
+                {externos.filter((e) => e.estado !== "Devuelto").length > 0 && (
+                  <optgroup label="Equipos subarrendados (de terceros)">
+                    {catalogo.filter((q) => q.origen === "externo").map((q, _) => {
+                      const idx = catalogo.indexOf(q);
+                      return <option key={idx} value={idx}>{`${q.tipo || ""} ${q.marca || ""} ${q.modelo || ""} · ${q.serie || "s/n"} · ${q.proveedor || "sin proveedor"}`}</option>;
+                    })}
+                  </optgroup>
+                )}
               </select>
             </div>
             <div style={S.grid3}>
