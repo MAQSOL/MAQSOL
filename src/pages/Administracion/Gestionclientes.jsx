@@ -6,6 +6,8 @@ import NipGate from "../../components/NipGate";
 import { useSharedTable } from "../../hooks/useSharedTable";
 import ExpedienteCliente from "../../components/ExpedienteCliente";
 import { estadoExpediente } from "../../utils/expediente";
+import { S } from "./estilosAdmin";
+import { IconoMas } from "../../components/Icons";
 
 const inputGrande = {
   height: "54px",
@@ -90,14 +92,14 @@ function GestionClientes() {
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: "14px", width: "100%" }}>
-            <div className="panel" style={{ padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap", minWidth: 0 }}>
-                <h2 style={{ fontSize: "21px", margin: 0 }}>Gestión de Clientes</h2>
-                <span style={{ fontSize: 13, color: "#888" }}>{clientes.length} clientes · información compartida con todo el equipo</span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, gap: 10, flexWrap: "wrap" }}>
+              <div>
+                <h1 style={S.h1}>Gestión de Clientes</h1>
+                <p style={S.sub}>{clientes.length} cliente{clientes.length !== 1 ? "s" : ""} · información compartida con todo el equipo</p>
               </div>
-              <Link to="/" className="btn-panel" style={{ margin: 0, padding: "8px 16px", fontSize: 14, whiteSpace: "nowrap" }}>
-                ← Dashboard
-              </Link>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
+              </div>
             </div>
 
             {incompletos.length > 0 && (
@@ -107,8 +109,8 @@ function GestionClientes() {
             )}
 
             {(
-              <div className="panel" style={{ padding: "28px 32px" }}>
-                <h3 style={{ fontSize: "19px" }}>{editandoId ? "Editar cliente" : "Agregar Cliente"}</h3>
+              <div style={S.card}>
+                <h2 style={{ ...S.h2, marginBottom: 18 }}>{editandoId ? "Editar cliente" : "Agregar Cliente"}</h2>
 
                 <div className="form-grid" style={{ gap: "18px" }}>
                   <input
@@ -161,26 +163,19 @@ function GestionClientes() {
                   />
                 </div>
 
-                <div style={{ marginTop: "20px" }}>
-                  <button
-                    type="button"
-                    className="btn-guardar"
-                    style={{ padding: "14px 28px", fontSize: "15px" }}
-                    onClick={guardarCliente}
-                  >
-                    {editandoId ? "Guardar cambios" : "Guardar Cliente"}
+                <div style={{ marginTop: "20px", display: "flex", gap: 10 }}>
+                  <button type="button" style={S.btn} onClick={guardarCliente}>
+                    <IconoMas />{editandoId ? "Guardar cambios" : "Guardar Cliente"}
                   </button>
                   {editandoId && (
-                    <button type="button" className="btn-panel" style={{ margin: "0 0 0 10px", border: "none", cursor: "pointer" }} onClick={limpiarForm}>
-                      Cancelar
-                    </button>
+                    <button type="button" style={S.btnGris} onClick={limpiarForm}>Cancelar</button>
                   )}
                 </div>
               </div>
             )}
 
-            <div className="panel" style={{ padding: "28px 32px" }}>
-              <h3 style={{ fontSize: "19px" }}>Clientes Guardados</h3>
+            <div style={S.card}>
+              <h2 style={{ ...S.h2, marginBottom: 18 }}>Clientes Guardados</h2>
 
               {loading ? (
                 <p>Cargando…</p>
@@ -225,10 +220,10 @@ function GestionClientes() {
                           No quiero rellenarlo
                         </button>
                       )}
-                      <button type="button" className="btn-panel" style={{ margin: 0, border: "none", cursor: "pointer", background: c.incompleto ? "#c98a00" : undefined }} onClick={() => editarCliente(c)}>
+                      <button type="button" style={{ ...S.btnGris, padding: "6px 14px", fontSize: 13, ...(c.incompleto ? { background: "#c98a00", color: "#fff" } : {}) }} onClick={() => editarCliente(c)}>
                         {c.incompleto ? "Completar" : "Editar"}
                       </button>
-                      <button type="button" className="btn-panel" style={{ margin: 0, border: "none", cursor: "pointer" }} onClick={() => setExpedienteDe(c.cliente)}>
+                      <button type="button" style={{ ...S.btnGris, padding: "6px 14px", fontSize: 13 }} onClick={() => setExpedienteDe(c.cliente)}>
                         Expediente
                       </button>
                       <DeleteButton
