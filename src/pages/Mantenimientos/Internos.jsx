@@ -417,8 +417,8 @@ export default function EquiposInternos(){
               <div style={{width:220,height:160,borderRadius:10,background:'#f5f5f5',border:'2px dashed #ccc',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8,color:'#aaa',fontSize:13}}>Sin foto</div>
             )}
             <div style={{display:'flex',gap:6,justifyContent:'center',alignItems:'center'}}>
-              <button type="button" title="Editar información general" aria-label="Editar información general" onClick={()=>abrirEditar(activo)} style={{...S.btnGrisSm,display:'inline-flex',alignItems:'center',justifyContent:'center',padding:'6px 9px'}}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-              <label style={{...S.btnSm,cursor:'pointer',display:'inline-block'}}>
+              <button type="button" title="Editar información general" aria-label="Editar información general" onClick={()=>abrirEditar(activo)} style={{...S.btnGris,display:'inline-flex',alignItems:'center',justifyContent:'center',padding:'10px 13px'}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+              <label style={{...S.btn,cursor:'pointer',display:'inline-block'}}>
                 Subir foto
                 <input type="file" accept="image/*" style={{display:'none'}} onChange={async(ev)=>{
                   const file=ev.target.files[0];if(!file)return
