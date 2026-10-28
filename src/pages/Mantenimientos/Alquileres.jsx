@@ -730,16 +730,21 @@ export default function Alquileres() {
             </div>
 
             <h3 style={S.h3}>Equipo</h3>
-            {form.origen === "propio" && (
-              <div style={{ background: "#e3f2fd", border: "1px solid #90caf9", borderRadius: 8, padding: "8px 14px", marginBottom: 12, fontSize: 13, color: "#1565c0", fontWeight: 700 }}>
-                🔵 Equipo propio de MAQSOL
+            <div style={{ marginBottom: 14 }}>
+              <label style={S.label}>PROCEDENCIA DEL EQUIPO</label>
+              <div style={{ display: "flex", gap: 10 }}>
+                {[
+                  { val: "propio", label: "Propio MAQSOL", bg: "#e3f2fd", c: "#1565c0", border: "#90caf9" },
+                  { val: "externo", label: "Subarrendado (tercero)", bg: "#fff3e0", c: "#c98a00", border: "#ffd54f" },
+                  { val: "", label: "Sin definir", bg: "#f5f5f5", c: "#999", border: "#ddd" }
+                ].map(({ val, label, bg, c, border }) => (
+                  <button key={val} type="button" onClick={() => set("origen", val)}
+                    style={{ padding: "8px 16px", borderRadius: 8, border: `2px solid ${form.origen === val ? border : "#e0e0e0"}`, background: form.origen === val ? bg : "#fff", color: form.origen === val ? c : "#aaa", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                    {label}
+                  </button>
+                ))}
               </div>
-            )}
-            {form.origen === "externo" && (
-              <div style={{ background: "#fff3e0", border: "1px solid #ffd54f", borderRadius: 8, padding: "8px 14px", marginBottom: 12, fontSize: 13, color: "#c98a00", fontWeight: 700 }}>
-                🟡 Equipo subarrendado (de tercero)
-              </div>
-            )}
+            </div>
             <div style={{ marginBottom: 14 }}>
               <label style={S.label}>TOMAR DE EQUIPOS REGISTRADOS</label>
               <select style={S.input} value="" onChange={(e) => elegirEquipo(e.target.value)}>
