@@ -8,6 +8,7 @@ import QrEquipoModal from '../../components/QrEquipoModal'
 import { conHoras } from '../../utils/horometro'
 import CampoDiferido from '../../components/CampoDiferido'
 import { IconoMas } from '../../components/Icons'
+import CargandoMaq from '../../components/CargandoMaq'
 import CampoFecha from "../../components/CampoFecha"
 
 const VINO = 'var(--acento)'
@@ -652,6 +653,12 @@ export default function EquiposInternos(){
   }
 
   // ========================= LISTA =========================
+  if(cargandoEquipos) return(
+    <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={{...S.page,display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <CargandoMaq texto="Cargando equipos…"/>
+    </div></div>
+  )
+
   return(
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
