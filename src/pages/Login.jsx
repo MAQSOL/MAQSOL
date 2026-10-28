@@ -57,14 +57,9 @@ function Login() {
         <div style={{ textAlign: "center", marginBottom: 28 }}>
           <img src={logo} alt="MAQSISTEM" style={{ width: 110, display: "block", margin: "0 auto 10px" }} />
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 5, color: "#8F1D2C", textTransform: "uppercase", margin: 0 }}>
-            Sistema Integral
+            MAQSISTEM
           </p>
         </div>
-
-        {/* Título */}
-        <h2 style={{ fontSize: 18, fontWeight: 800, margin: "0 0 22px", textAlign: "center", letterSpacing: 1 }}>
-          {modo === "acceder" ? "Iniciar sesión" : "Recuperar contraseña"}
-        </h2>
 
         {modo === "acceder" ? (
           <form onSubmit={iniciarSesion} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -158,7 +153,7 @@ function Login() {
           </form>
         ) : (
           <form onSubmit={enviarRecuperacion} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <p style={{ fontSize: 13, color: "#666", margin: 0 }}>
+            <p style={{ fontSize: 13, color: "#666", margin: "0 0 4px" }}>
               Escribe tu correo y te enviamos un enlace para restablecer tu contraseña.
             </p>
 
