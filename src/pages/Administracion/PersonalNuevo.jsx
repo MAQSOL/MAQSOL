@@ -1,4 +1,4 @@
-import Layout from "../../components/Layout";
+﻿import Layout from "../../components/Layout";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
@@ -244,11 +244,11 @@ export default function PersonalNuevo() {
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
-            <button style={S.btnGris} onClick={() => descargarFichaPDF({}, logoUrl(), "FICHA-EMPLEADO-EN-BLANCO")}>
+            <button className="btn-sys" style={S.btnGris} onClick={() => descargarFichaPDF({}, logoUrl(), "FICHA-EMPLEADO-EN-BLANCO")}>
               Ficha en blanco (para que la llene el empleado)
             </button>
-            <button style={S.btnGris} onClick={() => setCarta({ persona: null })}>Carta responsiva de equipo</button>
-            <button style={S.btn} onClick={abrirNuevo}><IconoMas />Nuevo empleado</button>
+            <button className="btn-sys" style={S.btnGris} onClick={() => setCarta({ persona: null })}>Carta responsiva de equipo</button>
+            <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Nuevo empleado</button>
           </div>
         </div>
 
@@ -292,10 +292,10 @@ export default function PersonalNuevo() {
                         : e.faltan.slice(0, 3).map((d) => d.nombre).join(", ") + (e.faltan.length > 3 ? ` y ${e.faltan.length - 3} más` : "")}
                     </td>
                     <td style={{ ...S.td, whiteSpace: "nowrap", textAlign: "right" }}>
-                      <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => abrirEditar(p)}>Editar</button>{" "}
-                      <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => descargarFichaPDF(p, logoUrl(), "FICHA-" + p.nombre.replace(/\s+/g, "-").toUpperCase())}>Ficha PDF</button>{" "}
-                      <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => generarGafete(p, logoUrl())}>Generar Gafete</button>{" "}
-                      <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => setCarta({ persona: p })}>Responsiva</button>{" "}
+                      <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => abrirEditar(p)}>Editar</button>{" "}
+                      <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => descargarFichaPDF(p, logoUrl(), "FICHA-" + p.nombre.replace(/\s+/g, "-").toUpperCase())}>Ficha PDF</button>{" "}
+                      <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => generarGafete(p, logoUrl())}>Generar Gafete</button>{" "}
+                      <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => setCarta({ persona: p })}>Responsiva</button>{" "}
                       <span style={{ display: "inline-block" }}>
                         <DeleteButton size="sm" title="Eliminar empleado y sus documentos" onConfirm={() => eliminar(p)} />
                       </span>
@@ -376,10 +376,10 @@ export default function PersonalNuevo() {
               <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1fr auto", gap: 10, marginBottom: 8 }}>
                 <input style={S.input} placeholder="Nombre del hijo(a)" value={h.nombre} onChange={(e) => setHijo(i, "nombre", e.target.value)} />
                 <CampoFecha  style={S.input} value={h.fechaNacimiento || ""} onChange={(e) => setHijo(i, "fechaNacimiento", e.target.value)} />
-                <button type="button" style={{ ...S.btnGris, padding: "8px 12px" }} onClick={() => setForm((f) => ({ ...f, hijos: f.hijos.filter((_, k) => k !== i) }))}>✕</button>
+                <button type="button" className="btn-sys" style={{ ...S.btnGris, padding: "8px 12px" }} onClick={() => setForm((f) => ({ ...f, hijos: f.hijos.filter((_, k) => k !== i) }))}>✕</button>
               </div>
             ))}
-            <button type="button" style={{ ...S.btnGris, marginBottom: 14 }} onClick={() => setForm((f) => ({ ...f, hijos: [...f.hijos, { nombre: "", fechaNacimiento: "" }] }))}><IconoMas />Agregar hijo(a)</button>
+            <button type="button" className="btn-sys" style={{ ...S.btnGris, marginBottom: 14 }} onClick={() => setForm((f) => ({ ...f, hijos: [...f.hijos, { nombre: "", fechaNacimiento: "" }] }))}><IconoMas />Agregar hijo(a)</button>
             <div style={S.grid3}>
               <Campo etiqueta="BENEFICIARIO"><input style={S.input} value={form.beneficiarioNombre} onChange={(e) => set("beneficiarioNombre", e.target.value)} /></Campo>
               <Campo etiqueta="PARENTESCO"><input style={S.input} value={form.beneficiarioParentesco} onChange={(e) => set("beneficiarioParentesco", e.target.value)} /></Campo>
@@ -497,12 +497,12 @@ export default function PersonalNuevo() {
             </div>
 
             <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-              <button style={S.btnGris} onClick={() => descargarFichaPDF(form, logoUrl(), "FICHA-" + (form.nombre || "EMPLEADO").replace(/\s+/g, "-").toUpperCase())}>
+              <button className="btn-sys" style={S.btnGris} onClick={() => descargarFichaPDF(form, logoUrl(), "FICHA-" + (form.nombre || "EMPLEADO").replace(/\s+/g, "-").toUpperCase())}>
                 Generar ficha PDF con estos datos
               </button>
               <div style={{ display: "flex", gap: 10 }}>
-                <button style={S.btnGris} onClick={cerrar} disabled={guardando}>Cancelar</button>
-                <button style={{ ...S.btn, opacity: guardando ? 0.6 : 1 }} onClick={guardarForm} disabled={guardando}>
+                <button className="btn-sys" style={S.btnGris} onClick={cerrar} disabled={guardando}>Cancelar</button>
+                <button className="btn-sys" style={{ ...S.btn, opacity: guardando ? 0.6 : 1 }} onClick={guardarForm} disabled={guardando}>
                   {guardando ? "Guardando…" : "Guardar"}
                 </button>
               </div>

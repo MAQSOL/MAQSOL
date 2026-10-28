@@ -1,0 +1,46 @@
+/* ============================================
+   MAQSISTEM — Estilo global de botones
+   ============================================ */
+
+.btn-sys {
+  background: #111 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative !important;
+  overflow: hidden;
+  transition: transform 0.3s ease !important;
+  font-family: inherit;
+}
+
+/* Círculo blanco animado */
+.btn-sys::before {
+  content: "";
+  width: 200%;
+  height: 200%;
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  left: -110%;
+  top: -60%;
+  transition: transform 0.35s ease, border-radius 0.35s ease;
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+.btn-sys:hover::before {
+  transform: translate(55%, -10%);
+  border-radius: 0;
+}
+
+.btn-sys:active {
+  transform: translate(4px, 4px);
+}
+
+/* Íconos dentro del botón */
+.btn-sys svg path {
+  fill: #fff;
+}

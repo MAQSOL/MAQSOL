@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+﻿import { useRef, useState } from 'react'
 import Sidebar from '../../components/Sidebar'
 import { descargarExcelBonito, nombreArchivoFecha } from '../../utils/exportExcel'
 import { abrirDocPDF, encabezadoDoc, pieDoc, hoyMX, esc } from '../../utils/pdfFormato'
@@ -140,7 +140,7 @@ function NotasEquipo({lista,onCambiar}){
     <h2 style={S.h2}>Notas y observaciones del equipo</h2>
     <div style={{display:'flex',gap:10,alignItems:'flex-start',marginBottom:6}}>
       <textarea style={{...S.input,minHeight:60,resize:'vertical',flex:1}} value={nueva} placeholder="Nueva observación de la máquina..." onChange={ev=>setNueva(ev.target.value)} onKeyDown={ev=>{if(ev.key==='Enter'&&(ev.ctrlKey||ev.metaKey))agregar()}}/>
-      <button style={S.btn} onClick={agregar}>Agregar</button>
+      <button className="btn-sys" style={S.btn} onClick={agregar}>Agregar</button>
     </div>
     {lista.length===0?<div style={{color:'#999',fontSize:14}}>Sin observaciones.</div>:lista.map(n=>(
       <div key={n.id} style={{borderTop:'1px solid #eee',padding:'10px 0',display:'flex',gap:12,alignItems:'flex-start'}}>
@@ -148,7 +148,7 @@ function NotasEquipo({lista,onCambiar}){
           <div style={{fontSize:12,color:'#999',marginBottom:3}}>{n.fecha?fFecha(n.fecha):'Nota anterior'}{n.editada?' · editada '+fFecha(n.editada):''}</div>
           {editando&&editando.id===n.id?(<>
             <textarea autoFocus style={{...S.input,minHeight:60,resize:'vertical'}} value={editando.texto} onChange={ev=>setEditando({...editando,texto:ev.target.value})}/>
-            <div style={{display:'flex',gap:8,marginTop:6}}><button style={{...S.btn,padding:'6px 14px',fontSize:13}} onClick={guardarEdicion}>Guardar</button><button style={chico} onClick={()=>setEditando(null)}>Cancelar</button></div>
+            <div style={{display:'flex',gap:8,marginTop:6}}><button className="btn-sys" style={{...S.btn,padding:'6px 14px',fontSize:13}} onClick={guardarEdicion}>Guardar</button><button style={chico} onClick={()=>setEditando(null)}>Cancelar</button></div>
           </>):<div style={{whiteSpace:'pre-wrap',fontSize:14.5}}>{n.texto}</div>}
         </div>
         {!(editando&&editando.id===n.id)&&<div style={{display:'flex',gap:6,alignItems:'center',flexShrink:0}}>
@@ -354,7 +354,7 @@ export default function EquiposInternos(){
         <p style={{color:'#888',fontSize:13,margin:'4px 0 18px'}}>Datos básicos. Filtros, suministros, pendientes y mantto se capturan en la ficha.</p>
         <div style={S.grid3}>
           <div><label style={S.label}>TIPO DE EQUIPO</label>
-            {modoNuevoTipoForm?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Excavadora" value={nuevoTipoForm} onChange={ev=>setNuevoTipoForm(ev.target.value)}/><button style={S.btnVerde} onClick={agregarTipoDesdeForm}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevoTipoForm(false)}>✕</button></div>)
+            {modoNuevoTipoForm?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Excavadora" value={nuevoTipoForm} onChange={ev=>setNuevoTipoForm(ev.target.value)}/><button className="btn-sys" style={S.btnVerde} onClick={agregarTipoDesdeForm}>Guardar</button><button className="btn-sys" style={S.btnGris} onClick={()=>setModoNuevoTipoForm(false)}>✕</button></div>)
             :(<select style={S.input} value={form.tipo} onChange={ev=>cambiarTipoForm(ev.target.value)}><option value="">Selecciona un tipo</option>{tipos.map(t=><option key={t}>{t}</option>)}<option value="__nuevo__">+ Agregar tipo nuevo</option></select>)}
           </div>
           <div><label style={S.label}>MARCA</label><input style={S.input} value={form.marca} onChange={ev=>setForm({...form,marca:ev.target.value})}/></div>
@@ -368,11 +368,11 @@ export default function EquiposInternos(){
         </div>
         <div style={S.grid3}>
           <div><label style={S.label}>OPERADOR</label>
-            {modoNuevoOperador?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Nombre" value={nuevoOperador} onChange={ev=>setNuevoOperador(ev.target.value)}/><button style={S.btnVerde} onClick={agregarOperador}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevoOperador(false)}>✕</button></div>)
+            {modoNuevoOperador?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Nombre" value={nuevoOperador} onChange={ev=>setNuevoOperador(ev.target.value)}/><button className="btn-sys" style={S.btnVerde} onClick={agregarOperador}>Guardar</button><button className="btn-sys" style={S.btnGris} onClick={()=>setModoNuevoOperador(false)}>✕</button></div>)
             :(<select style={S.input} value={form.operador} onChange={ev=>cambiarOperador(ev.target.value)}><option value="">Sin operador</option>{(form.operador&&!operadores.includes(form.operador)?[...operadores,form.operador]:operadores).map(o=><option key={o}>{o}</option>)}<option value="__nuevo__">+ Agregar operador</option></select>)}
           </div>
           <div><label style={S.label}>UBICACIÓN</label>
-            {modoNuevaUbicacion?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Bacalar" value={nuevaUbicacion} onChange={ev=>setNuevaUbicacion(ev.target.value)}/><button style={S.btnVerde} onClick={agregarUbicacion}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevaUbicacion(false)}>✕</button></div>)
+            {modoNuevaUbicacion?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Bacalar" value={nuevaUbicacion} onChange={ev=>setNuevaUbicacion(ev.target.value)}/><button className="btn-sys" style={S.btnVerde} onClick={agregarUbicacion}>Guardar</button><button className="btn-sys" style={S.btnGris} onClick={()=>setModoNuevaUbicacion(false)}>✕</button></div>)
             :(<select style={S.input} value={form.ubicacion} onChange={ev=>cambiarUbicacion(ev.target.value)}><option value="">Selecciona</option>{ubicaciones.map(u=><option key={u}>{u}</option>)}<option value="__nueva__">+ Agregar ubicación nueva</option></select>)}
           </div>
           <div><label style={{...S.label,display:'flex',justifyContent:'space-between',alignItems:'center'}}>PLACAS O NÚMERO ECONÓMICO<button type="button" style={botonNA} title="Maquinaria sin placas" onClick={()=>setForm(f=>({...f,placas:'N/A'}))}>N/A</button></label><input style={S.input} value={form.placas} onChange={ev=>setForm({...form,placas:ev.target.value})} placeholder="Placas, No. económico o N/A"/></div>
@@ -383,7 +383,7 @@ export default function EquiposInternos(){
           <div><label style={S.label}>ALTURA MÁX. DE TRABAJO</label><input style={S.input} value={form.alturaMaxima||''} onChange={ev=>setForm({...form,alturaMaxima:ev.target.value})} placeholder="Ej. 17 m"/></div>
           <div><label style={S.label}>COMBUSTIBLE</label><input style={S.input} value={form.combustible} onChange={ev=>setForm({...form,combustible:ev.target.value})} placeholder="Diésel / Gasolina"/></div>
         </div>
-        <div style={{display:'flex',justifyContent:'flex-end',gap:10}}><button style={S.btnGris} onClick={()=>setModal(false)}>Cancelar</button><button style={S.btn} onClick={guardarForm}>Guardar y abrir ficha</button></div>
+        <div style={{display:'flex',justifyContent:'flex-end',gap:10}}><button className="btn-sys" style={S.btnGris} onClick={()=>setModal(false)}>Cancelar</button><button className="btn-sys" style={S.btn} onClick={guardarForm}>Guardar y abrir ficha</button></div>
       </div></div>)
 
   // ========================= FICHA =========================
@@ -404,9 +404,9 @@ export default function EquiposInternos(){
             <h1 style={S.h1}>{activo.tipo||'Equipo'}</h1>
             <p style={S.sub}>{activo.marca} {activo.modelo} · Serie {activo.serie||'s/n'}</p>
             <div style={{display:'flex',gap:10,marginTop:14}}>
-              <button style={S.btnGris} onClick={()=>setVista('lista')}>← Regresar a la lista</button>
-              <button style={S.btn} onClick={()=>abrirEditar(activo)}>Editar datos generales</button>
-              <button style={S.btnGris} onClick={()=>setModalQr(true)}>Generar código QR</button>
+              <button className="btn-sys" style={S.btnGris} onClick={()=>setVista('lista')}>← Regresar a la lista</button>
+              <button className="btn-sys" style={S.btn} onClick={()=>abrirEditar(activo)}>Editar datos generales</button>
+              <button className="btn-sys" style={S.btnGris} onClick={()=>setModalQr(true)}>Generar código QR</button>
             </div>
           </div>
    <div style={{flexShrink:0,textAlign:'center'}}>
@@ -543,14 +543,14 @@ export default function EquiposInternos(){
         <div style={S.card}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
             <h2 style={{...S.h2,margin:0}}>Historial de Mantenimientos</h2>
-            <button style={S.btn} onClick={abrirNuevoMantto}><IconoMas />Agregar mantenimiento</button>
+            <button className="btn-sys" style={S.btn} onClick={abrirNuevoMantto}><IconoMas />Agregar mantenimiento</button>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr auto auto',gap:10,alignItems:'end',marginBottom:14}}>
             <div><label style={S.label}>TIPO</label><select style={S.input} value={filtroTipoM} onChange={ev=>setFiltroTipoM(ev.target.value)}><option value="">Todos</option><option>Preventivo</option><option>Correctivo</option></select></div>
             <div><label style={S.label}>DESDE</label><CampoFecha  style={S.input} value={filtroDesde} onChange={ev=>setFiltroDesde(ev.target.value)}/></div>
             <div><label style={S.label}>HASTA</label><CampoFecha  style={S.input} value={filtroHasta} onChange={ev=>setFiltroHasta(ev.target.value)}/></div>
-            <button style={S.btnGris} onClick={()=>descargarExcel(activo)}>Excel</button>
-            <button style={S.btnGris} onClick={()=>descargarPDF(activo)}>PDF</button>
+            <button className="btn-sys" style={S.btnGris} onClick={()=>descargarExcel(activo)}>Excel</button>
+            <button className="btn-sys" style={S.btnGris} onClick={()=>descargarPDF(activo)}>PDF</button>
           </div>
           {mFiltrados.length===0?<p style={{color:'#999',textAlign:'center',padding:20}}>No hay mantenimientos registrados.</p>:(
             <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',minWidth:700}}>
@@ -572,7 +572,7 @@ export default function EquiposInternos(){
         {verMantto&&(<div style={S.modalBg} onClick={()=>setVerMantto(null)}><div style={S.modal} onClick={ev=>ev.stopPropagation()}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
             <h2 style={{...S.h2,margin:0}}>Detalle del Mantenimiento</h2>
-            <div style={{display:'flex',gap:8}}><button style={S.btn} onClick={()=>{editarMantto(verMantto);setVerMantto(null)}}>Editar</button><button style={S.btnGris} onClick={()=>setVerMantto(null)}>Cerrar</button></div>
+            <div style={{display:'flex',gap:8}}><button className="btn-sys" style={S.btn} onClick={()=>{editarMantto(verMantto);setVerMantto(null)}}>Editar</button><button className="btn-sys" style={S.btnGris} onClick={()=>setVerMantto(null)}>Cerrar</button></div>
           </div>
           <hr style={{border:'none',borderTop:'1px solid #eee',margin:'14px 0'}}/>
           <div style={S.grid3}>
@@ -645,7 +645,7 @@ export default function EquiposInternos(){
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><label style={{...S.label,margin:0}}>DATOS ADICIONALES</label><button style={S.btnGrisSm} onClick={agregarExtra}><IconoMas />Agregar dato</button></div>
             {mForm.extras.map((ex,i)=>(<div key={i} style={{display:'flex',gap:8,marginBottom:6,alignItems:'center'}}><input style={{...S.input,width:'40%'}} placeholder="Nombre" value={ex.nombre} onChange={ev=>editarExtra(i,'nombre',ev.target.value)}/><input style={S.input} placeholder="Valor" value={ex.valor} onChange={ev=>editarExtra(i,'valor',ev.target.value)}/><DeleteButton size="sm" title="Quitar dato" onConfirm={()=>quitarExtra(i)}/></div>))}
           </div>
-          <div style={{display:'flex',justifyContent:'flex-end',gap:10,marginTop:10}}><button style={S.btnGris} onClick={()=>setModalMantto(false)}>Cancelar</button><button style={S.btn} onClick={guardarMantto}>Guardar mantenimiento</button></div>
+          <div style={{display:'flex',justifyContent:'flex-end',gap:10,marginTop:10}}><button className="btn-sys" style={S.btnGris} onClick={()=>setModalMantto(false)}>Cancelar</button><button className="btn-sys" style={S.btn} onClick={guardarMantto}>Guardar mantenimiento</button></div>
         </div></div>)}
 
       </div></div>
@@ -663,15 +663,15 @@ export default function EquiposInternos(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={S.h1}>Equipos Internos</h1><p style={S.sub}>Maquinaria propiedad de MAQSOL · {equipos.length} equipos registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo</button></div>
+        <div style={{display:'flex',gap:10}}><button className="btn-sys" style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo</button></div>
       </div>
       <div style={S.card}>
         <div style={{display:'grid',gridTemplateColumns:'2fr 1.4fr',gap:18,alignItems:'start'}}>
           <div><label style={S.label}>BUSCAR</label><input style={S.input} placeholder="Equipo, marca, modelo o serie" value={busqueda} onChange={ev=>setBusqueda(ev.target.value)}/></div>
           <div>
             <label style={S.label}>TIPO DE EQUIPO</label>
-            {modoNuevoTipoFiltro?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Excavadora" value={nuevoTipoFiltro} onChange={ev=>setNuevoTipoFiltro(ev.target.value)}/><button style={S.btnVerde} onClick={agregarTipoDesdeFiltro}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevoTipoFiltro(false)}>✕</button></div>):(
-              <div style={{display:'flex',gap:8}}><select style={S.input} value={fTipo} onChange={ev=>setFTipo(ev.target.value)}><option value="">Todos los tipos</option>{tipos.map(t=><option key={t}>{t}</option>)}</select><button style={{...S.btnGris,whiteSpace:'nowrap'}} onClick={()=>setModoNuevoTipoFiltro(true)}><IconoMas />Tipo</button></div>
+            {modoNuevoTipoFiltro?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Excavadora" value={nuevoTipoFiltro} onChange={ev=>setNuevoTipoFiltro(ev.target.value)}/><button className="btn-sys" style={S.btnVerde} onClick={agregarTipoDesdeFiltro}>Guardar</button><button className="btn-sys" style={S.btnGris} onClick={()=>setModoNuevoTipoFiltro(false)}>✕</button></div>):(
+              <div style={{display:'flex',gap:8}}><select style={S.input} value={fTipo} onChange={ev=>setFTipo(ev.target.value)}><option value="">Todos los tipos</option>{tipos.map(t=><option key={t}>{t}</option>)}</select><button className="btn-sys" style={{...S.btnGris,whiteSpace:'nowrap'}} onClick={()=>setModoNuevoTipoFiltro(true)}><IconoMas />Tipo</button></div>
             )}
             {fTipo&&!modoNuevoTipoFiltro?<button onClick={eliminarTipo} style={{background:'none',border:'none',color:'#c62828',fontSize:12,cursor:'pointer',padding:'6px 0 0',textDecoration:'underline'}}>Quitar "{fTipo}"</button>:null}
           </div>

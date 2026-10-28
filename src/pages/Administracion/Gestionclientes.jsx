@@ -1,4 +1,4 @@
-import Layout from "../../components/Layout";
+﻿import Layout from "../../components/Layout";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
@@ -160,11 +160,11 @@ function GestionClientes() {
                 </div>
 
                 <div style={{ marginTop: "20px", display: "flex", gap: 10 }}>
-                  <button type="button" style={S.btn} onClick={guardarCliente}>
+                  <button type="button" className="btn-sys" style={S.btn} onClick={guardarCliente}>
                     <IconoMas />{editandoId ? "Guardar cambios" : "Guardar Cliente"}
                   </button>
                   {editandoId && (
-                    <button type="button" style={S.btnGris} onClick={limpiarForm}>Cancelar</button>
+                    <button type="button" className="btn-sys" style={S.btnGris} onClick={limpiarForm}>Cancelar</button>
                   )}
                 </div>
               </div>
@@ -216,10 +216,10 @@ function GestionClientes() {
                           No quiero rellenarlo
                         </button>
                       )}
-                      <button type="button" style={{ ...S.btnGris, padding: "6px 14px", fontSize: 13, ...(c.incompleto ? { background: "#c98a00", color: "#fff" } : {}) }} onClick={() => editarCliente(c)}>
+                      <button type="button" className="btn-sys" style={{ ...S.btnGris, padding: "6px 14px", fontSize: 13, ...(c.incompleto ? { background: "#c98a00", color: "#fff" } : {}) }} onClick={() => editarCliente(c)}>
                         {c.incompleto ? "Completar" : "Editar"}
                       </button>
-                      <button type="button" style={{ ...S.btnGris, padding: "6px 14px", fontSize: 13 }} onClick={() => setExpedienteDe(c.cliente)}>
+                      <button type="button" className="btn-sys" style={{ ...S.btnGris, padding: "6px 14px", fontSize: 13 }} onClick={() => setExpedienteDe(c.cliente)}>
                         Expediente
                       </button>
                       <DeleteButton

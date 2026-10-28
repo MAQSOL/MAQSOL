@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useListaCompartida, useListaCatalogo } from '../../hooks/useSharedTable'
 import Sidebar from '../../components/Sidebar'
 import DeleteButton from '../../components/DeleteButton'
@@ -208,7 +208,7 @@ export default function BitacoraFleteros(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={{...S.h1,display:'flex',alignItems:'center',gap:10}}><IconoFlete/> Bitácora Fleteros</h1><p style={S.sub}>Fletes de equipo entre origen y destino · {fletes.length} registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={exportarLista}>Descargar Excel</button><button style={S.btnVerde} onClick={()=>pdfFletes(filtrados,periodoTxt())}>PDF de la lista ({filtrados.length})</button><button style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar flete</button></div>
+        <div style={{display:'flex',gap:10}}><button className="btn-sys" style={S.btnGris} onClick={exportarLista}>Descargar Excel</button><button className="btn-sys" style={S.btnVerde} onClick={()=>pdfFletes(filtrados,periodoTxt())}>PDF de la lista ({filtrados.length})</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar flete</button></div>
       </div>
 
       <div style={{display:'flex',gap:16,marginBottom:22,flexWrap:'wrap'}}>
@@ -306,9 +306,9 @@ export default function BitacoraFleteros(){
         <div style={{display:'flex',justifyContent:'space-between',gap:10}}>
           <DeleteButton title="Eliminar flete" onConfirm={()=>eliminarFlete(verFlete)}/>
           <div style={{display:'flex',gap:10}}>
-            <button style={S.btnGris} onClick={()=>pdfFletes([verFlete],'Flete individual')}>Ver PDF</button>
-            <button style={S.btnGris} onClick={()=>setVerFlete(null)}>Cerrar</button>
-            <button style={S.btn} onClick={()=>{abrirEditar(verFlete);setVerFlete(null)}}>Editar</button>
+            <button className="btn-sys" style={S.btnGris} onClick={()=>pdfFletes([verFlete],'Flete individual')}>Ver PDF</button>
+            <button className="btn-sys" style={S.btnGris} onClick={()=>setVerFlete(null)}>Cerrar</button>
+            <button className="btn-sys" style={S.btn} onClick={()=>{abrirEditar(verFlete);setVerFlete(null)}}>Editar</button>
           </div>
         </div>
       </div></div>)}
@@ -326,7 +326,7 @@ export default function BitacoraFleteros(){
             <datalist id="lista-empresas-cliente">{[...new Set(clientesDB.map(c=>c.cliente).filter(Boolean))].map(n=><option key={n} value={n}/>)}</datalist>
           </div>
           <div><label style={S.label}>PROVEEDOR QUE DIO EL SERVICIO</label>
-            {modoNuevaEmpresa?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Nombre de la empresa" value={nuevaEmpresa} onChange={ev=>setNuevaEmpresa(ev.target.value)}/><button style={S.btnVerde} onClick={agregarEmpresa}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevaEmpresa(false)}>✕</button></div>)
+            {modoNuevaEmpresa?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Nombre de la empresa" value={nuevaEmpresa} onChange={ev=>setNuevaEmpresa(ev.target.value)}/><button className="btn-sys" style={S.btnVerde} onClick={agregarEmpresa}>Guardar</button><button className="btn-sys" style={S.btnGris} onClick={()=>setModoNuevaEmpresa(false)}>✕</button></div>)
             :(<select style={S.input} value={form.proveedor} onChange={ev=>cambiarEmpresa(ev.target.value)}><option value="">Selecciona un proveedor</option>{empresas.map(e=><option key={e}>{e}</option>)}<option value="__nueva__">+ Agregar proveedor</option></select>)}
           </div>
         </div>
@@ -368,7 +368,7 @@ export default function BitacoraFleteros(){
 
         <div style={{marginBottom:20}}><label style={S.label}>OBSERVACIONES</label><textarea style={{...S.input,minHeight:70,resize:'vertical'}} value={form.observaciones} onChange={ev=>setForm({...form,observaciones:ev.target.value})}/></div>
 
-        <div style={{display:'flex',justifyContent:'flex-end',gap:10}}><button style={S.btnGris} onClick={()=>setModal(false)}>Cancelar</button><button style={S.btn} onClick={guardarForm}>Guardar</button></div>
+        <div style={{display:'flex',justifyContent:'flex-end',gap:10}}><button className="btn-sys" style={S.btnGris} onClick={()=>setModal(false)}>Cancelar</button><button className="btn-sys" style={S.btn} onClick={guardarForm}>Guardar</button></div>
       </div></div>)}
 
     </div></div>

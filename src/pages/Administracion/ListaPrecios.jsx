@@ -1,4 +1,4 @@
-import Layout from "../../components/Layout";
+﻿import Layout from "../../components/Layout";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import NipGate from "../../components/NipGate";
@@ -143,17 +143,17 @@ function EquiposRenta({ equipos, guardar }) {
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
           {faltantes.length > 0 && (
-            <button style={S.btnVerde} onClick={importar}>Cargar lista marzo 2026 ({faltantes.length})</button>
+            <button className="btn-sys" style={S.btnVerde} onClick={importar}>Cargar lista marzo 2026 ({faltantes.length})</button>
           )}
-          <button style={S.btnGris} onClick={exportar}>Descargar Excel</button>
-          <button style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo</button>
+          <button className="btn-sys" style={S.btnGris} onClick={exportar}>Descargar Excel</button>
+          <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo</button>
         </div>
       </div>
 
       {equipos.length === 0 && (
         <div style={{ ...S.card, textAlign: "center", padding: 34 }}>
           <p style={{ margin: "0 0 14px", color: "#555" }}>Todavía no hay equipos en la lista de precios.</p>
-          <button style={S.btnVerde} onClick={importar}>Cargar la lista de precios de marzo 2026 ({LISTA_MARZO_2026.length} equipos)</button>
+          <button className="btn-sys" style={S.btnVerde} onClick={importar}>Cargar la lista de precios de marzo 2026 ({LISTA_MARZO_2026.length} equipos)</button>
         </div>
       )}
 
@@ -171,8 +171,8 @@ function EquiposRenta({ equipos, guardar }) {
             </select>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <button style={S.btnGris} onClick={() => setCerrados(Object.fromEntries([...grupos, "SIN GRUPO"].map((g) => [g, true])))}>Minimizar todo</button>
-            <button style={S.btnGris} onClick={() => setCerrados({})}>Expandir todo</button>
+            <button className="btn-sys" style={S.btnGris} onClick={() => setCerrados(Object.fromEntries([...grupos, "SIN GRUPO"].map((g) => [g, true])))}>Minimizar todo</button>
+            <button className="btn-sys" style={S.btnGris} onClick={() => setCerrados({})}>Expandir todo</button>
           </div>
         </div>
       </div>
@@ -207,7 +207,7 @@ function EquiposRenta({ equipos, guardar }) {
                   <td style={td}>{e.capacidad}</td>
                   {COLUMNAS_PRECIO.map(([k]) => <td key={k} style={{ ...td, textAlign: "right", whiteSpace: "nowrap" }}>{celdaPrecio(e[k])}</td>)}
                   <td style={{ ...td, whiteSpace: "nowrap", textAlign: "right" }}>
-                    <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => abrirEditar(e)}>Editar</button>{" "}
+                    <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => abrirEditar(e)}>Editar</button>{" "}
                     <span style={{ display: "inline-block" }}><DeleteButton size="sm" title="Eliminar equipo" onConfirm={() => eliminar(e)} /></span>
                   </td>
                 </tr>
@@ -256,8 +256,8 @@ function EquiposRenta({ equipos, guardar }) {
               </Campo>
             </div>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-              <button style={S.btnGris} onClick={() => setModal(false)}>Cancelar</button>
-              <button style={S.btn} onClick={guardarForm}>Guardar</button>
+              <button className="btn-sys" style={S.btnGris} onClick={() => setModal(false)}>Cancelar</button>
+              <button className="btn-sys" style={S.btn} onClick={guardarForm}>Guardar</button>
             </div>
           </div>
         </div>
@@ -314,8 +314,8 @@ function OtrosConceptos({ lista, guardar }) {
         </div>
         <div style={{ display: "flex", gap: 10 }}>
           <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
-          <button style={S.btnGris} onClick={exportar}>Descargar lista</button>
-          <button style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar precio</button>
+          <button className="btn-sys" style={S.btnGris} onClick={exportar}>Descargar lista</button>
+          <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar precio</button>
         </div>
       </div>
 
@@ -356,7 +356,7 @@ function OtrosConceptos({ lista, guardar }) {
                 <td style={{ ...S.td, fontWeight: 700 }}>{dinero(p.precio)}</td>
                 <td style={{ ...S.td, color: "#777" }}>{p.notas}</td>
                 <td style={{ ...S.td, whiteSpace: "nowrap", textAlign: "right" }}>
-                  <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => abrirEditar(p)}>Editar</button>{" "}
+                  <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => abrirEditar(p)}>Editar</button>{" "}
                   <span style={{ display: "inline-block" }}><DeleteButton size="sm" title="Eliminar precio" onConfirm={() => eliminar(p)} /></span>
                 </td>
               </tr>
@@ -398,8 +398,8 @@ function OtrosConceptos({ lista, guardar }) {
               <textarea style={{ ...S.input, minHeight: 70, resize: "vertical" }} value={form.notas} onChange={(e) => setForm({ ...form, notas: e.target.value })} />
             </div>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-              <button style={S.btnGris} onClick={() => setModal(false)}>Cancelar</button>
-              <button style={S.btn} onClick={guardarForm}>Guardar</button>
+              <button className="btn-sys" style={S.btnGris} onClick={() => setModal(false)}>Cancelar</button>
+              <button className="btn-sys" style={S.btn} onClick={guardarForm}>Guardar</button>
             </div>
           </div>
         </div>

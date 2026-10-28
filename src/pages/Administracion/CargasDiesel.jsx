@@ -1,4 +1,4 @@
-import Layout from "../../components/Layout";
+﻿import Layout from "../../components/Layout";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
@@ -180,18 +180,18 @@ export default function CargasDiesel() {
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
-            <button style={S.btnGris} onClick={exportarExcel}>Descargar Excel</button>
-            <button style={S.btnVerde} onClick={generarPDF}>Generar PDF</button>
-            <button style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar carga</button>
+            <button className="btn-sys" style={S.btnGris} onClick={exportarExcel}>Descargar Excel</button>
+            <button className="btn-sys" style={S.btnVerde} onClick={generarPDF}>Generar PDF</button>
+            <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar carga</button>
           </div>
         </div>
 
         <div style={S.card}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 16 }}>
-            <button style={{ ...S.btnGris, padding: "8px 14px" }} disabled={verTodo} onClick={() => cambiarSemana(-1)}>← Anterior</button>
+            <button className="btn-sys" style={{ ...S.btnGris, padding: "8px 14px" }} disabled={verTodo} onClick={() => cambiarSemana(-1)}>← Anterior</button>
             <strong style={{ minWidth: 260, textAlign: "center" }}>{etiquetaPeriodo}</strong>
-            <button style={{ ...S.btnGris, padding: "8px 14px" }} disabled={verTodo} onClick={() => cambiarSemana(1)}>Siguiente →</button>
-            <button style={{ ...S.btnGris, padding: "8px 14px" }} disabled={verTodo} onClick={() => setLunes(lunesDe(new Date()))}>Esta semana</button>
+            <button className="btn-sys" style={{ ...S.btnGris, padding: "8px 14px" }} disabled={verTodo} onClick={() => cambiarSemana(1)}>Siguiente →</button>
+            <button className="btn-sys" style={{ ...S.btnGris, padding: "8px 14px" }} disabled={verTodo} onClick={() => setLunes(lunesDe(new Date()))}>Esta semana</button>
             <label style={{ marginLeft: "auto", fontSize: 13, display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
               <input type="checkbox" checked={verTodo} onChange={(e) => setVerTodo(e.target.checked)} /> Ver todo el historial
             </label>
@@ -350,8 +350,8 @@ export default function CargasDiesel() {
               <textarea style={{ ...S.input, minHeight: 60, resize: "vertical" }} value={form.notas} onChange={(e) => set("notas", e.target.value)} />
             </div>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-              <button style={S.btnGris} onClick={() => setModal(false)}>Cancelar</button>
-              <button style={S.btn} onClick={guardarForm}>Guardar</button>
+              <button className="btn-sys" style={S.btnGris} onClick={() => setModal(false)}>Cancelar</button>
+              <button className="btn-sys" style={S.btn} onClick={guardarForm}>Guardar</button>
             </div>
           </div>
         </div>

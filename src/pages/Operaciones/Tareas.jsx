@@ -1,4 +1,4 @@
-import Layout from "../../components/Layout";
+﻿import Layout from "../../components/Layout";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
@@ -192,7 +192,7 @@ export default function Tareas() {
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
-            <button style={S.btn} onClick={abrirNueva}><IconoMas />Nueva tarea</button>
+            <button className="btn-sys" style={S.btn} onClick={abrirNueva}><IconoMas />Nueva tarea</button>
           </div>
         </div>
 
@@ -332,7 +332,7 @@ export default function Tareas() {
                     onChange={(e) => setNuevoComentario(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && agregarComentario()}
                   />
-                  <button style={{ ...S.btnGris, whiteSpace: "nowrap" }} onClick={agregarComentario}>Agregar</button>
+                  <button className="btn-sys" style={{ ...S.btnGris, whiteSpace: "nowrap" }} onClick={agregarComentario}>Agregar</button>
                 </div>
               </div>
             )}
@@ -344,8 +344,8 @@ export default function Tareas() {
                 <span />
               )}
               <div style={{ display: "flex", gap: 10 }}>
-                <button style={S.btnGris} onClick={cerrar}>Cancelar</button>
-                <button style={S.btn} onClick={guardar}>Guardar</button>
+                <button className="btn-sys" style={S.btnGris} onClick={cerrar}>Cancelar</button>
+                <button className="btn-sys" style={S.btn} onClick={guardar}>Guardar</button>
               </div>
             </div>
           </div>

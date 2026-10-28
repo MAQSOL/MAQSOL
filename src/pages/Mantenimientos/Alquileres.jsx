@@ -1,4 +1,4 @@
-import Layout from "../../components/Layout";
+﻿import Layout from "../../components/Layout";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
@@ -190,8 +190,8 @@ function ModalRenovar({ alquiler, onGuardar, onCerrar }) {
         </div>
         {n > 0 && <p style={{ margin: "-4px 0 14px", fontSize: 13, color: "#555" }}>{n} {n === 1 ? "día" : "días"}{horas ? ` · ${horas} horas incluidas` : ""}</p>}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-          <button style={S.btnGris} onClick={onCerrar}>Cancelar</button>
-          <button style={S.btn} onClick={guardar}>Guardar renovación</button>
+          <button className="btn-sys" style={S.btnGris} onClick={onCerrar}>Cancelar</button>
+          <button className="btn-sys" style={S.btn} onClick={guardar}>Guardar renovación</button>
         </div>
       </div>
     </div>
@@ -506,8 +506,8 @@ export default function Alquileres() {
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
-            <button style={S.btnGris} onClick={exportar}>Descargar lista</button>
-            <button style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar equipo en renta</button>
+            <button className="btn-sys" style={S.btnGris} onClick={exportar}>Descargar lista</button>
+            <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar equipo en renta</button>
           </div>
         </div>
 
@@ -519,7 +519,7 @@ export default function Alquileres() {
             </div>
             {altas.some((a) => a.tabla === "clientes") && <Link to="/clientes" className="btn-panel" style={{ margin: 0 }}>Completar cliente</Link>}
             {altas.some((a) => a.tabla === "equipos_externos") && <Link to="/externos" className="btn-panel" style={{ margin: 0 }}>Completar equipo</Link>}
-            <button style={S.btnGris} onClick={noRellenar}>No quiero rellenarlo</button>
+            <button className="btn-sys" style={S.btnGris} onClick={noRellenar}>No quiero rellenarlo</button>
             <button onClick={() => setAltas([])} aria-label="Cerrar aviso" style={{ border: "none", background: "none", cursor: "pointer", color: "#7a5a00", fontSize: 18 }}>✕</button>
           </div>
         )}
@@ -619,7 +619,7 @@ export default function Alquileres() {
                           ↻ Renovar
                         </button>
                       )}
-                      <button style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => finalizar(a)} title={a.finalizado ? "Reabrir alquiler" : "Marcar como terminado / devuelto"}>
+                      <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => finalizar(a)} title={a.finalizado ? "Reabrir alquiler" : "Marcar como terminado / devuelto"}>
                         {a.finalizado ? "Reabrir" : "✓ Terminar"}
                       </button>
                       <span style={{ marginLeft: 6, display: "inline-block" }}>
@@ -838,7 +838,7 @@ export default function Alquileres() {
                 <input type="file" accept="application/pdf" style={{ display: "none" }} onChange={(e) => { elegirPdf(e.target.files[0]); e.target.value = ""; }} />
               </label>
               {(form.checklist || nuevoPdf) && (
-                <button type="button" style={{ ...S.btnGris, color: "#c62828" }} onClick={quitarChecklist}>Quitar</button>
+                <button type="button" className="btn-sys" style={{ ...S.btnGris, color: "#c62828" }} onClick={quitarChecklist}>Quitar</button>
               )}
             </div>
 
@@ -848,8 +848,8 @@ export default function Alquileres() {
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-              <button style={S.btnGris} onClick={cerrar} disabled={guardando}>Cancelar</button>
-              <button style={{ ...S.btn, opacity: guardando ? 0.6 : 1 }} onClick={guardarForm} disabled={guardando}>
+              <button className="btn-sys" style={S.btnGris} onClick={cerrar} disabled={guardando}>Cancelar</button>
+              <button className="btn-sys" style={{ ...S.btn, opacity: guardando ? 0.6 : 1 }} onClick={guardarForm} disabled={guardando}>
                 {guardando ? "Guardando…" : "Guardar"}
               </button>
             </div>

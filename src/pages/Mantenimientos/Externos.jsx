@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useListaCompartida, useListaCatalogo } from '../../hooks/useSharedTable'
 import Sidebar from '../../components/Sidebar'
 import DeleteButton from '../../components/DeleteButton'
@@ -157,7 +157,7 @@ export default function EquiposExternos(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={S.h1}>Equipos Externos</h1><p style={S.sub}>Maquinaria que subarrendamos de terceros para clientes · {activos} activos de {equipos.length} registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo subarrendado</button></div>
+        <div style={{display:'flex',gap:10}}><button className="btn-sys" style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo subarrendado</button></div>
       </div>
 
       {equipos.some(e=>e.incompleto)&&(
@@ -213,7 +213,7 @@ export default function EquiposExternos(){
 
         <div style={S.grid3}>
           <div><label style={S.label}>TIPO DE EQUIPO</label>
-            {modoNuevoTipoForm?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Excavadora" value={nuevoTipoForm} onChange={ev=>setNuevoTipoForm(ev.target.value)}/><button style={S.btnVerde} onClick={agregarTipoDesdeForm}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevoTipoForm(false)}>✕</button></div>)
+            {modoNuevoTipoForm?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Ej. Excavadora" value={nuevoTipoForm} onChange={ev=>setNuevoTipoForm(ev.target.value)}/><button className="btn-sys" style={S.btnVerde} onClick={agregarTipoDesdeForm}>Guardar</button><button className="btn-sys" style={S.btnGris} onClick={()=>setModoNuevoTipoForm(false)}>✕</button></div>)
             :(<select style={S.input} value={form.tipo} onChange={ev=>cambiarTipoForm(ev.target.value)}><option value="">Selecciona un tipo</option>{tipos.map(t=><option key={t}>{t}</option>)}<option value="__nuevo__">+ Agregar tipo nuevo</option></select>)}
           </div>
           <div><label style={S.label}>MARCA</label><input style={S.input} value={form.marca} onChange={ev=>setForm({...form,marca:ev.target.value})}/></div>
@@ -236,7 +236,7 @@ export default function EquiposExternos(){
         <h3 style={{fontSize:15,fontWeight:800,margin:'8px 0 10px',color:VINO}}>Proveedor (de quién lo subarrendamos)</h3>
         <div style={S.grid3}>
           <div><label style={S.label}>PROVEEDOR</label>
-            {modoNuevoProveedor?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Nombre de la empresa" value={nuevoProveedor} onChange={ev=>setNuevoProveedor(ev.target.value)}/><button style={S.btnVerde} onClick={agregarProveedor}>Guardar</button><button style={S.btnGris} onClick={()=>setModoNuevoProveedor(false)}>✕</button></div>)
+            {modoNuevoProveedor?(<div style={{display:'flex',gap:8}}><input style={S.input} autoFocus placeholder="Nombre de la empresa" value={nuevoProveedor} onChange={ev=>setNuevoProveedor(ev.target.value)}/><button className="btn-sys" style={S.btnVerde} onClick={agregarProveedor}>Guardar</button><button className="btn-sys" style={S.btnGris} onClick={()=>setModoNuevoProveedor(false)}>✕</button></div>)
             :(<select style={S.input} value={form.proveedor} onChange={ev=>cambiarProveedor(ev.target.value)}><option value="">Selecciona un proveedor</option>{proveedores.map(p=><option key={p}>{p}</option>)}<option value="__nuevo__">+ Agregar proveedor</option></select>)}
           </div>
           <div><label style={S.label}>CONTACTO</label><input style={S.input} value={form.contactoProveedor} onChange={ev=>setForm({...form,contactoProveedor:ev.target.value})}/></div>
@@ -272,7 +272,7 @@ export default function EquiposExternos(){
 
         <div style={{marginBottom:20}}><label style={S.label}>NOTAS</label><textarea style={{...S.input,minHeight:70,resize:'vertical'}} value={form.notas} onChange={ev=>setForm({...form,notas:ev.target.value})}/></div>
 
-        <div style={{display:'flex',justifyContent:'flex-end',gap:10}}><button style={S.btnGris} onClick={()=>setModal(false)}>Cancelar</button><button style={S.btn} onClick={guardarForm}>Guardar</button></div>
+        <div style={{display:'flex',justifyContent:'flex-end',gap:10}}><button className="btn-sys" style={S.btnGris} onClick={()=>setModal(false)}>Cancelar</button><button className="btn-sys" style={S.btn} onClick={guardarForm}>Guardar</button></div>
       </div></div>)}
 
     </div></div>

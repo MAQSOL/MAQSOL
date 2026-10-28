@@ -1,4 +1,4 @@
-import Layout from "../../components/Layout";
+﻿import Layout from "../../components/Layout";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
@@ -215,10 +215,10 @@ export default function GeneradorContratos() {
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
-            <button style={S.btnGris} onClick={nuevo}>Nuevo contrato</button>
-            <button style={S.btnGris} onClick={guardar}>Guardar en historial</button>
-            <button style={S.btnGris} onClick={descargarWord}>Descargar Word (editable)</button>
-            <button style={S.btn} onClick={descargar}>Descargar PDF</button>
+            <button className="btn-sys" style={S.btnGris} onClick={nuevo}>Nuevo contrato</button>
+            <button className="btn-sys" style={S.btnGris} onClick={guardar}>Guardar en historial</button>
+            <button className="btn-sys" style={S.btnGris} onClick={descargarWord}>Descargar Word (editable)</button>
+            <button className="btn-sys" style={S.btn} onClick={descargar}>Descargar PDF</button>
           </div>
         </div>
 
@@ -282,12 +282,12 @@ export default function GeneradorContratos() {
                     <Campo etiqueta="VALOR DE RECUPERACIÓN (USD)"><input type="number" style={S.input} value={e.valorUSD} onChange={(ev) => cambiarEquipo(i, "valorUSD", ev.target.value)} /></Campo>
                     <Campo etiqueta="IMPORTE DE LA RENTA (MXN + IVA)"><input type="number" style={S.input} value={e.importeRenta} onChange={(ev) => cambiarEquipo(i, "importeRenta", ev.target.value)} /></Campo>
                     {form.equipos.length > 1 && (
-                      <button style={{ ...S.btnGris, padding: "10px 12px" }} onClick={() => setForm((f) => ({ ...f, equipos: f.equipos.filter((_, k) => k !== i) }))}>✕</button>
+                      <button className="btn-sys" style={{ ...S.btnGris, padding: "10px 12px" }} onClick={() => setForm((f) => ({ ...f, equipos: f.equipos.filter((_, k) => k !== i) }))}>✕</button>
                     )}
                   </div>
                 </div>
               ))}
-              <button style={S.btnGris} onClick={() => setForm((f) => ({ ...f, equipos: [...f.equipos, { ...EQUIPO_FILA }] }))}><IconoMas />Agregar otro equipo</button>
+              <button className="btn-sys" style={S.btnGris} onClick={() => setForm((f) => ({ ...f, equipos: [...f.equipos, { ...EQUIPO_FILA }] }))}><IconoMas />Agregar otro equipo</button>
             </div>
 
             <div style={S.card}>

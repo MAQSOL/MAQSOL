@@ -1,4 +1,4 @@
-import Layout from "../../components/Layout";
+﻿import Layout from "../../components/Layout";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteButton from "../../components/DeleteButton";
@@ -133,9 +133,9 @@ export default function ReporteHoras() {
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
-            <button style={S.btnGris} onClick={exportarExcel}>Descargar Excel</button>
-            <button style={S.btnVerde} onClick={imprimirReporte}>Generar reporte (PDF)</button>
-            <button style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar horas</button>
+            <button className="btn-sys" style={S.btnGris} onClick={exportarExcel}>Descargar Excel</button>
+            <button className="btn-sys" style={S.btnVerde} onClick={imprimirReporte}>Generar reporte (PDF)</button>
+            <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar horas</button>
           </div>
         </div>
 
@@ -267,8 +267,8 @@ export default function ReporteHoras() {
               <textarea style={{ ...S.input, minHeight: 60, resize: "vertical" }} value={form.notas} onChange={(e) => setForm({ ...form, notas: e.target.value })} />
             </div>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-              <button style={S.btnGris} onClick={() => setModal(false)}>Cancelar</button>
-              <button style={S.btn} onClick={guardarForm}>Guardar</button>
+              <button className="btn-sys" style={S.btnGris} onClick={() => setModal(false)}>Cancelar</button>
+              <button className="btn-sys" style={S.btn} onClick={guardarForm}>Guardar</button>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { S, hoyISO } from "../pages/Administracion/estilosAdmin";
 import CampoFecha from "./CampoFecha";
 import FirmaPad from "./FirmaPad";
@@ -51,8 +51,8 @@ export default function CartaResponsivaModal({ personas, persona, onClose, onSub
         {f[k] ? <img src={f[k]} alt="Firma" style={{ maxWidth: "100%", maxHeight: "100%" }} /> : <span style={{ color: "#bbb", fontSize: 12 }}>Sin firma (se deja en blanco)</span>}
       </div>
       <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
-        <button type="button" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => setFirmando(k)}>{f[k] ? "Volver a firmar" : "✍ Firmar en pantalla"}</button>
-        {f[k] && <button type="button" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => setF((x) => ({ ...x, [k]: "" }))}>Quitar</button>}
+        <button type="button" className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => setFirmando(k)}>{f[k] ? "Volver a firmar" : "✍ Firmar en pantalla"}</button>
+        {f[k] && <button type="button" className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => setF((x) => ({ ...x, [k]: "" }))}>Quitar</button>}
       </div>
     </div>
   );
@@ -141,8 +141,8 @@ export default function CartaResponsivaModal({ personas, persona, onClose, onSub
         )}
 
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 18 }}>
-          <button style={S.btnGris} onClick={onClose}>Cerrar</button>
-          <button style={{ ...S.btn, opacity: faltaDato ? 0.5 : 1 }} disabled={faltaDato} onClick={() => descargarCartaResponsiva(f)}>
+          <button className="btn-sys" style={S.btnGris} onClick={onClose}>Cerrar</button>
+          <button className="btn-sys" style={{ ...S.btn, opacity: faltaDato ? 0.5 : 1 }} disabled={faltaDato} onClick={() => descargarCartaResponsiva(f)}>
             Descargar PDF
           </button>
         </div>

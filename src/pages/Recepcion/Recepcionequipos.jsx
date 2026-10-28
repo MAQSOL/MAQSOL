@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useListaCompartida, useSharedTable } from '../../hooks/useSharedTable'
 import CampoOpciones from '../../components/CampoOpciones'
 import NipModal from '../../components/NipModal'
@@ -458,7 +458,7 @@ export default function Recepcionequipos(){
             <div style={{fontSize:11.5,fontWeight:700,color:'#456'}}>ENLACE PARA VER LAS FOTOS · cualquiera que lo tenga puede abrirlo, sin iniciar sesión</div>
             <div style={{display:'flex',gap:8,marginTop:6}}>
               <input readOnly style={{...S.input,fontSize:12}} value={linkFotos} onFocus={ev=>ev.target.select()}/>
-              <button type="button" style={{...S.btnGris,whiteSpace:'nowrap'}} onClick={copiarLink}>{copiado?'¡Copiado!':'Copiar'}</button>
+              <button type="button" className="btn-sys" style={{...S.btnGris,whiteSpace:'nowrap'}} onClick={copiarLink}>{copiado?'¡Copiado!':'Copiar'}</button>
             </div>
             {pend.fotos.length>0&&<div style={{fontSize:12,color:'#a8730a',marginTop:6}}>El enlace empieza a funcionar al guardar el checklist. También sale en el PDF.</div>}
           </div>
@@ -487,7 +487,7 @@ export default function Recepcionequipos(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={S.h1}>Entrega y Salida de Equipo</h1><p style={S.sub}>Checklist de condición del equipo al entregar y al retirar · {registros.length} registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button style={S.btnGris} onClick={descargarListaExcel}>Descargar lista</button><button style={S.btn} onClick={abrirNuevo}><IconoMas />Nuevo checklist</button></div>
+        <div style={{display:'flex',gap:10}}><button className="btn-sys" style={S.btnGris} onClick={descargarListaExcel}>Descargar lista</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Nuevo checklist</button></div>
       </div>
 
       <div style={S.card}>
@@ -550,8 +550,8 @@ export default function Recepcionequipos(){
         <p style={{color:'#888',fontSize:13,margin:'4px 0 6px'}}>{folioVisible(form.folio)} · {form.cliente} · {form.equipo}</p>
         {seccionDocs}
         <div style={{display:'flex',justifyContent:'flex-end',gap:10,marginTop:16}}>
-          <button style={S.btnGris} onClick={cerrarModal} disabled={guardando}>Cancelar</button>
-          <button style={{...S.btn,opacity:guardando?0.6:1}} onClick={guardarForm} disabled={guardando}>{guardando?'Guardando…':'Guardar'}</button>
+          <button className="btn-sys" style={S.btnGris} onClick={cerrarModal} disabled={guardando}>Cancelar</button>
+          <button className="btn-sys" style={{...S.btn,opacity:guardando?0.6:1}} onClick={guardarForm} disabled={guardando}>{guardando?'Guardando…':'Guardar'}</button>
         </div>
       </div></div>)}
 
@@ -712,8 +712,8 @@ export default function Recepcionequipos(){
         </div>
 
         <div style={{display:'flex',justifyContent:'flex-end',gap:10,marginTop:16}}>
-          <button style={S.btnGris} onClick={()=>{reiniciarArchivos();setModal(false)}} disabled={guardando}>Cancelar</button>
-          <button style={{...S.btn,opacity:guardando?0.6:1}} onClick={guardarForm} disabled={guardando}>{guardando?'Guardando…':'Guardar'}</button>
+          <button className="btn-sys" style={S.btnGris} onClick={()=>{reiniciarArchivos();setModal(false)}} disabled={guardando}>Cancelar</button>
+          <button className="btn-sys" style={{...S.btn,opacity:guardando?0.6:1}} onClick={guardarForm} disabled={guardando}>{guardando?'Guardando…':'Guardar'}</button>
         </div>
       </div></div>)}
 

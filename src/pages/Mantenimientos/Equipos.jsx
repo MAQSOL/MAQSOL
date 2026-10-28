@@ -1,4 +1,4 @@
-import { IconoMas } from "../../components/Icons";
+﻿import { IconoMas } from "../../components/Icons";
 import { useState, useEffect } from 'react'
 import CampoFecha from "../../components/CampoFecha";
 
@@ -400,10 +400,10 @@ export default function EquiposInternos() {
             </p>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <button style={S.btnGris} onClick={() => setVista('lista')}>
+            <button className="btn-sys" style={S.btnGris} onClick={() => setVista('lista')}>
               ← Regresar a la lista
             </button>
-            <button style={S.btn} onClick={() => abrirEditar(activo)}>
+            <button className="btn-sys" style={S.btn} onClick={() => abrirEditar(activo)}>
               Editar datos generales
             </button>
           </div>
@@ -458,7 +458,7 @@ export default function EquiposInternos() {
                   </td>
                   <td style={{ ...S.td, textAlign: 'center' }}>
                     <button
-                      style={{ ...S.btnGris, padding: '6px 12px', fontSize: 12 }}
+                      className="btn-sys" style={{ ...S.btnGris, padding: '6px 12px', fontSize: 12 }}
                       onClick={() => {
                         if (activo[campo]) {
                           navigator.clipboard.writeText(activo[campo])
@@ -516,7 +516,7 @@ export default function EquiposInternos() {
 
         <div style={{ textAlign: 'right', marginBottom: 40 }}>
           <button
-            style={{ ...S.btnGris, background: '#fdecec', color: '#c62828' }}
+            className="btn-sys" style={{ ...S.btnGris, background: '#fdecec', color: '#c62828' }}
             onClick={() => eliminarEquipo(activo)}
           >
             Eliminar este equipo
@@ -535,10 +535,10 @@ export default function EquiposInternos() {
           <p style={S.sub}>Maquinaria propiedad de MAQSOL · {equipos.length} equipos registrados</p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button style={S.btnGris} onClick={exportarLista}>
+          <button className="btn-sys" style={S.btnGris} onClick={exportarLista}>
             Descargar lista
           </button>
-          <button style={S.btn} onClick={abrirNuevo}>
+          <button className="btn-sys" style={S.btn} onClick={abrirNuevo}>
             <IconoMas />Agregar equipo
           </button>
         </div>
@@ -566,10 +566,10 @@ export default function EquiposInternos() {
                   value={nuevoTipoFiltro}
                   onChange={(ev) => setNuevoTipoFiltro(ev.target.value)}
                 />
-                <button style={S.btnVerde} onClick={agregarTipoDesdeFiltro}>
+                <button className="btn-sys" style={S.btnVerde} onClick={agregarTipoDesdeFiltro}>
                   Guardar
                 </button>
-                <button style={S.btnGris} onClick={() => setModoNuevoTipoFiltro(false)}>
+                <button className="btn-sys" style={S.btnGris} onClick={() => setModoNuevoTipoFiltro(false)}>
                   ✕
                 </button>
               </div>
@@ -584,7 +584,7 @@ export default function EquiposInternos() {
                   ))}
                 </select>
                 <button
-                  style={{ ...S.btnGris, whiteSpace: 'nowrap' }}
+                  className="btn-sys" style={{ ...S.btnGris, whiteSpace: 'nowrap' }}
                   onClick={() => setModoNuevoTipoFiltro(true)}
                   title="Dar de alta un tipo de equipo nuevo"
                 >
@@ -700,10 +700,10 @@ export default function EquiposInternos() {
                       value={nuevoTipoForm}
                       onChange={(ev) => setNuevoTipoForm(ev.target.value)}
                     />
-                    <button style={S.btnVerde} onClick={agregarTipoDesdeForm}>
+                    <button className="btn-sys" style={S.btnVerde} onClick={agregarTipoDesdeForm}>
                       Guardar
                     </button>
-                    <button style={S.btnGris} onClick={() => setModoNuevoTipoForm(false)}>
+                    <button className="btn-sys" style={S.btnGris} onClick={() => setModoNuevoTipoForm(false)}>
                       ✕
                     </button>
                   </div>
@@ -786,10 +786,10 @@ export default function EquiposInternos() {
                       value={nuevoOperador}
                       onChange={(ev) => setNuevoOperador(ev.target.value)}
                     />
-                    <button style={S.btnVerde} onClick={agregarOperador}>
+                    <button className="btn-sys" style={S.btnVerde} onClick={agregarOperador}>
                       Guardar
                     </button>
-                    <button style={S.btnGris} onClick={() => setModoNuevoOperador(false)}>
+                    <button className="btn-sys" style={S.btnGris} onClick={() => setModoNuevoOperador(false)}>
                       ✕
                     </button>
                   </div>
@@ -860,10 +860,10 @@ export default function EquiposInternos() {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-              <button style={S.btnGris} onClick={() => setModal(false)}>
+              <button className="btn-sys" style={S.btnGris} onClick={() => setModal(false)}>
                 Cancelar
               </button>
-              <button style={S.btn} onClick={guardarForm}>
+              <button className="btn-sys" style={S.btn} onClick={guardarForm}>
                 Guardar y abrir ficha
               </button>
             </div>

@@ -1,4 +1,4 @@
-import { IconoMas } from "../../components/Icons";
+﻿import { IconoMas } from "../../components/Icons";
 import Layout from "../../components/Layout";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
@@ -217,8 +217,8 @@ export default function OrdenesCompra() {
         {form[clave] ? <img src={form[clave]} alt="Firma" style={{ maxHeight: "100%", maxWidth: "100%" }} /> : <span style={{ color: "#bbb", fontSize: 13 }}>Sin firma</span>}
       </div>
       <div style={{ display: "flex", gap: 8 }}>
-        <button type="button" style={{ ...S.btn, padding: "8px 14px" }} onClick={() => setFirmando(clave)}>{form[clave] ? "Volver a firmar" : "✍ Firmar"}</button>
-        {form[clave] && <button type="button" style={{ ...S.btnGris, padding: "8px 14px" }} onClick={() => set(clave, "")}>Quitar</button>}
+        <button type="button" className="btn-sys" style={{ ...S.btn, padding: "8px 14px" }} onClick={() => setFirmando(clave)}>{form[clave] ? "Volver a firmar" : "✍ Firmar"}</button>
+        {form[clave] && <button type="button" className="btn-sys" style={{ ...S.btnGris, padding: "8px 14px" }} onClick={() => set(clave, "")}>Quitar</button>}
       </div>
     </div>
   );
@@ -233,9 +233,9 @@ export default function OrdenesCompra() {
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
-            <button style={S.btnGris} onClick={() => { setOtroSolicito(false); setForm(nueva()); }}>Nueva orden</button>
-            <button style={S.btnGris} onClick={guardar}>Guardar</button>
-            <button style={S.btn} onClick={descargar}>Descargar PDF</button>
+            <button className="btn-sys" style={S.btnGris} onClick={() => { setOtroSolicito(false); setForm(nueva()); }}>Nueva orden</button>
+            <button className="btn-sys" style={S.btnGris} onClick={guardar}>Guardar</button>
+            <button className="btn-sys" style={S.btn} onClick={descargar}>Descargar PDF</button>
           </div>
         </div>
 
@@ -278,10 +278,10 @@ export default function OrdenesCompra() {
                 <textarea style={{ ...S.input, minHeight: 60, resize: "vertical", fontFamily: "inherit" }} value={form.proveedorDomicilio} onChange={(e) => set("proveedorDomicilio", e.target.value)} />
               </Campo>
               <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 12, flexWrap: "wrap" }}>
-                <button type="button" style={S.btnVerde} onClick={guardarProveedor}>
+                <button type="button" className="btn-sys" style={S.btnVerde} onClick={guardarProveedor}>
                   {provGuardado ? "Actualizar proveedor guardado" : "Guardar proveedor"}
                 </button>
-                {provGuardado && <button type="button" style={S.btnGris} onClick={quitarProveedor}>Quitar de guardados</button>}
+                {provGuardado && <button type="button" className="btn-sys" style={S.btnGris} onClick={quitarProveedor}>Quitar de guardados</button>}
                 <span style={{ fontSize: 12.5, color: "#888" }}>
                   {provGuardado ? "Ya está guardado: al escribir su nombre se llenan sus datos." : "Guárdalo una vez y ya no tendrás que capturarlo de nuevo."}
                 </span>
@@ -328,7 +328,7 @@ export default function OrdenesCompra() {
                   )}
                 </div>
               ))}
-              <button style={{ ...S.btnGris, padding: "8px 14px", fontSize: 13 }} onClick={agregarPartida}><IconoMas />Agregar partida</button>
+              <button className="btn-sys" style={{ ...S.btnGris, padding: "8px 14px", fontSize: 13 }} onClick={agregarPartida}><IconoMas />Agregar partida</button>
             </div>
 
             <div style={S.card}>
@@ -423,8 +423,8 @@ export default function OrdenesCompra() {
                       </div>
                     </div>
                     <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
-                      <button style={{ ...S.btnGris, padding: "6px 10px", fontSize: 12 }} onClick={() => abrirOrdenPDF({ ...ORDEN_NUEVA, ...o })}>PDF</button>
-                      <button style={{ ...S.btnGris, padding: "6px 10px", fontSize: 12 }} onClick={() => duplicar(o)} title="Nueva orden con el mismo proveedor y partidas">Duplicar</button>
+                      <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 10px", fontSize: 12 }} onClick={() => abrirOrdenPDF({ ...ORDEN_NUEVA, ...o })}>PDF</button>
+                      <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 10px", fontSize: 12 }} onClick={() => duplicar(o)} title="Nueva orden con el mismo proveedor y partidas">Duplicar</button>
                       <DeleteButton size="sm" title="Eliminar orden" onConfirm={() => guardarOrdenes(ordenes.filter((x) => x.id !== o.id))} />
                     </div>
                   </div>
