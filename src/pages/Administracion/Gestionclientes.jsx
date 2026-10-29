@@ -12,7 +12,11 @@ import { IconoMas } from "../../components/Icons";
 const inputGrande = {
   height: "54px",
   padding: "14px 16px",
-  fontSize: "15px"
+  fontSize: "15px",
+  border: "2px solid #222",
+  borderRadius: 0,
+  width: "100%",
+  boxSizing: "border-box",
 };
 
 function GestionClientes() {
