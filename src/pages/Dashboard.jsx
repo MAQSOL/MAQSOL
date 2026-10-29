@@ -229,7 +229,6 @@ function Dashboard() {
           />
 
           <h2>MAQSISTEM</h2>
-          <p>Sistema Integral</p>
         </div>
 
         <div className="menu-section">
