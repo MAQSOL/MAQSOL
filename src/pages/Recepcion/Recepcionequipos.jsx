@@ -80,24 +80,24 @@ const FIRMAS=[
 
 const S = {
   page:{padding:'24px 28px',fontFamily:'inherit',color:'#222',flex:1,overflowY:'auto'},
-  h1:{fontSize:30,fontWeight:800,margin:0,letterSpacing:0.5},
-  sub:{color:'#777',margin:'4px 0 0',fontSize:14},
-  card:{background:'#fff',border:'1px solid #e6e6e6',borderRadius:0,padding:24,marginBottom:28,boxShadow:'0 1px 3px rgba(0,0,0,.05)'},
+  h1:{fontSize:30,fontWeight:800,margin:0,letterSpacing:'-0.02em',fontFamily:"'Montserrat',sans-serif"},
+  sub:{color:'#777',margin:'4px 0 0',fontSize:14,fontFamily:"'Montserrat',sans-serif"},
+  card:{background:'#fff',border:'3px solid #111',borderRadius:0,padding:24,marginBottom:28,boxShadow:'6px 6px 0 #111'},
   btn:{background:VINO,color:'#fff',border:'none',borderRadius:0,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
   btnSm:{background:VINO,color:'#fff',border:'none',borderRadius:0,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
   btnGris:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:0,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
   btnGrisSm:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:0,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
-  input:{width:'100%',padding:'10px 11px',border:'1px solid #d8d8d8',borderRadius:0,fontSize:13.5,boxSizing:'border-box',background:'#fff'},
-  label:{fontSize:11.5,fontWeight:700,color:'#666',marginBottom:4,display:'block'},
-  th:{textAlign:'left',padding:'12px 10px',fontSize:12,letterSpacing:0.5,color:'#fff',background:'#222',fontWeight:700,whiteSpace:'nowrap'},
-  td:{padding:'11px 10px',borderBottom:'1px solid #eee',fontSize:14},
+  input:{width:'100%',padding:'10px 11px',border:'2px solid #222',borderRadius:0,fontSize:13.5,boxSizing:'border-box',background:'#fff'},
+  label:{fontSize:11.5,fontWeight:700,color:'#444',marginBottom:4,display:'block',letterSpacing:'0.5px'},
+  th:{textAlign:'left',padding:'12px 10px',fontSize:12,letterSpacing:0.5,color:'#fff',background:'#111',fontWeight:700,whiteSpace:'nowrap',borderRight:'1px solid #2a2a2a'},
+  td:{padding:'11px 10px',borderBottom:'2px solid #f0f0f0',fontSize:14},
   equis:{background:'transparent',border:'none',color:'#c62828',fontSize:18,fontWeight:700,cursor:'pointer',lineHeight:1,padding:'2px 6px',borderRadius:0},
-  modalBg:{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',display:'flex',alignItems:'flex-start',justifyContent:'center',padding:24,overflowY:'auto',zIndex:999},
-  modal:{background:'#fff',borderRadius:0,padding:24,width:'100%',maxWidth:1080},
+  modalBg:{position:'fixed',inset:0,background:'rgba(0,0,0,.55)',display:'flex',alignItems:'flex-start',justifyContent:'center',padding:24,overflowY:'auto',zIndex:999},
+  modal:{background:'#fff',border:'3px solid #111',borderRadius:0,boxShadow:'8px 8px 0 #111',padding:24,width:'100%',maxWidth:1080},
   grid2:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12,marginBottom:12},
   grid3:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:12},
   grid4:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:12},
-  seccion:{fontSize:14,fontWeight:800,color:VINO,margin:'18px 0 8px',paddingTop:10,borderTop:'1px solid #eee'}
+  seccion:{fontSize:14,fontWeight:800,color:VINO,margin:'18px 0 8px',paddingTop:10,borderTop:'2px solid #111'}
 }
 
 const estiloMiniatura={width:110,height:82,objectFit:'cover',borderRadius:8,display:'block'}
@@ -126,8 +126,8 @@ function BotonEstado({activo,color,onClick,children}){
 
 function ColumnaChecklist({titulo,items,valores,porcentajes,onCambiar,onCambiarPct}){
   return (
-    <div style={{border:'1px solid #e6e6e6',borderRadius:8,overflow:'hidden'}}>
-      <div style={{background:'#222',color:'#fff',fontSize:11,fontWeight:700,padding:'7px 10px'}}>{titulo}</div>
+    <div style={{border:'2px solid #111',borderRadius:0,overflow:'hidden'}}>
+      <div style={{background:'#111',color:'#fff',fontSize:11,fontWeight:700,padding:'7px 10px'}}>{titulo}</div>
       {items.map(it=>(
         <div key={it.n} style={{display:'flex',flexWrap:'wrap',alignItems:'center',gap:'4px 6px',padding:'6px 8px',borderBottom:'1px solid #f0f0f0',fontSize:11.5}}>
           <div style={it.pct?{flex:'1 1 100%',fontWeight:600}:{flex:'1 1 0',minWidth:0}}>{it.n}</div>
@@ -670,7 +670,7 @@ export default function Recepcionequipos(){
             {g:'pre',na:form.servPreNA,titulo:'SERVICIO DE PRE-ENTREGA',f:'servPreEntregaFecha',h:'servPreEntregaHorometro'},
             {g:'prox',na:form.proxServNA,titulo:'PRÓXIMO SERVICIO',f:'proximoServicioFecha',h:'proximoServicioHorometro'}
           ].map(x=>(
-            <div key={x.g} style={{border:'1px solid #eee',borderRadius:8,padding:12}}>
+            <div key={x.g} style={{border:'2px solid #111',borderRadius:0,padding:12}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
                 <strong style={{fontSize:12,color:'#555'}}>{x.titulo}</strong>
                 <button type="button" onClick={()=>alternarNA(x.g)} style={{...S.btnGrisSm,background:x.na?'#222':'#e9e9e9',color:x.na?'#fff':'#333'}}>{x.na?'✓ N/A':'N/A'}</button>
