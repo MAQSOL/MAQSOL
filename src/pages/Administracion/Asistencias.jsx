@@ -448,7 +448,7 @@ function Asistencias() {
   const input = {
     width: "100%",
     padding: "13px 15px",
-    borderRadius: "10px",
+    borderRadius: 0,
     border: "1px solid #ddd",
     fontSize: "14px",
     boxSizing: "border-box",
@@ -459,7 +459,7 @@ function Asistencias() {
   const tab = (activa) => ({
     padding: "13px 34px",
     border: "none",
-    borderRadius: "10px",
+    borderRadius: 0,
     cursor: "pointer",
     fontWeight: "700",
     fontSize: "15px",
@@ -472,7 +472,7 @@ function Asistencias() {
     background: VINO,
     color: "#fff",
     border: "none",
-    borderRadius: "50%",
+    borderRadius: 0,
     width: "42px",
     height: "42px",
     cursor: "pointer",
@@ -485,7 +485,7 @@ function Asistencias() {
   const chip = (color, fondo) => ({
     display: "inline-block",
     padding: "4px 12px",
-    borderRadius: "20px",
+    borderRadius: 0,
     fontSize: "12px",
     fontWeight: "600",
     color: color,
@@ -512,7 +512,7 @@ function Asistencias() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                 <img src={logo} alt="MAQSISTEM" style={{ width: "70px" }} />
-                <h2 style={{ margin: 0 }}>Lista de Asistencia</h2>
+                <h2 style={{ margin: 0, fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: 24 }}>Lista de Asistencia</h2>
               </div>
 
               </div>
@@ -550,7 +550,7 @@ function Asistencias() {
                   padding: "70px 20px",
                   textAlign: "center",
                   border: "2px dashed #e0e0e0",
-                  borderRadius: "16px",
+                  borderRadius: 0,
                   background: "#fafafa"
                 }}
               >
