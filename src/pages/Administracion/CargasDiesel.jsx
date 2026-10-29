@@ -172,7 +172,7 @@ export default function CargasDiesel() {
 
   return (
     <Layout>
-      <div style={{ maxWidth: 1350 }}>
+      <div style={{ maxWidth: 1350, width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, gap: 10, flexWrap: "wrap" }}>
           <div>
             <h1 style={S.h1}>Cargas de Diesel</h1>

@@ -197,9 +197,11 @@ export default function EquiposExternos(){
               <td style={S.td}>{e.estado==='Devuelto'?<span style={{color:'#999'}}>—</span>:<SemaforoMantto fecha={e.proximoMantto}/>}</td>
               <td style={S.td}>{e.realizadoPor||<span style={{color:'#bbb'}}>—</span>}</td>
               <td style={S.td}>{e.linkReporte?<a href={linkSeguro(e.linkReporte)} target="_blank" rel="noopener noreferrer" style={{color:VINO,fontWeight:700}} onClick={ev=>ev.stopPropagation()}>Ver reporte</a>:<span style={{color:'#bbb'}}>—</span>}</td>
-              <td style={{...S.td,textAlign:'center',whiteSpace:'nowrap'}}>
-                {e.estado!=='Devuelto'&&<button className="btn-sys" style={S.btnGrisSm} onClick={()=>marcarDevuelto(e)} title="Marcar como devuelto al proveedor">✓ Devolver</button>}
-                <span style={{marginLeft:6,display:'inline-block'}}><DeleteButton size="sm" title="Eliminar equipo" onConfirm={()=>eliminarEquipo(e)}/></span>
+              <td style={{...S.td,whiteSpace:'nowrap'}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:6}}>
+                  {e.estado!=='Devuelto'&&<button className="btn-sys" style={S.btnGrisSm} onClick={()=>marcarDevuelto(e)} title="Marcar como devuelto al proveedor">✓ Devolver</button>}
+                  <DeleteButton size="sm" title="Eliminar equipo" onConfirm={()=>eliminarEquipo(e)}/>
+                </div>
               </td>
             </tr>))}
           </tbody>

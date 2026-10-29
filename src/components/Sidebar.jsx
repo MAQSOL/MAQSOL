@@ -60,7 +60,8 @@ function Sidebar() {
             items={[
               { label: "Equipos Internos", href: "/internos" },
               { label: "Equipos Externos", href: "/externos" },
-              { label: "Alquileres Activos", href: "/alquileres" }
+              { label: "Alquileres Activos", href: "/alquileres" },
+              { label: "Recepción Equipos", href: "/recepcion" }
             ]}
           />
         </div>
@@ -71,7 +72,6 @@ function Sidebar() {
             onNavigate={cerrar}
             items={[
               { label: "Tareas", href: "/tareas" },
-              { label: "Recepción Equipos", href: "/recepcion" },
               { label: "Bitácora Fleteros", href: "/bitacora" },
               { label: "Cargas de Diesel", href: "/diesel" },
               { label: "Reporte de Horas", href: "/horas" },

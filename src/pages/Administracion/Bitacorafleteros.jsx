@@ -39,7 +39,7 @@ const S = {
   modal:{background:'#fff',borderRadius:0,padding:26,width:'100%',maxWidth:820},
   grid2:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:14,marginBottom:14},
   grid3:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:14},
-  stat:{flex:1,minWidth:130,background:'#fff',border:'1px solid #e6e6e6',borderRadius:0,padding:'16px 18px',boxShadow:'0 1px 3px rgba(0,0,0,.05)'},
+  stat:{flex:1,minWidth:130,background:'#fff',border:'1px solid #e6e6e6',borderLeft:'8px solid var(--acento)',borderRadius:0,padding:'16px 18px',boxShadow:'none'},
   statN:{fontSize:26,fontWeight:800,color:VINO},
   statK:{fontSize:12,color:'#777',fontWeight:700,letterSpacing:0.3}
 }
