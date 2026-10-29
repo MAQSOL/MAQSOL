@@ -1,10 +1,10 @@
 import jsPDF from "jspdf";
-import { AZUL_RGB, AZUL_TENUE_RGB, encabezadoJsPDF } from "./pdfFormato";
+import { ROJO_RGB, encabezadoJsPDF } from "./pdfFormato";
 
-const f = (iso) => {
+const fFecha = (iso) => {
   if (!iso) return "";
   const d = new Date(iso + "T00:00:00");
-  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+  return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`;
 };
 
 export function edadDe(iso) {
@@ -16,150 +16,169 @@ export function edadDe(iso) {
   return e >= 0 && e < 120 ? String(e) : "";
 }
 
-/**
- * FICHA DE INGRESO - MAQSOL (hoja carta completa). Sin datos (persona = {}) sale
- * en blanco para llenarla a mano; con datos sale ya llenada.
- * Todas las filas se miden sobre una rejilla de 20 columnas para que queden alineadas.
- */
 export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA-INGRESO") {
   const p = persona || {};
   const doc = new jsPDF({ unit: "mm", format: "letter" });
-  const W = 216, M = 8, ancho = W - M * 2;
-  const H0 = 6.3;
+  const W = 216, M = 12, ancho = W - M * 2;
   let y = 7;
 
-  doc.setLineWidth(0.25);
-  doc.setDrawColor(150, 170, 190);
+  const NEGRO  = [17, 17, 17];
+  const GRIS   = [130, 130, 130];
+  const LINEA  = [210, 210, 210];
+  const VINO   = ROJO_RGB;
 
   const hoy = new Date();
-  const hoyTxt = `${String(hoy.getDate()).padStart(2, "0")}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${hoy.getFullYear()}`;
+  const hoyTxt = `${String(hoy.getDate()).padStart(2,"0")}/${String(hoy.getMonth()+1).padStart(2,"0")}/${hoy.getFullYear()}`;
 
-  // texto ajustado a la celda: reduce la letra y, si no cabe, parte en dos renglones
-  const escribe = (txt, x, yy, w, h, tam, negrita, gris) => {
-    const t = String(txt == null ? "" : txt).trim();
-    if (!t) return;
-    doc.setFont("helvetica", negrita ? "bold" : "normal");
-    let size = tam;
-    doc.setFontSize(size);
-    while (doc.getTextWidth(t) > w - 3 && size > 6) {
-      size -= 0.3;
-      doc.setFontSize(size);
-    }
-    doc.setTextColor(gris ? 85 : 15);
-    if (doc.getTextWidth(t) <= w - 3) {
-      doc.text(t, x + w / 2, yy + h / 2 + size * 0.17, { align: "center" });
-    } else {
-      const lin = doc.splitTextToSize(t, w - 3).slice(0, 2);
-      doc.setFontSize(6.4);
-      lin.forEach((l, k) => doc.text(l, x + w / 2, yy + h / 2 - (lin.length - 1) * 1.7 + k * 3.4 + 0.9, { align: "center" }));
-    }
-  };
-
-  // celdas: [texto, unidades de 20, "l" etiqueta | "v" valor]
-  const fila = (celdas, alto = H0, x0 = M, anchoTotal = ancho, unidades = 20) => {
-    let x = x0;
-    celdas.forEach(([txt, u, tipo]) => {
-      const w = (anchoTotal * u) / unidades;
-      if (tipo === "l") {
-        doc.setFillColor(...AZUL_TENUE_RGB);
-        doc.rect(x, y, w, alto, "FD");
-        escribe(txt, x, y, w, alto, 7, true, true);
-      } else {
-        doc.rect(x, y, w, alto);
-        escribe(txt, x, y, w, alto, 9, false, false);
-      }
-      x += w;
-    });
-    y += alto;
-  };
-
-  const encabezado = (txt) => {
-    doc.setFillColor(...AZUL_RGB);
-    doc.rect(M, y, ancho, 7, "FD");
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(9.6);
-    doc.setTextColor(255, 255, 255);
-    doc.text(txt, M + 3, y + 4.9);
-    y += 7;
-  };
-
-  // ---- Encabezado del diseño único (título azul, logo a la derecha, línea azul) ----
-  y = encabezadoJsPDF(doc, { titulo: "Ficha de Ingreso", lineas: ["MAQUINARIA SOPORTE Y LOGISTICA SA DE CV", "Fecha: " + hoyTxt], x: M, ancho, y, altoLogo: 14, separacion: 3 });
-  doc.setLineWidth(0.25);
-  doc.setDrawColor(150, 170, 190);
-
-  encabezado("DATOS PARA NUEVO INGRESO");
-  fila([["NOMBRE DE LA EMPRESA", 4, "l"], ["MAQUINARIA SOPORTE Y LOGISTICA SA DE CV", 10, "v"], ["FECHA", 2, "l"], [hoyTxt, 4, "v"]]);
-
-  // ---- Datos del trabajador (rejilla fija: etiqueta 4 | valor 6 | etiqueta 4 | valor 6) ----
-  const par = (e1, v1, e2, v2) => fila([[e1, 4, "l"], [v1, 6, "v"], [e2, 4, "l"], [v2, 6, "v"]]);
-  const completa = (e1, v1) => fila([[e1, 4, "l"], [v1, 16, "v"]]);
-  const nHijos = p.numHijos !== undefined && p.numHijos !== "" ? p.numHijos : p.hijos ? (p.hijos || []).filter((h) => h.nombre).length : "";
-
-  encabezado("DATOS DEL TRABAJADOR");
-  par("NOMBRE TRABAJADOR", p.nombre, "FECHA DE INGRESO", f(p.fechaIngreso));
-  par("RFC", p.rfc, "CURP", p.curp);
-  completa("DIRECCION", p.domicilio);
-  par("CODIGO POSTAL", p.codigoPostal, "CORREO ELECTRONICO", p.correo);
-  par("NUMERO DE IMSS", p.nss, "TELEFONO CELULAR", p.telefono);
-  par("LUGAR DE NACIMIENTO", p.lugarNacimiento, "FECHA DE NACIMIENTO", f(p.fechaNacimiento));
-  par("ESTADO CIVIL", p.estadoCivil, "TIPO DE SANGRE", p.tipoSangre);
-  par("NUMERO DE HIJOS", String(nHijos), "GRADO ACADEMICO", p.escolaridad);
-  par("TIENE CREDITO INFONAVIT", p.infonavit, "No. CREDITO INFONAVIT", p.infonavitNumero);
-  par("TIENE CREDITO FONACOT", p.fonacot, "No. CREDITO FONACOT", p.fonacotNumero);
-  par("ULTIMO EMPLEO", p.ultimoEmpleo, "PUESTO DESEMPEÑADO", p.ultimoPuesto);
-  completa("PUESTO SOLICITADO", p.puesto);
-
-  encabezado("CUENTA PARA NOMINA");
-  par("BANCO", p.banco, "CUENTA", p.cuenta);
-  par("CLAVE INTERBANCARIA", p.clabe, "TARJETA", p.tarjeta);
-
-  // ---- Contacto en caso de emergencia ----
-  encabezado("CONTACTO EN CASO DE EMERGENCIA");
-  const contactos = [
-    [p.emergenciaNombre, p.emergenciaParentesco, p.emergenciaTelefono, p.emergenciaCorreo],
-    [p.emergencia2Nombre, p.emergencia2Parentesco, p.emergencia2Telefono, p.emergencia2Correo]
-  ];
-  contactos.forEach((c) => {
-    par("NOMBRE Y APELLIDOS", c[0], "PARENTESCO", c[1]);
-    par("TELEFONO", c[2], "CORREO ELECTRONICO", c[3]);
+  // ── Encabezado ──────────────────────────────────────────────────────────────
+  y = encabezadoJsPDF(doc, {
+    titulo: "Ficha de Ingreso",
+    lineas: ["MAQUINARIA SOPORTE Y LOGÍSTICA SA DE CV", "Fecha: " + hoyTxt],
+    x: M, ancho, y, altoLogo: 13, separacion: 4
   });
 
-  // ---- Datos del empleo ----
-  encabezado("DATOS DEL EMPLEO");
+  // ── Helpers ─────────────────────────────────────────────────────────────────
+  // Franja de sección
+  const seccion = (titulo) => {
+    doc.setFillColor(...NEGRO);
+    doc.rect(M, y, ancho, 6, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7.5);
+    doc.setTextColor(255, 255, 255);
+    doc.text(titulo, M + 3, y + 4);
+    y += 6 + 2;
+  };
+
+  // Dibuja N campos en la misma fila. Cada campo: { label, val, w } w sumando 1.
+  const ROW_H = 8.5;
+  const GAP   = 4;
+  const campos = (lista) => {
+    const totalW = ancho - GAP * (lista.length - 1);
+    let x = M;
+    lista.forEach(({ label = "", val = "", w = 1 }) => {
+      const fw = totalW * w;
+      const txt = String(val == null ? "" : val).trim();
+
+      // etiqueta
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(6.2);
+      doc.setTextColor(...GRIS);
+      doc.text(label.toUpperCase(), x, y + 3.2);
+
+      // valor
+      if (txt) {
+        doc.setFont("helvetica", "normal");
+        let sz = 9;
+        doc.setFontSize(sz);
+        while (doc.getTextWidth(txt) > fw - 1 && sz > 6.5) { sz -= 0.25; doc.setFontSize(sz); }
+        doc.setTextColor(...NEGRO);
+        doc.text(txt, x, y + ROW_H - 1.4);
+      }
+
+      // línea inferior
+      doc.setDrawColor(...LINEA);
+      doc.setLineWidth(0.22);
+      doc.line(x, y + ROW_H, x + fw, y + ROW_H);
+
+      x += fw + GAP;
+    });
+    y += ROW_H + 3;
+  };
+
+  // Atajos para patrones comunes
+  const par  = (l1,v1,l2,v2,w1=0.5) => campos([{label:l1,val:v1,w:w1},{label:l2,val:v2,w:1-w1}]);
+  const full = (label, val)          => campos([{label, val, w:1}]);
+
+  // ── Contenido ───────────────────────────────────────────────────────────────
+  seccion("DATOS DEL TRABAJADOR");
+  full("Nombre completo", p.nombre);
+  par("Puesto / cargo", p.puesto, "Fecha de ingreso", fFecha(p.fechaIngreso));
+  par("RFC", p.rfc, "CURP", p.curp);
+  par("NSS (IMSS)", p.nss, "INE / Clave electoral", p.ine);
+  full("Domicilio", p.domicilio);
+  par("Código postal", p.codigoPostal, "Correo electrónico", p.correo);
+  par("Teléfono celular", p.telefono, "Fecha de nacimiento", fFecha(p.fechaNacimiento));
+  par("Lugar de nacimiento", p.lugarNacimiento, "Tipo de sangre", p.tipoSangre);
+  par("Estado civil", p.estadoCivil, "Escolaridad", p.escolaridad);
+  par("Licencia de conducir", p.licencia, "Vigencia licencia", "");
+  const nHijos = p.hijos ? p.hijos.filter(h => h.nombre).length : (p.numHijos || "");
+  par("Número de hijos", String(nHijos || ""), "Alergias / padecimientos", p.alergias || p.condicionesMedicas || "");
+
+  seccion("DATOS ECONÓMICOS");
+  par("Crédito INFONAVIT", p.infonavit, "No. de crédito INFONAVIT", p.infonavitNumero);
+  par("Crédito FONACOT",   p.fonacot,   "No. de crédito FONACOT",   p.fonacotNumero);
+  par("Banco (nómina)", p.banco, "Cuenta", p.cuenta);
+  par("CLABE interbancaria", p.clabe, "Tarjeta", p.tarjeta);
+
+  seccion("HISTORIAL LABORAL");
+  par("Último empleo", p.ultimoEmpleo, "Puesto desempeñado", p.ultimoPuesto);
+
+  seccion("DATOS DEL EMPLEO");
   const sueldo = p.sueldoBase ? (isNaN(Number(p.sueldoBase)) ? p.sueldoBase : "$" + Number(p.sueldoBase).toLocaleString("es-MX")) : "";
-  par("CARGO O PUESTO", p.puesto, "SUELDO BASE", sueldo);
-  par("HORARIOS DE TRABAJO", p.horario, "SABADOS", p.horarioSabado);
-  completa("COMIDA", p.horarioComida);
-  completa("LUGAR DE TRABAJO", p.lugarTrabajo);
-  {
-    const alto = 13;
-    const wL = (ancho * 4) / 20;
-    doc.setFillColor(...AZUL_TENUE_RGB);
-    doc.rect(M, y, wL, alto, "FD");
-    escribe("OBSERVACIONES", M, y, wL, alto, 7, true, true);
-    doc.rect(M + wL, y, ancho - wL, alto);
-    if (p.notas) {
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8.6);
-      doc.setTextColor(15);
-      doc.text(doc.splitTextToSize(String(p.notas), ancho - wL - 5).slice(0, 5), M + wL + 2.5, y + 5);
-    }
-    y += alto;
+  par("Puesto / cargo", p.puesto, "Sueldo base", sueldo);
+  par("Horario de trabajo", p.horario, "Sábados", p.horarioSabado);
+  par("Hora de comida", p.horarioComida, "Lugar de trabajo", p.lugarTrabajo);
+
+  seccion("CONTACTO DE EMERGENCIA");
+  par("Nombre y apellidos", p.emergenciaNombre, "Parentesco", p.emergenciaParentesco);
+  par("Teléfono", p.emergenciaTelefono, "Correo electrónico", p.emergenciaCorreo);
+  if (p.emergencia2Nombre) {
+    par("Nombre y apellidos (2)", p.emergencia2Nombre, "Parentesco", p.emergencia2Parentesco);
+    par("Teléfono", p.emergencia2Telefono, "Correo electrónico", p.emergencia2Correo);
   }
 
-  // ---- Firmas ----
-  encabezado("FIRMAS");
-  fila([["TRABAJADOR", 5, "l"], ["RECURSOS HUMANOS", 5, "l"], ["SUPERVISION", 5, "l"], ["VO. BO.", 5, "l"]], 6.5);
-  fila([["", 5, "v"], ["", 5, "v"], ["", 5, "v"], ["", 5, "v"]], 24);
-  fila([[(p.nombre || "").toUpperCase(), 5, "l"], ["LIC. ANABEL CERINO AVALOS", 5, "l"], ["CESAR ALEJANDRO BALAM MOGUEL", 5, "l"], ["LIC. FRANCISCO TORRES MORALES", 5, "l"]], 8);
+  seccion("FAMILIA");
+  par("Cónyuge / pareja", p.conyugeNombre, "Teléfono del cónyuge", p.conyugeTelefono);
+  par("Beneficiario", p.beneficiarioNombre, "Parentesco", p.beneficiarioParentesco);
+  full("Teléfono del beneficiario", p.beneficiarioTelefono);
 
-  doc.setFillColor(...AZUL_RGB);
-  doc.rect(M, y, ancho, 0.8, "F");
+  if (p.notas) {
+    seccion("OBSERVACIONES");
+    // Área de texto multilínea
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(...NEGRO);
+    const lineas = doc.splitTextToSize(p.notas, ancho - 2);
+    doc.text(lineas.slice(0, 4), M, y + 4);
+    y += Math.min(lineas.length, 4) * 4.5 + 5;
+  }
+
+  // ── Firmas ──────────────────────────────────────────────────────────────────
+  seccion("FIRMAS");
+  const fw4 = (ancho - GAP * 3) / 4;
+  const fxs = [M, M + fw4 + GAP, M + (fw4 + GAP) * 2, M + (fw4 + GAP) * 3];
+  const labels4 = ["TRABAJADOR", "RECURSOS HUMANOS", "SUPERVISIÓN", "VO. BO."];
+  const vals4   = [
+    (p.nombre || "").toUpperCase(),
+    "LIC. ANABEL CERINO",
+    "C. ALEJANDRO BALAM",
+    "LIC. FCO. TORRES"
+  ];
+  // Líneas de firma
+  y += 14;
+  fxs.forEach((fx, i) => {
+    doc.setDrawColor(...LINEA);
+    doc.setLineWidth(0.3);
+    doc.line(fx, y, fx + fw4, y);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(6.5);
+    doc.setTextColor(...GRIS);
+    doc.text(labels4[i], fx + fw4 / 2, y + 3.5, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(...NEGRO);
+    doc.text(vals4[i], fx + fw4 / 2, y + 7.5, { align: "center" });
+  });
+  y += 12;
+
+  // ── Pie ─────────────────────────────────────────────────────────────────────
+  doc.setDrawColor(...VINO);
+  doc.setLineWidth(0.7);
+  doc.line(M, y, M + ancho, y);
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(6.8);
-  doc.setTextColor(140);
-  doc.text("Documento generado desde MAQSISTEM · información confidencial", W / 2, y + 5.2, { align: "center" });
+  doc.setFontSize(6.5);
+  doc.setTextColor(...GRIS);
+  doc.text("Documento confidencial generado desde MAQSISTEM", W / 2, y + 4, { align: "center" });
 
   doc.save(nombreArchivo + ".pdf");
 }
