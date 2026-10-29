@@ -7,13 +7,47 @@ import DeleteButton from "../../components/DeleteButton";
 const BUCKET = "archivos";
 
 const CATEGORIAS = [
-  { key: "ordenes",      label: "Órdenes de Compra",  icon: "📋" },
-  { key: "contratos",    label: "Contratos",           icon: "📄" },
-  { key: "cotizaciones", label: "Cotizaciones",        icon: "💰" },
-  { key: "horas",        label: "Reporte de Horas",   icon: "⏱️" },
-  { key: "diesel",       label: "Diesel",             icon: "⛽" },
-  { key: "otros",        label: "Otros",              icon: "📁" },
+  { key: "ordenes",      label: "Órdenes de Compra"  },
+  { key: "contratos",    label: "Contratos"           },
+  { key: "cotizaciones", label: "Cotizaciones"        },
+  { key: "horas",        label: "Reporte de Horas"   },
+  { key: "diesel",       label: "Diesel"              },
+  { key: "otros",        label: "Otros"               },
 ];
+
+function CatIcon({ k, color = "currentColor" }) {
+  const s = { width: 17, height: 17, display: "inline-block", verticalAlign: "middle", flexShrink: 0 };
+  if (k === "ordenes") return (
+    <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="9" y="2" width="13" height="20" rx="1"/><path d="M9 2H5a1 1 0 0 0-1 1v17a1 1 0 0 0 1 1h4"/><path d="M13 7h5M13 11h5M13 15h3"/>
+    </svg>
+  );
+  if (k === "contratos") return (
+    <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/><path d="M16 17l2-2 2 2"/>
+    </svg>
+  );
+  if (k === "cotizaciones") return (
+    <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9"/><path d="M18 2l4 4-9 9H9v-4z"/>
+    </svg>
+  );
+  if (k === "horas") return (
+    <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+    </svg>
+  );
+  if (k === "diesel") return (
+    <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 22V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14"/><path d="M17 10h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"/><line x1="3" y1="22" x2="21" y2="22"/><line x1="7" y1="10" x2="13" y2="10"/>
+    </svg>
+  );
+  return (
+    <svg style={s} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+    </svg>
+  );
+}
 
 const EXT_PDF   = ["pdf"];
 const EXT_IMG   = ["jpg", "jpeg", "png", "webp", "gif"];
@@ -178,7 +212,7 @@ export default function Archivos() {
                     transition: "border-left .12s",
                   }}
                 >
-                  <span>{cat.icon}&nbsp; {cat.label}</span>
+                  <span style={{display:"flex",alignItems:"center",gap:8}}><CatIcon k={cat.key} color={activa?"#fff":"#444"}/>{cat.label}</span>
                   {!!conteos[cat.key] && (
                     <span style={{
                       background: activa ? "var(--acento)" : "#eee",
