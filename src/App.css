@@ -50,6 +50,12 @@ body{
   align-self:flex-start;
   overflow-y:auto;
   overscroll-behavior:contain;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+
+.sidebar::-webkit-scrollbar{
+  display:none;
 }
 
 /* Logo / encabezado */
@@ -224,7 +230,7 @@ body{
   background:#fff;
   border:2px solid #111;
   border-left:8px solid var(--acento);
-  border-radius:0;
+  border-radius:0 !important;
   padding:24px 20px;
   box-shadow:none;
   text-decoration:none;
@@ -289,7 +295,7 @@ body{
   background:#fff;
   border:1px solid #ddd;
   border-left:8px solid #111;
-  border-radius:0;
+  border-radius:0 !important;
   padding:26px 28px;
   min-height:250px;
   box-shadow:none;
