@@ -57,7 +57,7 @@ function IconoFlete({size=26,color=VINO}){
 }
 
 function uid(){return 'x'+Date.now()+Math.random().toString(36).slice(2,6)}
-function fFecha(f){return f?new Date(f+'T00:00:00').toLocaleDateString('es-MX'):'—'}
+function fFecha(f){return f?new Date(f+'T00:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}):'—'}
 function hoyISO(){return new Date().toISOString().slice(0,10)}
 
 function textoOC(f){

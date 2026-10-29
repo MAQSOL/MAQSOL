@@ -17,7 +17,7 @@ export const S = {
   h3: { fontSize: 15, fontWeight: 800, margin: "8px 0 10px", color: "var(--acento)", textTransform: "uppercase", letterSpacing: "1px" }
 };
 
-export const fFecha = (f) => (f ? new Date(f + "T00:00:00").toLocaleDateString("es-MX") : "—");
+export const fFecha = (f) => (f ? new Date(f + "T00:00:00").toLocaleDateString("es-MX", {day:'2-digit',month:'2-digit',year:'numeric'}) : "—");
 export const hoyISO = () => new Date().toISOString().slice(0, 10);
 export const dinero = (n) =>
   n === "" || n === null || n === undefined || isNaN(Number(n))

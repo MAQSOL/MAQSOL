@@ -108,7 +108,7 @@ const chipExp=(color,fondo)=>({background:fondo,color,fontSize:11.5,fontWeight:7
 
 function uid(){return 'x'+Date.now()+Math.random().toString(36).slice(2,6)}
 function hoyISO(){return new Date().toISOString().slice(0,10)}
-function fFecha(f){return f?new Date(f+'T00:00:00').toLocaleDateString('es-MX'):'—'}
+function fFecha(f){return f?new Date(f+'T00:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}):'—'}
 
 function BadgeTipo({tipo}){
   const salida=(tipo||'Salida')==='Salida'

@@ -10,7 +10,7 @@ import CampoFecha from "../components/CampoFecha";
 const fFecha = (f) => {
   if (!f) return "";
   const d = new Date(f + "T00:00:00");
-  return isNaN(d) ? "" : d.toLocaleDateString("es-MX");
+  return isNaN(d) ? "" : d.toLocaleDateString("es-MX", {day:'2-digit',month:'2-digit',year:'numeric'});
 };
 const hoyISO = () => new Date().toISOString().slice(0, 10);
 

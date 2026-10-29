@@ -85,7 +85,7 @@ const S = {
 }
 
 function diasPara(f){if(!f)return null;const h=new Date();h.setHours(0,0,0,0);return Math.round((new Date(f+'T00:00:00')-h)/86400000)}
-function fFecha(f){return f?new Date(f+'T00:00:00').toLocaleDateString('es-MX'):'—'}
+function fFecha(f){return f?new Date(f+'T00:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}):'—'}
 function uid(){return 'x'+Date.now()+Math.random().toString(36).slice(2,6)}
 
 function comprimirImagen(file,maxAncho=800){
