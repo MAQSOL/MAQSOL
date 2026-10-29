@@ -449,7 +449,7 @@ function Asistencias() {
     width: "100%",
     padding: "13px 15px",
     borderRadius: 0,
-    border: "1px solid #ddd",
+    border: "2px solid #222",
     fontSize: "14px",
     boxSizing: "border-box",
     fontFamily: "inherit",
@@ -611,17 +611,19 @@ function Asistencias() {
                   />
 
                   <button
+                    className="btn-sys"
                     onClick={agregarColaborador}
                     style={{
                       background: VERDE,
                       color: "#fff",
-                      border: "none",
-                      borderRadius: "10px",
+                      border: "2px solid #111",
+                      borderRadius: 0,
                       padding: "13px 30px",
                       cursor: "pointer",
-                      fontWeight: "700",
-                      fontSize: "15px",
-                      whiteSpace: "nowrap"
+                      fontWeight: "800",
+                      fontSize: "14px",
+                      whiteSpace: "nowrap",
+                      fontFamily: "'Montserrat',sans-serif"
                     }}
                   >
                     <IconoMas />Agregar
@@ -709,45 +711,51 @@ function Asistencias() {
                   }}
                 >
                   <button
+                    className="btn-sys"
                     onClick={() => setLunes(lunesDeLaSemana(new Date()))}
                     style={{
-                      background: "#f0f0f0",
-                      color: "#666",
-                      border: "none",
-                      borderRadius: "10px",
+                      background: "#e8e8e8",
+                      color: "#333",
+                      border: "2px solid #111",
+                      borderRadius: 0,
                       padding: "11px 22px",
                       cursor: "pointer",
-                      fontWeight: "600"
+                      fontWeight: "700",
+                      fontFamily: "'Montserrat',sans-serif"
                     }}
                   >
                     Semana actual
                   </button>
 
                   <button
+                    className="btn-sys btn-excel"
                     onClick={descargarExcel}
                     style={{
                       background: VERDE,
                       color: "#fff",
-                      border: "none",
-                      borderRadius: "10px",
+                      border: "2px solid #111",
+                      borderRadius: 0,
                       padding: "11px 26px",
                       cursor: "pointer",
-                      fontWeight: "600"
+                      fontWeight: "700",
+                      fontFamily: "'Montserrat',sans-serif"
                     }}
                   >
                     Excel
                   </button>
 
                   <button
+                    className="btn-sys btn-pdf"
                     onClick={descargarPDF}
                     style={{
                       background: VINO,
                       color: "#fff",
-                      border: "none",
-                      borderRadius: "10px",
+                      border: "2px solid #111",
+                      borderRadius: 0,
                       padding: "11px 26px",
                       cursor: "pointer",
-                      fontWeight: "600"
+                      fontWeight: "700",
+                      fontFamily: "'Montserrat',sans-serif"
                     }}
                   >
                     PDF
@@ -890,7 +898,7 @@ function Asistencias() {
                                       color: ROJO,
                                       background: "#fdeaec",
                                       padding: "2px 7px",
-                                      borderRadius: "10px"
+                                      borderRadius: 0
                                     }}
                                   >
                                     DE BAJA
@@ -1071,7 +1079,7 @@ function Asistencias() {
             onClick={(e) => e.stopPropagation()}
             style={{
               background: "#fff",
-              borderRadius: "18px",
+              borderRadius: 0,
               padding: "30px",
               width: "100%",
               maxWidth: "460px",
@@ -1100,13 +1108,13 @@ function Asistencias() {
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "18px" }}>
               <button
                 onClick={() => setEditando(null)}
-                style={{ padding: "11px 22px", border: "none", borderRadius: "10px", background: "#f0f0f0", color: "#555", fontWeight: 700, cursor: "pointer" }}
+                style={{ padding: "11px 22px", border: "2px solid #111", borderRadius: 0, background: "#e8e8e8", color: "#333", fontWeight: 700, cursor: "pointer", fontFamily:"'Montserrat',sans-serif" }}
               >
                 Cancelar
               </button>
               <button
                 onClick={guardarEdicion}
-                style={{ padding: "11px 22px", border: "none", borderRadius: "10px", background: VINO, color: "#fff", fontWeight: 700, cursor: "pointer" }}
+                style={{ padding: "11px 22px", border: "2px solid #111", borderRadius: 0, background: VINO, color: "#fff", fontWeight: 700, cursor: "pointer", fontFamily:"'Montserrat',sans-serif" }}
               >
                 Guardar
               </button>
@@ -1133,7 +1141,7 @@ function Asistencias() {
             onClick={(e) => e.stopPropagation()}
             style={{
               background: "#fff",
-              borderRadius: "18px",
+              borderRadius: 0,
               padding: "30px",
               width: "100%",
               maxWidth: "520px",
@@ -1155,7 +1163,7 @@ function Asistencias() {
                   style={{
                     background: lista.length ? "#fff6d8" : "#f6f6f6",
                     border: "1px solid " + (lista.length ? "#e6c85a" : "#e6e6e6"),
-                    borderRadius: "12px",
+                    borderRadius: 0,
                     padding: "12px 14px",
                     marginBottom: "16px",
                     fontSize: "13.5px"
@@ -1212,7 +1220,7 @@ function Asistencias() {
             <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
               <button
                 onClick={() => setObsModal(null)}
-                style={{ flex: 1, background: "#eee", color: "#333", border: "none", borderRadius: "10px", padding: "14px", cursor: "pointer", fontWeight: "700" }}
+                style={{ flex: 1, background: "#eee", color: "#333", border: "none", borderRadius: 0, padding: "14px", cursor: "pointer", fontWeight: "700" }}
               >
                 Cancelar
               </button>
@@ -1221,7 +1229,7 @@ function Asistencias() {
                   guardarObsSemana(obsModal.id, obsRef.current);
                   setObsModal(null);
                 }}
-                style={{ flex: 1, background: VINO, color: "#fff", border: "none", borderRadius: "10px", padding: "14px", cursor: "pointer", fontWeight: "700" }}
+                style={{ flex: 1, background: VINO, color: "#fff", border: "none", borderRadius: 0, padding: "14px", cursor: "pointer", fontWeight: "700" }}
               >
                 Guardar
               </button>
@@ -1249,7 +1257,7 @@ function Asistencias() {
             onClick={(e) => e.stopPropagation()}
             style={{
               background: "#fff",
-              borderRadius: "18px",
+              borderRadius: 0,
               padding: "32px",
               width: "100%",
               maxWidth: "470px",
@@ -1289,7 +1297,7 @@ function Asistencias() {
                           flex: 1,
                           padding: "12px",
                           border: "none",
-                          borderRadius: "10px",
+                          borderRadius: 0,
                           cursor: "pointer",
                           fontWeight: "600",
                           fontSize: "13px",
@@ -1339,7 +1347,7 @@ function Asistencias() {
                   <div
                     style={{
                       background: extras > 0 ? "#e8f5e9" : "#f7f7f7",
-                      borderRadius: "10px",
+                      borderRadius: 0,
                       padding: "14px",
                       marginBottom: "20px",
                       fontSize: "13px",
@@ -1390,7 +1398,7 @@ function Asistencias() {
                       background: VINO,
                       color: "#fff",
                       border: "none",
-                      borderRadius: "10px",
+                      borderRadius: 0,
                       padding: "15px",
                       cursor: "pointer",
                       fontWeight: "700",
