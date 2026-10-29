@@ -82,18 +82,18 @@ const S = {
   page:{padding:'24px 28px',fontFamily:'inherit',color:'#222',flex:1,overflowY:'auto'},
   h1:{fontSize:30,fontWeight:800,margin:0,letterSpacing:0.5},
   sub:{color:'#777',margin:'4px 0 0',fontSize:14},
-  card:{background:'#fff',border:'1px solid #e6e6e6',borderRadius:10,padding:24,marginBottom:28,boxShadow:'0 1px 3px rgba(0,0,0,.05)'},
-  btn:{background:VINO,color:'#fff',border:'none',borderRadius:6,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
-  btnSm:{background:VINO,color:'#fff',border:'none',borderRadius:6,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
-  btnGris:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:6,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
-  btnGrisSm:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:6,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
-  input:{width:'100%',padding:'10px 11px',border:'1px solid #d8d8d8',borderRadius:6,fontSize:13.5,boxSizing:'border-box',background:'#fff'},
+  card:{background:'#fff',border:'1px solid #e6e6e6',borderRadius:0,padding:24,marginBottom:28,boxShadow:'0 1px 3px rgba(0,0,0,.05)'},
+  btn:{background:VINO,color:'#fff',border:'none',borderRadius:0,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
+  btnSm:{background:VINO,color:'#fff',border:'none',borderRadius:0,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
+  btnGris:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:0,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
+  btnGrisSm:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:0,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
+  input:{width:'100%',padding:'10px 11px',border:'1px solid #d8d8d8',borderRadius:0,fontSize:13.5,boxSizing:'border-box',background:'#fff'},
   label:{fontSize:11.5,fontWeight:700,color:'#666',marginBottom:4,display:'block'},
   th:{textAlign:'left',padding:'12px 10px',fontSize:12,letterSpacing:0.5,color:'#fff',background:'#222',fontWeight:700,whiteSpace:'nowrap'},
   td:{padding:'11px 10px',borderBottom:'1px solid #eee',fontSize:14},
-  equis:{background:'transparent',border:'none',color:'#c62828',fontSize:18,fontWeight:700,cursor:'pointer',lineHeight:1,padding:'2px 6px',borderRadius:4},
+  equis:{background:'transparent',border:'none',color:'#c62828',fontSize:18,fontWeight:700,cursor:'pointer',lineHeight:1,padding:'2px 6px',borderRadius:0},
   modalBg:{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',display:'flex',alignItems:'flex-start',justifyContent:'center',padding:24,overflowY:'auto',zIndex:999},
-  modal:{background:'#fff',borderRadius:10,padding:24,width:'100%',maxWidth:1080},
+  modal:{background:'#fff',borderRadius:0,padding:24,width:'100%',maxWidth:1080},
   grid2:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12,marginBottom:12},
   grid3:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:12},
   grid4:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:12},
@@ -118,7 +118,7 @@ function BadgeTipo({tipo}){
 function BotonEstado({activo,color,onClick,children}){
   return (
     <button type="button" translate="no" className="notranslate" onClick={onClick} style={{
-      width:28,height:26,flex:'0 0 auto',border:'1px solid #ccc',borderRadius:4,cursor:'pointer',fontWeight:800,fontSize:12,padding:0,
+      width:28,height:26,flex:'0 0 auto',border:'1px solid #ccc',borderRadius:0,cursor:'pointer',fontWeight:800,fontSize:12,padding:0,
       background:activo?color:'#fff',color:activo?'#fff':'#888'
     }}>{children}</button>
   )
@@ -132,7 +132,7 @@ function ColumnaChecklist({titulo,items,valores,porcentajes,onCambiar,onCambiarP
         <div key={it.n} style={{display:'flex',flexWrap:'wrap',alignItems:'center',gap:'4px 6px',padding:'6px 8px',borderBottom:'1px solid #f0f0f0',fontSize:11.5}}>
           <div style={it.pct?{flex:'1 1 100%',fontWeight:600}:{flex:'1 1 0',minWidth:0}}>{it.n}</div>
           <div style={{display:'flex',alignItems:'center',gap:4,marginLeft:'auto',flex:'0 0 auto'}}>
-          {it.pct&&<input value={porcentajes[it.n]||''} onChange={ev=>onCambiarPct(it.n,ev.target.value)} placeholder="%" style={{width:46,padding:'4px 5px',border:'1px solid #ddd',borderRadius:4,fontSize:11,textAlign:'center'}}/>}
+          {it.pct&&<input value={porcentajes[it.n]||''} onChange={ev=>onCambiarPct(it.n,ev.target.value)} placeholder="%" style={{width:46,padding:'4px 5px',border:'1px solid #ddd',borderRadius:0,fontSize:11,textAlign:'center'}}/>}
           {it.siNo?(
             <>
               <BotonEstado activo={valores[it.n]==='SI'} color="#1f8b4c" onClick={()=>onCambiar(it.n,'SI')}>SI</BotonEstado>
@@ -701,7 +701,7 @@ export default function Recepcionequipos(){
             <div key={f.k} style={{border:'1px solid #e3e6ea',borderRadius:8,padding:10,textAlign:'center'}}>
               <div style={{fontSize:11.5,fontWeight:800,color:VINO}}>{f.t.toUpperCase()}</div>
               <div style={{fontSize:10.5,color:'#999',marginBottom:6}}>{f.s}</div>
-              <div style={{height:70,display:'flex',alignItems:'center',justifyContent:'center',background:'#fafbfc',border:'1px dashed #d5d9dd',borderRadius:6,marginBottom:8}}>
+              <div style={{height:70,display:'flex',alignItems:'center',justifyContent:'center',background:'#fafbfc',border:'1px dashed #d5d9dd',borderRadius:0,marginBottom:8}}>
                 {img?<img src={img} alt="Firma" style={{maxWidth:'100%',maxHeight:'100%'}}/>:<span style={{color:'#bbb',fontSize:12}}>Sin firma</span>}
               </div>
               <div style={{display:'flex',gap:6,justifyContent:'center'}}>

@@ -1,4 +1,4 @@
-import { IconoMas } from "../../components/Icons";
+﻿import { IconoMas } from "../../components/Icons";
 import Layout from "../../components/Layout";
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
@@ -689,7 +689,7 @@ function Asistencias() {
                       background: VINO,
                       color: "#fff",
                       border: "none",
-                      borderRadius: "8px",
+                      borderRadius: 0,
                       padding: "8px 18px",
                       cursor: "pointer",
                       fontWeight: "600",
@@ -777,7 +777,7 @@ function Asistencias() {
                       padding: "50px 20px",
                       color: "#aaa",
                       border: "2px dashed #eee",
-                      borderRadius: "14px"
+                      borderRadius: 0
                     }}
                   >
                     Aún no hay colaboradores. Agrega el primero arriba.
@@ -786,7 +786,7 @@ function Asistencias() {
                   <div
                     style={{
                       overflowX: "auto",
-                      borderRadius: "14px",
+                      borderRadius: 0,
                       border: "1px solid #eee",
                       boxShadow: "0 2px 10px rgba(0,0,0,.05)"
                     }}
@@ -927,7 +927,7 @@ function Asistencias() {
                                     fontSize: "12px",
                                     fontWeight: "700",
                                     cursor: "pointer",
-                                    borderRadius: "8px",
+                                    borderRadius: 0,
                                     padding: "5px 11px"
                                   }}
                                 >

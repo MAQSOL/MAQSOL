@@ -42,7 +42,7 @@ function VistaPrevia({ orden }) {
     return () => ro.disconnect();
   }, []);
   return (
-    <div ref={caja} style={{ width: "100%", height: alto * escala, overflow: "hidden", border: "1px solid #eee", borderRadius: 8, background: "#fff" }}>
+    <div ref={caja} style={{ width: "100%", height: alto * escala, overflow: "hidden", border: "1px solid #eee", borderRadius: 0, background: "#fff" }}>
       <iframe
         title="Vista previa de la orden de compra"
         srcDoc={htmlOrden(orden)}
@@ -213,7 +213,7 @@ export default function OrdenesCompra() {
   const cajaFirma = (clave) => (
     <div style={{ marginTop: 10 }}>
       <label style={S.label}>FIRMA DIGITAL (OPCIONAL)</label>
-      <div style={{ height: 70, display: "flex", alignItems: "center", justifyContent: "center", background: "#fafbfc", border: "1px dashed #d5d9dd", borderRadius: 8, marginBottom: 8 }}>
+      <div style={{ height: 70, display: "flex", alignItems: "center", justifyContent: "center", background: "#fafbfc", border: "1px dashed #d5d9dd", borderRadius: 0, marginBottom: 8 }}>
         {form[clave] ? <img src={form[clave]} alt="Firma" style={{ maxHeight: "100%", maxWidth: "100%" }} /> : <span style={{ color: "#bbb", fontSize: 13 }}>Sin firma</span>}
       </div>
       <div style={{ display: "flex", gap: 8 }}>
@@ -351,11 +351,13 @@ export default function OrdenesCompra() {
                   </select>
                 </Campo>
                 <Campo etiqueta="DÍAS DE CRÉDITO">{inp("diasCredito", { inputMode: "numeric", disabled: form.condicion !== "Crédito", placeholder: form.condicion === "Crédito" ? "Ej. 30" : "—" })}</Campo>
-                <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#444", marginTop: 20 }}>
-                  <input type="checkbox" checked={form.conIva} onChange={(e) => set("conIva", e.target.checked)} /> Agregar I.V.A. 16 %
+                <label className="chk-sys" style={{ fontSize: 14, fontWeight: 600, color: "#444", marginTop: 20 }}>
+                  <input type="checkbox" checked={form.conIva} onChange={(e) => set("conIva", e.target.checked)} />
+                  <span className="checkmark"></span>
+                  Agregar I.V.A. 16 %
                 </label>
               </div>
-              <div style={{ background: "#f6f9fc", borderRadius: 8, padding: "12px 14px", fontSize: 14, display: "grid", gap: 4 }}>
+              <div style={{ background: "#f6f9fc", borderRadius: 0, padding: "12px 14px", fontSize: 14, display: "grid", gap: 4 }}>
                 <div style={{ display: "flex", justifyContent: "space-between" }}><span>Suma subtotal</span><span>{dineroOC(t.suma, m)}</span></div>
                 {t.descuento > 0 && <div style={{ display: "flex", justifyContent: "space-between" }}><span>Descuento</span><span>−{dineroOC(t.descuento, m)}</span></div>}
                 {t.flete > 0 && <div style={{ display: "flex", justifyContent: "space-between" }}><span>Flete</span><span>{dineroOC(t.flete, m)}</span></div>}
@@ -417,7 +419,7 @@ export default function OrdenesCompra() {
                   <div key={o.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, padding: "10px 18px", borderTop: "1px solid #eee", background: o.id === form.id ? "#f6f9fc" : "transparent" }}>
                     <div style={{ cursor: "pointer", minWidth: 0 }} onClick={() => setForm(ordenNormalizada({ ...ORDEN_NUEVA, ...o }))} title="Abrir para ver o editar">
                       <strong>{folioOC(o)}</strong>{" "}
-                      <span style={{ background: est.bg, color: est.c, borderRadius: 10, padding: "1px 8px", fontSize: 11, fontWeight: 700 }}>{o.estado || "Pendiente"}</span>
+                      <span style={{ background: est.bg, color: est.c, borderRadius: 0, padding: "1px 8px", fontSize: 11, fontWeight: 700 }}>{o.estado || "Pendiente"}</span>
                       <div style={{ fontSize: 12, color: "#777", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {o.proveedor} · {fFecha(o.fecha)} · <b>{dineroOC(calcularTotales(o).total, o.moneda)}</b>
                       </div>

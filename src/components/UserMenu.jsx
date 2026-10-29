@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+﻿import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useAuth, PALETA_COLORES } from "../contexts/AuthContext";
@@ -58,7 +58,7 @@ const estiloItem = {
   textAlign: "left",
   background: "transparent",
   border: "none",
-  borderRadius: "8px",
+  borderRadius: 0,
   padding: "10px 8px",
   cursor: "pointer",
   fontSize: "14px",
@@ -295,7 +295,7 @@ export default function UserMenu() {
               background: "var(--acento)",
               color: "#fff",
               border: "none",
-              borderRadius: "8px",
+              borderRadius: 0,
               padding: "10px",
               fontWeight: "700",
               cursor: "pointer"
@@ -331,7 +331,7 @@ export default function UserMenu() {
               width: "100%",
               boxSizing: "border-box",
               padding: "10px",
-              borderRadius: "8px",
+              borderRadius: 0,
               border: "1px solid #ddd",
               marginBottom: "10px"
             }}
@@ -342,7 +342,7 @@ export default function UserMenu() {
               background: "var(--acento)",
               color: "#fff",
               border: "none",
-              borderRadius: "8px",
+              borderRadius: 0,
               padding: "10px",
               fontWeight: "700",
               cursor: "pointer"
@@ -376,7 +376,7 @@ export default function UserMenu() {
               style={{
                 flex: 1,
                 padding: "9px",
-                borderRadius: "8px",
+                borderRadius: 0,
                 border: "1px solid #ddd"
               }}
             />
@@ -387,7 +387,7 @@ export default function UserMenu() {
                 background: "var(--acento)",
                 color: "#fff",
                 border: "none",
-                borderRadius: "8px",
+                borderRadius: 0,
                 padding: "0 14px",
                 fontWeight: "700",
                 cursor: guardandoTelefono ? "default" : "pointer",
@@ -404,11 +404,11 @@ export default function UserMenu() {
               placeholder="Ej. Gerente de operaciones"
               value={puesto}
               onChange={(e) => setPuesto(e.target.value)}
-              style={{ flex: 1, padding: "9px", borderRadius: "8px", border: "1px solid #ddd" }}
+              style={{ flex: 1, padding: "9px", borderRadius: 0, border: "1px solid #ddd" }}
             />
             <button
               onClick={guardarPuesto}
-              style={{ background: "var(--acento)", color: "#fff", border: "none", borderRadius: "8px", padding: "0 14px", fontWeight: "700", cursor: "pointer" }}
+              style={{ background: "var(--acento)", color: "#fff", border: "none", borderRadius: 0, padding: "0 14px", fontWeight: "700", cursor: "pointer" }}
             >
               Guardar
             </button>
@@ -424,7 +424,7 @@ export default function UserMenu() {
               width: "100%",
               boxSizing: "border-box",
               padding: "9px",
-              borderRadius: "8px",
+              borderRadius: 0,
               border: "1px solid #ddd",
               margin: "6px 0"
             }}
@@ -438,7 +438,7 @@ export default function UserMenu() {
               width: "100%",
               boxSizing: "border-box",
               padding: "9px",
-              borderRadius: "8px",
+              borderRadius: 0,
               border: "1px solid #ddd",
               marginBottom: "6px"
             }}
@@ -454,7 +454,7 @@ export default function UserMenu() {
               background: "#f5f5f5",
               color: "#333",
               border: "none",
-              borderRadius: "8px",
+              borderRadius: 0,
               padding: "9px",
               fontWeight: "700",
               cursor: "pointer",
@@ -498,7 +498,7 @@ export default function UserMenu() {
               </div>
               <button
                 onClick={desactivarModoDev}
-                style={{ width: "100%", background: "#f5f5f5", color: "#333", border: "none", borderRadius: "8px", padding: "9px", fontWeight: "700", cursor: "pointer" }}
+                style={{ width: "100%", background: "#f5f5f5", color: "#333", border: "none", borderRadius: 0, padding: "9px", fontWeight: "700", cursor: "pointer" }}
               >
                 Salir del modo desarrollador
               </button>

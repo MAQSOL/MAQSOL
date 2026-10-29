@@ -45,9 +45,9 @@ export default function CartaResponsivaModal({ personas, persona, onClose, onSub
   const faltaDato = !f.nombre.trim() || !f.curp.trim() || !f.ine.trim() || !f.equipo.trim();
 
   const cajaFirma = (k, titulo) => (
-    <div key={k} style={{ border: "1px solid #e3e6ea", borderRadius: 8, padding: 10, textAlign: "center" }}>
+    <div key={k} style={{ border: "1px solid #e3e6ea", borderRadius: 0, padding: 10, textAlign: "center" }}>
       <div style={{ fontSize: 11.5, fontWeight: 800, color: "var(--acento)" }}>{titulo}</div>
-      <div style={{ height: 64, margin: "6px 0", display: "flex", alignItems: "center", justifyContent: "center", background: "#fafbfc", border: "1px dashed #d5d9dd", borderRadius: 6 }}>
+      <div style={{ height: 64, margin: "6px 0", display: "flex", alignItems: "center", justifyContent: "center", background: "#fafbfc", border: "1px dashed #d5d9dd", borderRadius: 0 }}>
         {f[k] ? <img src={f[k]} alt="Firma" style={{ maxWidth: "100%", maxHeight: "100%" }} /> : <span style={{ color: "#bbb", fontSize: 12 }}>Sin firma (se deja en blanco)</span>}
       </div>
       <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>

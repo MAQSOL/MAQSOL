@@ -47,7 +47,7 @@ function TarjetaTarea({ t, perfiles, onAbrir, onMover }) {
       style={{
         background: "#fff",
         border: "1px solid #e6e6e6",
-        borderRadius: 10,
+        borderRadius: 0,
         padding: "12px 14px",
         marginBottom: 10,
         cursor: "pointer",
@@ -56,7 +56,7 @@ function TarjetaTarea({ t, perfiles, onAbrir, onMover }) {
     >
       <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "flex-start" }}>
         <strong style={{ fontSize: 14, lineHeight: 1.3 }}>{t.titulo}</strong>
-        <span style={{ background: prio.fondo, color: prio.color, fontSize: 10.5, fontWeight: 800, padding: "2px 8px", borderRadius: 10, whiteSpace: "nowrap" }}>
+        <span style={{ background: prio.fondo, color: prio.color, fontSize: 10.5, fontWeight: 800, padding: "2px 8px", borderRadius: 0, whiteSpace: "nowrap" }}>
           {prio.texto}
         </span>
       </div>
@@ -202,8 +202,10 @@ export default function Tareas() {
               <label style={S.label}>BUSCAR</label>
               <input style={S.input} placeholder="Título o descripción" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
             </div>
-            <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#555", paddingBottom: 11, cursor: "pointer" }}>
-              <input type="checkbox" checked={soloMias} onChange={(e) => setSoloMias(e.target.checked)} /> Solo mis tareas
+            <label className="chk-sys" style={{ fontSize: 13, color: "#555", paddingBottom: 11 }}>
+              <input type="checkbox" checked={soloMias} onChange={(e) => setSoloMias(e.target.checked)} />
+              <span className="checkmark"></span>
+              Solo mis tareas
             </label>
           </div>
         </div>
@@ -212,10 +214,10 @@ export default function Tareas() {
           {COLUMNAS.map((col) => {
             const lista = porColumna(col.clave);
             return (
-              <div key={col.clave} style={{ background: col.fondo, borderRadius: 12, padding: 14, minHeight: 200 }}>
+              <div key={col.clave} style={{ background: col.fondo, borderRadius: 0, padding: 14, minHeight: 200 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                   <strong style={{ color: col.color, fontSize: 13.5, letterSpacing: 0.3 }}>{col.titulo.toUpperCase()}</strong>
-                  <span style={{ background: "#fff", color: col.color, fontSize: 12, fontWeight: 800, padding: "1px 9px", borderRadius: 10 }}>{lista.length}</span>
+                  <span style={{ background: "#fff", color: col.color, fontSize: 12, fontWeight: 800, padding: "1px 9px", borderRadius: 0 }}>{lista.length}</span>
                 </div>
                 {lista.length === 0 ? (
                   <p style={{ color: "#999", fontSize: 12.5, textAlign: "center", padding: "20px 0" }}>Sin tareas aquí.</p>
@@ -292,7 +294,7 @@ export default function Tareas() {
                     style={{
                       flex: 1,
                       padding: "9px 8px",
-                      borderRadius: 8,
+                      borderRadius: 0,
                       fontSize: 13,
                       fontWeight: 700,
                       cursor: "pointer",

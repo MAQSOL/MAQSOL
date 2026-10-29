@@ -214,7 +214,6 @@ export default function GeneradorContratos() {
             <p style={S.sub}>Llena los datos y se acomodan solos en el machote: contrato, pagaré y carta de depositario</p>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
             <button className="btn-sys" style={S.btnGris} onClick={nuevo}>Nuevo contrato</button>
             <button className="btn-sys" style={S.btnGris} onClick={guardar}>Guardar en historial</button>
             <button className="btn-sys" style={S.btnGris} onClick={descargarWord}>Descargar Word (editable)</button>
@@ -259,7 +258,7 @@ export default function GeneradorContratos() {
             <div style={S.card}>
               <h3 style={S.h3}>Equipo arrendado</h3>
               {form.equipos.map((e, i) => (
-                <div key={i} style={{ border: "1px solid #eee", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+                <div key={i} style={{ border: "1px solid #eee", borderRadius: 0, padding: 12, marginBottom: 12 }}>
                   <div style={{ marginBottom: 10 }}>
                     <label style={S.label}>TOMAR DE EQUIPOS REGISTRADOS</label>
                     <select style={S.input} value="" onChange={(ev) => elegirEquipoCatalogo(i, ev.target.value)}>

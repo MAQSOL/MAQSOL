@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { descargarExcelBonito, nombreArchivoFecha } from "../../utils/exportExcel";
 import { DIAS, DIA_DESCANSO, extrasDelDia, formatoCorto, lunesDeClave, minutosATexto, numeroDeSemana } from "../../utils/semanas";
 
@@ -140,7 +140,7 @@ export default function HistorialAsistencias({ colaboradores, registros, onAbrir
       <div style={{ fontSize: "12px", color: "#888", fontWeight: 600, letterSpacing: ".4px" }}>{titulo}</div>
     </div>
   );
-  const botonChico = { padding: "7px 14px", border: "1px solid #e0e0e0", borderRadius: "8px", background: "#fff", color: "#555", fontWeight: 700, fontSize: "12.5px", cursor: "pointer" };
+  const botonChico = { padding: "7px 14px", border: "1px solid #e0e0e0", borderRadius: 0, background: "#fff", color: "#555", fontWeight: 700, fontSize: "12.5px", cursor: "pointer" };
   const porcentaje = (a, f) => (pct(a, f) === null ? "—" : pct(a, f) + "%");
 
   return (

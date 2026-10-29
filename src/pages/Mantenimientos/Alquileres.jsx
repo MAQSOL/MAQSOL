@@ -173,7 +173,7 @@ function ModalRenovar({ alquiler, onGuardar, onCerrar }) {
             const on = plan === x.clave;
             return (
               <button key={x.clave} type="button" onClick={() => elegir(x.clave)}
-                style={{ padding: "9px 14px", borderRadius: 8, border: on ? "2px solid var(--acento)" : "1px solid #d8d8d8", background: on ? "var(--acento)" : "#fff", color: on ? "#fff" : "#333", cursor: "pointer", textAlign: "left", lineHeight: 1.25 }}>
+                style={{ padding: "9px 14px", borderRadius: 0, border: on ? "2px solid var(--acento)" : "1px solid #d8d8d8", background: on ? "var(--acento)" : "#fff", color: on ? "#fff" : "#333", cursor: "pointer", textAlign: "left", lineHeight: 1.25 }}>
                 <strong style={{ display: "block", fontSize: 14 }}>{x.etiqueta}</strong>
                 <span style={{ fontSize: 11.5, opacity: 0.85 }}>{x.detalle}</span>
               </button>
@@ -512,7 +512,7 @@ export default function Alquileres() {
         </div>
 
         {altas.length > 0 && (
-          <div style={{ background: "#fff8e1", border: "1px solid #f3d27a", color: "#7a5a00", borderRadius: 10, padding: "12px 16px", fontSize: 14, marginBottom: 18, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ background: "#fff8e1", border: "1px solid #f3d27a", color: "#7a5a00", borderRadius: 0, padding: "12px 16px", fontSize: 14, marginBottom: 18, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
             <div style={{ flex: 1, minWidth: 260 }}>
               <strong>Favor de terminar de rellenar los datos.</strong>{" "}
               Se dio de alta {altas.map((a) => (a.tabla === "clientes" ? `el cliente "${a.nombre}" en Gestión de Clientes` : `el equipo "${a.nombre}" en Equipos Externos`)).join(" y ")} con datos incompletos.
@@ -563,7 +563,7 @@ export default function Alquileres() {
                   <tr key={a.id}>
                     <td style={S.td}>
                       {foto ? (
-                        <img src={foto} alt="" onClick={() => abrirEditar(a)} style={{ width: 64, height: 48, objectFit: "cover", borderRadius: 6, cursor: "pointer" }} />
+                        <img src={foto} alt="" onClick={() => abrirEditar(a)} style={{ width: 64, height: 48, objectFit: "cover", borderRadius: 0, cursor: "pointer" }} />
                       ) : (
                         <span style={{ color: "#bbb" }}>—</span>
                       )}
@@ -656,7 +656,7 @@ export default function Alquileres() {
                     onClick={() => elegirPlan(p.clave)}
                     style={{
                       padding: "9px 14px",
-                      borderRadius: 8,
+                      borderRadius: 0,
                       border: activo ? "2px solid var(--acento)" : "1px solid #d8d8d8",
                       background: activo ? "var(--acento)" : "#fff",
                       color: activo ? "#fff" : "#333",
@@ -672,7 +672,7 @@ export default function Alquileres() {
               })}
             </div>
             {(form.renovaciones || []).length > 0 && (
-              <div style={{ background: "#f6f9fc", borderRadius: 8, padding: "10px 12px", marginBottom: 14, fontSize: 13, color: "#444" }}>
+              <div style={{ background: "#f6f9fc", borderRadius: 0, padding: "10px 12px", marginBottom: 14, fontSize: 13, color: "#444" }}>
                 <strong>Renovaciones</strong> · rentado desde {fFecha(form.inicioOriginal)}
                 {form.renovaciones.map((r, i) => (
                   <div key={i} style={{ marginTop: 4 }}>
@@ -698,7 +698,7 @@ export default function Alquileres() {
                       value={form.horasIncluidas}
                       onChange={(e) => set("horasIncluidas", e.target.value)}
                       placeholder="opcional"
-                      style={{ width: 90, padding: "4px 8px", border: "1px solid #d8d8d8", borderRadius: 6 }}
+                      style={{ width: 90, padding: "4px 8px", border: "1px solid #d8d8d8", borderRadius: 0 }}
                     />
                   </>
                 )}
@@ -739,7 +739,7 @@ export default function Alquileres() {
                   { val: "", label: "Sin definir", bg: "#f5f5f5", c: "#999", border: "#ddd" }
                 ].map(({ val, label, bg, c, border }) => (
                   <button key={val} type="button" onClick={() => set("origen", val)}
-                    style={{ padding: "8px 16px", borderRadius: 8, border: `2px solid ${form.origen === val ? border : "#e0e0e0"}`, background: form.origen === val ? bg : "#fff", color: form.origen === val ? c : "#aaa", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                    style={{ padding: "8px 16px", borderRadius: 0, border: `2px solid ${form.origen === val ? border : "#e0e0e0"}`, background: form.origen === val ? bg : "#fff", color: form.origen === val ? c : "#aaa", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
                     {label}
                   </button>
                 ))}
@@ -797,17 +797,17 @@ export default function Alquileres() {
                 <div key={f.path} style={{ position: "relative" }}>
                   {urls[f.path] ? (
                     <a href={urls[f.path]} target="_blank" rel="noopener noreferrer">
-                      <img src={urls[f.path]} alt={f.nombre} style={{ width: 110, height: 82, objectFit: "cover", borderRadius: 8, display: "block" }} />
+                      <img src={urls[f.path]} alt={f.nombre} style={{ width: 110, height: 82, objectFit: "cover", borderRadius: 0, display: "block" }} />
                     </a>
                   ) : (
-                    <div style={{ width: 110, height: 82, background: "#f0f0f0", borderRadius: 8 }} />
+                    <div style={{ width: 110, height: 82, background: "#f0f0f0", borderRadius: 0 }} />
                   )}
                   <button type="button" onClick={() => quitarFotoGuardada(f.path)} style={btnX}>✕</button>
                 </div>
               ))}
               {nuevasFotos.map((f) => (
                 <div key={f.id} style={{ position: "relative" }}>
-                  <img src={f.preview} alt="" style={{ width: 110, height: 82, objectFit: "cover", borderRadius: 8, display: "block", outline: "2px dashed var(--acento)" }} />
+                  <img src={f.preview} alt="" style={{ width: 110, height: 82, objectFit: "cover", borderRadius: 0, display: "block", outline: "2px dashed var(--acento)" }} />
                   <button type="button" onClick={() => quitarFotoNueva(f.id)} style={btnX}>✕</button>
                 </div>
               ))}

@@ -43,7 +43,7 @@ function MarcaFiltro({valor,onGuardar}){
 }
 const tiposFiltroCon = (actual) => (actual && !TIPOS_FILTRO.includes(actual) ? [actual, ...TIPOS_FILTRO] : TIPOS_FILTRO)
 // botón chico para poner N/A (horómetro descompuesto, maquinaria sin placas)
-const botonNA = {border:'1px solid #ddd',background:'#fafafa',color:'#666',borderRadius:4,padding:'0 6px',fontSize:10.5,fontWeight:700,cursor:'pointer',lineHeight:'16px'}
+const botonNA = {border:'1px solid #ddd',background:'#fafafa',color:'#666',borderRadius:0,padding:'0 6px',fontSize:10.5,fontWeight:700,cursor:'pointer',lineHeight:'16px'}
 
 const EQUIPO_NUEVO = {
   id:'',tipo:'',marca:'',modelo:'',serie:'',horometro:'',operador:'',ubicacion:'',
@@ -64,19 +64,19 @@ const S = {
   h1:{fontSize:30,fontWeight:800,margin:0,letterSpacing:0.5},
   h2:{fontSize:20,fontWeight:800,marginTop:0},
   sub:{color:'#777',margin:'4px 0 0',fontSize:14},
-card:{background:'#fff',border:'1px solid #e6e6e6',borderRadius:10,padding:24,marginBottom:28,boxShadow:'0 1px 3px rgba(0,0,0,.05)'},  btn:{background:VINO,color:'#fff',border:'none',borderRadius:6,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
-  btnSm:{background:VINO,color:'#fff',border:'none',borderRadius:6,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
-  btnGris:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:6,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
-  btnGrisSm:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:6,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
-  btnVerde:{background:'#1f8b4c',color:'#fff',border:'none',borderRadius:6,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
-  input:{width:'100%',padding:'11px 12px',border:'1px solid #d8d8d8',borderRadius:6,fontSize:14,boxSizing:'border-box',background:'#fff'},
+card:{background:'#fff',border:'1px solid #e6e6e6',borderRadius:0,padding:24,marginBottom:28,boxShadow:'0 1px 3px rgba(0,0,0,.05)'},  btn:{background:VINO,color:'#fff',border:'none',borderRadius:0,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
+  btnSm:{background:VINO,color:'#fff',border:'none',borderRadius:0,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
+  btnGris:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:0,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
+  btnGrisSm:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:0,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
+  btnVerde:{background:'#1f8b4c',color:'#fff',border:'none',borderRadius:0,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
+  input:{width:'100%',padding:'11px 12px',border:'1px solid #d8d8d8',borderRadius:0,fontSize:14,boxSizing:'border-box',background:'#fff'},
   inputSm:{width:'100%',padding:'8px 10px',border:'1px solid #e0e0e0',borderRadius:5,fontSize:14,boxSizing:'border-box',background:'#fff'},
   label:{fontSize:12,fontWeight:700,color:'#666',marginBottom:5,display:'block'},
   th:{textAlign:'left',padding:'12px 10px',fontSize:12,letterSpacing:0.5,color:'#fff',background:'#222',fontWeight:700,whiteSpace:'nowrap'},
   td:{padding:'11px 10px',borderBottom:'1px solid #eee',fontSize:14},
-  equis:{background:'transparent',border:'none',color:'#c62828',fontSize:18,fontWeight:700,cursor:'pointer',lineHeight:1,padding:'2px 6px',borderRadius:4},
+  equis:{background:'transparent',border:'none',color:'#c62828',fontSize:18,fontWeight:700,cursor:'pointer',lineHeight:1,padding:'2px 6px',borderRadius:0},
   modalBg:{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',display:'flex',alignItems:'flex-start',justifyContent:'center',padding:30,overflowY:'auto',zIndex:999},
-  modal:{background:'#fff',borderRadius:10,padding:26,width:'100%',maxWidth:920},
+  modal:{background:'#fff',borderRadius:0,padding:26,width:'100%',maxWidth:920},
   grid2:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:14,marginBottom:14},
   grid3:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:14},
   grid4:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:14},
@@ -411,11 +411,11 @@ export default function EquiposInternos(){
           </div>
    <div style={{flexShrink:0,textAlign:'center'}}>
             {activo.fotoUrl?(
-              <div style={{width:220,height:160,borderRadius:10,overflow:'hidden',background:'#fff',border:'1px solid #e6e6e6',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8}}>
+              <div style={{width:220,height:160,borderRadius:0,overflow:'hidden',background:'#fff',border:'1px solid #e6e6e6',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8}}>
                 <img src={activo.fotoUrl} alt={activo.tipo} style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain'}}/>
               </div>
             ):(
-              <div style={{width:220,height:160,borderRadius:10,background:'#f5f5f5',border:'2px dashed #ccc',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8,color:'#aaa',fontSize:13}}>Sin foto</div>
+              <div style={{width:220,height:160,borderRadius:0,background:'#f5f5f5',border:'2px dashed #ccc',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8,color:'#aaa',fontSize:13}}>Sin foto</div>
             )}
             <div style={{display:'flex',gap:6,justifyContent:'center',alignItems:'center'}}>
               <button type="button" title="Editar información general" aria-label="Editar información general" onClick={()=>abrirEditar(activo)} style={{...S.btnGris,display:'inline-flex',alignItems:'center',justifyContent:'center',padding:'10px 13px'}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
@@ -531,7 +531,7 @@ export default function EquiposInternos(){
           {(!activo.pendientes||activo.pendientes.length===0)?<p style={{color:'#999',fontSize:14}}>No hay pendientes.</p>:(
             <div>{(activo.pendientes||[]).map(p=>(
               <div key={p.id} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 0',borderBottom:'1px solid #f0f0f0'}}>
-                <input type="checkbox" checked={p.hecho} onChange={()=>togglePendiente(p.id)} style={{width:18,height:18,cursor:'pointer'}}/>
+                <label className="chk-sys"><input type="checkbox" checked={p.hecho} onChange={()=>togglePendiente(p.id)} /><span className="checkmark"></span></label>
                 <span style={{flex:1,fontSize:14,textDecoration:p.hecho?'line-through':'none',color:p.hecho?'#999':'#222'}}>{p.texto}</span>
                 <DeleteButton size="sm" title="Quitar pendiente" onConfirm={()=>quitarPendiente(p.id)}/>
               </div>
@@ -619,8 +619,9 @@ export default function EquiposInternos(){
               <label style={S.label}>FILTROS UTILIZADOS (de la lista del equipo)</label>
               <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:4}}>
                 {ordenarFiltros(activo.filtros).map(f=>(
-                  <label key={f.id} style={S.check}>
+                  <label key={f.id} className="chk-sys" style={{padding:'4px 0',fontSize:14}}>
                     <input type="checkbox" checked={(mForm.filtrosUsados||[]).includes(f.id)} onChange={()=>toggleFiltroMantto(f.id)}/>
+                    <span className="checkmark"></span>
                     <span>{f.tipo||'Sin tipo'} — <strong>{f.marca}</strong> — {f.parte}</span>
                   </label>
                 ))}

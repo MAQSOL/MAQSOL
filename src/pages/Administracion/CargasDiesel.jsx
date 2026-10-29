@@ -192,8 +192,10 @@ export default function CargasDiesel() {
             <strong style={{ minWidth: 260, textAlign: "center" }}>{etiquetaPeriodo}</strong>
             <button className="btn-sys" style={{ ...S.btnGris, padding: "8px 14px" }} disabled={verTodo} onClick={() => cambiarSemana(1)}>Siguiente →</button>
             <button className="btn-sys" style={{ ...S.btnGris, padding: "8px 14px" }} disabled={verTodo} onClick={() => setLunes(lunesDe(new Date()))}>Esta semana</button>
-            <label style={{ marginLeft: "auto", fontSize: 13, display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
-              <input type="checkbox" checked={verTodo} onChange={(e) => setVerTodo(e.target.checked)} /> Ver todo el historial
+            <label className="chk-sys" style={{ marginLeft: "auto", fontSize: 13 }}>
+              <input type="checkbox" checked={verTodo} onChange={(e) => setVerTodo(e.target.checked)} />
+              <span className="checkmark"></span>
+              Ver todo el historial
             </label>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
@@ -236,7 +238,7 @@ export default function CargasDiesel() {
                   <div style={{ fontWeight: 700, fontSize: 14 }}>{m.maquina}</div>
                   <div style={{ fontSize: 12, color: "#999" }}>{m.serie ? `Serie ${m.serie} · ` : ""}{m.cargas} cargas</div>
                 </div>
-                <div style={{ background: "#eee", borderRadius: 6, height: 14, overflow: "hidden" }}>
+                <div style={{ background: "#eee", borderRadius: 0, height: 14, overflow: "hidden" }}>
                   <div style={{ width: `${(m.litros / maxLitros) * 100}%`, height: "100%", background: "var(--acento)" }} />
                 </div>
                 <div style={{ textAlign: "right", fontSize: 13 }}>

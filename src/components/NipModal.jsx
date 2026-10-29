@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import OtpInput from "./OtpInput";
 
@@ -56,7 +56,7 @@ export default function NipModal({ mensaje = "Escribe el NIP para continuar.", c
         <button
           type="button"
           onClick={onCancelar}
-          style={{ border: "none", background: "#eee", borderRadius: 8, padding: "9px 20px", fontWeight: 700, cursor: "pointer" }}
+          style={{ border: "none", background: "#eee", borderRadius: 0, padding: "9px 20px", fontWeight: 700, cursor: "pointer" }}
         >
           Cancelar
         </button>

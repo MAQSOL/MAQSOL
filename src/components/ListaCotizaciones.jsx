@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 
 const estiloTarjeta = {
   borderBottom: "1px solid #ddd",
@@ -95,7 +95,7 @@ export default function ListaCotizaciones({ cotizaciones, onCargar, mostrarAutor
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Buscar por folio, cliente o fecha…"
-              style={{ width: "100%", boxSizing: "border-box", padding: "10px", border: "1px solid #ddd", borderRadius: "8px", marginBottom: "16px" }}
+              style={{ width: "100%", boxSizing: "border-box", padding: "10px", border: "1px solid #ddd", borderRadius: 0, marginBottom: "16px" }}
             />
 
             {filtradas.length === 0 ? (

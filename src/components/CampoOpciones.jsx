@@ -1,10 +1,10 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 
 const base = {
   width: "100%",
   padding: "10px 11px",
   border: "1px solid #d8d8d8",
-  borderRadius: 6,
+  borderRadius: 0,
   fontSize: 13.5,
   boxSizing: "border-box",
   background: "#fff"
@@ -30,7 +30,7 @@ export default function CampoOpciones({ opciones, valor, onChange, disabled, vac
             setManual(false);
             if (!opciones.includes(valor)) onChange("");
           }}
-          style={{ border: "none", background: "#e9e9e9", borderRadius: 6, padding: "0 12px", cursor: "pointer", fontWeight: 700 }}
+          style={{ border: "none", background: "#e9e9e9", borderRadius: 0, padding: "0 12px", cursor: "pointer", fontWeight: 700 }}
         >
           ↩
         </button>

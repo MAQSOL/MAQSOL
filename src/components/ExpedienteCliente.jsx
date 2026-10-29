@@ -1,9 +1,9 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { REQUISITOS, NOMBRE_TIPO, buscarCliente } from "../utils/expediente";
 import CampoFecha from "./CampoFecha";
 
-const caja = { border: "1px solid #e6e6e6", borderRadius: 10, padding: 14, marginBottom: 14 };
-const boton = { border: "none", borderRadius: 8, padding: "10px 18px", fontWeight: 700, cursor: "pointer", fontSize: 14 };
+const caja = { border: "1px solid #e6e6e6", borderRadius: 0, padding: 14, marginBottom: 14 };
+const boton = { border: "none", borderRadius: 0, padding: "10px 18px", fontWeight: 700, cursor: "pointer", fontSize: 14 };
 
 /** Expediente del cliente: tipo de persona, contrato firmado y documentos entregados. */
 export default function ExpedienteCliente({ nombreCliente, clientes, onGuardar, onCerrar }) {
@@ -77,14 +77,15 @@ export default function ExpedienteCliente({ nombreCliente, clientes, onGuardar, 
 
         <div style={caja}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "#666", marginBottom: 8 }}>CONTRATO</div>
-          <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", fontWeight: 600 }}>
-            <input type="checkbox" checked={datos.contratoFirmado} onChange={(e) => set("contratoFirmado", e.target.checked)} style={{ width: 18, height: 18 }} />
+          <label className="chk-sys" style={{ fontWeight: 600 }}>
+            <input type="checkbox" checked={datos.contratoFirmado} onChange={(e) => set("contratoFirmado", e.target.checked)} />
+            <span className="checkmark"></span>
             El cliente ya firmó el contrato de arrendamiento
           </label>
           {datos.contratoFirmado && (
             <div style={{ marginTop: 10 }}>
               <label style={{ fontSize: 12, fontWeight: 700, color: "#666", display: "block", marginBottom: 4 }}>FECHA DE FIRMA</label>
-              <CampoFecha  value={datos.contratoFecha} onChange={(e) => set("contratoFecha", e.target.value)} style={{ padding: "9px 11px", border: "1px solid #d8d8d8", borderRadius: 6 }} />
+              <CampoFecha  value={datos.contratoFecha} onChange={(e) => set("contratoFecha", e.target.value)} style={{ padding: "9px 11px", border: "1px solid #d8d8d8", borderRadius: 0 }} />
             </div>
           )}
         </div>
@@ -102,7 +103,7 @@ export default function ExpedienteCliente({ nombreCliente, clientes, onGuardar, 
             <p style={{ color: "#999", margin: 0, fontSize: 14 }}>Elige primero si es persona física o moral para ver los documentos que le tocan.</p>
           ) : (
             <>
-              <div style={{ height: 8, background: "#eee", borderRadius: 4, overflow: "hidden", marginBottom: 4 }}>
+              <div style={{ height: 8, background: "#eee", borderRadius: 0, overflow: "hidden", marginBottom: 4 }}>
                 <div style={{ width: pct + "%", height: "100%", background: pct === 100 ? "#1f8b4c" : "var(--acento)" }} />
               </div>
               <div style={{ fontSize: 12, color: "#777", marginBottom: 8 }}>
@@ -113,8 +114,9 @@ export default function ExpedienteCliente({ nombreCliente, clientes, onGuardar, 
                 const ok = !na && !!datos.docsEntregados[d.k];
                 return (
                   <div key={d.k} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", borderTop: "1px solid #f3f3f3", fontSize: 14 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, cursor: na ? "default" : "pointer", opacity: na ? 0.5 : 1 }}>
-                      <input type="checkbox" checked={ok} disabled={na} onChange={() => alternarDoc(d.k)} style={{ width: 17, height: 17 }} />
+                    <label className="chk-sys" style={{ flex: 1, opacity: na ? 0.5 : 1, cursor: na ? "default" : "pointer" }}>
+                      <input type="checkbox" checked={ok} disabled={na} onChange={() => alternarDoc(d.k)} />
+                      <span className="checkmark"></span>
                       <span style={{ textDecoration: na ? "line-through" : "none", color: ok ? "#1f8b4c" : "#333", fontWeight: ok ? 700 : 400 }}>{d.n}</span>
                     </label>
                     <button

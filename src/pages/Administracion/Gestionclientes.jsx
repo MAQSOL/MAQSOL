@@ -99,7 +99,7 @@ function GestionClientes() {
             </div>
 
             {incompletos.length > 0 && (
-              <div style={{ background: "#fff8e1", border: "1px solid #f3d27a", color: "#7a5a00", borderRadius: 10, padding: "12px 16px", fontSize: 14 }}>
+              <div style={{ background: "#fff8e1", border: "1px solid #f3d27a", color: "#7a5a00", borderRadius: 0, padding: "12px 16px", fontSize: 14 }}>
                 <strong>Favor de terminar de rellenar los datos de tus clientes.</strong> {incompletos.length === 1 ? "1 cliente tiene" : `${incompletos.length} clientes tienen`} datos incompletos (se dieron de alta desde Alquileres). Usa <em>Completar</em> o <em>No quiero rellenarlo</em> en la lista.
               </div>
             )}

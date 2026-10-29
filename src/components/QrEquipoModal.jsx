@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
 import { nuevoToken, urlEquipo, qrDataUrl, descargarPNG, descargarEtiquetaQR } from "../utils/qrEquipo";
 
-const btn = { border: "none", borderRadius: 6, padding: "10px 16px", fontWeight: 700, cursor: "pointer", fontSize: 14 };
+const btn = { border: "none", borderRadius: 0, padding: "10px 16px", fontWeight: 700, cursor: "pointer", fontSize: 14 };
 
 export default function QrEquipoModal({ equipo, onGuardarToken, onCerrar }) {
   const [token, setToken] = useState(equipo.qrToken || "");
@@ -77,7 +77,7 @@ export default function QrEquipoModal({ equipo, onGuardarToken, onCerrar }) {
               {listo ? (
                 <img src={listo} alt="Código QR" style={{ width: 260, height: 260 }} />
               ) : (
-                <div style={{ width: 260, height: 260, background: "#f3f3f3", borderRadius: 8 }} />
+                <div style={{ width: 260, height: 260, background: "#f3f3f3", borderRadius: 0 }} />
               )}
             </div>
             <p style={{ fontSize: 11.5, color: "#999", wordBreak: "break-all", margin: "0 0 16px" }}>{url}</p>

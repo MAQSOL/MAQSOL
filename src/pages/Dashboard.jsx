@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+﻿import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
 import RailNav from "../components/RailNav";
@@ -301,7 +301,7 @@ function Dashboard() {
             style={{
               background: "#fff",
               border: "1px dashed #ccc",
-              borderRadius: "14px",
+              borderRadius: 0,
               padding: "16px 20px",
               marginBottom: "25px",
               display: "flex",
@@ -324,7 +324,7 @@ function Dashboard() {
                 background: "var(--acento)",
                 color: "#fff",
                 border: "none",
-                borderRadius: "8px",
+                borderRadius: 0,
                 padding: "10px 18px",
                 fontWeight: "700",
                 cursor: migrando ? "default" : "pointer",

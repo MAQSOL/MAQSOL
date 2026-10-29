@@ -1,4 +1,4 @@
-import { IconoMas } from "../../components/Icons";
+﻿import { IconoMas } from "../../components/Icons";
 import Layout from "../../components/Layout";import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import jsPDF from "jspdf";
@@ -945,7 +945,7 @@ return (
       boxSizing: "border-box",
       height: "60px",
       padding: "10px 12px",
-      borderRadius: "8px",
+      borderRadius: 0,
       border: "1px solid #ccc",
       background: "white",
       fontSize: "14px",
@@ -977,7 +977,7 @@ return (
     <button
       type="button"
       onClick={guardarClienteNuevo}
-      style={{ background: "#1f8b4c", color: "#fff", border: "none", borderRadius: 8, padding: "10px 12px", fontWeight: 700, cursor: "pointer" }}
+      style={{ background: "#1f8b4c", color: "#fff", border: "none", borderRadius: 0, padding: "10px 12px", fontWeight: 700, cursor: "pointer" }}
     >
       + Guardar como cliente nuevo
     </button>
@@ -1082,7 +1082,7 @@ onChange={(e) =>
     color: "black",
     backgroundColor: "#c0c0c0",
     border: "none",
-    borderRadius: "8px",
+    borderRadius: 0,
     cursor: "pointer",
     appearance: "none",
     backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`,
@@ -1108,7 +1108,7 @@ onChange={(e) =>
     color: "black",
     backgroundColor: "#c0c0c0",
     border: "none",
-    borderRadius: "8px",
+    borderRadius: 0,
     cursor: "pointer",
     appearance: "none",
     backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`,
@@ -1137,7 +1137,7 @@ onChange={(e) =>
       color: "black",
       backgroundColor: "#c0c0c0",
       border: "none",
-      borderRadius: "8px",
+      borderRadius: 0,
       cursor: "pointer",
       appearance: "none",
       backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`,
@@ -1177,7 +1177,7 @@ onChange={(e) =>
       style={{
         border: "1px solid #ddd",
         padding: "15px",
-        borderRadius: "8px",
+        borderRadius: 0,
         marginBottom: "15px"
       }}
     >
@@ -1301,7 +1301,7 @@ onChange={(e) =>
     color: "black",
     backgroundColor: "#c0c0c0",
     border: "none",
-    borderRadius: "8px",
+    borderRadius: 0,
     cursor: "pointer",
     appearance: "none",
     backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`,

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useAuth } from "../contexts/AuthContext";
@@ -49,7 +49,7 @@ function Adjunto({ adj }) {
   }, [adj.path]);
   if (adj.tipo === "imagen") {
     return url ? (
-      <a href={url} target="_blank" rel="noreferrer"><img src={url} alt={adj.nombre} style={{ maxWidth: "100%", maxHeight: 190, borderRadius: 8, display: "block", marginTop: 4 }} /></a>
+      <a href={url} target="_blank" rel="noreferrer"><img src={url} alt={adj.nombre} style={{ maxWidth: "100%", maxHeight: 190, borderRadius: 0, display: "block", marginTop: 4 }} /></a>
     ) : <div style={{ fontSize: 12, opacity: 0.7, marginTop: 4 }}>Cargando imagen…</div>;
   }
   return (
@@ -209,7 +209,7 @@ export default function ChatFlotante() {
           {abierto ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M21 11.5a8.5 8.5 0 0 1-11.87 7.8L3 21l1.7-6.13A8.5 8.5 0 1 1 21 11.5Z" />}
         </svg>
         {!abierto && totalNoLeidos > 0 && (
-          <span style={{ position: "absolute", top: -2, right: -2, minWidth: 20, height: 20, padding: "0 5px", borderRadius: 10, background: "#d6001c", color: "#fff", fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 0 2px #fff" }}>
+          <span style={{ position: "absolute", top: -2, right: -2, minWidth: 20, height: 20, padding: "0 5px", borderRadius: 0, background: "#d6001c", color: "#fff", fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 0 2px #fff" }}>
             {totalNoLeidos > 99 ? "99+" : totalNoLeidos}
           </span>
         )}
@@ -273,7 +273,7 @@ export default function ChatFlotante() {
                           <span style={{ fontSize: 12.5, color: n ? "#222" : "#888", fontWeight: n ? 700 : 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                             {ult ? `${esMio(ult) ? "Tú: " : ""}${ult.texto || (ult.adjuntos?.length ? "Envió un adjunto" : "")}` : c.sub}
                           </span>
-                          {n > 0 && <span style={{ background: "#d6001c", color: "#fff", borderRadius: 10, fontSize: 11, fontWeight: 800, padding: "1px 7px", flexShrink: 0 }}>{n}</span>}
+                          {n > 0 && <span style={{ background: "#d6001c", color: "#fff", borderRadius: 0, fontSize: 11, fontWeight: 800, padding: "1px 7px", flexShrink: 0 }}>{n}</span>}
                         </div>
                       </div>
                     </button>
@@ -283,8 +283,8 @@ export default function ChatFlotante() {
               <div style={{ borderTop: "1px solid #eee", padding: "9px 14px", fontSize: 12.5, color: "#666" }}>
                 {editandoSub ? (
                   <div style={{ display: "flex", gap: 6 }}>
-                    <input autoFocus value={borradorSub} onChange={(e) => setBorradorSub(e.target.value)} onKeyDown={(e) => e.key === "Enter" && guardarSub()} placeholder="Ej. Kevin (auxiliar)" style={{ flex: 1, padding: "7px 9px", border: "1px solid #ddd", borderRadius: 8, fontSize: 13 }} />
-                    <button onClick={guardarSub} style={{ background: "var(--acento)", color: "#fff", border: "none", borderRadius: 8, padding: "0 12px", fontWeight: 700, cursor: "pointer" }}>Listo</button>
+                    <input autoFocus value={borradorSub} onChange={(e) => setBorradorSub(e.target.value)} onKeyDown={(e) => e.key === "Enter" && guardarSub()} placeholder="Ej. Kevin (auxiliar)" style={{ flex: 1, padding: "7px 9px", border: "1px solid #ddd", borderRadius: 0, fontSize: 13 }} />
+                    <button onClick={guardarSub} style={{ background: "var(--acento)", color: "#fff", border: "none", borderRadius: 0, padding: "0 12px", fontWeight: 700, cursor: "pointer" }}>Listo</button>
                   </div>
                 ) : (
                   <>
@@ -343,7 +343,7 @@ export default function ChatFlotante() {
                 <input ref={archivoRef} type="file" multiple accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx" style={{ display: "none" }}
                   onChange={(e) => { setArchivos((l) => [...l, ...Array.from(e.target.files || [])].slice(0, 6)); e.target.value = ""; }} />
                 <button onClick={() => archivoRef.current?.click()} title="Adjuntar imágenes o archivos" aria-label="Adjuntar"
-                  style={{ width: 38, height: 38, borderRadius: 10, border: "1px solid #e0e0e0", background: "#fff", color: "#666", cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  style={{ width: 38, height: 38, borderRadius: 0, border: "1px solid #e0e0e0", background: "#fff", color: "#666", cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21.4 11.1-8.5 8.5a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.8 1.8 0 0 1-2.6-2.6l7.8-7.8" /></svg>
                 </button>
                 <textarea
@@ -352,10 +352,10 @@ export default function ChatFlotante() {
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviar(); } }}
                   placeholder="Escribe un mensaje…"
                   rows={1}
-                  style={{ flex: 1, resize: "none", maxHeight: 110, padding: "9px 11px", border: "1px solid #e0e0e0", borderRadius: 10, fontSize: 13.5, fontFamily: "inherit" }}
+                  style={{ flex: 1, resize: "none", maxHeight: 110, padding: "9px 11px", border: "1px solid #e0e0e0", borderRadius: 0, fontSize: 13.5, fontFamily: "inherit" }}
                 />
                 <button onClick={enviar} disabled={enviando} title="Enviar" aria-label="Enviar"
-                  style={{ width: 38, height: 38, borderRadius: 10, border: "none", background: "var(--acento)", color: "#fff", cursor: "pointer", flexShrink: 0, opacity: enviando ? 0.6 : 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  style={{ width: 38, height: 38, borderRadius: 0, border: "none", background: "var(--acento)", color: "#fff", cursor: "pointer", flexShrink: 0, opacity: enviando ? 0.6 : 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" /></svg>
                 </button>
               </div>

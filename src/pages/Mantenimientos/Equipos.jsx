@@ -63,7 +63,7 @@ const S = {
   card: {
     background: '#fff',
     border: '1px solid #e6e6e6',
-    borderRadius: 10,
+    borderRadius: 0,
     padding: 20,
     marginBottom: 20,
     boxShadow: '0 1px 3px rgba(0,0,0,.05)'
@@ -72,7 +72,7 @@ const S = {
     background: VINO,
     color: '#fff',
     border: 'none',
-    borderRadius: 6,
+    borderRadius: 0,
     padding: '10px 18px',
     fontWeight: 700,
     cursor: 'pointer',
@@ -82,7 +82,7 @@ const S = {
     background: '#e9e9e9',
     color: '#333',
     border: 'none',
-    borderRadius: 6,
+    borderRadius: 0,
     padding: '10px 18px',
     fontWeight: 700,
     cursor: 'pointer',
@@ -92,7 +92,7 @@ const S = {
     background: '#1f8b4c',
     color: '#fff',
     border: 'none',
-    borderRadius: 6,
+    borderRadius: 0,
     padding: '10px 18px',
     fontWeight: 700,
     cursor: 'pointer',
@@ -102,7 +102,7 @@ const S = {
     width: '100%',
     padding: '11px 12px',
     border: '1px solid #d8d8d8',
-    borderRadius: 6,
+    borderRadius: 0,
     fontSize: 14,
     boxSizing: 'border-box',
     background: '#fff'
@@ -137,7 +137,7 @@ const S = {
     cursor: 'pointer',
     lineHeight: 1,
     padding: '2px 6px',
-    borderRadius: 4
+    borderRadius: 0
   },
   modalBg: {
     position: 'fixed',
@@ -152,7 +152,7 @@ const S = {
   },
   modal: {
     background: '#fff',
-    borderRadius: 10,
+    borderRadius: 0,
     padding: 26,
     width: '100%',
     maxWidth: 900
@@ -488,7 +488,7 @@ export default function EquiposInternos() {
             <img
               src={activo.fotoUrl}
               alt="Equipo"
-              style={{ maxWidth: '100%', borderRadius: 8, marginTop: 14, display: 'block' }}
+              style={{ maxWidth: '100%', borderRadius: 0, marginTop: 14, display: 'block' }}
             />
           ) : (
             <p style={{ color: '#888', fontSize: 13, marginBottom: 0 }}>

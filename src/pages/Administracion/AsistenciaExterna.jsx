@@ -1,4 +1,4 @@
-import { IconoMas } from "../../components/Icons";
+﻿import { IconoMas } from "../../components/Icons";
 import { useEffect, useRef, useState } from "react";
 import DeleteButton from "../../components/DeleteButton";
 import { supabase } from "../../supabaseClient";
@@ -291,7 +291,7 @@ export default function AsistenciaExterna() {
           <small style={{ color: "#999" }}>Ir directo a la quincena:</small>
           <input type="number" min="1" max="24" placeholder="1-24" value={irNum} onChange={(e) => setIrNum(e.target.value)} style={{ ...estiloInput, width: "78px", padding: "8px 10px" }} />
           <input type="number" placeholder="Año" value={irAnio} onChange={(e) => setIrAnio(e.target.value)} style={{ ...estiloInput, width: "85px", padding: "8px 10px" }} />
-          <button onClick={irAQuincena} style={{ background: VINO, color: "#fff", border: "none", borderRadius: "8px", padding: "8px 18px", cursor: "pointer", fontWeight: "600", fontSize: "13px" }}>
+          <button onClick={irAQuincena} style={{ background: VINO, color: "#fff", border: "none", borderRadius: 0, padding: "8px 18px", cursor: "pointer", fontWeight: "600", fontSize: "13px" }}>
             Ir
           </button>
         </div>
@@ -366,7 +366,7 @@ export default function AsistenciaExterna() {
                             fontSize: "12px",
                             fontWeight: "700",
                             cursor: "pointer",
-                            borderRadius: "8px",
+                            borderRadius: 0,
                             padding: "4px 10px"
                           }}
                         >

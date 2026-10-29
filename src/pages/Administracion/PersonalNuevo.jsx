@@ -281,7 +281,7 @@ export default function PersonalNuevo() {
                     </td>
                     <td style={S.td}>{fFecha(p.fechaIngreso)}</td>
                     <td style={S.td}>
-                      <div style={{ width: 130, height: 8, background: "#eee", borderRadius: 4, overflow: "hidden" }}>
+                      <div style={{ width: 130, height: 8, background: "#eee", borderRadius: 0, overflow: "hidden" }}>
                         <div style={{ width: `${pct}%`, height: "100%", background: pct === 100 ? "#1f8b4c" : "var(--acento)" }} />
                       </div>
                       <div style={{ fontSize: 12, color: "#666", marginTop: 3 }}>{e.completos}/{e.total} · {pct}%</div>
@@ -483,8 +483,10 @@ export default function PersonalNuevo() {
                       <IconoMas />Subir
                       <input type="file" multiple accept="application/pdf,image/*" style={{ display: "none" }} onChange={(e) => { agregarArchivos(d.clave, e.target.files); e.target.value = ""; }} />
                     </label>
-                    <label style={{ fontSize: 12, color: "#666", display: "flex", alignItems: "center", gap: 4 }}>
-                      <input type="checkbox" checked={noAplica} onChange={(e) => set("noAplica", { ...form.noAplica, [d.clave]: e.target.checked })} /> N/A
+                    <label className="chk-sys" style={{ fontSize: 12, color: "#666" }}>
+                      <input type="checkbox" checked={noAplica} onChange={(e) => set("noAplica", { ...form.noAplica, [d.clave]: e.target.checked })} />
+                      <span className="checkmark"></span>
+                      N/A
                     </label>
                   </div>
                 </div>

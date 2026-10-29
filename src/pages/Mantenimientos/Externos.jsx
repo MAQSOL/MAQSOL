@@ -30,19 +30,19 @@ const S = {
   h1:{fontSize:30,fontWeight:800,margin:0,letterSpacing:0.5},
   h2:{fontSize:20,fontWeight:800,marginTop:0},
   sub:{color:'#777',margin:'4px 0 0',fontSize:14},
-  card:{background:'#fff',border:'1px solid #e6e6e6',borderRadius:10,padding:24,marginBottom:28,boxShadow:'0 1px 3px rgba(0,0,0,.05)'},
-  btn:{background:VINO,color:'#fff',border:'none',borderRadius:6,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
-  btnSm:{background:VINO,color:'#fff',border:'none',borderRadius:6,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
-  btnGris:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:6,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
-  btnGrisSm:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:6,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
-  btnVerde:{background:'#1f8b4c',color:'#fff',border:'none',borderRadius:6,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
-  input:{width:'100%',padding:'11px 12px',border:'1px solid #d8d8d8',borderRadius:6,fontSize:14,boxSizing:'border-box',background:'#fff'},
+  card:{background:'#fff',border:'1px solid #e6e6e6',borderRadius:0,padding:24,marginBottom:28,boxShadow:'0 1px 3px rgba(0,0,0,.05)'},
+  btn:{background:VINO,color:'#fff',border:'none',borderRadius:0,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
+  btnSm:{background:VINO,color:'#fff',border:'none',borderRadius:0,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
+  btnGris:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:0,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
+  btnGrisSm:{background:'#e9e9e9',color:'#333',border:'none',borderRadius:0,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
+  btnVerde:{background:'#1f8b4c',color:'#fff',border:'none',borderRadius:0,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
+  input:{width:'100%',padding:'11px 12px',border:'1px solid #d8d8d8',borderRadius:0,fontSize:14,boxSizing:'border-box',background:'#fff'},
   label:{fontSize:12,fontWeight:700,color:'#666',marginBottom:5,display:'block'},
   th:{textAlign:'left',padding:'13px 16px',fontSize:12,letterSpacing:0.5,color:'#fff',background:'#222',fontWeight:700,whiteSpace:'nowrap'},
   td:{padding:'14px 16px',borderBottom:'1px solid #eee',fontSize:14,whiteSpace:'nowrap'},
-  equis:{background:'transparent',border:'none',color:'#c62828',fontSize:18,fontWeight:700,cursor:'pointer',lineHeight:1,padding:'2px 6px',borderRadius:4},
+  equis:{background:'transparent',border:'none',color:'#c62828',fontSize:18,fontWeight:700,cursor:'pointer',lineHeight:1,padding:'2px 6px',borderRadius:0},
   modalBg:{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',display:'flex',alignItems:'flex-start',justifyContent:'center',padding:30,overflowY:'auto',zIndex:999},
-  modal:{background:'#fff',borderRadius:10,padding:26,width:'100%',maxWidth:820},
+  modal:{background:'#fff',borderRadius:0,padding:26,width:'100%',maxWidth:820},
   grid2:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:14,marginBottom:14},
   grid3:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:14},
   grid4:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:14},
@@ -161,7 +161,7 @@ export default function EquiposExternos(){
       </div>
 
       {equipos.some(e=>e.incompleto)&&(
-        <div style={{background:'#fff8e1',border:'1px solid #f3d27a',color:'#7a5a00',borderRadius:10,padding:'12px 16px',fontSize:14,marginBottom:18}}>
+        <div style={{background:'#fff8e1',border:'1px solid #f3d27a',color:'#7a5a00',borderRadius:0,padding:'12px 16px',fontSize:14,marginBottom:18}}>
           <strong>Favor de terminar de rellenar la información.</strong> {equipos.filter(e=>e.incompleto).length} equipo(s) se dieron de alta desde Alquileres con datos incompletos (proveedor, contacto...). Tócalos en la lista para completarlos.
         </div>
       )}
@@ -185,7 +185,7 @@ export default function EquiposExternos(){
           <tbody>
             {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={12}>No hay equipos subarrendados registrados. Usa "Agregar equipo subarrendado".</td></tr>
             :filtrados.map(e=>(<tr key={e.id} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
-              <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>abrirEditar(e)}>{e.tipo}{e.incompleto&&<div style={{marginTop:4,display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}><span style={{background:'#fff3c4',color:'#7a5a00',fontSize:11,fontWeight:700,padding:'2px 8px',borderRadius:10}}>Faltan datos</span><button onClick={ev=>{ev.stopPropagation();guardarEquipos(equipos.map(x=>x.id===e.id?{...x,incompleto:false}:x))}} style={{background:'none',border:'none',color:'#7a5a00',fontSize:11.5,fontWeight:700,cursor:'pointer',textDecoration:'underline',padding:0}}>No quiero rellenarlo</button></div>}</td>
+              <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>abrirEditar(e)}>{e.tipo}{e.incompleto&&<div style={{marginTop:4,display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}><span style={{background:'#fff3c4',color:'#7a5a00',fontSize:11,fontWeight:700,padding:'2px 8px',borderRadius:0}}>Faltan datos</span><button onClick={ev=>{ev.stopPropagation();guardarEquipos(equipos.map(x=>x.id===e.id?{...x,incompleto:false}:x))}} style={{background:'none',border:'none',color:'#7a5a00',fontSize:11.5,fontWeight:700,cursor:'pointer',textDecoration:'underline',padding:0}}>No quiero rellenarlo</button></div>}</td>
               <td style={S.td}>{e.marca} {e.modelo}{e.serie?<div style={{color:'#999',fontSize:12}}>Serie: {e.serie}</div>:null}</td>
               <td style={S.td}>{e.proveedor}{e.telProveedor?<div style={{color:'#999',fontSize:12}}>{e.telProveedor}</div>:null}</td>
               <td style={S.td}>{e.cliente||<span style={{color:'#bbb'}}>—</span>}</td>
@@ -227,8 +227,9 @@ export default function EquiposExternos(){
         </div>
         <div style={{marginBottom:14,display:'flex',alignItems:'center',gap:12}}>
           <label style={{...S.label,margin:0}}>RENOVADA</label>
-          <label style={{display:'flex',alignItems:'center',gap:8,cursor:'pointer',userSelect:'none'}}>
-            <input type="checkbox" checked={!!form.renovada} onChange={ev=>setForm({...form,renovada:ev.target.checked})} style={{width:16,height:16,cursor:'pointer'}}/>
+          <label className="chk-sys">
+            <input type="checkbox" checked={!!form.renovada} onChange={ev=>setForm({...form,renovada:ev.target.checked})} />
+            <span className="checkmark"></span>
             <span style={{fontSize:13,color:form.renovada?'#2e7d32':'#777',fontWeight:700}}>{form.renovada?'Sí, esta renta fue renovada':'No renovada'}</span>
           </label>
         </div>

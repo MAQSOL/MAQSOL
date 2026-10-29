@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+﻿import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useAuth } from "../contexts/AuthContext";
@@ -17,8 +17,8 @@ const hoyISO = () => new Date().toISOString().slice(0, 10);
 const pagina = { minHeight: "100vh", background: "#f4f6f9", padding: "18px 14px 40px", boxSizing: "border-box", fontFamily: "inherit" };
 const tarjeta = { background: "#fff", borderRadius: 14, padding: 20, maxWidth: 640, margin: "0 auto 16px", boxShadow: "0 2px 10px rgba(0,0,0,.07)", boxSizing: "border-box" };
 const etiqueta = { fontSize: 11, fontWeight: 700, color: "#888", letterSpacing: 0.4, marginBottom: 4, display: "block" };
-const campo = { width: "100%", boxSizing: "border-box", padding: "14px 12px", border: "1px solid #d8d8d8", borderRadius: 10, fontSize: 16, background: "#fff" };
-const botonGrande = { width: "100%", padding: "18px 16px", border: "none", borderRadius: 12, fontSize: 18, fontWeight: 800, cursor: "pointer" };
+const campo = { width: "100%", boxSizing: "border-box", padding: "14px 12px", border: "1px solid #d8d8d8", borderRadius: 0, fontSize: 16, background: "#fff" };
+const botonGrande = { width: "100%", padding: "18px 16px", border: "none", borderRadius: 0, fontSize: 18, fontWeight: 800, cursor: "pointer" };
 
 function Encabezado() {
   return (
@@ -45,7 +45,7 @@ function Historial({ lista, max }) {
             fontSize: 12,
             fontWeight: 700,
             padding: "2px 10px",
-            borderRadius: 12,
+            borderRadius: 0,
             background: m.tipoMantto === "Preventivo" ? "#e8f5e9" : "#fce4ec",
             color: m.tipoMantto === "Preventivo" ? "#2e7d32" : "#c62828"
           }}
@@ -70,7 +70,7 @@ function DatosEquipo({ eq }) {
   ].filter(([, v]) => v);
   return (
     <>
-      {eq.fotoUrl && <img src={eq.fotoUrl} alt={eq.tipo} style={{ width: "100%", maxHeight: 240, objectFit: "contain", background: "#fafafa", borderRadius: 10, marginBottom: 14 }} />}
+      {eq.fotoUrl && <img src={eq.fotoUrl} alt={eq.tipo} style={{ width: "100%", maxHeight: 240, objectFit: "contain", background: "#fafafa", borderRadius: 0, marginBottom: 14 }} />}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 14 }}>
         {filas.map(([k, v]) => (
           <div key={k}>
@@ -202,7 +202,7 @@ function PanelMecanico({ token }) {
     <>
       <div style={{ ...tarjeta, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, padding: "12px 20px" }}>
         <span style={{ fontSize: 14 }}>Sesión: <strong>{nombre}</strong></span>
-        <button onClick={() => supabase.auth.signOut()} style={{ border: "none", background: "#eee", borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontWeight: 700 }}>
+        <button onClick={() => supabase.auth.signOut()} style={{ border: "none", background: "#eee", borderRadius: 0, padding: "8px 14px", cursor: "pointer", fontWeight: 700 }}>
           Cerrar sesión
         </button>
       </div>
@@ -220,7 +220,7 @@ function PanelMecanico({ token }) {
               style={{
                 flex: 1,
                 padding: "13px 8px",
-                borderRadius: 10,
+                borderRadius: 0,
                 fontSize: 16,
                 fontWeight: 700,
                 cursor: "pointer",

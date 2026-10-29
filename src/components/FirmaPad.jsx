@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 
 /**
  * Cuadro para firmar con el dedo (o mouse/stylus). Devuelve la firma como imagen PNG
@@ -93,7 +93,7 @@ export default function FirmaPad({ titulo, subtitulo, onGuardar, onCancelar }) {
       <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", borderRadius: 14, padding: 20, width: "100%", maxWidth: 680, boxShadow: "0 12px 40px rgba(0,0,0,.3)" }}>
         <h3 style={{ margin: "0 0 2px" }}>{titulo}</h3>
         {subtitulo && <p style={{ margin: "0 0 12px", color: "#777", fontSize: 13.5 }}>{subtitulo}</p>}
-        <div style={{ position: "relative", border: "2px dashed #b9c0c7", borderRadius: 10, background: "#fcfcfd" }}>
+        <div style={{ position: "relative", border: "2px dashed #b9c0c7", borderRadius: 0, background: "#fcfcfd" }}>
           <canvas
             ref={lienzo}
             onPointerDown={empezar}
@@ -111,14 +111,14 @@ export default function FirmaPad({ titulo, subtitulo, onGuardar, onCancelar }) {
           <div style={{ position: "absolute", left: 24, right: 24, bottom: 46, borderTop: "1px solid #d5d9dd", pointerEvents: "none" }} />
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
-          <button type="button" onClick={limpiar} style={{ border: "none", background: "#eee", borderRadius: 8, padding: "12px 18px", fontWeight: 700, cursor: "pointer" }}>
+          <button type="button" onClick={limpiar} style={{ border: "none", background: "#eee", borderRadius: 0, padding: "12px 18px", fontWeight: 700, cursor: "pointer" }}>
             Limpiar
           </button>
           <div style={{ display: "flex", gap: 10 }}>
-            <button type="button" onClick={onCancelar} style={{ border: "none", background: "#eee", borderRadius: 8, padding: "12px 18px", fontWeight: 700, cursor: "pointer" }}>
+            <button type="button" onClick={onCancelar} style={{ border: "none", background: "#eee", borderRadius: 0, padding: "12px 18px", fontWeight: 700, cursor: "pointer" }}>
               Cancelar
             </button>
-            <button type="button" onClick={guardar} style={{ border: "none", background: "var(--acento)", color: "#fff", borderRadius: 8, padding: "12px 24px", fontWeight: 800, cursor: "pointer" }}>
+            <button type="button" onClick={guardar} style={{ border: "none", background: "var(--acento)", color: "#fff", borderRadius: 0, padding: "12px 24px", fontWeight: 800, cursor: "pointer" }}>
               Guardar firma
             </button>
           </div>

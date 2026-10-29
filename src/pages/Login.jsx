@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import logo from "../assets/logo.png";
@@ -46,7 +46,7 @@ function Login() {
       <div style={{
         background: "#fff",
         border: "3px solid #111",
-        borderRadius: 4,
+        borderRadius: 0,
         boxShadow: "8px 8px 0 #111",
         padding: "40px 36px",
         width: "100%",
@@ -75,7 +75,7 @@ function Login() {
                 required
                 style={{
                   width: "100%", padding: "11px 12px", border: "2px solid #222",
-                  borderRadius: 4, fontSize: 14, boxSizing: "border-box",
+                  borderRadius: 0, fontSize: 14, boxSizing: "border-box",
                   fontFamily: "inherit", outline: "none"
                 }}
               />
@@ -94,7 +94,7 @@ function Login() {
                   required
                   style={{
                     width: "100%", padding: "11px 40px 11px 12px", border: "2px solid #222",
-                    borderRadius: 4, fontSize: 14, boxSizing: "border-box",
+                    borderRadius: 0, fontSize: 14, boxSizing: "border-box",
                     fontFamily: "inherit", outline: "none"
                   }}
                 />
@@ -130,7 +130,7 @@ function Login() {
               disabled={cargando}
               style={{
                 background: "#8F1D2C", color: "#fff", border: "2px solid #111",
-                borderRadius: 4, padding: "12px", fontWeight: 700, fontSize: 15,
+                borderRadius: 0, padding: "12px", fontWeight: 700, fontSize: 15,
                 cursor: cargando ? "default" : "pointer", letterSpacing: 1,
                 boxShadow: "4px 4px 0 #111", fontFamily: "inherit",
                 marginTop: 4, opacity: cargando ? 0.7 : 1,
@@ -169,7 +169,7 @@ function Login() {
                 required
                 style={{
                   width: "100%", padding: "11px 12px", border: "2px solid #222",
-                  borderRadius: 4, fontSize: 14, boxSizing: "border-box",
+                  borderRadius: 0, fontSize: 14, boxSizing: "border-box",
                   fontFamily: "inherit", outline: "none"
                 }}
               />
@@ -183,7 +183,7 @@ function Login() {
               disabled={cargando}
               style={{
                 background: "#8F1D2C", color: "#fff", border: "2px solid #111",
-                borderRadius: 4, padding: "12px", fontWeight: 700, fontSize: 15,
+                borderRadius: 0, padding: "12px", fontWeight: 700, fontSize: 15,
                 cursor: cargando ? "default" : "pointer", letterSpacing: 1,
                 boxShadow: "4px 4px 0 #111", fontFamily: "inherit",
                 marginTop: 4, opacity: cargando ? 0.7 : 1
