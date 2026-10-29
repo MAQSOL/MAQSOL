@@ -305,9 +305,12 @@ body{
   padding:26px 28px;
   min-height:250px;
   box-shadow:none;
+  cursor:pointer;
+  transition:transform 0.15s ease, border-left-color 0.15s;
 }
 
 .panel:hover{
+  transform:translateX(-4px);
   border-left-color:var(--acento);
 }
 
@@ -633,3 +636,9 @@ button:active { transform:translate(3px,3px) !important; box-shadow:0 0 0 transp
 .btn-mas:hover{background:#1f8b4c;border-color:#1f8b4c;color:#fff;box-shadow:0 4px 12px rgba(31,139,76,.28)}
 .btn-mas:active{transform:scale(.96)}
 .btn-mas svg{margin:0 !important}
+
+/* ocultar scrollbar horizontal en tablas sin perder scroll */
+.hide-scroll::-webkit-scrollbar{display:none}
+
+/* alinear btn-check con DeleteButton sm */
+.btn-check{width:30px;height:30px}

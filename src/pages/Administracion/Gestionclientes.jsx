@@ -94,8 +94,7 @@ function GestionClientes() {
                 <p style={S.sub}>{clientes.length} cliente{clientes.length !== 1 ? "s" : ""} · información compartida con todo el equipo</p>
               </div>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
-              </div>
+                </div>
             </div>
 
             {incompletos.length > 0 && (

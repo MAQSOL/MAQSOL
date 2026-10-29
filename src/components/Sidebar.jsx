@@ -39,9 +39,6 @@ function Sidebar() {
             alt="MAQSISTEM"
             className="logo-img"
           />
-
-          <h2>MAQSISTEM</h2>
-          <p>Sistema Integral</p>
         </Link>
 
         <div className="menu-section">

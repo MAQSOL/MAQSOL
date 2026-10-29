@@ -27,9 +27,9 @@ const EQUIPO_NUEVO = {
 
 const S = {
   page:{padding:'24px 28px',fontFamily:'inherit',color:'#222',flex:1,overflowY:'auto'},
-  h1:{fontSize:30,fontWeight:800,margin:0,letterSpacing:0.5},
-  h2:{fontSize:20,fontWeight:800,marginTop:0},
-  sub:{color:'#777',margin:'4px 0 0',fontSize:14},
+  h1:{fontSize:30,fontWeight:800,margin:0,letterSpacing:"-0.02em",fontFamily:"'Montserrat',sans-serif"},
+  h2:{fontSize:20,fontWeight:800,marginTop:0,fontFamily:"'Montserrat',sans-serif"},
+  sub:{color:'#777',margin:'4px 0 0',fontSize:14,fontFamily:"'Montserrat',sans-serif"},
   card:{background:'#fff',border:'1px solid #e6e6e6',borderRadius:0,padding:24,marginBottom:28,boxShadow:'0 1px 3px rgba(0,0,0,.05)'},
   btn:{background:VINO,color:'#fff',border:'none',borderRadius:0,padding:'10px 18px',fontWeight:700,cursor:'pointer',fontSize:14},
   btnSm:{background:VINO,color:'#fff',border:'none',borderRadius:0,padding:'6px 14px',fontWeight:700,cursor:'pointer',fontSize:13},
@@ -174,7 +174,7 @@ export default function EquiposExternos(){
         </div>
       </div>
 
-      <div style={{...S.card,padding:0,overflowX:'auto'}}>
+      <div style={{...S.card,padding:0,overflowX:'auto',scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
         <table style={{width:'100%',borderCollapse:'collapse',minWidth:1900}}>
           <thead><tr>
             <th style={S.th}>EQUIPO</th><th style={S.th}>MARCA / MODELO</th><th style={S.th}>PROVEEDOR</th><th style={S.th}>CLIENTE</th>
@@ -184,7 +184,7 @@ export default function EquiposExternos(){
           </tr></thead>
           <tbody>
             {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={12}>No hay equipos subarrendados registrados. Usa "Agregar equipo subarrendado".</td></tr>
-            :filtrados.map(e=>(<tr key={e.id} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
+            :filtrados.map(e=>(<tr key={e.id} style={{cursor:'pointer',transition:'transform 0.15s ease'}} onMouseOver={ev=>{ev.currentTarget.style.background='#faf5f6';ev.currentTarget.style.transform='translateX(-4px)'}} onMouseOut={ev=>{ev.currentTarget.style.background='transparent';ev.currentTarget.style.transform='none'}}>
               <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>abrirEditar(e)}>{e.tipo}{e.incompleto&&<div style={{marginTop:4,display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}><span style={{background:'#fff3c4',color:'#7a5a00',fontSize:11,fontWeight:700,padding:'2px 8px',borderRadius:0}}>Faltan datos</span><button onClick={ev=>{ev.stopPropagation();guardarEquipos(equipos.map(x=>x.id===e.id?{...x,incompleto:false}:x))}} style={{background:'none',border:'none',color:'#7a5a00',fontSize:11.5,fontWeight:700,cursor:'pointer',textDecoration:'underline',padding:0}}>No quiero rellenarlo</button></div>}</td>
               <td style={S.td}>{e.marca} {e.modelo}{e.serie?<div style={{color:'#999',fontSize:12}}>Serie: {e.serie}</div>:null}</td>
               <td style={S.td}>{e.proveedor}{e.telProveedor?<div style={{color:'#999',fontSize:12}}>{e.telProveedor}</div>:null}</td>
@@ -198,7 +198,7 @@ export default function EquiposExternos(){
               <td style={S.td}>{e.realizadoPor||<span style={{color:'#bbb'}}>—</span>}</td>
               <td style={S.td}>{e.linkReporte?<a href={linkSeguro(e.linkReporte)} target="_blank" rel="noopener noreferrer" style={{color:VINO,fontWeight:700}} onClick={ev=>ev.stopPropagation()}>Ver reporte</a>:<span style={{color:'#bbb'}}>—</span>}</td>
               <td style={{...S.td,textAlign:'center',whiteSpace:'nowrap'}}>
-                {e.estado!=='Devuelto'&&<button style={S.btnGrisSm} onClick={()=>marcarDevuelto(e)} title="Marcar como devuelto al proveedor">✓ Devolver</button>}
+                {e.estado!=='Devuelto'&&<button className="btn-sys" style={S.btnGrisSm} onClick={()=>marcarDevuelto(e)} title="Marcar como devuelto al proveedor">✓ Devolver</button>}
                 <span style={{marginLeft:6,display:'inline-block'}}><DeleteButton size="sm" title="Eliminar equipo" onConfirm={()=>eliminarEquipo(e)}/></span>
               </td>
             </tr>))}

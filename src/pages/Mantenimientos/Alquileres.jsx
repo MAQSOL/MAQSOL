@@ -498,14 +498,13 @@ export default function Alquileres() {
 
   return (
     <Layout>
-      <div style={{ maxWidth: 1400 }}>
+      <div style={{ maxWidth: 1400, width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, gap: 10, flexWrap: "wrap" }}>
           <div>
             <h1 style={S.h1}>Alquileres Activos</h1>
             <p style={S.sub}>Equipos que están en renta con clientes · {activos} activos de {alquileres.length} registrados</p>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
             <button className="btn-sys" style={S.btnGris} onClick={exportar}>Descargar lista</button>
             <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar equipo en renta</button>
           </div>

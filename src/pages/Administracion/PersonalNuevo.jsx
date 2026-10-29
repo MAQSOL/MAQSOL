@@ -226,8 +226,7 @@ export default function PersonalNuevo() {
         <div style={{ maxWidth: 700, margin: "60px auto", textAlign: "center" }}>
           <h1 style={S.h1}>Documentos de Personal</h1>
           <p style={S.sub}>Esta sección contiene información confidencial y solo está disponible para administradores.</p>
-          <Link to="/" className="btn-panel">← Dashboard</Link>
-        </div>
+          </div>
       </Layout>
     );
   }
@@ -243,7 +242,6 @@ export default function PersonalNuevo() {
             <p style={S.sub}>Expediente de cada empleado: datos, documentos recibidos y lo que falta · {personas.length} empleados</p>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
             <button className="btn-sys" style={S.btnGris} onClick={() => descargarFichaPDF({}, logoUrl(), "FICHA-EMPLEADO-EN-BLANCO")}>
               Ficha en blanco (para que la llene el empleado)
             </button>

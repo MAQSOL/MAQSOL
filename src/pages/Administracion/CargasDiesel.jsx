@@ -179,7 +179,6 @@ export default function CargasDiesel() {
             <p style={S.sub}>Registro semanal de combustible por máquina, obra y operador</p>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
             <button className="btn-sys" style={S.btnGris} onClick={exportarExcel}>Descargar Excel</button>
             <button className="btn-sys" style={S.btnVerde} onClick={generarPDF}>Generar PDF</button>
             <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar carga</button>

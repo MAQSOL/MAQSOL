@@ -1,5 +1,5 @@
 ﻿import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import RailNav from "../components/RailNav";
 import DeleteButton from "../components/DeleteButton";
@@ -47,6 +47,7 @@ function numeroDeSemana(fecha) {
 
 function Dashboard() {
   const { isAdmin, user } = useAuth();
+  const navigate = useNavigate();
   const { registros: pendientes, loading, guardar, eliminar } = useSharedTable("pendientes");
   const { registros: equiposInternos } = useSharedTable("equipos_internos");
   const { registros: equiposExternos } = useSharedTable("equipos_externos");
@@ -142,6 +143,8 @@ function Dashboard() {
 
   const [nuevoPendiente, setNuevoPendiente] = useState("");
   const [nuevoAsignado, setNuevoAsignado] = useState("");
+  const [asisRapidoId, setAsisRapidoId] = useState("");
+  const [guardandoAsis, setGuardandoAsis] = useState(false);
   const [migrando, setMigrando] = useState(false);
   const [resultadoMigracion, setResultadoMigracion] = useState(null);
 
@@ -186,6 +189,19 @@ function Dashboard() {
 
   const cambiarEstadoPendiente = (item) => {
     guardar(item.id, { ...item, enProceso: !item.enProceso });
+  };
+
+  const guardarAsisRapido = async (estado) => {
+    if (!asisRapidoId) return;
+    setGuardandoAsis(true);
+    const nuevaData = {
+      ...asistSemana,
+      [asisRapidoId]: { ...(asistSemana?.[asisRapidoId] || {}), [diaHoy]: { estado } }
+    };
+    await supabase.from("asistencias").upsert({ id: claveSemanaActual, data: nuevaData });
+    setAsistSemana(nuevaData);
+    setAsisRapidoId("");
+    setGuardandoAsis(false);
   };
 
   const togglePendiente = (item) => {
@@ -374,7 +390,7 @@ function Dashboard() {
 
         <section className="paneles">
 
-          <div className="panel">
+          <div className="panel" onClick={() => navigate('/internos')}>
             <h3 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <IconoCampana style={{ color: "var(--acento)" }} /> Alertas y Noticias
             </h3>
@@ -390,6 +406,7 @@ function Dashboard() {
                     <Link
                       key={e.origen + e.id}
                       to={e.href}
+                      onClick={ev => ev.stopPropagation()}
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
@@ -416,13 +433,13 @@ function Dashboard() {
             )}
           </div>
 
-          <div className="panel">
+          <div className="panel" onClick={() => navigate('/tareas')}>
 
             <h3 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <IconoPortapapeles style={{ color: "var(--acento)" }} /> Pendientes
             </h3>
 
-            <div className="agregar-pendiente">
+            <div className="agregar-pendiente" onClick={e => e.stopPropagation()}>
 
               <input
                 type="text"
@@ -452,7 +469,7 @@ function Dashboard() {
 
             </div>
 
-            <div className="lista-pendientes">
+            <div className="lista-pendientes" onClick={e => e.stopPropagation()}>
 
               {loading && <p style={{ color: "#999" }}>Cargando…</p>}
 
@@ -535,7 +552,7 @@ function Dashboard() {
 
           </div>
 
-          <div className="panel">
+          <div className="panel" onClick={() => navigate('/alquileres')}>
             <h3 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <IconoBarras style={{ color: "var(--acento)" }} /> Rentas por Mes
             </h3>
@@ -595,11 +612,30 @@ function Dashboard() {
             })()}
           </div>
 
-          <div className="panel">
+          <div className="panel" onClick={() => navigate('/asistencias')}>
 
             <h3 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <IconoPersonas style={{ color: "var(--acento)" }} /> Asistencias de la Semana
             </h3>
+
+            {colaboradoresActivos.length > 0 && (
+              <div style={{ display:"flex", gap:8, marginBottom:12 }} onClick={e => e.stopPropagation()}>
+                <select
+                  value={asisRapidoId}
+                  onChange={e => setAsisRapidoId(e.target.value)}
+                  style={{ flex:1, padding:"8px 10px", border:"2px solid #222", fontSize:13 }}
+                >
+                  <option value="">Registrar asistencia hoy…</option>
+                  {colaboradoresActivos.map(c => (
+                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                  ))}
+                </select>
+                <button type="button" disabled={!asisRapidoId || guardandoAsis} onClick={() => guardarAsisRapido("A")}
+                  style={{ padding:"8px 14px", background:"#1f8b4c", color:"#fff", border:"none", fontWeight:700, cursor:"pointer", fontSize:13, opacity:!asisRapidoId?0.5:1 }}>✓</button>
+                <button type="button" disabled={!asisRapidoId || guardandoAsis} onClick={() => guardarAsisRapido("F")}
+                  style={{ padding:"8px 14px", background:"#c62828", color:"#fff", border:"none", fontWeight:700, cursor:"pointer", fontSize:13, opacity:!asisRapidoId?0.5:1 }}>✗</button>
+              </div>
+            )}
 
             {colaboradoresActivos.length === 0 ? (
               <p>Aún no hay colaboradores registrados.</p>
@@ -690,6 +726,7 @@ function Dashboard() {
             <Link
               to="/asistencias"
               className="btn-panel"
+              onClick={e => e.stopPropagation()}
             >
               Ir a Asistencias
             </Link>
@@ -741,7 +778,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="panel">
+          <div className="panel" onClick={() => navigate('/tareas')}>
             <h3 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <IconoTareas style={{ color: "var(--acento)" }} /> Actividad Reciente
             </h3>
@@ -764,7 +801,7 @@ function Dashboard() {
               </div>
             )}
 
-            <Link to="/tareas" className="btn-panel">
+            <Link to="/tareas" className="btn-panel" onClick={e => e.stopPropagation()}>
               Ir a Tareas
             </Link>
           </div>

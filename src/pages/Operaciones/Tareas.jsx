@@ -184,14 +184,13 @@ export default function Tareas() {
 
   return (
     <Layout>
-      <div style={{ maxWidth: 1300 }}>
+      <div style={{ maxWidth: 1300, width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, gap: 10, flexWrap: "wrap" }}>
           <div>
             <h1 style={S.h1}>Tareas</h1>
             <p style={S.sub}>Asigna actividades al equipo y da seguimiento a los avances · {tareas.length} tareas</p>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
             <button className="btn-sys" style={S.btn} onClick={abrirNueva}><IconoMas />Nueva tarea</button>
           </div>
         </div>

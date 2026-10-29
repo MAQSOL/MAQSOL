@@ -515,8 +515,7 @@ function Asistencias() {
                 <h2 style={{ margin: 0 }}>Lista de Asistencia</h2>
               </div>
 
-              <Link to="/" className="btn-panel">← Dashboard</Link>
-            </div>
+              </div>
           </div>
 
           {/* PESTAÑAS */}

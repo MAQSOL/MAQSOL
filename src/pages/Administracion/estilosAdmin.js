@@ -1,7 +1,7 @@
 export const S = {
-  h1: { fontSize: 30, fontWeight: 800, margin: 0 },
-  h2: { fontSize: 18, fontWeight: 800, margin: 0 },
-  sub: { color: "#777", margin: "4px 0 0", fontSize: 14 },
+  h1: { fontSize: 30, fontWeight: 800, margin: 0, fontFamily: "'Montserrat', sans-serif", letterSpacing: "-0.02em" },
+  h2: { fontSize: 18, fontWeight: 800, margin: 0, fontFamily: "'Montserrat', sans-serif" },
+  sub: { color: "#777", margin: "4px 0 0", fontSize: 14, fontFamily: "'Montserrat', sans-serif" },
   card: { background: "#fff", border: "3px solid #111", borderRadius: 0, padding: 24, marginBottom: 28, boxShadow: "6px 6px 0 #111" },
   btn: { padding: "10px 18px", fontWeight: 700, fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6, fontFamily: "inherit" },
   btnGris: { padding: "10px 18px", fontWeight: 700, fontSize: 14, fontFamily: "inherit" },

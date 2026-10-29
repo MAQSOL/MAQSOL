@@ -141,7 +141,6 @@ function EquiposRenta({ equipos, guardar }) {
           <p style={S.sub}>{equipos.length} equipos · precios sin IVA · edita cualquier dato con el botón "Editar"</p>
         </div>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
           {faltantes.length > 0 && (
             <button className="btn-sys" style={S.btnVerde} onClick={importar}>Cargar lista marzo 2026 ({faltantes.length})</button>
           )}
@@ -313,7 +312,6 @@ function OtrosConceptos({ lista, guardar }) {
           <p style={S.sub}>Servicios, refacciones, fletes y otros · {lista.length} conceptos · precios sin IVA</p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
           <button className="btn-sys" style={S.btnGris} onClick={exportar}>Descargar lista</button>
           <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar precio</button>
         </div>

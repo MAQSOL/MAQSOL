@@ -232,7 +232,6 @@ export default function OrdenesCompra() {
             <p style={S.sub}>Llena la orden y sale en PDF con el formato de MAQSOL; cada orden queda en el historial</p>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <Link to="/" className="btn-panel" style={{ margin: 0 }}>← Dashboard</Link>
             <button className="btn-sys" style={S.btnGris} onClick={() => { setOtroSolicito(false); setForm(nueva()); }}>Nueva orden</button>
             <button className="btn-sys" style={S.btnGris} onClick={guardar}>Guardar</button>
             <button className="btn-sys" style={S.btn} onClick={descargar}>Descargar PDF</button>

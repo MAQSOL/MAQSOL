@@ -50,8 +50,8 @@ export default function DeleteButton({
     e.stopPropagation();
     setOpen(false);
     setStatus("deleted");
-    onConfirm && onConfirm();
     trigger.current && trigger.current.focus();
+    setTimeout(() => { onConfirm && onConfirm(); }, 700);
   }
 
   function cancelar(e) {
