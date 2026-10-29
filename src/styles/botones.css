@@ -36,3 +36,13 @@
 .btn-sys svg path {
   fill: #111 !important;
 }
+
+/* Botones de descarga con color por tipo */
+.btn-sys.btn-pdf  { background: var(--acento) !important; color: #fff !important; }
+.btn-sys.btn-pdf svg path { fill: #fff !important; }
+
+.btn-sys.btn-excel { background: #1f8b4c !important; color: #fff !important; }
+.btn-sys.btn-excel svg path { fill: #fff !important; }
+
+.btn-sys.btn-word  { background: #1565c0 !important; color: #fff !important; }
+.btn-sys.btn-word svg path { fill: #fff !important; }

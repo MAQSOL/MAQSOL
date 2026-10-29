@@ -46,17 +46,17 @@ function TarjetaTarea({ t, perfiles, onAbrir, onMover }) {
       onClick={() => onAbrir(t)}
       style={{
         background: "#fff",
-        border: "1px solid #e6e6e6",
+        border: "2px solid #111",
         borderRadius: 0,
         padding: "12px 14px",
         marginBottom: 10,
         cursor: "pointer",
-        boxShadow: "0 1px 2px rgba(0,0,0,.04)"
+        boxShadow: "3px 3px 0 #111"
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "flex-start" }}>
         <strong style={{ fontSize: 14, lineHeight: 1.3 }}>{t.titulo}</strong>
-        <span style={{ background: prio.fondo, color: prio.color, fontSize: 10.5, fontWeight: 800, padding: "2px 8px", borderRadius: 0, whiteSpace: "nowrap" }}>
+        <span style={{ background: prio.color, color: '#fff', fontSize: 10.5, fontWeight: 800, padding: "3px 8px", borderRadius: 0, whiteSpace: "nowrap" }}>
           {prio.texto}
         </span>
       </div>
@@ -66,35 +66,24 @@ function TarjetaTarea({ t, perfiles, onAbrir, onMover }) {
         </p>
       )}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10, fontSize: 12 }}>
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 5,
-            background: "#f3f3f3",
-            padding: "3px 9px",
-            borderRadius: 20,
-            fontWeight: 600,
-            color: "#444"
-          }}
-        >
+        <span style={{ background: "#f0f0f0", border: "1px solid #ccc", padding: "3px 9px", borderRadius: 0, fontWeight: 700, color: "#333" }}>
           {t.asignadoId ? nombreDe(perfiles, t.asignadoId) : t.asignadoNombre || "Sin asignar"}
         </span>
         {t.fechaLimite && (
-          <span style={{ color: vencida ? "#c62828" : "#999", fontWeight: vencida ? 700 : 500 }}>
+          <span style={{ color: vencida ? "#c62828" : "#777", fontWeight: vencida ? 800 : 600, fontSize: 11.5 }}>
             {vencida ? `Venció ${fFecha(t.fechaLimite)}` : fFecha(t.fechaLimite)}
           </span>
         )}
       </div>
       {t.comentarios?.length > 0 && (
-        <div style={{ marginTop: 8, fontSize: 11.5, color: "#999" }}>💬 {t.comentarios.length} avance(s)</div>
+        <div style={{ marginTop: 8, fontSize: 11.5, color: "#888", fontWeight: 600 }}>💬 {t.comentarios.length} avance(s)</div>
       )}
       {(anterior || siguiente) && (
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, borderTop: "1px solid #f0f0f0", paddingTop: 8 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, borderTop: "2px solid #f0f0f0", paddingTop: 8 }}>
           {anterior ? (
             <button
               onClick={(e) => { e.stopPropagation(); onMover(t, anterior.clave); }}
-              style={{ background: "none", border: "none", color: "#999", fontSize: 11.5, cursor: "pointer", padding: 0 }}
+              style={{ background: "#e9e9e9", border: "none", borderRadius: 0, color: "#444", fontSize: 11.5, fontWeight: 700, cursor: "pointer", padding: "4px 10px" }}
             >
               ← {anterior.titulo}
             </button>
@@ -102,7 +91,7 @@ function TarjetaTarea({ t, perfiles, onAbrir, onMover }) {
           {siguiente && (
             <button
               onClick={(e) => { e.stopPropagation(); onMover(t, siguiente.clave); }}
-              style={{ background: "none", border: "none", color: "var(--acento)", fontSize: 11.5, fontWeight: 700, cursor: "pointer", padding: 0 }}
+              style={{ background: "var(--acento)", border: "none", borderRadius: 0, color: "#fff", fontSize: 11.5, fontWeight: 700, cursor: "pointer", padding: "4px 10px" }}
             >
               {siguiente.titulo} →
             </button>
@@ -213,16 +202,18 @@ export default function Tareas() {
           {COLUMNAS.map((col) => {
             const lista = porColumna(col.clave);
             return (
-              <div key={col.clave} style={{ background: col.fondo, borderRadius: 0, padding: 14, minHeight: 200 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                  <strong style={{ color: col.color, fontSize: 13.5, letterSpacing: 0.3 }}>{col.titulo.toUpperCase()}</strong>
-                  <span style={{ background: "#fff", color: col.color, fontSize: 12, fontWeight: 800, padding: "1px 9px", borderRadius: 0 }}>{lista.length}</span>
+              <div key={col.clave} style={{ background: '#fff', border: '3px solid #111', borderRadius: 0, boxShadow: '6px 6px 0 #111', minHeight: 200, overflow: 'hidden' }}>
+                <div style={{ background: col.color, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <strong style={{ color: '#fff', fontSize: 13, fontWeight: 800, letterSpacing: '0.5px', fontFamily: "'Montserrat',sans-serif" }}>{col.titulo.toUpperCase()}</strong>
+                  <span style={{ background: 'rgba(255,255,255,0.25)', color: '#fff', fontSize: 12, fontWeight: 800, padding: '2px 10px', borderRadius: 0 }}>{lista.length}</span>
                 </div>
+                <div style={{ padding: 14 }}>
                 {lista.length === 0 ? (
                   <p style={{ color: "#999", fontSize: 12.5, textAlign: "center", padding: "20px 0" }}>Sin tareas aquí.</p>
                 ) : (
                   lista.map((t) => <TarjetaTarea key={t.id} t={t} perfiles={perfiles} onAbrir={abrirTarea} onMover={cambiarEstado} />)
                 )}
+                </div>
               </div>
             );
           })}

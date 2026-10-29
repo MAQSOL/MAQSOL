@@ -487,7 +487,7 @@ export default function Recepcionequipos(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={S.h1}>Entrega y Salida de Equipo</h1><p style={S.sub}>Checklist de condición del equipo al entregar y al retirar · {registros.length} registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button className="btn-sys" style={S.btnGris} onClick={descargarListaExcel}>Descargar lista</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Nuevo checklist</button></div>
+        <div style={{display:'flex',gap:10}}><button className="btn-sys btn-excel" style={S.btnGris} onClick={descargarListaExcel}>Descargar lista</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Nuevo checklist</button></div>
       </div>
 
       <div style={S.card}>
@@ -529,8 +529,8 @@ export default function Recepcionequipos(){
                 {(r.tipo||'Salida')==='Salida'&&<button style={S.btnSm} onClick={()=>registrarEntrada(r)}><IconoMas />Entrada</button>}
                 <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>abrirEditar(r)}>Editar</button>
                 <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>abrirDocs(r)}>Fotos e INE</button>
-                <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>descargarPDF(r)}>PDF</button>
-                <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>descargarExcel(r)}>Excel</button>
+                <button style={{...S.btnGrisSm,marginLeft:6,background:'var(--acento)',color:'#fff'}} onClick={()=>descargarPDF(r)}>PDF</button>
+                <button style={{...S.btnGrisSm,marginLeft:6,background:'#1f8b4c',color:'#fff'}} onClick={()=>descargarExcel(r)}>Excel</button>
                 {r.fotosToken&&(r.fotos||[]).length>0&&<a href={'/fotos/'+r.fotosToken} target="_blank" rel="noopener noreferrer" style={{...S.btnGrisSm,marginLeft:6,textDecoration:'none',display:'inline-block'}}>Fotos ({r.fotos.length})</a>}
                 <span style={{marginLeft:6,display:'inline-block'}}><DeleteButton size="sm" title="Eliminar checklist" onConfirm={()=>eliminarRegistro(r)}/></span>
               </td>

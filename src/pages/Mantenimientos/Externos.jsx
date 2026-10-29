@@ -157,7 +157,7 @@ export default function EquiposExternos(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={S.h1}>Equipos Externos</h1><p style={S.sub}>Maquinaria que subarrendamos de terceros para clientes · {activos} activos de {equipos.length} registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button className="btn-sys" style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo subarrendado</button></div>
+        <div style={{display:'flex',gap:10}}><button className="btn-sys btn-excel" style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo subarrendado</button></div>
       </div>
 
       {equipos.some(e=>e.incompleto)&&(

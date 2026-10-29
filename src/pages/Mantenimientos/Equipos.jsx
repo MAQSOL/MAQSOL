@@ -535,7 +535,7 @@ export default function EquiposInternos() {
           <p style={S.sub}>Maquinaria propiedad de MAQSOL · {equipos.length} equipos registrados</p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button className="btn-sys" style={S.btnGris} onClick={exportarLista}>
+          <button className="btn-sys btn-excel" style={S.btnGris} onClick={exportarLista}>
             Descargar lista
           </button>
           <button className="btn-sys" style={S.btn} onClick={abrirNuevo}>

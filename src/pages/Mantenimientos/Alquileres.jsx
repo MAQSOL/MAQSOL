@@ -505,7 +505,7 @@ export default function Alquileres() {
             <p style={S.sub}>Equipos que están en renta con clientes · {activos} activos de {alquileres.length} registrados</p>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <button className="btn-sys" style={S.btnGris} onClick={exportar}>Descargar lista</button>
+            <button className="btn-sys btn-excel" style={S.btnGris} onClick={exportar}>Descargar lista</button>
             <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar equipo en renta</button>
           </div>
         </div>

@@ -132,8 +132,8 @@ export default function ReporteHoras() {
             <p style={S.sub}>Horas trabajadas por cada máquina rentada · {registros.length} registros</p>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <button className="btn-sys" style={S.btnGris} onClick={exportarExcel}>Descargar Excel</button>
-            <button className="btn-sys" style={S.btnVerde} onClick={imprimirReporte}>Generar reporte (PDF)</button>
+            <button className="btn-sys btn-excel" style={S.btnGris} onClick={exportarExcel}>Descargar Excel</button>
+            <button className="btn-sys btn-pdf" style={S.btnVerde} onClick={imprimirReporte}>Generar reporte (PDF)</button>
             <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Registrar horas</button>
           </div>
         </div>

@@ -234,7 +234,7 @@ export default function OrdenesCompra() {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button className="btn-sys" style={S.btnGris} onClick={() => { setOtroSolicito(false); setForm(nueva()); }}>Nueva orden</button>
             <button className="btn-sys" style={S.btnGris} onClick={guardar}>Guardar</button>
-            <button className="btn-sys" style={S.btn} onClick={descargar}>Descargar PDF</button>
+            <button className="btn-sys btn-pdf" style={S.btn} onClick={descargar}>Descargar PDF</button>
           </div>
         </div>
 
@@ -424,7 +424,7 @@ export default function OrdenesCompra() {
                       </div>
                     </div>
                     <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
-                      <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 10px", fontSize: 12 }} onClick={() => abrirOrdenPDF({ ...ORDEN_NUEVA, ...o })}>PDF</button>
+                      <button className="btn-sys btn-pdf" style={{ ...S.btnGris, padding: "6px 10px", fontSize: 12 }} onClick={() => abrirOrdenPDF({ ...ORDEN_NUEVA, ...o })}>PDF</button>
                       <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 10px", fontSize: 12 }} onClick={() => duplicar(o)} title="Nueva orden con el mismo proveedor y partidas">Duplicar</button>
                       <DeleteButton size="sm" title="Eliminar orden" onConfirm={() => guardarOrdenes(ordenes.filter((x) => x.id !== o.id))} />
                     </div>

@@ -144,7 +144,7 @@ function EquiposRenta({ equipos, guardar }) {
           {faltantes.length > 0 && (
             <button className="btn-sys" style={S.btnVerde} onClick={importar}>Cargar lista marzo 2026 ({faltantes.length})</button>
           )}
-          <button className="btn-sys" style={S.btnGris} onClick={exportar}>Descargar Excel</button>
+          <button className="btn-sys btn-excel" style={S.btnGris} onClick={exportar}>Descargar Excel</button>
           <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo</button>
         </div>
       </div>
@@ -312,7 +312,7 @@ function OtrosConceptos({ lista, guardar }) {
           <p style={S.sub}>Servicios, refacciones, fletes y otros · {lista.length} conceptos · precios sin IVA</p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          <button className="btn-sys" style={S.btnGris} onClick={exportar}>Descargar lista</button>
+          <button className="btn-sys btn-excel" style={S.btnGris} onClick={exportar}>Descargar lista</button>
           <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar precio</button>
         </div>
       </div>

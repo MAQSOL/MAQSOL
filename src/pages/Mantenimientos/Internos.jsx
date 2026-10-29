@@ -550,8 +550,8 @@ export default function EquiposInternos(){
             <div><label style={S.label}>TIPO</label><select style={S.input} value={filtroTipoM} onChange={ev=>setFiltroTipoM(ev.target.value)}><option value="">Todos</option><option>Preventivo</option><option>Correctivo</option></select></div>
             <div><label style={S.label}>DESDE</label><CampoFecha  style={S.input} value={filtroDesde} onChange={ev=>setFiltroDesde(ev.target.value)}/></div>
             <div><label style={S.label}>HASTA</label><CampoFecha  style={S.input} value={filtroHasta} onChange={ev=>setFiltroHasta(ev.target.value)}/></div>
-            <button className="btn-sys" style={S.btnGris} onClick={()=>descargarExcel(activo)}>Excel</button>
-            <button className="btn-sys" style={S.btnGris} onClick={()=>descargarPDF(activo)}>PDF</button>
+            <button className="btn-sys btn-excel" style={S.btnGris} onClick={()=>descargarExcel(activo)}>Excel</button>
+            <button className="btn-sys btn-pdf" style={S.btnGris} onClick={()=>descargarPDF(activo)}>PDF</button>
           </div>
           {mFiltrados.length===0?<p style={{color:'#999',textAlign:'center',padding:20}}>No hay mantenimientos registrados.</p>:(
             <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',minWidth:700}}>
@@ -665,7 +665,7 @@ export default function EquiposInternos(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={S.h1}>Equipos Internos</h1><p style={S.sub}>Maquinaria propiedad de MAQSOL · {equipos.length} equipos registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button className="btn-sys" style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo</button></div>
+        <div style={{display:'flex',gap:10}}><button className="btn-sys btn-excel" style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo</button></div>
       </div>
       <div style={S.card}>
         <div style={{display:'grid',gridTemplateColumns:'2fr 1.4fr',gap:18,alignItems:'start'}}>
@@ -687,7 +687,7 @@ export default function EquiposInternos(){
             :filtrados.map(e=>(<tr key={e.id} style={{cursor:'pointer',transition:'transform 0.15s ease'}} onClick={()=>{setActivoId(e.id);setVista('ficha')}} onMouseOver={ev=>{ev.currentTarget.style.background='#faf5f6';ev.currentTarget.style.transform='translateX(-4px)'}} onMouseOut={ev=>{ev.currentTarget.style.background='transparent';ev.currentTarget.style.transform='none'}}>
               <td style={{...S.td,fontWeight:700}}>{e.tipo}</td><td style={S.td}>{e.marca}</td><td style={S.td}>{e.modelo}</td><td style={S.td}>{e.serie}</td>
               <td style={S.td}>{conHoras(e.horometro)||'—'}</td><td style={S.td}>{e.operador||<span style={{color:'#c98a00',fontWeight:700}}>Sin operador</span>}</td>
-              <td style={S.td}>{e.ubicacion}</td><td style={{...S.td,minWidth:200}}>{ultimoMantto(e)?<span style={{display:"inline-flex",alignItems:"center",gap:8,whiteSpace:"nowrap"}}><span>{fFecha(ultimoMantto(e).fecha)}</span><BadgeMantto tipo={ultimoMantto(e).tipoMantto}/></span>:<span style={{color:"#999"}}>Sin registro</span>}</td><td style={S.td}><Semaforo fecha={e.proximoMantto}/></td>
+              <td style={S.td}>{e.ubicacion}</td><td style={{...S.td,minWidth:200}}>{ultimoMantto(e)?<span style={{display:"flex",flexDirection:"column",gap:4}}><span style={{fontSize:13}}>{fFecha(ultimoMantto(e).fecha)}</span><BadgeMantto tipo={ultimoMantto(e).tipoMantto}/></span>:<span style={{color:"#999"}}>Sin registro</span>}</td><td style={S.td}><Semaforo fecha={e.proximoMantto}/></td>
               <td style={{...S.td,textAlign:'center'}} onClick={ev=>ev.stopPropagation()}><DeleteButton size="sm" title="Eliminar equipo" onConfirm={()=>eliminarEquipo(e)}/></td>
             </tr>))}
           </tbody>

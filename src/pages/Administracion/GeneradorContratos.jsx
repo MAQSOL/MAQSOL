@@ -216,8 +216,8 @@ export default function GeneradorContratos() {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button className="btn-sys" style={S.btnGris} onClick={nuevo}>Nuevo contrato</button>
             <button className="btn-sys" style={S.btnGris} onClick={guardar}>Guardar en historial</button>
-            <button className="btn-sys" style={S.btnGris} onClick={descargarWord}>Descargar Word (editable)</button>
-            <button className="btn-sys" style={S.btn} onClick={descargar}>Descargar PDF</button>
+            <button className="btn-sys btn-word" style={S.btnGris} onClick={descargarWord}>Descargar Word (editable)</button>
+            <button className="btn-sys btn-pdf" style={S.btn} onClick={descargar}>Descargar PDF</button>
           </div>
         </div>
 

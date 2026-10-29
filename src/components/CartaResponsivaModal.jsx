@@ -142,7 +142,7 @@ export default function CartaResponsivaModal({ personas, persona, onClose, onSub
 
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 18 }}>
           <button className="btn-sys" style={S.btnGris} onClick={onClose}>Cerrar</button>
-          <button className="btn-sys" style={{ ...S.btn, opacity: faltaDato ? 0.5 : 1 }} disabled={faltaDato} onClick={() => descargarCartaResponsiva(f)}>
+          <button className="btn-sys btn-pdf" style={{ ...S.btn, opacity: faltaDato ? 0.5 : 1 }} disabled={faltaDato} onClick={() => descargarCartaResponsiva(f)}>
             Descargar PDF
           </button>
         </div>
