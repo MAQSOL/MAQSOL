@@ -87,6 +87,7 @@ function Sidebar() {
             items={[
               { label: "Asistencias", href: "/asistencias" },
               { label: "Gestión de Clientes", href: "/clientes" },
+              { label: "Archivos y Documentos", href: "/archivos" },
               { label: "Lista de Precios", href: "/precios" },
               { label: "Órdenes de Compra", href: "/ordenes" },
               ...(isAdmin ? [{ label: "Documentos de Personal", href: "/personal" }] : [])

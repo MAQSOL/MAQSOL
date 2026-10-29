@@ -31,6 +31,7 @@ import OrdenesCompra from "./pages/Administracion/OrdenesCompra";
 import ChatFlotante from "./components/ChatFlotante";
 import CargasDiesel from "./pages/Administracion/CargasDiesel";
 import PersonalNuevo from "./pages/Administracion/PersonalNuevo";
+import Archivos from "./pages/Administracion/Archivos";
 import Tareas from "./pages/Operaciones/Tareas";
 
 // al cambiar de apartado, la página nueva empieza arriba (no donde se quedó la anterior)
@@ -73,6 +74,7 @@ function App() {
         <Route path="/ordenes" element={<ProtectedRoute><OrdenesCompra /></ProtectedRoute>} />
         <Route path="/diesel" element={<ProtectedRoute><CargasDiesel /></ProtectedRoute>} />
         <Route path="/personal" element={<ProtectedRoute><PersonalNuevo /></ProtectedRoute>} />
+        <Route path="/archivos" element={<ProtectedRoute><Archivos /></ProtectedRoute>} />
         <Route path="/tareas" element={<ProtectedRoute><Tareas /></ProtectedRoute>} />
 
       </Routes>
