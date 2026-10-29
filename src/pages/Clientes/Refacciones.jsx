@@ -1262,15 +1262,17 @@ onChange={(e) =>
           }
         />
 
-        <input
-          readOnly
-          placeholder="Total"
-          value={item.total}
-        />
+        <div style={{display:'flex',gap:6,alignItems:'center'}}>
+          <input
+            readOnly
+            placeholder="Total"
+            value={item.total}
+            style={{flex:1}}
+          />
+          <DeleteButton title="Quitar refacción" onConfirm={() => eliminarRefaccion(index)} size="lg" />
+        </div>
 
       </div>
-
-<DeleteButton title="Quitar refacción" onConfirm={() => eliminarRefaccion(index)} />
 
     </div>
 

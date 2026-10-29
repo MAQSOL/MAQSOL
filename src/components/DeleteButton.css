@@ -16,6 +16,20 @@
   height: 26px;
   width: 26px;
 }
+.delbtn-lg {
+  height: 42px;
+  width: 42px;
+}
+.delbtn-lg.delbtn-open {
+  width: 108px;
+}
+.delbtn-lg .delbtn-trigger {
+  flex-basis: 38px;
+  height: 38px;
+}
+.delbtn-lg .delbtn-panel {
+  left: 38px;
+}
 .delbtn-open {
   width: 90px;
   background: #ececec;
