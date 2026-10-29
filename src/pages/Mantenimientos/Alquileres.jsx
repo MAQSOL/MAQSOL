@@ -498,7 +498,7 @@ export default function Alquileres() {
 
   return (
     <Layout>
-      <div style={{ maxWidth: 1400, width: "100%" }}>
+      <div style={{ width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, gap: 10, flexWrap: "wrap" }}>
           <div>
             <h1 style={S.h1}>Alquileres Activos</h1>

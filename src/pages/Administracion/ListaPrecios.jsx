@@ -56,7 +56,7 @@ export default function ListaPrecios() {
   return (
     <NipGate claveConfig="nip_precios" mensaje="Escribe el NIP para ver la lista de precios.">
       <Layout>
-        <div style={{ maxWidth: 1500, width: "100%" }}>
+        <div style={{ width: "100%" }}>
           <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
             <button style={pestana === "equipos" ? S.btn : S.btnGris} onClick={() => setPestana("equipos")}>Equipos en renta ({equipos.length})</button>
             <button style={pestana === "otros" ? S.btn : S.btnGris} onClick={() => setPestana("otros")}>Otros conceptos ({otros.length})</button>

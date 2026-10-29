@@ -83,8 +83,7 @@ function GestionClientes() {
       <Layout>
         <div
           style={{
-            width: "100%",
-            maxWidth: "1400px"
+            width: "100%"
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: "14px", width: "100%" }}>
