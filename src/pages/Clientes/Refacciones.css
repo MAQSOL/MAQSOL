@@ -148,7 +148,7 @@ textarea:focus {
 }
 .historial-mostrar-btn {
   position: fixed;
-  top: 110px;
+  top: 52px;
   right: 0;
   background: var(--acento);
   color: #fff;
