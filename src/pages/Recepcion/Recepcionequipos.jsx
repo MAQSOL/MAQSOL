@@ -112,7 +112,7 @@ function fFecha(f){return f?new Date(f+'T00:00:00').toLocaleDateString('es-MX'):
 
 function BadgeTipo({tipo}){
   const salida=(tipo||'Salida')==='Salida'
-  return <span translate="no" className="notranslate" style={{background:salida?'#e3f2fd':'#e8f5e9',color:salida?'#1565c0':'#2e7d32',padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>{tipo||'Salida'}</span>
+  return <span translate="no" className="notranslate" style={{background:salida?'var(--acento)':'#1f8b4c',color:'#fff',padding:'4px 10px',borderRadius:0,fontSize:11.5,fontWeight:800,whiteSpace:'nowrap',letterSpacing:'0.5px'}}>{tipo||'Salida'}</span>
 }
 
 function BotonEstado({activo,color,onClick,children}){

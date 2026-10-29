@@ -16,6 +16,14 @@
   padding:10px;
   border-radius:12px;
   box-shadow:0 2px 8px rgba(0,0,0,.08);
+  counter-increment:panel-num;
+}
+
+.panel h3::before{
+  content:counter(panel-num,decimal-leading-zero)"  ";
+  color:var(--acento);
+  font-weight:800;
+  font-family:'Montserrat',sans-serif;
 }
 
 .panel h3{
