@@ -12,7 +12,7 @@ function ProtectedRoute({ children }) {
 
     Promise.all([
       supabase.auth.getSession(),
-      new Promise(resolve => setTimeout(resolve, 5000))
+      new Promise(resolve => setTimeout(resolve, 3000))
     ]).then(([{ data }]) => {
       setSesion(data.session);
       setCargando(false);
