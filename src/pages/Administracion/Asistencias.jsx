@@ -457,15 +457,21 @@ function Asistencias() {
   };
 
   const tab = (activa) => ({
-    padding: "13px 34px",
+    padding: ".15rem 1.8rem",
+    minHeight: "40px",
     border: "none",
-    borderRadius: 0,
+    borderRadius: activa ? "4px 4px 2px 2px" : "4px",
+    borderBottom: activa ? `2px solid ${VINO}` : "none",
     cursor: "pointer",
     fontWeight: "700",
     fontSize: "15px",
-    background: activa ? VINO : "#f0f0f0",
-    color: activa ? "#fff" : "#888",
-    transition: ".2s"
+    fontFamily: "inherit",
+    background: "#f5f5f5",
+    color: activa ? VINO : "#888",
+    boxShadow: "0px 10px 20px -18px",
+    outline: "none",
+    lineHeight: "1.15",
+    transition: ".15s"
   });
 
   const flecha = {
