@@ -582,7 +582,7 @@ function Asistencias() {
 
               {/* ALTA */}
               <div className="panel">
-                <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
+                <h3 className="no-counter" style={{ textAlign: "center", marginBottom: "20px" }}>
                   Agregar Colaborador
                 </h3>
 
@@ -646,7 +646,7 @@ function Asistencias() {
                   <button style={flecha} onClick={() => cambiarSemana(-1)}>←</button>
 
                   <div style={{ textAlign: "center", minWidth: "210px" }}>
-                    <h3 style={{ margin: 0, color: VINO }}>
+                    <h3 style={{ margin: 0, color: VINO, fontSize: "26px", textAlign: "center" }}>
                       Semana {numeroDeSemana(lunes)} · {lunes.getFullYear()}
                     </h3>
                     <small style={{ color: "#888" }}>
