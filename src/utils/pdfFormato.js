@@ -40,19 +40,20 @@ export function cssDoc({ hoja = "auto", extra = "" } = {}) {
   return `
     @page{size:${hoja === "horizontal" ? "letter landscape" : hoja === "vertical" ? "letter portrait" : "auto"};margin:0}
     *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    body{font-family:Arial,sans-serif;color:#222;margin:0;padding:12mm 12mm;font-size:12px}
+    body{font-family:'Roboto Mono','Courier New',monospace;color:#222;margin:0;padding:12mm 12mm;font-size:11.5px}
     ${CSS_ENCABEZADO}
-    h2{font-size:14px;margin:20px 0 8px;color:${ROJO}}
+    h1{font-family:'Space Mono',monospace!important}
+    h2{font-size:13px;margin:18px 0 7px;color:${ROJO};font-family:'Space Mono',monospace;letter-spacing:.3px}
     table{width:100%;border-collapse:collapse}
     thead{display:table-header-group}
-    th{background:${AZUL};color:#fff;text-align:left;padding:7px;font-size:11px}
-    td{padding:6px 7px;border-bottom:1px solid #ddd}
-    tbody tr:nth-child(even) td{background:#f5f5f5}
+    th{background:${AZUL};color:#fff;text-align:left;padding:7px 6px;font-size:10.5px;font-family:'Space Mono',monospace;letter-spacing:.3px}
+    td{padding:5px 7px;border-bottom:1px solid #e8e8e8;font-family:'Roboto Mono',monospace}
+    tbody tr:nth-child(even) td{background:#f8f8f8}
     tr{page-break-inside:avoid}
     .c{text-align:center}.r{text-align:right}.b{font-weight:700}
-    .m{font-size:10px;color:#777;margin-top:1px}
-    .tot{display:flex;gap:30px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px;font-size:14px}
-    .pie{margin-top:14px;font-size:9px;color:#999;text-align:center}
+    .m{font-size:10px;color:#777;margin-top:1px;font-family:'Roboto Mono',monospace}
+    .tot{display:flex;gap:30px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px;font-size:13px}
+    .pie{margin-top:14px;font-size:9px;color:#aaa;text-align:center;font-family:'Roboto Mono',monospace;letter-spacing:.3px}
     @media print{body{padding:10mm 9mm}}
     ${extra}`;
 }
@@ -78,8 +79,10 @@ export function abrirDocPDF({ nombre, cuerpo, hoja = "auto", css = "" }) {
     return;
   }
   w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(nombre)}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>${cssDoc({ hoja, extra: css })}</style></head><body>${cuerpo}
-    <script>window.onload=function(){setTimeout(function(){window.print()},400)}</script></body></html>`);
+    <script>document.fonts.ready.then(function(){window.print()});</script></body></html>`);
   w.document.close();
 }
 

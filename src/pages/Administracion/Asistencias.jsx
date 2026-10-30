@@ -381,23 +381,23 @@ function Asistencias() {
     abrirDocPDF({
       nombre: nombreArchivo,
       css: `
-        .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 24px;}
-        table.tarjeta{border-collapse:collapse;width:100%;border:1px solid #c9d6e3;page-break-inside:avoid;font-size:11px;}
-        table.tarjeta tbody tr td,table.tarjeta th{border:1px solid #dde5ee;padding:5px 8px;background:#fff;}
-        table.tarjeta tr.encabezado th{background:${AZUL};color:#fff;border-color:${AZUL};font-weight:700;text-align:left;padding:6px 8px;}
+        .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px 22px;}
+        table.tarjeta{border-collapse:collapse;width:100%;border:1px solid #e0e0e0;page-break-inside:avoid;font-size:10.5px;}
+        table.tarjeta tbody tr td,table.tarjeta th{border:0.5px solid #e8e8e8;padding:5px 8px;background:#fff;}
+        table.tarjeta tr.encabezado th{background:#8F1D2C;color:#fff;border-color:#8F1D2C;font-weight:700;text-align:left;padding:7px 8px;font-family:'Space Mono',monospace;letter-spacing:.4px;}
         table.tarjeta tr.encabezado th.centrado{text-align:center;}
-        table.tarjeta tr.encabezado th.mes{font-size:13px;letter-spacing:0.5px;text-align:center;}
-        table.tarjeta td.nombre{background:${AZUL_TENUE};font-weight:700;text-align:center;vertical-align:middle;width:22%;}
-        .dia{text-transform:lowercase;width:16%;}
-        .fecha{text-align:center;width:20%;}
+        table.tarjeta tr.encabezado th.mes{font-size:12px;letter-spacing:.8px;text-align:center;}
+        table.tarjeta td.nombre{background:#f9f0f1;font-weight:700;text-align:center;vertical-align:middle;width:22%;border-right:2px solid #8F1D2C;font-family:'Space Mono',monospace;font-size:9.5px;}
+        .dia{text-transform:capitalize;width:16%;color:#555;}
+        .fecha{text-align:center;width:20%;color:#555;font-family:'Roboto Mono',monospace;font-size:10px;}
         .estado{text-align:center;font-weight:800;width:20%;}
-        table.tarjeta td.estado.asistio{background:#a9d18e;color:#1a7f37;}
-        table.tarjeta td.estado.falta{background:#f4b6b6;color:#c62828;}
-        table.tarjeta tr.fila-domingo td{background:#bcd4e6;}
-        table.tarjeta tr.fila-domingo td.estado{background:#bcd4e6;font-weight:700;color:#1a4d7a;}
-        table.tarjeta td.obs-label{background:${AZUL_TENUE};font-weight:700;text-align:center;}
-        .obs-texto{font-weight:700;text-align:center;padding:10px 8px;}
-        @media print{.grid{gap:16px 20px;}}`,
+        table.tarjeta td.estado.asistio{background:#dff0d8;color:#1a7f37;}
+        table.tarjeta td.estado.falta{background:#fde8e8;color:#c62828;}
+        table.tarjeta tr.fila-domingo td{background:#eef2f7;color:#4a6fa5;}
+        table.tarjeta tr.fila-domingo td.estado{background:#eef2f7;font-weight:700;color:#4a6fa5;}
+        table.tarjeta td.obs-label{background:#f9f0f1;font-weight:700;text-align:center;font-family:'Space Mono',monospace;font-size:9px;border-right:2px solid #8F1D2C;}
+        .obs-texto{font-weight:500;text-align:center;padding:8px;color:#444;font-family:'Roboto Mono',monospace;font-size:10px;}
+        @media print{.grid{gap:14px 18px;}}`,
       cuerpo: `${encabezadoDoc("Lista de Asistencia", [`${mesNombre} · Semana ${semana} · ${lunes.getFullYear()}`, "Generado: " + hoyMX()])}
         <div class="grid">${tarjetas}</div>`
     });
