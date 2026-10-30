@@ -104,27 +104,18 @@ textarea,
 .btn-guardar,
 .btn-pdf,
 .btn-limpiar{
-  padding:5px 80px;
-  border:none;
-  border-radius:10px;
+  padding:13px 30px;
+  border:2px solid #111;
+  border-radius:0;
   cursor:pointer;
-  font-weight:1500;
-}
-
-.btn-guardar{
-  background:#198754;
+  font-weight:800;
+  font-family:'Montserrat',sans-serif;
+  font-size:14px;
   color:white;
 }
-
-.btn-pdf{
-  background:var(--acento);
-  color:white;
-}
-
-.btn-limpiar{
-  background:#9c0000;
-  color:white;
-}.form-grid input{
+.btn-guardar{ background:#198754; }
+.btn-pdf{ background:var(--acento); }
+.btn-limpiar{ background:#6c757d; }.form-grid input{
   height:60px;
 }
 
