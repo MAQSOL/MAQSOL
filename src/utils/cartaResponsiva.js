@@ -61,7 +61,7 @@ export function descargarCartaResponsiva(d) {
   };
 
   const parrafo = (texto, { negrita = false, tam = 9.6, sep = 2.2, justificar = true } = {}) => {
-    doc.setFont("helvetica", negrita ? "bold" : "normal");
+    doc.setFont("courier", negrita ? "bold" : "normal");
     doc.setFontSize(tam);
     const lineas = doc.splitTextToSize(texto, ancho);
     const alto = lineas.length * (tam * 0.43) + sep;
@@ -71,7 +71,7 @@ export function descargarCartaResponsiva(d) {
   };
 
   // lugar y fecha
-  doc.setFont("helvetica", "normal");
+  doc.setFont("courier", "normal");
   doc.setFontSize(9.6);
   doc.text(`${d.lugar || ""}, a ${fechaLarga(d.fecha)}.`, x + ancho, y + 2, { align: "right" });
   y += 7;
@@ -101,10 +101,10 @@ export function descargarCartaResponsiva(d) {
     doc.setDrawColor(200, 200, 200);
     doc.rect(x, yy, colK, hFila);
     doc.rect(x + colK, yy, ancho - colK, hFila);
-    doc.setFont("helvetica", "bold");
+    doc.setFont("courier", "bold");
     doc.setFontSize(8);
     doc.text(k, x + 2, yy + 4.3);
-    doc.setFont("helvetica", "normal");
+    doc.setFont("courier", "normal");
     doc.setFontSize(9.6);
     doc.text(String(v), x + colK + 2.5, yy + 4.5);
   });
@@ -168,11 +168,11 @@ export function descargarCartaResponsiva(d) {
     doc.line(cx, yCaja + hCaja, cx + anchoCaja, yCaja + hCaja);
   });
   doc.setLineWidth(0.2);
-  doc.setFont("helvetica", "bold");
+  doc.setFont("courier", "bold");
   doc.setFontSize(9);
   doc.text(d.nombre ? d.nombre : "Nombre del operador", x + anchoCaja / 2, yCaja + hCaja + 4.5, { align: "center", maxWidth: anchoCaja });
   doc.text(d.entrega ? d.entrega : "Nombre de quien entrega", x + anchoCaja + 14 + anchoCaja / 2, yCaja + hCaja + 4.5, { align: "center", maxWidth: anchoCaja });
-  doc.setFont("helvetica", "normal");
+  doc.setFont("courier", "normal");
   doc.setFontSize(8);
   doc.setTextColor(95, 95, 95);
   doc.text("Operador que recibe", x + anchoCaja / 2, yCaja + hCaja + 8.5, { align: "center" });

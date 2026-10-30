@@ -42,7 +42,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   const seccion = (titulo) => {
     doc.setFillColor(...NEGRO);
     doc.rect(M, y, ancho, 6, "F");
-    doc.setFont("helvetica", "bold");
+    doc.setFont("courier", "bold");
     doc.setFontSize(7.5);
     doc.setTextColor(255, 255, 255);
     doc.text(titulo, M + 3, y + 4);
@@ -60,14 +60,14 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
       const txt = String(val == null ? "" : val).trim();
 
       // etiqueta
-      doc.setFont("helvetica", "bold");
+      doc.setFont("courier", "bold");
       doc.setFontSize(6.2);
       doc.setTextColor(...GRIS);
       doc.text(label.toUpperCase(), x, y + 3.2);
 
       // valor
       if (txt) {
-        doc.setFont("helvetica", "normal");
+        doc.setFont("courier", "normal");
         let sz = 9;
         doc.setFontSize(sz);
         while (doc.getTextWidth(txt) > fw - 1 && sz > 6.5) { sz -= 0.25; doc.setFontSize(sz); }
@@ -135,7 +135,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   if (p.notas) {
     seccion("OBSERVACIONES");
     // Área de texto multilínea
-    doc.setFont("helvetica", "normal");
+    doc.setFont("courier", "normal");
     doc.setFontSize(9);
     doc.setTextColor(...NEGRO);
     const lineas = doc.splitTextToSize(p.notas, ancho - 2);
@@ -160,11 +160,11 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
     doc.setDrawColor(...LINEA);
     doc.setLineWidth(0.3);
     doc.line(fx, y, fx + fw4, y);
-    doc.setFont("helvetica", "bold");
+    doc.setFont("courier", "bold");
     doc.setFontSize(6.5);
     doc.setTextColor(...GRIS);
     doc.text(labels4[i], fx + fw4 / 2, y + 3.5, { align: "center" });
-    doc.setFont("helvetica", "normal");
+    doc.setFont("courier", "normal");
     doc.setFontSize(7.5);
     doc.setTextColor(...NEGRO);
     doc.text(vals4[i], fx + fw4 / 2, y + 7.5, { align: "center" });
@@ -175,7 +175,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   doc.setDrawColor(...VINO);
   doc.setLineWidth(0.7);
   doc.line(M, y, M + ancho, y);
-  doc.setFont("helvetica", "normal");
+  doc.setFont("courier", "normal");
   doc.setFontSize(6.5);
   doc.setTextColor(...GRIS);
   doc.text("Documento confidencial generado desde MAQSISTEM", W / 2, y + 4, { align: "center" });

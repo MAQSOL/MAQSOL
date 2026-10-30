@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -9,6 +9,9 @@
   --acento-oscuro:#5a0f1a;
   --font-dato:'JetBrains Mono',monospace;
 }
+
+/* ── Space Mono — títulos ─────────────────────────────────────────────── */
+h1,h2,h3    { font-family:'Space Mono',monospace; }
 
 /* ── JetBrains Mono — campos de datos ─────────────────────────────────── */
 .dato         { font-family:var(--font-dato); }

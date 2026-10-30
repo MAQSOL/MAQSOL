@@ -43,19 +43,19 @@ export function descargarEtiquetaQR(equipo, dataUrl, url, logoUrl) {
   if (logoUrl) {
     try { doc.addImage(logoUrl, "PNG", 5, 3, 15, 16); } catch { /* sin logo */ }
   }
-  doc.setFont("helvetica", "bold");
+  doc.setFont("courier", "bold");
   doc.setFontSize(13);
   doc.setTextColor(255, 255, 255);
   doc.text("MAQSOL", 24, 10);
-  doc.setFont("helvetica", "normal");
+  doc.setFont("courier", "normal");
   doc.setFontSize(8);
   doc.text("Maquinaria Soporte y Logística", 24, 15.5);
 
   doc.setTextColor(20, 20, 20);
-  doc.setFont("helvetica", "bold");
+  doc.setFont("courier", "bold");
   doc.setFontSize(12);
   doc.text(doc.splitTextToSize(equipo.tipo || "Equipo", W - 12), W / 2, 31, { align: "center" });
-  doc.setFont("helvetica", "normal");
+  doc.setFont("courier", "normal");
   doc.setFontSize(9.5);
   doc.text(`${equipo.marca || ""} ${equipo.modelo || ""}`.trim(), W / 2, 37, { align: "center" });
   doc.setFontSize(9);
@@ -65,11 +65,11 @@ export function descargarEtiquetaQR(equipo, dataUrl, url, logoUrl) {
   doc.addImage(dataUrl, "PNG", 15, 47, 70, 70);
 
   doc.setTextColor(20, 20, 20);
-  doc.setFont("helvetica", "bold");
+  doc.setFont("courier", "bold");
   doc.setFontSize(9.5);
   doc.text("Escanea para ver la información", W / 2, 123, { align: "center" });
   doc.text("y el historial de este equipo", W / 2, 128, { align: "center" });
-  doc.setFont("helvetica", "normal");
+  doc.setFont("courier", "normal");
   doc.setFontSize(6.5);
   doc.setTextColor(120, 120, 120);
   doc.text(url, W / 2, 135, { align: "center", maxWidth: W - 8 });

@@ -93,11 +93,11 @@ export function encabezadoJsPDF(doc, { titulo, lineas = [], x, ancho, y = 10, al
   const ls = lineas.filter(Boolean).map(String);
   const wLogo = altoLogo * LOGO_MAQSOL_TRANSPARENTE_RELACION;
   try { doc.addImage(LOGO_MAQSOL_TRANSPARENTE, "PNG", x + ancho - wLogo, y, wLogo, altoLogo); } catch { /* sin logo */ }
-  doc.setFont("helvetica", "bold");
+  doc.setFont("courier", "bold");
   doc.setFontSize(17);
   doc.setTextColor(17, 17, 17);
   doc.text(titulo, x, y + 6);
-  doc.setFont("helvetica", "normal");
+  doc.setFont("courier", "normal");
   doc.setFontSize(9);
   doc.setTextColor(85, 85, 85);
   ls.forEach((l, i) => doc.text(l, x, y + 11.5 + i * 4.4, { maxWidth: ancho - wLogo - 6 }));
@@ -112,7 +112,7 @@ export function encabezadoJsPDF(doc, { titulo, lineas = [], x, ancho, y = 10, al
 
 /** Subtítulo de sección en rojo (como "Resumen por máquina"). Devuelve la y siguiente. */
 export function seccionJsPDF(doc, texto, x, y, color = ROJO_RGB) {
-  doc.setFont("helvetica", "bold");
+  doc.setFont("courier", "bold");
   doc.setFontSize(12);
   doc.setTextColor(...color);
   doc.text(texto, x, y + 4);

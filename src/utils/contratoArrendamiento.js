@@ -275,11 +275,11 @@ export function descargarContratoPDF(bloques, nombreArchivo) {
 
   // encabezado de cada página: empresa y código a la izquierda, logo chico en la esquina derecha, línea gris oscuro
   const cabecera = () => {
-    doc.setFont("helvetica", "bold");
+    doc.setFont("courier", "bold");
     doc.setFontSize(10);
     doc.setTextColor(...GRIS);
     doc.text("MAQUINARIA SOPORTE Y LOGISTICA SA DE CV", M, 10);
-    doc.setFont("helvetica", "normal");
+    doc.setFont("courier", "normal");
     doc.setFontSize(8);
     doc.setTextColor(85, 85, 85);
     doc.text(CODIGO_DOC + "  ·  pág. " + pagina, M, 14.5);
@@ -293,7 +293,7 @@ export function descargarContratoPDF(bloques, nombreArchivo) {
   const nuevaPagina = () => { doc.addPage(); pagina += 1; cabecera(); };
   const asegura = (alto) => { if (y + alto > H - 16) nuevaPagina(); };
   const texto = (tam, negrita, color = [25, 25, 25]) => {
-    doc.setFont("helvetica", negrita ? "bold" : "normal");
+    doc.setFont("courier", negrita ? "bold" : "normal");
     doc.setFontSize(tam);
     doc.setTextColor(...color);
   };
@@ -343,13 +343,13 @@ export function descargarContratoPDF(bloques, nombreArchivo) {
       const anchoVal = ancho - anchoEtq - 4;
       texto(tam, false);
       const filas = bl.filas.map(([e, val]) => {
-        doc.setFont("helvetica", "bold");
+        doc.setFont("courier", "bold");
         const le = doc.splitTextToSize(e, anchoEtq - 2);
-        doc.setFont("helvetica", "normal");
+        doc.setFont("courier", "normal");
         const lv = doc.splitTextToSize(String(val), anchoVal);
         return { le, lv, n: Math.max(le.length, lv.length) };
       });
-      doc.setFont("helvetica", "bold");
+      doc.setFont("courier", "bold");
       doc.setFontSize(9);
       const lt = doc.splitTextToSize(bl.titulo, ancho - 4);
       const altoTitulo = lt.length * lh(9) + 3.2;

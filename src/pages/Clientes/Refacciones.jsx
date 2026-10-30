@@ -1,4 +1,4 @@
-﻿import { IconoMas } from "../../components/Icons";
+import { IconoMas } from "../../components/Icons";
 import Layout from "../../components/Layout";import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import jsPDF from "jspdf";
@@ -220,7 +220,7 @@ doc.addImage(
 
 // DATOS EMPRESA
 
-doc.setFont("helvetica", "normal");
+doc.setFont("courier", "normal");
 doc.setFontSize(8);
 doc.setTextColor(100, 100, 100);
 
@@ -250,7 +250,7 @@ const dibujarCampoCaja = (etiqueta, valor) => {
 
   doc.setFillColor(128, 0, 32);
   doc.rect(boxX, boxY, boxW, 3.2, "F");
-  doc.setFont("helvetica", "bold");
+  doc.setFont("courier", "bold");
   doc.setFontSize(5);
   doc.setTextColor(255, 255, 255);
   doc.text(etiqueta, boxX + boxW / 2, boxY + 2.2, { align: "center" });
@@ -259,7 +259,7 @@ const dibujarCampoCaja = (etiqueta, valor) => {
   doc.setLineWidth(0.2);
   doc.rect(boxX, boxY + 3.2, boxW, 4.4);
 
-  doc.setFont("helvetica", "normal");
+  doc.setFont("courier", "normal");
   doc.setFontSize(6);
   doc.setTextColor(0, 0, 0);
   doc.text(String(valor || ""), boxX + boxW / 2, boxY + 6.2, { align: "center" });
@@ -294,14 +294,14 @@ const dibujarTablaDatos = (columnas, anchos, valores, xInicio, yInicio, espacio 
 
     doc.setFillColor(0, 0, 0);
     doc.rect(x, yInicio, anchos[i], 6, "F");
-    doc.setFont("helvetica", "bold");
+    doc.setFont("courier", "bold");
     doc.setFontSize(7);
     doc.setTextColor(255, 255, 255);
     doc.text(col, x + anchos[i] / 2, yInicio + 4, { align: "center" });
 doc.setDrawColor(210, 210, 210);
     doc.setLineWidth(0.1);
     doc.rect(x, yInicio + 6, anchos[i], altoFila);
-    doc.setFont("helvetica", "normal");
+    doc.setFont("courier", "normal");
     doc.setFontSize(8);
     doc.setTextColor(0, 0, 0);
     doc.text(lineasPorCelda[i], x + 2, yInicio + 6 + 4);
@@ -362,7 +362,7 @@ const dibujarEncabezadoTabla = () => {
 
   doc.setFillColor(128, 0, 32);
   doc.setTextColor(255, 255, 255);
-  doc.setFont("helvetica", "bold");
+  doc.setFont("courier", "bold");
   doc.setFontSize(8);
 
   doc.rect(colX.cantidad, yTabla, anchoTabla.cantidad, 8, "F");
@@ -382,7 +382,7 @@ const dibujarEncabezadoTabla = () => {
   doc.text("TOTAL", colX.total + anchoTabla.total / 2, yTabla + 5, { align: "center" });
 
   doc.setTextColor(0, 0, 0);
-  doc.setFont("helvetica", "normal");
+  doc.setFont("courier", "normal");
 
   yTabla += 8;
 
@@ -462,7 +462,7 @@ const saltarSiNecesario = (altura) => {
 
 saltarSiNecesario(20);
 
-doc.setFont("helvetica", "normal");
+doc.setFont("courier", "normal");
 doc.setFontSize(9);
 
 const observacionesTexto =
@@ -475,7 +475,7 @@ const altoObs = Math.max(observacionesTexto.length * 5 + 6, 16);
 
 doc.setFillColor(0, 0, 0);
 doc.rect(12, yAbajo, 186, 6, "F");
-doc.setFont("helvetica", "bold");
+doc.setFont("courier", "bold");
 doc.setFontSize(7);
 doc.setTextColor(255, 255, 255);
 doc.text("OBSERVACIONES", 14, yAbajo + 4);
@@ -484,7 +484,7 @@ doc.setDrawColor(210, 210, 210);
 doc.setLineWidth(0.1);
 doc.rect(12, yAbajo + 6, 186, altoObs);
 
-doc.setFont("helvetica", "normal");
+doc.setFont("courier", "normal");
 doc.setFontSize(9);
 doc.setTextColor(0, 0, 0);
 
@@ -506,7 +506,7 @@ const dibujarOpciones = (titulo, opciones, seleccionado, xInicio, yInicio, ancho
 
   doc.setFillColor(0, 0, 0);
   doc.setTextColor(255, 255, 255);
-  doc.setFont("helvetica", "bold");
+  doc.setFont("courier", "bold");
   doc.setFontSize(8);
   doc.rect(xInicio, yInicio, anchoTotal, 6, "F");
   doc.text(titulo, xInicio + 2, yInicio + 4);
@@ -516,7 +516,7 @@ doc.setDrawColor(190, 190, 190);
   doc.rect(xInicio, yInicio + 6, anchoTotal, 8);
 
   doc.setTextColor(0, 0, 0);
-  doc.setFont("helvetica", "normal");
+  doc.setFont("courier", "normal");
   doc.setFontSize(8);
 
   const anchoOpcion = anchoTotal / opciones.length;
@@ -533,9 +533,9 @@ doc.setDrawColor(190, 190, 190);
 const opNormalizado = op.replace("Mant.", "Mantenimiento");
 
     if (opNormalizado === seleccionado || op === seleccionado) {
-      doc.setFont("helvetica", "bold");
+      doc.setFont("courier", "bold");
       doc.text("X", cajaX + 2, cajaY + 3.2, { align: "center" });
-      doc.setFont("helvetica", "normal");
+      doc.setFont("courier", "normal");
     }
 
     doc.text(op, cajaX + 6, cajaY + 3.2);
@@ -586,18 +586,18 @@ doc.setDrawColor(190, 190, 190);
 doc.setLineWidth(0.1);
     doc.rect(12, yResumen, 130, 16);
 
-doc.setFont("helvetica", "bold");
+doc.setFont("courier", "bold");
 doc.setFontSize(8);
 doc.text("CANTIDAD EN LETRA:", 14, yResumen + 5);
 
-doc.setFont("helvetica", "normal");
+doc.setFont("courier", "normal");
 doc.setFontSize(8);
 
 const letraTexto = total > 0 ? `(${totalEnLetras()})` : "";
 const letraLineas = doc.splitTextToSize(letraTexto, 125);
 doc.text(letraLineas, 14, yResumen + 10);
 
-doc.setFont("helvetica", "bold");
+doc.setFont("courier", "bold");
 doc.setFontSize(9);
 doc.setTextColor(0, 0, 0);
 
@@ -646,7 +646,7 @@ saltarSiNecesario(35);
 
 const yCuentas = yAbajo;
 
-doc.setFont("helvetica", "bold");
+doc.setFont("courier", "bold");
 doc.setFontSize(9);
 doc.text("CUENTAS BANCARIAS", 12, yCuentas);
 
@@ -672,7 +672,7 @@ doc.text("CUENTA", 104, yEncabezado + 4);
 doc.text("CLABE", 154, yEncabezado + 4);
 
 doc.setTextColor(0, 0, 0);
-doc.setFont("helvetica", "normal");
+doc.setFont("courier", "normal");
 
 const yFila1 = yEncabezado + 6;
 
@@ -710,12 +710,12 @@ yAbajo = yFila2 + 15;
 
 saltarSiNecesario(30);
 
-doc.setFont("helvetica", "bold");
+doc.setFont("courier", "bold");
 doc.setFontSize(7);
 doc.setTextColor(0, 0, 0);
 doc.text("CONDICIONES DEL SERVICIO:", 12, yAbajo);
 
-doc.setFont("helvetica", "normal");
+doc.setFont("courier", "normal");
 doc.setFontSize(7);
 
 const clausulas = [

@@ -24,11 +24,11 @@ export function descargarFichaEquipoPDF(eq) {
 
   cabecera();
 
-  doc.setFont("helvetica", "bold");
+  doc.setFont("courier", "bold");
   doc.setFontSize(14);
   doc.setTextColor(20, 20, 20);
   doc.text(eq.tipo || "Equipo", M, y + 5);
-  doc.setFont("helvetica", "normal");
+  doc.setFont("courier", "normal");
   doc.setFontSize(11);
   doc.setTextColor(90, 90, 90);
   doc.text(`${eq.marca || ""} ${eq.modelo || ""}`.trim() + (eq.serie ? `  ·  Serie ${eq.serie}` : ""), M, y + 11.5);
@@ -51,10 +51,10 @@ export function descargarFichaEquipoPDF(eq) {
   doc.setFontSize(10);
   datos.forEach(([k, v], i) => {
     const yy = y + 4 + i * 10.5;
-    doc.setFont("helvetica", "bold");
+    doc.setFont("courier", "bold");
     doc.setTextColor(...AZUL);
     doc.text(k.toUpperCase(), M, yy - 3);
-    doc.setFont("helvetica", "normal");
+    doc.setFont("courier", "normal");
     doc.setTextColor(20, 20, 20);
     doc.text(String(v), M, yy + 1.5, { maxWidth: ancho - anchoFoto });
   });
@@ -64,7 +64,7 @@ export function descargarFichaEquipoPDF(eq) {
 
   const lista = eq.mantenimientos || [];
   if (!lista.length) {
-    doc.setFont("helvetica", "normal");
+    doc.setFont("courier", "normal");
     doc.setFontSize(10);
     doc.setTextColor(110, 110, 110);
     doc.text("Aún no hay mantenimientos registrados.", M, y + 3);
@@ -78,24 +78,24 @@ export function descargarFichaEquipoPDF(eq) {
     doc.setDrawColor(215);
     doc.setLineWidth(0.2);
     doc.line(M, y - 1, W - M, y - 1);
-    doc.setFont("helvetica", "bold");
+    doc.setFont("courier", "bold");
     doc.setFontSize(9.5);
     doc.setTextColor(20, 20, 20);
     doc.text(`${f(m.fecha) || "Sin fecha"}  ·  ${m.tipoMantto || ""}${m.horometro ? `  ·  ${conHoras(m.horometro, "h")}` : ""}`, M, y + 4);
     if (m.realizadoPor) {
-      doc.setFont("helvetica", "normal");
+      doc.setFont("courier", "normal");
       doc.setFontSize(8.5);
       doc.setTextColor(120, 120, 120);
       doc.text(`Realizó: ${m.realizadoPor}`, W - M, y + 4, { align: "right" });
     }
-    doc.setFont("helvetica", "normal");
+    doc.setFont("courier", "normal");
     doc.setFontSize(9.5);
     doc.setTextColor(40, 40, 40);
     doc.text(desc, M, y + 9);
     y += alto;
   });
 
-  doc.setFont("helvetica", "normal");
+  doc.setFont("courier", "normal");
   doc.setFontSize(8);
   doc.setTextColor(140, 140, 140);
   doc.text(`Generado el ${new Date().toLocaleDateString("es-MX")} desde el código QR del equipo.`, M, H - 8);

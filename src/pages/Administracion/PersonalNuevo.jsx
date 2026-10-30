@@ -245,8 +245,8 @@ export default function PersonalNuevo() {
             <button className="btn-sys" style={S.btnGris} onClick={() => descargarFichaPDF({}, logoUrl(), "FICHA-EMPLEADO-EN-BLANCO")}>
               Ficha en blanco (para que la llene el empleado)
             </button>
-            <button className="btn-sys" style={S.btnGris} onClick={() => setCarta({ persona: null })}>Carta responsiva de equipo</button>
-            <button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Nuevo empleado</button>
+            <button className="btn-sys btn-word" onClick={() => setCarta({ persona: null })}>Carta responsiva de equipo</button>
+            <button className="btn-sys btn-pdf" onClick={abrirNuevo}><IconoMas />Nuevo empleado</button>
           </div>
         </div>
 
