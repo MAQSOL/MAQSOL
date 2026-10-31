@@ -1,7 +1,8 @@
 ﻿import { useState } from "react";
 
 const estiloTarjeta = {
-  borderBottom: "1px solid #ddd",
+  borderLeft: "3px solid var(--acento)",
+  paddingLeft: "10px",
   paddingBottom: "12px",
   marginBottom: "12px"
 };
@@ -73,7 +74,8 @@ export default function ListaCotizaciones({ cotizaciones, onCargar, mostrarAutor
             onClick={(e) => e.stopPropagation()}
             style={{
               background: "#fff",
-              borderRadius: "12px",
+              borderRadius: 0,
+              border: "2px solid #111",
               padding: "24px",
               width: "100%",
               maxWidth: "820px"
@@ -84,7 +86,7 @@ export default function ListaCotizaciones({ cotizaciones, onCargar, mostrarAutor
               <button
                 type="button"
                 onClick={() => setAbierto(false)}
-                style={{ background: "#f1f1f1", border: "none", borderRadius: "6px", width: "30px", height: "30px", cursor: "pointer", fontSize: "15px" }}
+                style={{ background: "#f5f5f5", border: "2px solid #111", borderRadius: 0, width: "30px", height: "30px", cursor: "pointer", fontSize: "13px", fontFamily: "'Montserrat',sans-serif", fontWeight: 800 }}
               >
                 ✕
               </button>
@@ -95,7 +97,7 @@ export default function ListaCotizaciones({ cotizaciones, onCargar, mostrarAutor
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Buscar por folio, cliente o fecha…"
-              style={{ width: "100%", boxSizing: "border-box", padding: "10px", border: "1px solid #ddd", borderRadius: 0, marginBottom: "16px" }}
+              style={{ width: "100%", boxSizing: "border-box", padding: "10px", border: "none", borderBottom: "2px solid #ddd", borderRadius: 0, marginBottom: "16px" }}
             />
 
             {filtradas.length === 0 ? (
@@ -105,7 +107,7 @@ export default function ListaCotizaciones({ cotizaciones, onCargar, mostrarAutor
                 {filtradas.map((c) => (
                   <div
                     key={c.id}
-                    style={{ border: "1px solid #e6e6e6", borderRadius: "10px", padding: "12px 14px" }}
+                    style={{ border: "1px solid #e6e6e6", borderLeft: "3px solid var(--acento)", borderRadius: 0, padding: "12px 14px" }}
                   >
                     <strong style={{ color: "var(--acento)" }}>{c.folio}</strong>
                     <div style={{ fontSize: "14px", margin: "3px 0" }}>{c.cliente}</div>
@@ -116,7 +118,7 @@ export default function ListaCotizaciones({ cotizaciones, onCargar, mostrarAutor
                     <button
                       type="button"
                       className="btn-panel"
-                      style={{ margin: 0, border: "none", cursor: "pointer" }}
+                      style={{ margin: 0, cursor: "pointer" }}
                       onClick={() => {
                         setAbierto(false);
                         onCargar(c);

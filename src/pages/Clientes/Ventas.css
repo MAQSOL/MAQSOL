@@ -152,16 +152,17 @@ textarea{
 .seguimiento-panel{
   background:#fff;
   padding:18px;
-  border-radius:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  border-radius:0;
+  border:2px solid #111;
   align-self:stretch;
   position:sticky;
   top:20px;
 }
 
 .seguimiento-panel h3{
-  color:#473a3d;
+  color:#111;
   margin-bottom:15px;
+  font-family:'Space Mono',monospace;
 }
 
 .seguimiento-panel label{
@@ -176,8 +177,9 @@ textarea{
 .seguimiento-panel textarea{
   width:100%;
   padding:10px;
-  border:1px solid #ddd;
-  border-radius:8px;
+  border:none;
+  border-bottom:2px solid #ddd;
+  border-radius:0;
   margin-bottom:10px;
 }
 
@@ -191,19 +193,21 @@ textarea{
   justify-content:space-between;
 }
 .historial-cerrar{
-  background:#f1f1f1;
-  color:#666;
-  border:none;
-  border-radius:6px;
-  width:26px;
-  height:26px;
-  font-size:14px;
+  background:#f5f5f5;
+  color:#111;
+  border:2px solid #111;
+  border-radius:0;
+  width:28px;
+  height:28px;
+  font-size:13px;
+  font-family:'Montserrat',sans-serif;
+  font-weight:800;
   cursor:pointer;
   line-height:1;
 }
 .historial-cerrar:hover{
-  background:#e4e4e4;
-  color:var(--acento);
+  background:var(--acento);
+  color:#fff;
 }
 .historial-contenido{
   overflow:hidden;
@@ -214,13 +218,15 @@ textarea{
   right:0;
   background:var(--acento);
   color:#fff;
-  border:none;
-  border-radius:8px 0 0 8px;
+  border:2px solid #111;
+  border-right:none;
+  border-radius:0;
   padding:12px 16px;
-  font-weight:700;
+  font-weight:800;
+  font-family:'Montserrat',sans-serif;
   font-size:13px;
   cursor:pointer;
-  box-shadow:0 2px 10px rgba(0,0,0,.2);
+  box-shadow:-3px 3px 0 #111;
   z-index:20;
 }
 .historial-mostrar-btn:hover{
@@ -241,19 +247,12 @@ textarea{
   background:#5a6268;
 }
 
-button{
-  border:none !important;
-  outline:none !important;
-}
-
 button:focus{
-  outline:none !important;
-  box-shadow:none !important;
+  outline:none;
 }
 
 button:focus-visible{
-  outline:none !important;
-  box-shadow:none !important;
+  outline:none;
 }
 .vista-cotizaciones{
   display:flex;

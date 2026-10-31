@@ -507,9 +507,11 @@ body{
   background:var(--acento);
   color:white;
   text-decoration:none;
-  border-radius:4px;
+  border-radius:0;
   border:2px solid #111;
-  font-weight:700;
+  font-weight:800;
+  font-family:'Montserrat',sans-serif;
+  font-size:13px;
   box-shadow:3px 3px 0 #111;
   transition:box-shadow .1s, transform .1s;
 }
