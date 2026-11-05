@@ -74,6 +74,7 @@ function Sidebar() {
               { label: "Tareas", href: "/tareas" },
               { label: "Bitácora Fleteros", href: "/bitacora" },
               { label: "Cargas de Diesel", href: "/diesel" },
+              { label: "Cargas de Magna", href: "/magna" },
               { label: "Reporte de Horas", href: "/horas" },
               { label: "Generador de Contratos", href: "/contratos" }
             ]}

@@ -30,6 +30,7 @@ import GeneradorContratos from "./pages/Administracion/GeneradorContratos";
 import OrdenesCompra from "./pages/Administracion/OrdenesCompra";
 import ChatFlotante from "./components/ChatFlotante";
 import CargasDiesel from "./pages/Administracion/CargasDiesel";
+import CargasMagna from "./pages/Administracion/CargasMagna";
 import PersonalNuevo from "./pages/Administracion/PersonalNuevo";
 import Archivos from "./pages/Administracion/Archivos";
 import Tareas from "./pages/Operaciones/Tareas";
@@ -73,6 +74,7 @@ function App() {
         <Route path="/contratos" element={<ProtectedRoute><GeneradorContratos /></ProtectedRoute>} />
         <Route path="/ordenes" element={<ProtectedRoute><OrdenesCompra /></ProtectedRoute>} />
         <Route path="/diesel" element={<ProtectedRoute><CargasDiesel /></ProtectedRoute>} />
+        <Route path="/magna" element={<ProtectedRoute><CargasMagna /></ProtectedRoute>} />
         <Route path="/personal" element={<ProtectedRoute><PersonalNuevo /></ProtectedRoute>} />
         <Route path="/archivos" element={<ProtectedRoute><Archivos /></ProtectedRoute>} />
         <Route path="/tareas" element={<ProtectedRoute><Tareas /></ProtectedRoute>} />
