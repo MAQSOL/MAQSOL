@@ -13,7 +13,7 @@ export const S = {
   modalBg: { position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: 30, overflowY: "auto", zIndex: 999 },
   modal: { background: "#fff", border: "3px solid #111", borderRadius: 0, boxShadow: "8px 8px 0 #111", padding: 26, width: "100%", maxWidth: 760 },
   grid2: { display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 14, marginBottom: 14 },
-  grid3: { display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 14 },
+  grid3: { display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 14, alignItems: "end" },
   h3: { fontSize: 15, fontWeight: 800, margin: "8px 0 10px", color: "var(--acento)", textTransform: "uppercase", letterSpacing: "1px" }
 };
 
