@@ -51,6 +51,7 @@ export default function CargasDiesel() {
   const [fVehiculoM, setFVehiculoM] = useState("");
   const [modalM, setModalM] = useState(false);
   const [formM, setFormM] = useState(NUEVO_M);
+  const [tab, setTab] = useState("diesel");
 
   const domingo = new Date(lunes);
   domingo.setDate(domingo.getDate() + 6);
@@ -249,9 +250,14 @@ export default function CargasDiesel() {
           </div>
         </div>
 
-        {/* ════════════════════════════════════════
-            SECCIÓN: CARGAS DE MAGNA (CAMIONETA)
-        ════════════════════════════════════════ */}
+        {/* Tabs */}
+        <div style={{ display: "flex", borderBottom: "3px solid #111", marginBottom: 28 }}>
+          {[["diesel","Cargas de Diesel"],["magna","Cargas de Magna"]].map(([t, label]) => (
+            <button key={t} onClick={() => setTab(t)} style={{ padding: "12px 28px", fontWeight: 800, fontFamily: "'Montserrat',sans-serif", fontSize: 14, border: "none", borderBottom: tab===t ? "3px solid var(--acento)" : "3px solid transparent", borderRadius: 0, marginBottom: -3, background: "transparent", color: tab===t ? "var(--acento)" : "#777", cursor: "pointer" }}>{label}</button>
+          ))}
+        </div>
+
+        {tab === "magna" && <>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, gap: 10, flexWrap: "wrap" }}>
           <div>
             <h1 style={S.h1}>Cargas de Magna</h1>
@@ -345,9 +351,9 @@ export default function CargasDiesel() {
           </table>
         </div>
 
-        {/* ════════════════════════════════════════
-            SECCIÓN: CARGAS DE DIESEL (MAQUINARIA)
-        ════════════════════════════════════════ */}
+        </>}
+
+        {tab === "diesel" && <>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, gap: 10, flexWrap: "wrap" }}>
           <div>
             <h1 style={S.h1}>Cargas de Diesel</h1>
@@ -445,6 +451,7 @@ export default function CargasDiesel() {
             </tbody>
           </table>
         </div>
+        </>}
       </div>
 
       {modal && (

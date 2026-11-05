@@ -114,7 +114,7 @@ textarea,
 .btn-guardar,
 .btn-pdf,
 .btn-limpiar{
-  padding:13px 30px;
+  padding:12px 22px;
   border:2px solid #111;
   border-radius:0;
   cursor:pointer;
@@ -122,10 +122,17 @@ textarea,
   font-family:'Montserrat',sans-serif;
   font-size:14px;
   color:white;
+  box-shadow:3px 3px 0 #111;
+  transition:box-shadow .1s,transform .1s;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
 }
-.btn-guardar{ background:#198754; }
-.btn-pdf{ background:var(--acento); }
-.btn-limpiar{ background:#6c757d; }.form-grid input{
+.btn-guardar:hover,.btn-pdf:hover,.btn-limpiar:hover{box-shadow:1px 1px 0 #111;transform:translate(2px,2px)}
+.btn-guardar:active,.btn-pdf:active,.btn-limpiar:active{box-shadow:none;transform:translate(3px,3px)}
+.btn-guardar{ background:var(--acento); }
+.btn-pdf{ background:#1f8b4c; }
+.btn-limpiar{ background:#555; }.form-grid input{
   height:60px;
 }
 

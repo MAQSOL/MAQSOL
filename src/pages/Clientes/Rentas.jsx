@@ -1052,7 +1052,7 @@ return (
     <button
       type="button"
       onClick={guardarClienteNuevo}
-      style={{ background: "#1f8b4c", color: "#fff", border: "none", borderRadius: 0, padding: "10px 12px", fontWeight: 700, cursor: "pointer" }}
+      style={{ background: "var(--acento)", color: "#fff", border: "2px solid #111", borderRadius: 0, padding: "10px 16px", fontWeight: 800, fontFamily: "'Montserrat',sans-serif", cursor: "pointer", boxShadow: "3px 3px 0 #111" }}
     >
       + Guardar como cliente nuevo
     </button>
