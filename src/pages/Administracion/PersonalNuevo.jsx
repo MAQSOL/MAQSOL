@@ -28,6 +28,7 @@ const DOCUMENTOS = [
   { clave: "antecedentes", nombre: "Carta de antecedentes no penales" },
   { clave: "ficha", nombre: "Ficha de datos personales firmada" },
   { clave: "contrato", nombre: "Contrato laboral firmado" },
+  { clave: "caratulaBancaria", nombre: "Carátula bancaria" },
   { clave: "licencia", nombre: "Licencia de conducir (operadores)", opcional: true },
   { clave: "recomendacion", nombre: "Cartas de recomendación", opcional: true },
   { clave: "responsiva", nombre: "Carta responsiva de equipo firmada", opcional: true },
