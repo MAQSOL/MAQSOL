@@ -59,7 +59,7 @@ export default function CartaResponsivaModal({ personas, persona, onClose, onSub
 
   return (
     <div style={S.modalBg} onClick={onClose}>
-      <div style={{ ...S.modal, maxWidth: 980, padding: 36 }} onClick={(e) => e.stopPropagation()}>
+      <div style={{ ...S.modal, maxWidth: 1160, padding: "36px 52px" }} onClick={(e) => e.stopPropagation()}>
         <h2 style={{ fontSize: 24, fontWeight: 800, margin: "0 0 6px" }}>Carta responsiva de equipo</h2>
         <p style={{ ...S.sub, marginBottom: 24 }}>
           Para el operador que recibe un equipo con llave: se compromete a cuidarlo y acepta el descuento por daños de
