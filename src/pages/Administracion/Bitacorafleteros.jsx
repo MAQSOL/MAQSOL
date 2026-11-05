@@ -15,10 +15,12 @@ const FLETE_NUEVO = {
   id:'',folio:'',fecha:'',
   empresa:'',proveedor:'',equipo:'',serieEquipo:'',
   oc:'',numOC:'',horaMovimiento:'',
-  origen:'',destino:'',
+  origen:'',destino:'',entregadoA:'',
   costo:'',pagado:'Pendiente',clientePago:'Pendiente',
   estado:'Programado',observaciones:''
 }
+
+const RECEPTORES_SUGERIDOS = ['Lic. Francisco Torres','Damián']
 
 const S = {
   page:{padding:'24px 28px',fontFamily:'inherit',color:'#222',flex:1,overflowY:'auto'},
@@ -89,6 +91,7 @@ function pdfFletes(lista,periodo){
     <td>${esc(f.proveedor)||'—'}</td>
     <td>${esc(f.equipo)||'—'}${f.serieEquipo?`<div class="m">Serie: ${esc(f.serieEquipo)}</div>`:''}</td>
     <td>${esc(f.origen)||'—'}<div class="m">→ ${esc(f.destino)||'—'}</div></td>
+    <td>${esc(f.entregadoA||'—')}</td>
     <td class="c">${esc(textoOC(f))}</td>
     <td class="r b">${f.costo?esc(dinero(f.costo)):'—'}</td>
     <td class="c">${esc(f.pagado||'Pendiente')}</td>
@@ -104,7 +107,7 @@ function pdfFletes(lista,periodo){
     <table>
       <thead><tr>
         <th>Folio</th><th>Fecha / hora</th><th>Empresa (solicitó y pagó)</th><th>Proveedor</th>
-        <th>Equipo</th><th>Origen → destino</th><th>Orden de compra</th><th class="r">Importe sin imp.</th><th class="c">Pago al proveedor</th><th class="c">Cliente pagó</th><th class="c">Estado</th>
+        <th>Equipo</th><th>Origen → destino</th><th>Entregado a</th><th>Orden de compra</th><th class="r">Importe sin imp.</th><th class="c">Pago al proveedor</th><th class="c">Cliente pagó</th><th class="c">Estado</th>
       </tr></thead>
       ${filas.map(fila).join('')}
     </table>
@@ -194,8 +197,8 @@ export default function BitacoraFleteros(){
     return 'Periodo: '+new Date().toLocaleDateString('es-MX',{month:'long',year:'numeric'})
   }
   function exportarLista(){
-    const columnas=['Folio','Fecha','Empresa (cliente)','Proveedor del flete','Equipo','Serie','Origen','Destino','Hora','Orden de compra','Importe sin impuestos','Pago al proveedor','Cliente ya pagó','Estado','Observaciones']
-    const filas=filtrados.map(f=>[f.folio,fFecha(f.fecha),f.empresa,f.proveedor,f.equipo,f.serieEquipo,f.origen,f.destino,f.horaMovimiento,textoOC(f),f.costo?'$'+f.costo:'',f.pagado,f.clientePago==='Pagado'?'Sí':'No',f.estado,f.observaciones])
+    const columnas=['Folio','Fecha','Empresa (cliente)','Proveedor del flete','Equipo','Serie','Origen','Destino','Entregado a','Hora','Orden de compra','Importe sin impuestos','Pago al proveedor','Cliente ya pagó','Estado','Observaciones']
+    const filas=filtrados.map(f=>[f.folio,fFecha(f.fecha),f.empresa,f.proveedor,f.equipo,f.serieEquipo,f.origen,f.destino,f.entregadoA||'',f.horaMovimiento,textoOC(f),f.costo?'$'+f.costo:'',f.pagado,f.clientePago==='Pagado'?'Sí':'No',f.estado,f.observaciones])
     descargarExcelBonito({
       titulo:'Bitácora de Fleteros',
       subtitulo:'MAQUINARIA SOPORTE Y LOGISTICA SA DE CV · '+filtrados.length+' fletes',
@@ -233,16 +236,17 @@ export default function BitacoraFleteros(){
         <table style={{width:'100%',borderCollapse:'collapse',minWidth:1350}}>
           <thead><tr>
             <th style={S.th}>FOLIO</th><th style={S.th}>FECHA</th><th style={S.th}>EMPRESA</th><th style={S.th}>EQUIPO</th>
-            <th style={S.th}>ORIGEN → DESTINO</th><th style={S.th}>OC</th><th style={S.th}>PAGO PROVEEDOR</th><th style={S.th}>CLIENTE PAGÓ</th><th style={S.th}>ESTADO</th><th style={{...S.th,width:120,textAlign:'center'}}></th>
+            <th style={S.th}>ORIGEN → DESTINO</th><th style={S.th}>ENTREGADO A</th><th style={S.th}>OC</th><th style={S.th}>PAGO PROVEEDOR</th><th style={S.th}>CLIENTE PAGÓ</th><th style={S.th}>ESTADO</th><th style={{...S.th,width:120,textAlign:'center'}}></th>
           </tr></thead>
           <tbody>
-            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={10}>No hay fletes registrados. Usa "Agregar flete".</td></tr>
+            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={11}>No hay fletes registrados. Usa "Agregar flete".</td></tr>
             :filtrados.map(f=>(<tr key={f.id} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
               <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>setVerFlete(f)}>{f.folio}</td>
               <td style={S.td}>{fFecha(f.fecha)}</td>
               <td style={S.td}>{f.empresa||<span style={{color:'#bbb'}}>—</span>}</td>
               <td style={S.td}>{f.equipo||<span style={{color:'#bbb'}}>—</span>}{f.serieEquipo?<div style={{color:'#999',fontSize:12}}>Serie: {f.serieEquipo}</div>:null}</td>
               <td style={S.td}>{f.origen||'—'} → {f.destino}{f.horaMovimiento?<div style={{color:'#999',fontSize:12}}>{f.horaMovimiento} h</div>:null}</td>
+              <td style={{...S.td,fontWeight:f.entregadoA?700:400,color:f.entregadoA?'#111':'#bbb'}}>{f.entregadoA||'—'}</td>
               <td style={S.td}>{textoOC(f)}</td>
               <td style={S.td}><BadgePago pagado={f.pagado}/></td>
               <td style={S.td}><BadgeCliente pagado={f.clientePago}/></td>
@@ -268,6 +272,7 @@ export default function BitacoraFleteros(){
           <div><div style={S.label}>SERIE DEL EQUIPO</div><div>{verFlete.serieEquipo||'—'}</div></div>
           <div><div style={S.label}>ORIGEN</div><div>{verFlete.origen||'—'}</div></div>
           <div><div style={S.label}>DESTINO</div><div>{verFlete.destino||'—'}</div></div>
+          <div><div style={S.label}>ENTREGADO A</div><div style={{fontWeight:700,color:verFlete.entregadoA?'#111':'#bbb'}}>{verFlete.entregadoA||'—'}</div></div>
           <div><div style={S.label}>IMPORTE (SIN IMPUESTOS)</div><div>{verFlete.costo?dinero(verFlete.costo):'—'}</div></div>
           <div><div style={S.label}>EMPRESA (SOLICITÓ Y PAGÓ)</div><div>{verFlete.empresa||'—'}</div></div>
           <div><div style={S.label}>PROVEEDOR DEL SERVICIO</div><div>{verFlete.proveedor||'—'}</div></div>
@@ -339,6 +344,12 @@ export default function BitacoraFleteros(){
         <div style={S.grid2}>
           <div><label style={S.label}>ORIGEN</label><input style={S.input} value={form.origen} onChange={ev=>setForm({...form,origen:ev.target.value})} placeholder="Ej. Patio MAQSOL"/></div>
           <div><label style={S.label}>DESTINO</label><input style={S.input} value={form.destino} onChange={ev=>setForm({...form,destino:ev.target.value})} placeholder="Ej. Mérida"/></div>
+        </div>
+
+        <div style={{marginBottom:14}}>
+          <label style={S.label}>ENTREGADO A</label>
+          <input style={S.input} list="receptores-flete" value={form.entregadoA||''} onChange={ev=>setForm({...form,entregadoA:ev.target.value})} placeholder="¿A quién se entregó el equipo?"/>
+          <datalist id="receptores-flete">{RECEPTORES_SUGERIDOS.map(r=><option key={r} value={r}/>)}</datalist>
         </div>
 
         <div style={{marginBottom:14}}>
