@@ -10,12 +10,12 @@ import CampoFecha from "../../components/CampoFecha";
 
 const NUEVO = {
   id: "", fecha: "", equipoId: "", maquina: "", serie: "", obra: "",
-  operador: "", litros: "", precioLitro: "", total: 0, importeConIva: "", notas: ""
+  operador: "", recibeTicket: "", litros: "", precioLitro: "", total: 0, importeConIva: "", notas: ""
 };
 
 const NUEVO_M = {
   id: "", fecha: "", vehiculo: "", placas: "", destino: "",
-  conductor: "", litros: "", precioLitro: "", total: 0, importeConIva: "", notas: ""
+  conductor: "", recibeTicket: "", litros: "", precioLitro: "", total: 0, importeConIva: "", notas: ""
 };
 
 const iso = (d) =>
@@ -188,11 +188,11 @@ export default function CargasDiesel() {
     descargarExcelBonito({
       titulo: "Cargas de Combustible",
       subtitulo: `${etiquetaPeriodo} · ${filtradas.length} cargas · ${litrosTxt(totalLitros)} · Sin impuestos ${dinero(totalImporte)} · Con impuestos ${dinero(totalConIva)}`,
-      columnas: ["Fecha", "Máquina", "Serie", "Obra", "Operador", "Litros", "Precio por litro (sin imp.)", "Total sin impuestos", "Importe con impuestos"],
-      formatos: [null, null, null, null, null, "litros", "moneda", "moneda", "moneda"],
+      columnas: ["Fecha", "Máquina", "Serie", "Obra", "Operador", "Recibe ticket", "Litros", "Precio por litro (sin imp.)", "Total sin impuestos", "Importe con impuestos"],
+      formatos: [null, null, null, null, null, null, "litros", "moneda", "moneda", "moneda"],
       filas: [
-        ...detalleOrdenado.map((c) => [fFecha(c.fecha), c.maquina, c.serie, c.obra, c.operador, num(c.litros), num(c.precioLitro), num(c.total), c.importeConIva ? num(c.importeConIva) : null]),
-        ["", "", "", "", "TOTAL", redondear(totalLitros), redondear(precioProm), redondear(totalImporte), redondear(totalConIva)]
+        ...detalleOrdenado.map((c) => [fFecha(c.fecha), c.maquina, c.serie, c.obra, c.operador, c.recibeTicket||"", num(c.litros), num(c.precioLitro), num(c.total), c.importeConIva ? num(c.importeConIva) : null]),
+        ["", "", "", "", "TOTAL", "", redondear(totalLitros), redondear(precioProm), redondear(totalImporte), redondear(totalConIva)]
       ],
       tema: { enc: "3A3A3A", titulo: "8F1D2C", zebra: "F5F5F5", total: "E4E4E4", acento: "8F1D2C", logo: "nuevo" },
       hojasExtra: [{
@@ -217,7 +217,7 @@ export default function CargasDiesel() {
     const detalle = filtradas
       .slice()
       .sort((a, b) => (a.fecha || "").localeCompare(b.fecha || ""))
-      .map((c) => `<tr><td>${fFecha(c.fecha)}</td><td>${esc(c.maquina)}</td><td>${esc(c.serie || "—")}</td><td>${esc(c.obra || "—")}</td><td>${esc(c.operador || "—")}</td><td class="r">${litrosTxt(num(c.litros))}</td><td class="r">${dinero(c.precioLitro)}</td><td class="r b">${dinero(c.total)}</td><td class="r b">${c.importeConIva ? dinero(c.importeConIva) : "—"}</td></tr>`)
+      .map((c) => `<tr><td>${fFecha(c.fecha)}</td><td>${esc(c.maquina)}</td><td>${esc(c.serie || "—")}</td><td>${esc(c.obra || "—")}</td><td>${esc(c.operador || "—")}</td><td>${esc(c.recibeTicket || "—")}</td><td class="r">${litrosTxt(num(c.litros))}</td><td class="r">${dinero(c.precioLitro)}</td><td class="r b">${dinero(c.total)}</td><td class="r b">${c.importeConIva ? dinero(c.importeConIva) : "—"}</td></tr>`)
       .join("");
     abrirDocPDF({
       nombre: "Cargas de diesel",
@@ -226,7 +226,7 @@ export default function CargasDiesel() {
       <table><thead><tr><th>Máquina</th><th>Serie</th><th class="c">Cargas</th><th class="r">Litros</th><th class="r">Importe</th><th class="r">Con impuestos</th></tr></thead><tbody>${resumen}</tbody></table>
       <div class="tot"><span>Litros: <b>${litrosTxt(totalLitros)}</b></span><span>Precio prom.: <b>${dinero(precioProm)}</b></span><span>Total sin impuestos: <b>${dinero(totalImporte)}</b></span><span>Total con impuestos: <b>${dinero(totalConIva)}</b></span></div>
       <h2>Detalle de cargas</h2>
-      <table><thead><tr><th>Fecha</th><th>Máquina</th><th>Serie</th><th>Obra</th><th>Operador</th><th class="r">Litros</th><th class="r">Precio/L</th><th class="r">Total sin imp.</th><th class="r">Con impuestos</th></tr></thead><tbody>${detalle}</tbody></table>
+      <table><thead><tr><th>Fecha</th><th>Máquina</th><th>Serie</th><th>Obra</th><th>Operador</th><th>Recibe ticket</th><th class="r">Litros</th><th class="r">Precio/L</th><th class="r">Total sin imp.</th><th class="r">Con impuestos</th></tr></thead><tbody>${detalle}</tbody></table>
       ${pieDoc("Los importes con impuestos son los capturados manualmente")}`
     });
   };
@@ -324,13 +324,13 @@ export default function CargasDiesel() {
             <thead>
               <tr>
                 <th style={S.th}>FECHA</th><th style={S.th}>VEHÍCULO</th><th style={S.th}>PLACAS</th>
-                <th style={S.th}>DESTINO</th><th style={S.th}>CONDUCTOR</th><th style={S.th}>LITROS</th>
+                <th style={S.th}>DESTINO</th><th style={S.th}>CONDUCTOR</th><th style={S.th}>RECIBE TICKET</th><th style={S.th}>LITROS</th>
                 <th style={S.th}>PRECIO/L</th><th style={S.th}>TOTAL SIN IMP.</th><th style={S.th}>CON IMP.</th><th style={{ ...S.th, width: 60 }}></th>
               </tr>
             </thead>
             <tbody>
               {filtradasM.length === 0 ? (
-                <tr><td colSpan={10} style={{ ...S.td, textAlign: "center", color: "#999", padding: 32 }}>No hay cargas en este periodo. Usa "Registrar carga".</td></tr>
+                <tr><td colSpan={11} style={{ ...S.td, textAlign: "center", color: "#999", padding: 32 }}>No hay cargas en este periodo. Usa "Registrar carga".</td></tr>
               ) : filtradasM.map((c) => (
                 <tr key={c.id}>
                   <td style={{ ...S.td, cursor: "pointer" }} onClick={() => abrirEditarM(c)}>{fFecha(c.fecha)}</td>
@@ -338,6 +338,7 @@ export default function CargasDiesel() {
                   <td style={S.td}>{c.placas || "—"}</td>
                   <td style={S.td}>{c.destino || "—"}</td>
                   <td style={S.td}>{c.conductor || "—"}</td>
+                  <td style={S.td}>{c.recibeTicket || "—"}</td>
                   <td style={S.td}>{litrosTxt(num(c.litros))}</td>
                   <td style={S.td}>{dinero(c.precioLitro)}</td>
                   <td style={{ ...S.td, fontWeight: 700 }}>{dinero(c.total)}</td>
@@ -424,12 +425,12 @@ export default function CargasDiesel() {
             <thead>
               <tr>
                 <th style={S.th}>FECHA</th><th style={S.th}>MÁQUINA</th><th style={S.th}>SERIE</th><th style={S.th}>OBRA</th>
-                <th style={S.th}>OPERADOR</th><th style={S.th}>LITROS</th><th style={S.th}>PRECIO/L</th><th style={S.th}>TOTAL SIN IMP.</th><th style={S.th}>CON IMPUESTOS</th><th style={{ ...S.th, width: 60 }}></th>
+                <th style={S.th}>OPERADOR</th><th style={S.th}>RECIBE TICKET</th><th style={S.th}>LITROS</th><th style={S.th}>PRECIO/L</th><th style={S.th}>TOTAL SIN IMP.</th><th style={S.th}>CON IMPUESTOS</th><th style={{ ...S.th, width: 60 }}></th>
               </tr>
             </thead>
             <tbody>
               {filtradas.length === 0 ? (
-                <tr><td colSpan={10} style={{ ...S.td, textAlign: "center", color: "#999", padding: 40 }}>
+                <tr><td colSpan={11} style={{ ...S.td, textAlign: "center", color: "#999", padding: 40 }}>
                   No hay cargas en este periodo. Usa "Registrar carga".
                 </td></tr>
               ) : filtradas.map((c) => (
@@ -439,6 +440,7 @@ export default function CargasDiesel() {
                   <td style={S.td}>{c.serie || "—"}</td>
                   <td style={S.td}>{c.obra || "—"}</td>
                   <td style={S.td}>{c.operador || "—"}</td>
+                  <td style={S.td}>{c.recibeTicket || "—"}</td>
                   <td style={S.td}>{litrosTxt(num(c.litros))}</td>
                   <td style={S.td}>{dinero(c.precioLitro)}</td>
                   <td style={{ ...S.td, fontWeight: 700 }}>{dinero(c.total)}</td>
@@ -491,7 +493,7 @@ export default function CargasDiesel() {
               <div><label style={S.label}>MÁQUINA</label><input style={S.input} value={form.maquina} onChange={(e) => set("maquina", e.target.value)} placeholder="Ej. Manipulador Genie GTH-844" /></div>
               <div><label style={S.label}>SERIE</label><input style={S.input} value={form.serie} onChange={(e) => set("serie", e.target.value)} /></div>
             </div>
-            <div style={S.grid2}>
+            <div style={S.grid3}>
               <div>
                 <label style={S.label}>OBRA</label>
                 <input style={S.input} list="obras-diesel" value={form.obra} onChange={(e) => set("obra", e.target.value)} />
@@ -502,6 +504,7 @@ export default function CargasDiesel() {
                 <input style={S.input} list="operadores-diesel" value={form.operador} onChange={(e) => set("operador", e.target.value)} />
                 <datalist id="operadores-diesel">{operadores.map((o) => <option key={o} value={o} />)}</datalist>
               </div>
+              <div><label style={S.label}>A QUIÉN SE LE DIO EL TICKET</label><input style={S.input} value={form.recibeTicket} onChange={(e) => set("recibeTicket", e.target.value)} /></div>
             </div>
             <div style={S.grid3}>
               <div><label style={S.label}>LITROS</label><input type="number" min="0" step="0.1" style={S.input} value={form.litros} onChange={(e) => set("litros", e.target.value)} /></div>
@@ -554,6 +557,7 @@ export default function CargasDiesel() {
                 <input style={S.input} list="conductores-magna" value={formM.conductor} onChange={(e) => setM("conductor", e.target.value)} />
                 <datalist id="conductores-magna">{conductoresM.map((c) => <option key={c} value={c} />)}</datalist>
               </div>
+              <div><label style={S.label}>A QUIÉN SE LE DIO EL TICKET</label><input style={S.input} value={formM.recibeTicket} onChange={(e) => setM("recibeTicket", e.target.value)} /></div>
             </div>
             <div style={S.grid3}>
               <div><label style={S.label}>LITROS</label><input type="number" min="0" step="0.1" style={S.input} value={formM.litros} onChange={(e) => setM("litros", e.target.value)} /></div>
