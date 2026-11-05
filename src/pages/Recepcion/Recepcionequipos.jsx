@@ -154,6 +154,7 @@ function ColumnaChecklist({titulo,items,valores,porcentajes,onCambiar,onCambiarP
 
 export default function Recepcionequipos(){
   const[registros,guardarRegistros]=useListaCompartida('checklists')
+  const[alquileres,guardarAlquileres]=useListaCompartida('alquileres')
   const[modal,setModal]=useState(false)
   const[form,setForm]=useState(CHECKLIST_NUEVO)
   const[busqueda,setBusqueda]=useState('')
@@ -299,6 +300,20 @@ export default function Recepcionequipos(){
       const existe=registros.some(r=>r.id===reg.id)
       const lista=existe?registros.map(r=>r.id===reg.id?{...r,...reg}:r):[...registros,reg]
       await guardarRegistros(lista)
+      if(!existe && reg.tipo==='Salida'){
+        const nuevoAlq={
+          id:'AL-'+Date.now(),plan:'manual',horasIncluidas:'',
+          fechaInicio:reg.fechaEntrega||'',fechaFin:reg.fechaRetiro||'',
+          cliente:reg.cliente||'',contactoCliente:reg.nombreContacto||'',
+          telefonoCliente:reg.telefono||'',obra:'',direccionObra:'',
+          encargadoObra:'',telefonoObra:'',clienteId:'',equipoId:'',
+          tipo:reg.equipo||'',marca:reg.marca||'',modelo:reg.modelo||'',serie:reg.serie||'',
+          horometroEntrega:reg.horometro||'',
+          notas:'Generado desde checklist '+reg.folio,
+          fotos:[],checklist:reg.folio||null,finalizado:false,fechaFinalizado:'',origen:'checklist'
+        }
+        await guardarAlquileres([...alquileres,nuevoAlq])
+      }
       for(const b of [BUCKET_FOTOS,BUCKET_DOCS]){
         const rutas=quitar.filter(q=>q.b===b).map(q=>q.path)
         if(rutas.length)await supabase.storage.from(b).remove(rutas)

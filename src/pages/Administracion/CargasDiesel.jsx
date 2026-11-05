@@ -186,7 +186,7 @@ export default function CargasDiesel() {
     if (!filtradas.length) return alert("No hay cargas en este periodo.");
     const detalleOrdenado = filtradas.slice().sort((x, y) => (x.fecha || "").localeCompare(y.fecha || ""));
     descargarExcelBonito({
-      titulo: "Cargas de Diesel",
+      titulo: "Cargas de Combustible",
       subtitulo: `${etiquetaPeriodo} · ${filtradas.length} cargas · ${litrosTxt(totalLitros)} · Sin impuestos ${dinero(totalImporte)} · Con impuestos ${dinero(totalConIva)}`,
       columnas: ["Fecha", "Máquina", "Serie", "Obra", "Operador", "Litros", "Precio por litro (sin imp.)", "Total sin impuestos", "Importe con impuestos"],
       formatos: [null, null, null, null, null, "litros", "moneda", "moneda", "moneda"],
@@ -221,7 +221,7 @@ export default function CargasDiesel() {
       .join("");
     abrirDocPDF({
       nombre: "Cargas de diesel",
-      cuerpo: `${encabezadoDoc("Cargas de Diesel", [etiquetaPeriodo, "Generado: " + hoyMX()])}
+      cuerpo: `${encabezadoDoc("Cargas de Combustible", [etiquetaPeriodo, "Generado: " + hoyMX()])}
       <h2>Resumen por máquina</h2>
       <table><thead><tr><th>Máquina</th><th>Serie</th><th class="c">Cargas</th><th class="r">Litros</th><th class="r">Importe</th><th class="r">Con impuestos</th></tr></thead><tbody>${resumen}</tbody></table>
       <div class="tot"><span>Litros: <b>${litrosTxt(totalLitros)}</b></span><span>Precio prom.: <b>${dinero(precioProm)}</b></span><span>Total sin impuestos: <b>${dinero(totalImporte)}</b></span><span>Total con impuestos: <b>${dinero(totalConIva)}</b></span></div>
@@ -356,7 +356,7 @@ export default function CargasDiesel() {
         {tab === "diesel" && <>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, gap: 10, flexWrap: "wrap" }}>
           <div>
-            <h1 style={S.h1}>Cargas de Diesel</h1>
+            <h1 style={S.h1}>Cargas de Combustible</h1>
             <p style={S.sub}>Registro semanal de combustible por máquina, obra y operador</p>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>

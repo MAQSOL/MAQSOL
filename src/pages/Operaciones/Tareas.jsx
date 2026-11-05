@@ -34,7 +34,7 @@ function nombreDe(perfiles, id) {
   return perfiles.find((p) => p.id === id)?.nombre || "Sin asignar";
 }
 
-function TarjetaTarea({ t, perfiles, onAbrir, onMover }) {
+function TarjetaTarea({ t, perfiles, onAbrir, onMover, onEliminar }) {
   const idx = COLUMNAS.findIndex((c) => c.clave === t.estado);
   const anterior = COLUMNAS[idx - 1];
   const siguiente = COLUMNAS[idx + 1];
@@ -78,16 +78,16 @@ function TarjetaTarea({ t, perfiles, onAbrir, onMover }) {
       {t.comentarios?.length > 0 && (
         <div style={{ marginTop: 8, fontSize: 11.5, color: "#888", fontWeight: 600 }}>💬 {t.comentarios.length} avance(s)</div>
       )}
-      {(anterior || siguiente) && (
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, borderTop: "2px solid #f0f0f0", paddingTop: 8 }}>
-          {anterior ? (
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10, borderTop: "2px solid #f0f0f0", paddingTop: 8 }}>
+        <div style={{ display: "flex", gap: 6 }}>
+          {anterior && (
             <button
               onClick={(e) => { e.stopPropagation(); onMover(t, anterior.clave); }}
               style={{ background: "#e9e9e9", border: "none", borderRadius: 0, color: "#444", fontSize: 11.5, fontWeight: 700, cursor: "pointer", padding: "4px 10px" }}
             >
               ← {anterior.titulo}
             </button>
-          ) : <span />}
+          )}
           {siguiente && (
             <button
               onClick={(e) => { e.stopPropagation(); onMover(t, siguiente.clave); }}
@@ -97,7 +97,15 @@ function TarjetaTarea({ t, perfiles, onAbrir, onMover }) {
             </button>
           )}
         </div>
-      )}
+        {onEliminar && (
+          <button
+            onClick={(e) => { e.stopPropagation(); if (window.confirm("¿Eliminar esta tarea?")) onEliminar(); }}
+            style={{ background: "none", border: "none", color: "#c62828", fontSize: 11, cursor: "pointer", padding: "4px 0", textDecoration: "underline" }}
+          >
+            Eliminar
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -211,7 +219,7 @@ export default function Tareas() {
                 {lista.length === 0 ? (
                   <p style={{ color: "#999", fontSize: 12.5, textAlign: "center", padding: "20px 0" }}>Sin tareas aquí.</p>
                 ) : (
-                  lista.map((t) => <TarjetaTarea key={t.id} t={t} perfiles={perfiles} onAbrir={abrirTarea} onMover={cambiarEstado} />)
+                  lista.map((t) => <TarjetaTarea key={t.id} t={t} perfiles={perfiles} onAbrir={abrirTarea} onMover={cambiarEstado} onEliminar={() => eliminar(t)} />)
                 )}
                 </div>
               </div>

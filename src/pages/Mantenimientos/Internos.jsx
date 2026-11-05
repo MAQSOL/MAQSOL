@@ -333,10 +333,16 @@ export default function EquiposInternos(){
     })
   }
 
-  const filtrados=equipos.filter(e=>{
+  const [favs,setFavs]=useState(()=>{try{return new Set(JSON.parse(localStorage.getItem('eq_int_favs'))||[])}catch{return new Set()}})
+  function toggleFav(id,ev){
+    ev.stopPropagation()
+    setFavs(prev=>{const n=new Set(prev);n.has(id)?n.delete(id):n.add(id);try{localStorage.setItem('eq_int_favs',JSON.stringify([...n]))}catch{};return n})
+  }
+
+  const filtrados=[...equipos.filter(e=>{
     const t=(e.tipo+' '+e.marca+' '+e.modelo+' '+e.serie).toLowerCase()
     return t.includes(busqueda.toLowerCase())&&(!fTipo||e.tipo===fTipo)
-  })
+  })].sort((a,b)=>(favs.has(b.id)?1:0)-(favs.has(a.id)?1:0))
   function exportarLista(){
     const columnas=['Equipo','Marca','Modelo','Serie','Horómetro','Operador','Ubicación','Próx. Mantto']
     const filas=filtrados.map(e=>[e.tipo,e.marca,e.modelo,e.serie,conHoras(e.horometro),e.operador||'Sin operador',e.ubicacion,fFecha(e.proximoMantto)])
@@ -681,10 +687,11 @@ export default function EquiposInternos(){
       </div>
       <div style={{...S.card,padding:0,overflowX:'auto'}}>
         <table style={{width:'100%',borderCollapse:'collapse',minWidth:950}}>
-          <thead><tr><th style={S.th}>EQUIPO</th><th style={S.th}>MARCA</th><th style={S.th}>MODELO</th><th style={S.th}>SERIE</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>OPERADOR</th><th style={S.th}>UBICACIÓN</th><th style={S.th}>ÚLTIMO MANTTO</th><th style={S.th}>PRÓX. MANTTO</th><th style={{...S.th,width:50,textAlign:'center'}}></th></tr></thead>
+          <thead><tr><th style={{...S.th,width:44,textAlign:'center'}}>★</th><th style={S.th}>EQUIPO</th><th style={S.th}>MARCA</th><th style={S.th}>MODELO</th><th style={S.th}>SERIE</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>OPERADOR</th><th style={S.th}>UBICACIÓN</th><th style={S.th}>ÚLTIMO MANTTO</th><th style={S.th}>PRÓX. MANTTO</th><th style={{...S.th,width:50,textAlign:'center'}}></th></tr></thead>
           <tbody>
-            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={10}>No hay equipos. Usa "Agregar equipo".</td></tr>
+            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={11}>No hay equipos. Usa "Agregar equipo".</td></tr>
             :filtrados.map(e=>(<tr key={e.id} style={{cursor:'pointer',transition:'transform 0.15s ease'}} onClick={()=>{setActivoId(e.id);setVista('ficha')}} onMouseOver={ev=>{ev.currentTarget.style.background='#faf5f6';ev.currentTarget.style.transform='translateX(-4px)'}} onMouseOut={ev=>{ev.currentTarget.style.background='transparent';ev.currentTarget.style.transform='none'}}>
+              <td style={{...S.td,textAlign:'center',padding:'0 4px'}} onClick={ev=>toggleFav(e.id,ev)}><span style={{fontSize:20,cursor:'pointer',color:favs.has(e.id)?'#f4b400':'#ddd',transition:'color .15s'}}>★</span></td>
               <td style={{...S.td,fontWeight:700}}>{e.tipo}</td><td style={S.td}>{e.marca}</td><td style={S.td}>{e.modelo}</td><td style={S.td}>{e.serie}</td>
               <td style={S.td}>{conHoras(e.horometro)||'—'}</td><td style={S.td}>{e.operador||<span style={{color:'#c98a00',fontWeight:700}}>Sin operador</span>}</td>
               <td style={S.td}>{e.ubicacion}</td><td style={{...S.td,minWidth:200}}>{ultimoMantto(e)?<span style={{display:"flex",flexDirection:"column",gap:4}}><span style={{fontSize:13}}>{fFecha(ultimoMantto(e).fecha)}</span><BadgeMantto tipo={ultimoMantto(e).tipoMantto}/></span>:<span style={{color:"#999"}}>Sin registro</span>}</td><td style={S.td}><Semaforo fecha={e.proximoMantto}/></td>

@@ -60,7 +60,7 @@ function Sidebar() {
             items={[
               { label: "Equipos Internos", href: "/internos" },
               { label: "Equipos Externos", href: "/externos" },
-              { label: "Alquileres Activos", href: "/alquileres" },
+              { label: "Rentas Activas", href: "/alquileres" },
               { label: "Recepción Equipos", href: "/recepcion" }
             ]}
           />
@@ -73,8 +73,7 @@ function Sidebar() {
             items={[
               { label: "Tareas", href: "/tareas" },
               { label: "Bitácora Fleteros", href: "/bitacora" },
-              { label: "Cargas de Diesel", href: "/diesel" },
-              { label: "Cargas de Magna", href: "/magna" },
+              { label: "Cargas de Combustible", href: "/diesel" },
               { label: "Reporte de Horas", href: "/horas" },
               { label: "Generador de Contratos", href: "/contratos" }
             ]}

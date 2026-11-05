@@ -487,7 +487,7 @@ export default function Alquileres() {
 
   const exportar = () =>
     descargarExcelBonito({
-      titulo: "Alquileres de Equipos",
+      titulo: "Rentas Activas",
       subtitulo: `${filtrados.length} registros`,
       columnas: ["Equipo", "Marca", "Modelo", "Serie", "Cliente", "Obra", "Dirección de obra", "Inicio", "Fin", "Estado", "Renovaciones", "Rentado desde", "Fotos", "Checklist"],
       filas: filtrados.map((a) => [a.tipo, a.marca, a.modelo, a.serie, a.cliente, a.obra, a.direccionObra, fFecha(a.fechaInicio), fFecha(a.fechaFin), estadoDe(a), (a.renovaciones || []).length, fFecha(a.inicioOriginal || a.fechaInicio), (a.fotos || []).length, a.checklist ? "Sí" : "No"]),
@@ -501,7 +501,7 @@ export default function Alquileres() {
       <div style={{ width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, gap: 10, flexWrap: "wrap" }}>
           <div>
-            <h1 style={S.h1}>Alquileres Activos</h1>
+            <h1 style={S.h1}>Rentas Activas</h1>
             <p style={S.sub}>Equipos que están en renta con clientes · {activos} activos de {alquileres.length} registrados</p>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
