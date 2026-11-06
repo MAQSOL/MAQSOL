@@ -115,11 +115,14 @@ export function nombreArchivoOC(o) {
 }
 
 const CSS_OC = `
-  .top h1{font-size:30px;margin-bottom:4px}
-  .meta{display:flex;gap:28px;flex-wrap:wrap;margin:0 0 18px}
+  .top{padding-bottom:7px;margin-bottom:9px}
+  .top img{height:46px}
+  .top h1{font-size:22px;margin-bottom:2px}
+  .top p{margin:1px 0;font-size:10px}
+  .meta{display:flex;gap:20px;flex-wrap:wrap;margin:0 0 10px}
   .meta div{font-size:10px;color:#888;letter-spacing:.5px;text-transform:uppercase}
-  .meta b{display:block;font-size:14px;color:#222;letter-spacing:0;text-transform:none;margin-top:2px}
-  .partes{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-bottom:6px}
+  .meta b{display:block;font-size:13px;color:#222;letter-spacing:0;text-transform:none;margin-top:1px}
+  .partes{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-bottom:4px}
   .parte h2{margin:0 0 6px}
   .fila{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #eee;font-size:11.5px}
   .fila span{color:#888;min-width:92px;font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;padding-top:1px}
