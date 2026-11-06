@@ -164,7 +164,6 @@ export default function Recepcionequipos(){
   const[pideNip,setPideNip]=useState(false)
   const{registros:internos}=useSharedTable('equipos_internos')
   const{registros:externos}=useSharedTable('equipos_externos')
-  const{registros:alquileres}=useSharedTable('alquileres')
   const{registros:clientesDB,guardar:guardarClienteDB}=useSharedTable('clientes')
   const[pend,setPend]=useState({fotos:[],ineEntrega:[],ineRecibe:[]})
   const[quitar,setQuitar]=useState([])
