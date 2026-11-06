@@ -59,7 +59,7 @@ export default function CartaResponsivaModal({ personas, persona, onClose, onSub
 
   return (
     <div style={S.modalBg} onClick={onClose}>
-      <div style={{ ...S.modal, maxWidth: 1160, padding: "36px 52px" }} onClick={(e) => e.stopPropagation()}>
+      <div style={{ ...S.modal, maxWidth: 1240, padding: "36px 64px" }} onClick={(e) => e.stopPropagation()}>
         <h2 style={{ fontSize: 24, fontWeight: 800, margin: "0 0 6px" }}>Carta responsiva de equipo</h2>
         <p style={{ ...S.sub, marginBottom: 24 }}>
           Para el operador que recibe un equipo con llave: se compromete a cuidarlo y acepta el descuento por daños de
@@ -74,25 +74,25 @@ export default function CartaResponsivaModal({ personas, persona, onClose, onSub
           ))}
         </select>
 
-        <div style={{ ...S.grid3, gap: 18, marginBottom: 18 }}>
+        <div style={{ ...S.grid3, gap: 28, marginBottom: 20 }}>
           <div><label style={S.label}>NOMBRE</label><input style={S.input} value={f.nombre} onChange={set("nombre")} /></div>
           <div><label style={S.label}>CURP</label><input style={S.input} value={f.curp} onChange={set("curp")} /></div>
           <div><label style={S.label}>NÚMERO DE INE</label><input style={S.input} value={f.ine} onChange={set("ine")} /></div>
         </div>
 
-        <div style={{ ...S.grid3, gap: 18, marginBottom: 0 }}>
+        <div style={{ ...S.grid3, gap: 28, marginBottom: 0 }}>
           <div><label style={S.label}>CARGO</label><input style={S.input} value={f.cargo} onChange={set("cargo")} /></div>
           <div><label style={S.label}>FECHA</label><CampoFecha style={S.input} value={f.fecha} onChange={set("fecha")} /></div>
           <div><label style={S.label}>LUGAR</label><input style={S.input} value={f.lugar} onChange={set("lugar")} /></div>
         </div>
 
         <h3 style={{ ...S.h3, margin: "28px 0 14px" }}>Equipo que se entrega</h3>
-        <div style={{ ...S.grid3, gap: 18, marginBottom: 18 }}>
+        <div style={{ ...S.grid3, gap: 28, marginBottom: 20 }}>
           <div><label style={S.label}>EQUIPO</label><input style={S.input} placeholder="Ej. Plataforma de tijera" value={f.equipo} onChange={set("equipo")} /></div>
           <div><label style={S.label}>MARCA</label><input style={S.input} value={f.marca} onChange={set("marca")} /></div>
           <div><label style={S.label}>MODELO</label><input style={S.input} value={f.modelo} onChange={set("modelo")} /></div>
         </div>
-        <div style={{ ...S.grid3, gap: 18, marginBottom: 0 }}>
+        <div style={{ ...S.grid3, gap: 28, marginBottom: 0 }}>
           <div><label style={S.label}>SERIE</label><input style={S.input} value={f.serie} onChange={set("serie")} /></div>
           <div><label style={S.label}>HORÓMETRO</label><input style={S.input} value={f.horometro} onChange={set("horometro")} /></div>
           <div>
@@ -114,7 +114,7 @@ export default function CartaResponsivaModal({ personas, persona, onClose, onSub
         </div>
 
         <h3 style={{ ...S.h3, margin: "28px 0 14px" }}>Firmas en pantalla (opcional)</h3>
-        <div style={{ ...S.grid2, gap: 20 }}>
+        <div style={{ ...S.grid2, gap: 32 }}>
           {cajaFirma("firmaOperador", "OPERADOR QUE RECIBE")}
           {cajaFirma("firmaEntrega", "ENTREGA POR MAQSOL")}
         </div>
