@@ -264,7 +264,7 @@ function Dashboard() {
             items={[
               { label: "Equipos Internos", href: "/internos" },
               { label: "Equipos Externos", href: "/externos" },
-              { label: "Alquileres Activos", href: "/alquileres" }
+              { label: "Rentas Activas", href: "/alquileres" }
             ]}
           />
         </div>
@@ -276,7 +276,7 @@ function Dashboard() {
               { label: "Tareas", href: "/tareas" },
               { label: "Recepción Equipos", href: "/recepcion" },
               { label: "Bitácora Fleteros", href: "/bitacora" },
-              { label: "Cargas de Diesel", href: "/diesel" },
+              { label: "Cargas de Combustible", href: "/diesel" },
               { label: "Reporte de Horas", href: "/horas" },
               { label: "Generador de Contratos", href: "/contratos" }
             ]}
