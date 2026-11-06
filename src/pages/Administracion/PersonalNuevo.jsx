@@ -42,7 +42,7 @@ const EMPLEO = { empresa: "", puesto: "", desde: "", hasta: "", duracion: "", mo
 
 const NUEVO = {
   id: "", nombre: "", puesto: "", fechaIngreso: "", fechaNacimiento: "", lugarNacimiento: "", estadoCivil: "",
-  tipoSangre: "", alergias: "", condicionesMedicas: "", curp: "", rfc: "", nss: "", ine: "", licencia: "",
+  tipoSangre: "", alergias: "", condicionesMedicas: "", curp: "", rfc: "", nss: "", ine: "", licencia: "", licenciaVence: "",
   escolaridad: "", domicilio: "", telefono: "", correo: "",
   conyugeNombre: "", conyugeTelefono: "", hijos: [],
   beneficiarioNombre: "", beneficiarioParentesco: "", beneficiarioTelefono: "",
@@ -294,6 +294,7 @@ export default function PersonalNuevo() {
                       <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => abrirEditar(p)}>Editar</button>{" "}
                       <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => descargarFichaPDF(p, logoUrl(), "FICHA-" + p.nombre.replace(/\s+/g, "-").toUpperCase())}>Ficha PDF</button>{" "}
                       <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => generarGafete(p, logoUrl())}>Generar Gafete</button>{" "}
+                      {(() => { const hoy = new Date(); const vence = p.licenciaVence ? new Date(p.licenciaVence + "T12:00:00") : null; const dias = vence ? Math.ceil((vence - hoy) / 86400000) : null; return vence ? (<span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: dias < 0 ? "#fde8e8" : dias <= 60 ? "#fff9c4" : "#e8f5e9", color: dias < 0 ? "#c62828" : dias <= 60 ? "#856a00" : "#1f8b4c", border: `1px solid ${dias < 0 ? "#ef9a9a" : dias <= 60 ? "#ffe082" : "#a5d6a7"}`, borderRadius: 0, padding: "3px 8px", fontSize: 12, fontWeight: 700, marginRight: 6 }}>{dias < 0 ? "⚠ Licencia vencida" : dias <= 60 ? `⚠ Licencia vence en ${dias}d` : `✓ Lic. vence ${fFecha(p.licenciaVence)}`}</span>) : null; })()}
                       <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => setCarta({ persona: p })}>Responsiva</button>{" "}
                       <span style={{ display: "inline-block" }}>
                         <DeleteButton size="sm" title="Eliminar empleado y sus documentos" onConfirm={() => eliminar(p)} />
@@ -340,9 +341,10 @@ export default function PersonalNuevo() {
               <Campo etiqueta="RFC"><input style={S.input} value={form.rfc} onChange={(e) => set("rfc", e.target.value.toUpperCase())} /></Campo>
               <Campo etiqueta="NO. SEGURO SOCIAL (IMSS)"><input style={S.input} value={form.nss} onChange={(e) => set("nss", e.target.value)} /></Campo>
             </div>
-            <div style={S.grid3}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 16, marginBottom: 14 }}>
               <Campo etiqueta="INE (CLAVE O NÚMERO)"><input style={S.input} value={form.ine} onChange={(e) => set("ine", e.target.value)} /></Campo>
-              <Campo etiqueta="LICENCIA DE CONDUCIR (NO. Y VIGENCIA)"><input style={S.input} value={form.licencia} onChange={(e) => set("licencia", e.target.value)} /></Campo>
+              <Campo etiqueta="LICENCIA DE CONDUCIR (NO.)"><input style={S.input} value={form.licencia} onChange={(e) => set("licencia", e.target.value)} /></Campo>
+              <Campo etiqueta="VENCIMIENTO DE LICENCIA"><CampoFecha style={S.input} value={form.licenciaVence} onChange={(e) => set("licenciaVence", e.target.value)} /></Campo>
               <Campo etiqueta="ESCOLARIDAD"><input style={S.input} value={form.escolaridad} onChange={(e) => set("escolaridad", e.target.value)} /></Campo>
             </div>
             <div style={{ marginBottom: 14 }}>
