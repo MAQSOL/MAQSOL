@@ -88,7 +88,7 @@ export default function RailNav({ items, color = "var(--acento)", dashed = true,
                 onBlur={() => setHoverIndex(null)}
                 style={{
                   textDecoration: "none",
-                  color: enHover || activo ? color : "#555",
+                  color: enHover || activo ? color : "#6e6e6e",
                   fontWeight: 800,
                   fontFamily: "'Montserrat', sans-serif",
                   fontSize: 15,

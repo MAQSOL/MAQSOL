@@ -165,7 +165,7 @@ body{
 /* Links */
 .sidebar a{
   text-decoration:none;
-  color:#555;
+  color:#6e6e6e;
   font-size:15px;
   font-weight:800;
   font-family:'Montserrat',sans-serif;
@@ -174,7 +174,7 @@ body{
 }
 
 .sidebar a:hover{
-  color:#333;
+  color:#555;
   font-weight:800;
 }
 
