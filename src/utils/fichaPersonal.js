@@ -129,7 +129,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   }
 
   seccion("FAMILIA");
-  par("Cónyuge / pareja", p.conyugeNombre, "Teléfono del cónyuge", p.conyugeTelefono);
+  par(p.familiarParentesco || "Cónyuge / pareja", p.conyugeNombre, "Teléfono", p.conyugeTelefono);
   par("Beneficiario", p.beneficiarioNombre, "Parentesco", p.beneficiarioParentesco);
   full("Teléfono del beneficiario", p.beneficiarioTelefono);
 

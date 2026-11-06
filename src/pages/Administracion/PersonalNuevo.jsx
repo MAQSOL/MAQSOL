@@ -40,6 +40,7 @@ const DOCUMENTOS = [
 
 const ESTADOS_CIVILES = ["Soltero(a)", "Casado(a)", "Unión libre", "Divorciado(a)", "Viudo(a)"];
 const SANGRE = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
+const PARENTESCOS_FAMILIA = ["Cónyuge / Pareja", "Mamá", "Papá", "Hermano(a)", "Hijo(a)", "Abuelo(a)", "Tío(a)", "Otro familiar"];
 
 const EMPLEO = { empresa: "", puesto: "", desde: "", hasta: "", duracion: "", motivo: "", telefono: "" };
 
@@ -47,7 +48,7 @@ const NUEVO = {
   id: "", nombre: "", puesto: "", fechaIngreso: "", fechaNacimiento: "", lugarNacimiento: "", estadoCivil: "",
   tipoSangre: "", alergias: "", condicionesMedicas: "", curp: "", rfc: "", nss: "", ine: "", licencia: "", licenciaVence: "",
   escolaridad: "", domicilio: "", telefono: "", correo: "",
-  conyugeNombre: "", conyugeTelefono: "", hijos: [],
+  familiarParentesco: "Cónyuge / Pareja", conyugeNombre: "", conyugeTelefono: "", hijos: [],
   beneficiarioNombre: "", beneficiarioParentesco: "", beneficiarioTelefono: "",
   emergenciaNombre: "", emergenciaParentesco: "", emergenciaTelefono: "",
   empleos: [{ ...EMPLEO }, { ...EMPLEO }],
@@ -371,9 +372,14 @@ export default function PersonalNuevo() {
             </div>
 
             <h3 style={S.h3}>Familia</h3>
-            <div style={S.grid2}>
-              <Campo etiqueta="NOMBRE DEL CÓNYUGE / PAREJA"><input style={S.input} value={form.conyugeNombre} onChange={(e) => set("conyugeNombre", e.target.value)} /></Campo>
-              <Campo etiqueta="TELÉFONO DEL CÓNYUGE"><input style={S.input} value={form.conyugeTelefono} onChange={(e) => set("conyugeTelefono", e.target.value)} /></Campo>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1.4fr", gap: 14, marginBottom: 14, alignItems: "end" }}>
+              <Campo etiqueta="PARENTESCO">
+                <select style={S.input} value={form.familiarParentesco || "Cónyuge / Pareja"} onChange={(e) => set("familiarParentesco", e.target.value)}>
+                  {PARENTESCOS_FAMILIA.map((x) => <option key={x}>{x}</option>)}
+                </select>
+              </Campo>
+              <Campo etiqueta={`NOMBRE (${(form.familiarParentesco || "Cónyuge / Pareja").toUpperCase()})`}><input style={S.input} value={form.conyugeNombre} onChange={(e) => set("conyugeNombre", e.target.value)} /></Campo>
+              <Campo etiqueta="TELÉFONO"><input style={S.input} value={form.conyugeTelefono} onChange={(e) => set("conyugeTelefono", e.target.value)} /></Campo>
             </div>
             <label style={S.label}>HIJOS ({form.hijos.length})</label>
             {form.hijos.map((h, i) => (
@@ -390,7 +396,7 @@ export default function PersonalNuevo() {
               <Campo etiqueta="TELÉFONO DEL BENEFICIARIO"><input style={S.input} value={form.beneficiarioTelefono} onChange={(e) => set("beneficiarioTelefono", e.target.value)} /></Campo>
             </div>
 
-            <h3 style={S.h3}>Contacto de emergencia (aparte del cónyuge)</h3>
+            <h3 style={S.h3}>Contacto de emergencia (aparte del familiar)</h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 14, alignItems: "end" }}>
               <Campo etiqueta="NOMBRE"><input style={S.input} value={form.emergenciaNombre} onChange={(e) => set("emergenciaNombre", e.target.value)} /></Campo>
               <Campo etiqueta="PARENTESCO"><input style={S.input} value={form.emergenciaParentesco} onChange={(e) => set("emergenciaParentesco", e.target.value)} /></Campo>
