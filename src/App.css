@@ -24,8 +24,11 @@ h1,h2,h3    { font-family:'Space Mono',monospace; }
 /* Inputs y celdas de tabla muestran JetBrains Mono en sus valores */
 table td      { font-family:var(--font-dato); font-size:13px; }
 table th      { font-family:'Montserrat',sans-serif; }
+/* misma tipografía que los títulos de sección ("DATOS DEL CLIENTE") en todo lo que se llena a mano */
+input, select, textarea, option, input::placeholder, textarea::placeholder {
+  font-family: 'Space Mono', monospace !important;
+}
 input, select, textarea {
-  font-family: var(--font-dato);
   background-color: #f5f5f5;
   color: #242424;
   padding: .15rem .5rem;
