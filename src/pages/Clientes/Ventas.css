@@ -57,6 +57,13 @@ textarea,
   height:60px;
 }
 
+/* las listas miden lo mismo que los campos de texto de al lado */
+.form-grid select{
+  height:60px !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+}
+
 .datos-tecnicos-fila{
   display:grid;
   grid-template-columns: 1fr 1fr 45px;
