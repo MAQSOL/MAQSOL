@@ -29,6 +29,7 @@ import ReporteHoras from "./pages/Administracion/ReporteHoras";
 import GeneradorContratos from "./pages/Administracion/GeneradorContratos";
 import OrdenesCompra from "./pages/Administracion/OrdenesCompra";
 import ChatFlotante from "./components/ChatFlotante";
+import Recordatorios from "./components/Recordatorios";
 import CargasDiesel from "./pages/Administracion/CargasDiesel";
 import PersonalNuevo from "./pages/Administracion/PersonalNuevo";
 import Archivos from "./pages/Administracion/Archivos";
@@ -81,6 +82,7 @@ function App() {
       </Routes>
       {/* chat del equipo y actividad en vivo: se muestra solo con sesión iniciada */}
       <ChatFlotante />
+      <Recordatorios />
       </AuthProvider>
     </BrowserRouter>
   );

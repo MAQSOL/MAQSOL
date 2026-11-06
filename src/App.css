@@ -4,6 +4,11 @@
   to { transform: rotate(360deg); }
 }
 
+@keyframes rec-entra {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: none; }
+}
+
 :root{
   --acento:#8F1D2C;
   --acento-oscuro:#5a0f1a;
