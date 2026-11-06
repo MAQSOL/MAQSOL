@@ -115,22 +115,27 @@ export function nombreArchivoOC(o) {
 }
 
 const CSS_OC = `
-  .top{padding-bottom:7px;margin-bottom:9px}
-  .top img{height:46px}
-  .top h1{font-size:22px;margin-bottom:2px}
-  .top p{margin:1px 0;font-size:10px}
-  .meta{display:flex;gap:20px;flex-wrap:wrap;margin:0 0 10px}
+  body{padding:8mm 9mm !important}
+  .top{padding-bottom:5px;margin-bottom:6px}
+  .top img{height:42px}
+  .top h1{font-size:20px;margin-bottom:1px}
+  .top p{margin:0;font-size:9.5px;line-height:1.35}
+  .top .folio-top{padding-right:14px}
+  .top .folio-top small{font-size:9px}
+  .top .folio-top b{font-size:20px;white-space:nowrap}
+  .top .der{gap:14px}
+  .meta{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 7px}
   .meta div{font-size:10px;color:#888;letter-spacing:.5px;text-transform:uppercase}
   .meta b{display:block;font-size:13px;color:#222;letter-spacing:0;text-transform:none;margin-top:1px}
-  .partes{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-bottom:4px}
-  .parte h2{margin:0 0 6px}
-  .fila{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #eee;font-size:11.5px}
+  .partes{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;margin-bottom:2px}
+  .parte h2{margin:0 0 3px;font-size:12px}
+  .fila{display:flex;gap:8px;padding:2.5px 0;border-bottom:1px solid #eee;font-size:11px}
   .fila span{color:#888;min-width:92px;font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;padding-top:1px}
   .fila.una div{white-space:nowrap;font-size:10.5px}
-  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 10px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 6px}
   .chip{background:${AZUL_TENUE};color:#333;border-radius:14px;padding:4px 11px;font-size:10.5px}
   .chip b{color:${AZUL}}
-  .abajo{display:grid;grid-template-columns:1fr 290px;gap:22px;margin-top:16px;align-items:start}
+  .abajo{display:grid;grid-template-columns:1fr 290px;gap:22px;margin-top:10px;align-items:start}
   .obs{border-left:3px solid ${ROJO};background:#f5f5f5;padding:10px 12px;font-size:11.5px;white-space:pre-wrap;min-height:54px}
   .obs small{display:block;color:#888;font-size:10px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
   table.tot td{padding:5px 8px;font-size:12px}
@@ -140,7 +145,7 @@ const CSS_OC = `
   .cond{margin-top:12px;font-size:11.5px;color:#555}
   .cond b{color:#222}
   .cierre{page-break-inside:avoid;break-inside:avoid}
-  .firmas{display:flex;justify-content:center;gap:44px;margin-top:30px}
+  .firmas{display:flex;justify-content:center;gap:44px;margin-top:18px}
   .firma{width:270px;text-align:center}
   .firma .espacio{height:64px;display:flex;align-items:flex-end;justify-content:center}
   .firma .espacio img{max-height:62px;max-width:100%}

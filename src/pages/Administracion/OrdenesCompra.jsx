@@ -426,7 +426,7 @@ export default function OrdenesCompra() {
                     <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
                       <button className="btn-sys btn-pdf" style={{ ...S.btnGris, padding: "6px 10px", fontSize: 12 }} onClick={() => abrirOrdenPDF({ ...ORDEN_NUEVA, ...o })}>PDF</button>
                       <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 10px", fontSize: 12 }} onClick={() => duplicar(o)} title="Nueva orden con el mismo proveedor y partidas">Duplicar</button>
-                      <DeleteButton size="sm" title="Eliminar orden" onConfirm={() => guardarOrdenes(ordenes.filter((x) => x.id !== o.id))} />
+                      <DeleteButton title="Eliminar orden" onConfirm={() => guardarOrdenes(ordenes.filter((x) => x.id !== o.id))} />
                     </div>
                   </div>
                 );
