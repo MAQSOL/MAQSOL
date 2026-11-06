@@ -24,7 +24,7 @@ const DOCUMENTOS = [
   { clave: "rfc", nombre: "Constancia de situación fiscal (RFC)" },
   { clave: "acta", nombre: "Acta de nacimiento" },
   { clave: "caratulaBancaria", nombre: "Carátula bancaria" },
-  { clave: "contrato", nombre: "Contrato laboral firmado" },
+  { clave: "contrato", nombre: "Contrato laboral firmado", opcional: true },
   // — Complementarios —
   { clave: "domicilio", nombre: "Comprobante de domicilio", opcional: true },
   { clave: "ficha", nombre: "Ficha de datos personales firmada", opcional: true },
