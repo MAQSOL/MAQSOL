@@ -17,18 +17,21 @@ const BUCKET = "personal";
 const MAX_MB = 15;
 
 const DOCUMENTOS = [
-  { clave: "acta", nombre: "Acta de nacimiento" },
+  // — Los 7 más importantes —
   { clave: "curp", nombre: "CURP" },
   { clave: "ine", nombre: "INE (frente y vuelta)" },
-  { clave: "rfc", nombre: "Constancia de situación fiscal (RFC)" },
   { clave: "nss", nombre: "Número de seguridad social (IMSS)" },
+  { clave: "rfc", nombre: "Constancia de situación fiscal (RFC)" },
+  { clave: "acta", nombre: "Acta de nacimiento" },
+  { clave: "caratulaBancaria", nombre: "Carátula bancaria" },
+  { clave: "contrato", nombre: "Contrato laboral firmado" },
+  // — Complementarios —
   { clave: "domicilio", nombre: "Comprobante de domicilio" },
+  { clave: "ficha", nombre: "Ficha de datos personales firmada" },
   { clave: "estudios", nombre: "Comprobante de estudios" },
   { clave: "medico", nombre: "Certificado médico" },
   { clave: "antecedentes", nombre: "Carta de antecedentes no penales" },
-  { clave: "ficha", nombre: "Ficha de datos personales firmada" },
-  { clave: "contrato", nombre: "Contrato laboral firmado" },
-  { clave: "caratulaBancaria", nombre: "Carátula bancaria" },
+  // — Opcionales —
   { clave: "licencia", nombre: "Licencia de conducir (operadores)", opcional: true },
   { clave: "recomendacion", nombre: "Cartas de recomendación", opcional: true },
   { clave: "responsiva", nombre: "Carta responsiva de equipo firmada", opcional: true },
