@@ -34,6 +34,16 @@ export function useSharedTable(tabla) {
     recargar();
   }, [recargar]);
 
+  useEffect(() => {
+    const channel = supabase
+      .channel(`shared-table-${tabla}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: tabla }, () => {
+        recargar();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [tabla, recargar]);
+
   async function guardar(id, datos) {
     const existia = rowsRaw.some((r) => r.id === id);
     const { error } = await supabase

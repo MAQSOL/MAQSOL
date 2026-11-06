@@ -26,11 +26,11 @@ const DOCUMENTOS = [
   { clave: "caratulaBancaria", nombre: "Carátula bancaria" },
   { clave: "contrato", nombre: "Contrato laboral firmado" },
   // — Complementarios —
-  { clave: "domicilio", nombre: "Comprobante de domicilio" },
-  { clave: "ficha", nombre: "Ficha de datos personales firmada" },
-  { clave: "estudios", nombre: "Comprobante de estudios" },
-  { clave: "medico", nombre: "Certificado médico" },
-  { clave: "antecedentes", nombre: "Carta de antecedentes no penales" },
+  { clave: "domicilio", nombre: "Comprobante de domicilio", opcional: true },
+  { clave: "ficha", nombre: "Ficha de datos personales firmada", opcional: true },
+  { clave: "estudios", nombre: "Comprobante de estudios", opcional: true },
+  { clave: "medico", nombre: "Certificado médico", opcional: true },
+  { clave: "antecedentes", nombre: "Carta de antecedentes no penales", opcional: true },
   // — Opcionales —
   { clave: "licencia", nombre: "Licencia de conducir (operadores)", opcional: true },
   { clave: "recomendacion", nombre: "Cartas de recomendación", opcional: true },
@@ -245,12 +245,12 @@ export default function PersonalNuevo() {
             <h1 style={S.h1}>Documentos de Personal Nuevo</h1>
             <p style={S.sub}>Expediente de cada empleado: datos, documentos recibidos y lo que falta · {personas.length} empleados</p>
           </div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
             <button className="btn-sys" style={S.btnGris} onClick={() => descargarFichaPDF({}, logoUrl(), "FICHA-EMPLEADO-EN-BLANCO")}>
               Ficha en blanco (para que la llene el empleado)
             </button>
-            <button className="btn-sys btn-word" onClick={() => setCarta({ persona: null })}>Carta responsiva de equipo</button>
-            <button className="btn-sys btn-pdf" onClick={abrirNuevo}><IconoMas />Nuevo empleado</button>
+            <button className="btn-sys btn-word" style={S.btn} onClick={() => setCarta({ persona: null })}>Carta responsiva de equipo</button>
+            <button className="btn-sys btn-pdf" style={S.btn} onClick={abrirNuevo}><IconoMas />Nuevo empleado</button>
           </div>
         </div>
 
