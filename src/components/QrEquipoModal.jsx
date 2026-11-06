@@ -67,7 +67,7 @@ export default function QrEquipoModal({ equipo, onGuardarToken, onCerrar }) {
               Este equipo todavía no tiene código. Al generarlo, quien lo escanee podrá ver su información (como cliente) o registrar
               mantenimientos (como mecánico con sesión iniciada).
             </p>
-            <button style={{ ...btn, background: "var(--acento)", color: "#fff", opacity: trabajando ? 0.6 : 1 }} disabled={trabajando} onClick={() => generar(false)}>
+            <button style={{ ...btn, background: "#ef6c00", color: "#fff", opacity: trabajando ? 0.6 : 1 }} disabled={trabajando} onClick={() => generar(false)}>
               {trabajando ? "Generando…" : "Generar código QR"}
             </button>
           </>

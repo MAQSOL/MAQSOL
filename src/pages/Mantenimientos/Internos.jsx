@@ -412,8 +412,8 @@ export default function EquiposInternos(){
             <p style={S.sub}>{activo.marca} {activo.modelo} · Serie {activo.serie||'s/n'}</p>
             <div style={{display:'flex',gap:10,marginTop:14}}>
               <button className="btn-sys" style={S.btnGris} onClick={()=>setVista('lista')}>← Regresar a la lista</button>
-              <button className="btn-sys" style={S.btn} onClick={()=>abrirEditar(activo)}>Editar datos generales</button>
-              <button className="btn-sys" style={S.btnGris} onClick={()=>setModalQr(true)}>Generar código QR</button>
+              <button className="btn-sys btn-word" style={S.btn} onClick={()=>abrirEditar(activo)}>Editar datos generales</button>
+              <button className="btn-sys btn-qr" style={S.btnGris} onClick={()=>setModalQr(true)}>Generar código QR</button>
             </div>
           </div>
    <div style={{flexShrink:0,textAlign:'center'}}>

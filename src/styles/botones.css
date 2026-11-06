@@ -46,3 +46,6 @@
 
 .btn-sys.btn-word  { background: #1565c0 !important; color: #fff !important; }
 .btn-sys.btn-word svg path { fill: #fff !important; }
+
+.btn-sys.btn-qr  { background: #ef6c00 !important; color: #fff !important; }
+.btn-sys.btn-qr svg path { fill: #fff !important; }

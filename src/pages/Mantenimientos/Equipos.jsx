@@ -403,7 +403,7 @@ export default function EquiposInternos() {
             <button className="btn-sys" style={S.btnGris} onClick={() => setVista('lista')}>
               ← Regresar a la lista
             </button>
-            <button className="btn-sys" style={S.btn} onClick={() => abrirEditar(activo)}>
+            <button className="btn-sys btn-word" style={S.btn} onClick={() => abrirEditar(activo)}>
               Editar datos generales
             </button>
           </div>
