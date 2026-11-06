@@ -391,11 +391,27 @@ export default function PersonalNuevo() {
             </div>
 
             <h3 style={S.h3}>Contacto de emergencia (aparte del cónyuge)</h3>
-            <div style={S.grid3}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 14, alignItems: "end" }}>
               <Campo etiqueta="NOMBRE"><input style={S.input} value={form.emergenciaNombre} onChange={(e) => set("emergenciaNombre", e.target.value)} /></Campo>
               <Campo etiqueta="PARENTESCO"><input style={S.input} value={form.emergenciaParentesco} onChange={(e) => set("emergenciaParentesco", e.target.value)} /></Campo>
               <Campo etiqueta="TELÉFONO"><input style={S.input} value={form.emergenciaTelefono} onChange={(e) => set("emergenciaTelefono", e.target.value)} /></Campo>
+              <Campo etiqueta="CORREO"><input style={S.input} value={form.emergenciaCorreo} onChange={(e) => set("emergenciaCorreo", e.target.value)} /></Campo>
             </div>
+
+            <h3 style={S.h3}>Contacto de emergencia 2</h3>
+            <label className="chk-sys" style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 700, marginBottom: 12, cursor: "pointer" }}>
+              <input type="checkbox" checked={!!form.sinContacto2} onChange={(e) => set("sinContacto2", e.target.checked)} />
+              <span className="checkmark"></span>
+              No hay contacto 2 (solo uno)
+            </label>
+            {!form.sinContacto2 && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 14, alignItems: "end" }}>
+                <Campo etiqueta="NOMBRE Y APELLIDOS"><input style={S.input} value={form.emergencia2Nombre} onChange={(e) => set("emergencia2Nombre", e.target.value)} /></Campo>
+                <Campo etiqueta="PARENTESCO"><input style={S.input} value={form.emergencia2Parentesco} onChange={(e) => set("emergencia2Parentesco", e.target.value)} /></Campo>
+                <Campo etiqueta="TELÉFONO"><input style={S.input} value={form.emergencia2Telefono} onChange={(e) => set("emergencia2Telefono", e.target.value)} /></Campo>
+                <Campo etiqueta="CORREO"><input style={S.input} value={form.emergencia2Correo} onChange={(e) => set("emergencia2Correo", e.target.value)} /></Campo>
+              </div>
+            )}
 
             <h3 style={S.h3}>Datos de la ficha de ingreso</h3>
             <div style={S.grid3}>
@@ -420,21 +436,6 @@ export default function PersonalNuevo() {
             <div style={S.grid2}>
               <Campo etiqueta="CLAVE INTERBANCARIA"><input style={S.input} value={form.clabe} onChange={(e) => set("clabe", e.target.value)} /></Campo>
               <Campo etiqueta="TARJETA"><input style={S.input} value={form.tarjeta} onChange={(e) => set("tarjeta", e.target.value)} /></Campo>
-            </div>
-
-            <h3 style={S.h3}>Contacto de emergencia (correo y segundo contacto)</h3>
-            <div style={S.grid3}>
-              <Campo etiqueta="CORREO DEL CONTACTO 1"><input style={S.input} value={form.emergenciaCorreo} onChange={(e) => set("emergenciaCorreo", e.target.value)} /></Campo>
-              <div />
-              <div />
-            </div>
-            <div style={S.grid3}>
-              <Campo etiqueta="CONTACTO 2 · NOMBRE Y APELLIDOS"><input style={S.input} value={form.emergencia2Nombre} onChange={(e) => set("emergencia2Nombre", e.target.value)} /></Campo>
-              <Campo etiqueta="PARENTESCO"><input style={S.input} value={form.emergencia2Parentesco} onChange={(e) => set("emergencia2Parentesco", e.target.value)} /></Campo>
-              <Campo etiqueta="TELÉFONO"><input style={S.input} value={form.emergencia2Telefono} onChange={(e) => set("emergencia2Telefono", e.target.value)} /></Campo>
-            </div>
-            <div style={{ marginBottom: 14 }}>
-              <Campo etiqueta="CONTACTO 2 · CORREO ELECTRÓNICO"><input style={S.input} value={form.emergencia2Correo} onChange={(e) => set("emergencia2Correo", e.target.value)} /></Campo>
             </div>
 
             <h3 style={S.h3}>Datos del empleo</h3>

@@ -123,7 +123,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   seccion("CONTACTO DE EMERGENCIA");
   par("Nombre y apellidos", p.emergenciaNombre, "Parentesco", p.emergenciaParentesco);
   par("Teléfono", p.emergenciaTelefono, "Correo electrónico", p.emergenciaCorreo);
-  if (p.emergencia2Nombre) {
+  if (p.emergencia2Nombre && !p.sinContacto2) {
     par("Nombre y apellidos (2)", p.emergencia2Nombre, "Parentesco", p.emergencia2Parentesco);
     par("Teléfono", p.emergencia2Telefono, "Correo electrónico", p.emergencia2Correo);
   }
