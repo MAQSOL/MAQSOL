@@ -51,7 +51,7 @@ const NUEVO = {
   codigoPostal: "", infonavit: "NO", infonavitNumero: "", fonacot: "NO", fonacotNumero: "",
   ultimoEmpleo: "", ultimoPuesto: "", banco: "", cuenta: "", clabe: "", tarjeta: "",
   emergenciaCorreo: "", emergencia2Nombre: "", emergencia2Parentesco: "", emergencia2Telefono: "", emergencia2Correo: "",
-  sueldoBase: "", horario: "08:00 A 18:00 HRS", horarioSabado: "08:00 A 13:00 HRS", horarioComida: "1:00 A 14:00 HRS",
+  sueldoBase: "", tipoNomina: "Semanal", horario: "08:00 A 18:00 HRS", horarioSabado: "08:00 A 13:00 HRS", horarioComida: "1:00 A 14:00 HRS",
   lugarTrabajo: "Paseo Del Real Sur 313 Mza 103 lote 14 C.P. 77533 Benito Juarez",
   documentos: {}, noAplica: {}, notas: ""
 };
@@ -438,7 +438,13 @@ export default function PersonalNuevo() {
               <Campo etiqueta="HORARIO DE TRABAJO"><input style={S.input} value={form.horario} onChange={(e) => set("horario", e.target.value)} /></Campo>
               <Campo etiqueta="SÁBADOS"><input style={S.input} value={form.horarioSabado} onChange={(e) => set("horarioSabado", e.target.value)} /></Campo>
             </div>
-            <div style={S.grid2}>
+            <div style={S.grid3}>
+              <Campo etiqueta="TIPO DE NÓMINA">
+                <select style={S.input} value={form.tipoNomina} onChange={(e) => set("tipoNomina", e.target.value)}>
+                  <option value="Semanal">Semanal</option>
+                  <option value="Quincenal">Quincenal</option>
+                </select>
+              </Campo>
               <Campo etiqueta="COMIDA"><input style={S.input} value={form.horarioComida} onChange={(e) => set("horarioComida", e.target.value)} /></Campo>
               <Campo etiqueta="LUGAR DE TRABAJO"><input style={S.input} value={form.lugarTrabajo} onChange={(e) => set("lugarTrabajo", e.target.value)} /></Campo>
             </div>

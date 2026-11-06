@@ -116,8 +116,9 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   seccion("DATOS DEL EMPLEO");
   const sueldo = p.sueldoBase ? (isNaN(Number(p.sueldoBase)) ? p.sueldoBase : "$" + Number(p.sueldoBase).toLocaleString("es-MX")) : "";
   par("Puesto / cargo", p.puesto, "Sueldo base", sueldo);
-  par("Horario de trabajo", p.horario, "Sábados", p.horarioSabado);
-  par("Hora de comida", p.horarioComida, "Lugar de trabajo", p.lugarTrabajo);
+  par("Tipo de nómina", p.tipoNomina || "", "Horario de trabajo", p.horario);
+  par("Sábados", p.horarioSabado, "Hora de comida", p.horarioComida);
+  par("Lugar de trabajo", p.lugarTrabajo, "", "");
 
   seccion("CONTACTO DE EMERGENCIA");
   par("Nombre y apellidos", p.emergenciaNombre, "Parentesco", p.emergenciaParentesco);
