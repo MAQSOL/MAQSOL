@@ -219,6 +219,9 @@ const [traslados, setTraslados] = useState([
   }
 ]);
 
+// renovación: el flete ya se pagó en la renta original, no se cobra traslado
+const [renovacion, setRenovacion] = useState(false);
+
 const [descuento, setDescuento] = useState(0);
   // ==========================
   // OBSERVACIONES
@@ -260,6 +263,7 @@ tipoEquipo: tipoEquipo === "Otro" ? tipoEquipoOtro : tipoEquipo,
 
 rentas,
 traslados,
+renovacion,
 descuento,
 
 observaciones,
@@ -324,7 +328,7 @@ doc.setTextColor(0, 0, 0);
 // TÍTULO COTIZACIÓN
 doc.setFont("courier", "bold");
 doc.setFontSize(16);
-doc.text("COTIZACIÓN", 190, 15, { align: "right" });
+doc.text(renovacion ? "COTIZACIÓN · RENOVACIÓN" : "COTIZACIÓN", 190, 15, { align: "right" });
 
 doc.addImage(
   margen,
@@ -496,11 +500,22 @@ let yAfterRentas = yFilaRenta + 8;
 // TRASLADOS
 // ==========================
 
-const hayTraslados = traslados.some(
+const hayTraslados = !renovacion && traslados.some(
   t => (t.descripcion || "").trim() !== "" || Number(t.importe || 0) > 0
 );
 
 let yAfterTraslados = yAfterRentas;
+
+if (renovacion) {
+  doc.setFont("courier", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(0, 0, 0);
+  doc.text("1.1 RENOVACIÓN", 20, yAfterRentas + 3);
+  doc.setFont("courier", "normal");
+  doc.setFontSize(9);
+  doc.text("No incluye flete: el traslado ya se cubrió en la renta original.", 20, yAfterRentas + 9);
+  yAfterTraslados = yAfterRentas + 18;
+}
 
 if (hayTraslados) {
 
@@ -759,6 +774,7 @@ setTraslados(
   ]
 );
 
+setRenovacion(!!cotizacion.renovacion);
 setDescuento(cotizacion.descuento || 0);
 
 setObservaciones(cotizacion.observaciones);
@@ -790,6 +806,7 @@ setObservaciones(cotizacion.observaciones);
     setMarca("");
     setModelo("");
     setTipoEquipo("");
+    setRenovacion(false);
 
     setObservaciones("");
     setClausulas("");
@@ -866,7 +883,7 @@ const subtotalRentas = rentas.reduce(
   0
 );
 
-const subtotalTraslados = traslados.reduce(
+const subtotalTraslados = renovacion ? 0 : traslados.reduce(
   (acc, item) =>
     acc + (parseFloat(item.importe) || 0),
   0
@@ -1414,6 +1431,19 @@ return (
 
   <h3>Traslados</h3>
 
+  <label className="chk-sys" style={{ display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 14, marginBottom: 14, cursor: "pointer" }}>
+    <input type="checkbox" checked={renovacion} onChange={(e) => setRenovacion(e.target.checked)} />
+    <span className="checkmark"></span>
+    Es renovación (no lleva flete)
+  </label>
+
+  {renovacion ? (
+    <p style={{ margin: 0, color: "#666", fontSize: 14 }}>
+      Renovación: el flete ya se pagó en la renta original, así que no se cobra traslado.
+    </p>
+  ) : (
+  <>
+  <div>
   <button
     type="button"
     className="btn-guardar"
@@ -1421,6 +1451,7 @@ return (
   >
     <IconoMas />Agregar Traslado
   </button>
+  </div>
 
   <div style={{ marginTop: "15px" }}>
 
@@ -1469,6 +1500,8 @@ return (
     ))}
 
   </div>
+  </>
+  )}
 
 </div>
 
