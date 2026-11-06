@@ -3,6 +3,8 @@ import Layout from "../../components/Layout";
 import { supabase } from "../../supabaseClient";
 import { S } from "./estilosAdmin";
 import DeleteButton from "../../components/DeleteButton";
+import { useListaCompartida } from "../../hooks/useSharedTable";
+import { ORDEN_NUEVA, abrirOrdenPDF, folioOC, calcularTotales, dineroOC } from "../../utils/ordenCompra";
 
 const BUCKET = "archivos";
 
@@ -94,6 +96,7 @@ export default function Archivos() {
   const [conteos, setConteos]       = useState({});
   const [visor, setVisor]           = useState(null); // { url, nombre }
   const fileRef = useRef();
+  const [ordenes] = useListaCompartida("ordenes_compra");
 
   const cargar = useCallback(async (cat) => {
     setCargando(true);
@@ -102,10 +105,23 @@ export default function Archivos() {
       sortBy: { column: "created_at", order: "desc" },
     });
     setCargando(false);
-    setArchivos((data || []).filter(f => !f.name.startsWith(".")));
+    const lista = (data || []).filter(f => !f.name.startsWith("."));
+    setArchivos(lista);
+    setConteos(prev => ({ ...prev, [cat]: lista.length }));
   }, []);
 
   useEffect(() => { cargar(catActiva); }, [catActiva, cargar]);
+
+  // los PDF generados en otras páginas llegan al bucket: refresca al volver a esta pestaña
+  useEffect(() => {
+    const alVolver = () => { if (document.visibilityState === "visible") cargar(catActiva); };
+    document.addEventListener("visibilitychange", alVolver);
+    window.addEventListener("focus", alVolver);
+    return () => {
+      document.removeEventListener("visibilitychange", alVolver);
+      window.removeEventListener("focus", alVolver);
+    };
+  }, [catActiva, cargar]);
 
   useEffect(() => {
     CATEGORIAS.forEach(({ key }) => {
@@ -167,6 +183,12 @@ export default function Archivos() {
     nombreLimpio(f.name).toLowerCase().includes(busqueda.toLowerCase())
   );
 
+  const ocFiltradas = catActiva !== "ordenes" ? [] : ordenes
+    .filter(o => `${folioOC(o)} ${o.proveedor || ""}`.toLowerCase().includes(busqueda.toLowerCase()))
+    .sort((a, b) => (parseInt(b.folio, 10) || 0) - (parseInt(a.folio, 10) || 0));
+
+  const conteo = (key) => (conteos[key] || 0) + (key === "ordenes" ? ordenes.length : 0);
+
   // Drag & drop handlers
   const onDragOver  = (e) => { e.preventDefault(); setArrastrar(true); };
   const onDragLeave = ()  => setArrastrar(false);
@@ -213,14 +235,14 @@ export default function Archivos() {
                   }}
                 >
                   <span style={{display:"flex",alignItems:"center",gap:8}}><CatIcon k={cat.key} color={activa?"#fff":"#444"}/>{cat.label}</span>
-                  {!!conteos[cat.key] && (
+                  {!!conteo(cat.key) && (
                     <span style={{
                       background: activa ? "var(--acento)" : "#eee",
                       color: activa ? "#fff" : "#666",
                       fontSize: 11, fontWeight: 700,
                       padding: "1px 7px", borderRadius: 0, flexShrink: 0,
                     }}>
-                      {conteos[cat.key]}
+                      {conteo(cat.key)}
                     </span>
                   )}
                 </button>
@@ -280,7 +302,7 @@ export default function Archivos() {
             {/* Files grid */}
             {cargando ? (
               <p style={{ color: "#888", margin: 0 }}>Cargando archivos…</p>
-            ) : filtrados.length === 0 ? (
+            ) : filtrados.length === 0 && ocFiltradas.length === 0 ? (
               <div
                 style={{ ...S.card, textAlign: "center", padding: "52px 24px", color: "#bbb" }}
                 onDragOver={onDragOver}
@@ -306,6 +328,9 @@ export default function Archivos() {
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
               >
+                {ocFiltradas.map(o => (
+                  <OrdenCard key={o.id} orden={o} onAbrir={() => abrirOrdenPDF({ ...ORDEN_NUEVA, ...o })} />
+                ))}
                 {filtrados.map(archivo => (
                   <FileCard
                     key={archivo.name}
@@ -385,6 +410,46 @@ export default function Archivos() {
         </div>
       )}
     </Layout>
+  );
+}
+
+function OrdenCard({ orden, onAbrir }) {
+  const [hover, setHover] = useState(false);
+  const total = calcularTotales(orden).total;
+  return (
+    <div
+      onClick={onAbrir}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      title="Abrir PDF de la orden"
+      style={{
+        background: "#fff",
+        border: "2px solid #111",
+        boxShadow: hover ? "2px 2px 0 #111" : "5px 5px 0 #111",
+        padding: "16px 14px 12px",
+        display: "flex", flexDirection: "column", gap: 8,
+        cursor: "pointer",
+        transform: hover ? "translate(-2px,-2px)" : "none",
+        transition: "box-shadow .12s, transform .12s",
+      }}
+    >
+      <div style={{ fontSize: 38, lineHeight: 1 }}>📕</div>
+      <div style={{ fontWeight: 700, fontSize: 12.5, wordBreak: "break-word", lineHeight: 1.35, color: "#111", maxHeight: 52, overflow: "hidden" }}>
+        {folioOC(orden)} · {orden.proveedor || "Sin proveedor"}
+      </div>
+      <div style={{ fontSize: 11, color: "#999", marginTop: "auto" }}>
+        {orden.fecha ? formatFecha(orden.fecha + "T00:00:00") : ""} · {dineroOC(total, orden.moneda)} · {orden.estado || "Pendiente"}
+      </div>
+      <div style={{ display: "flex", gap: 6, marginTop: 4 }} onClick={e => e.stopPropagation()}>
+        <button
+          className="btn-sys btn-pdf"
+          style={{ flex: 1, padding: "5px 8px", fontWeight: 700, fontSize: 11, fontFamily: "inherit" }}
+          onClick={onAbrir}
+        >
+          PDF
+        </button>
+      </div>
+    </div>
   );
 }
 

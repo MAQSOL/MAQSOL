@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import { LOGO_MAQSOL_TRANSPARENTE, LOGO_MAQSOL_TRANSPARENTE_RELACION } from "./logoMaqsolTransparente";
 import { montoALetras } from "./numeroALetras";
+import { guardarEnArchivos } from "./archivoAuto";
 
 export const CODIGO_DOC = "MSL-COA0030-20062023";
 export const ARRENDADOR = {
@@ -441,6 +442,7 @@ export function descargarContratoPDF(bloques, nombreArchivo) {
   });
 
   doc.save(nombreArchivo + ".pdf");
+  guardarEnArchivos("contratos", nombreArchivo + ".pdf", doc.output("blob"));
 }
 
 /** Genera y descarga el contrato como Word (.docx) editable, a partir del mismo modelo del PDF. */
@@ -623,6 +625,7 @@ export async function descargarContratoWord(bloques, nombreArchivo, logoUrl) {
   });
 
   const blob = await Packer.toBlob(documento);
+  guardarEnArchivos("contratos", nombreArchivo + ".docx", blob);
   const url = URL.createObjectURL(blob);
   const a = document_createA(url, nombreArchivo + ".docx");
   a.click();

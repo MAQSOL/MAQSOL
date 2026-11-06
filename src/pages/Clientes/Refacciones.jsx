@@ -11,6 +11,7 @@ import { useCotizaciones } from "../../hooks/useCotizaciones";
 import { useSharedTable } from "../../hooks/useSharedTable";
 import { useAuth } from "../../contexts/AuthContext";
 import ListaCotizaciones from "../../components/ListaCotizaciones";
+import { guardarEnArchivos } from "../../utils/archivoAuto";
 
 function Refacciones() {
 
@@ -739,6 +740,7 @@ yAbajo = yClausulaActual + 2;
 // ==========================
 
 doc.save(`Cotizacion_${folio}.pdf`);
+guardarEnArchivos("cotizaciones", `${folio}.pdf`, doc.output("blob"));
 
 };
 

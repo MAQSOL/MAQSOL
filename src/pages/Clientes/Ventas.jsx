@@ -13,6 +13,7 @@ import { useSharedTable } from "../../hooks/useSharedTable";
 import { useCodigosFolio } from "../../hooks/useCodigosFolio";
 import { useAuth } from "../../contexts/AuthContext";
 import ListaCotizaciones from "../../components/ListaCotizaciones";
+import { guardarEnArchivos } from "../../utils/archivoAuto";
 
 function Ventas() {
 
@@ -643,6 +644,7 @@ doc.text("012691001134481263", 141, yPie + 36);
 doc.setTextColor(0, 0, 0);
 
 doc.save(`${folio}.pdf`);
+guardarEnArchivos("cotizaciones", `${folio}.pdf`, doc.output("blob"));
 
 };
 
