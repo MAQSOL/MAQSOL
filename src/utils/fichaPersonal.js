@@ -39,9 +39,24 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
   // Salto de página si no cabe el siguiente bloque
-  const LIMITE = 266;
+  // Hoja carta = 279.4 mm. El contenido termina en LIMITE y el pie va fijo abajo
+  // con margen, para que nada quede pegado al borde inferior.
+  const LIMITE = 250;
+  const PIE_Y  = 262;
   const asegura = (alto) => {
-    if (y + alto > LIMITE) { doc.addPage(); y = 12; }
+    if (y + alto > LIMITE) {
+      doc.addPage();
+      // Encabezado corto en hojas siguientes
+      y = 12;
+      doc.setFont("courier", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(...GRIS);
+      doc.text("FICHA DE INGRESO" + (p.nombre ? "  ·  " + String(p.nombre).toUpperCase() : ""), M, y + 3);
+      doc.setDrawColor(...VINO);
+      doc.setLineWidth(0.5);
+      doc.line(M, y + 5.5, M + ancho, y + 5.5);
+      y += 10;
+    }
   };
 
   // Franja de sección
@@ -124,19 +139,24 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   seccion("HISTORIAL LABORAL");
   par("Último empleo", p.ultimoEmpleo, "Puesto desempeñado", p.ultimoPuesto);
 
+  // La sección del empleo va completa (no se parte entre hojas)
+  asegura(8 + 4 * (ROW_H + 3));
   seccion("DATOS DEL EMPLEO");
   const sueldo = p.sueldoBase ? (isNaN(Number(p.sueldoBase)) ? p.sueldoBase : "$" + Number(p.sueldoBase).toLocaleString("es-MX")) : "";
   par("Puesto / cargo", p.puesto, "Sueldo base", sueldo);
   par("Tipo de nómina", p.tipoNomina || "", "Horario de trabajo", p.horario);
   par("Sábados", p.horarioSabado, "Hora de comida", p.horarioComida);
-  par("Lugar de trabajo", p.lugarTrabajo, "", "");
+  full("Lugar de trabajo", p.lugarTrabajo);
 
+  const contacto = (n, par_, tel) => campos([
+    { label: "Nombre y apellidos", val: n, w: 0.45 },
+    { label: "Parentesco", val: par_, w: 0.25 },
+    { label: "Teléfono", val: tel, w: 0.30 },
+  ]);
   seccion("CONTACTO DE EMERGENCIA");
-  par("Nombre y apellidos", p.emergenciaNombre, "Parentesco", p.emergenciaParentesco);
-  full("Teléfono", p.emergenciaTelefono);
+  contacto(p.emergenciaNombre, p.emergenciaParentesco, p.emergenciaTelefono);
   if (p.emergencia2Nombre && !p.sinContacto2) {
-    par("Nombre y apellidos (2)", p.emergencia2Nombre, "Parentesco", p.emergencia2Parentesco);
-    full("Teléfono", p.emergencia2Telefono);
+    contacto(p.emergencia2Nombre, p.emergencia2Parentesco, p.emergencia2Telefono);
   }
 
   seccion("FAMILIA");
@@ -147,7 +167,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   hijos.forEach((h, i) => {
     const e = edadDe(h.fechaNacimiento);
     const nac = fFecha(h.fechaNacimiento);
-    par(`Hijo(a) ${i + 1}`, h.nombre, "Fecha de nacimiento / edad", nac ? nac + (e ? `  (${e} años)` : "") : "", 0.6);
+    par(`Hijo(a) ${i + 1}`, h.nombre, "Fecha de nacimiento / edad", nac ? nac + (e ? `  (${e} años)` : "") : "");
   });
 
   if (p.notas) {
@@ -169,7 +189,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   }
 
   // ── Firmas ──────────────────────────────────────────────────────────────────
-  asegura(8 + 14 + 12 + 6);
+  asegura(8 + 20 + 10);
   seccion("FIRMAS");
   const fw4 = (ancho - GAP * 3) / 4;
   const fxs = [M, M + fw4 + GAP, M + (fw4 + GAP) * 2, M + (fw4 + GAP) * 3];
@@ -181,7 +201,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
     "LIC. FCO. TORRES"
   ];
   // Líneas de firma
-  y += 14;
+  y += 20; // espacio para firmar
   fxs.forEach((fx, i) => {
     doc.setDrawColor(...LINEA);
     doc.setLineWidth(0.3);
@@ -197,14 +217,19 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   });
   y += 12;
 
-  // ── Pie ─────────────────────────────────────────────────────────────────────
-  doc.setDrawColor(...VINO);
-  doc.setLineWidth(0.7);
-  doc.line(M, y, M + ancho, y);
-  doc.setFont("courier", "normal");
-  doc.setFontSize(6.5);
-  doc.setTextColor(...GRIS);
-  doc.text("Documento confidencial generado desde MAQSISTEM", W / 2, y + 4, { align: "center" });
+  // ── Pie fijo en cada hoja, con margen inferior ─────────────────────────────
+  const total = doc.getNumberOfPages();
+  for (let i = 1; i <= total; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(...VINO);
+    doc.setLineWidth(0.7);
+    doc.line(M, PIE_Y, M + ancho, PIE_Y);
+    doc.setFont("courier", "normal");
+    doc.setFontSize(6.5);
+    doc.setTextColor(...GRIS);
+    doc.text("Documento confidencial generado desde MAQSISTEM", M, PIE_Y + 4.5);
+    doc.text(`Hoja ${i} de ${total}`, M + ancho, PIE_Y + 4.5, { align: "right" });
+  }
 
   doc.save(nombreArchivo + ".pdf");
 }
