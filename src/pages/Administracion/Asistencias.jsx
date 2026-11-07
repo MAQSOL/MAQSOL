@@ -425,7 +425,10 @@ function Asistencias() {
           texto = "A";
         } else if (dia.estado === "F") {
           clase = "falta";
-          texto = "F";
+          texto = "FALTA";
+        } else {
+          clase = "sin";
+          texto = "SIN ASISTENCIA";
         }
         return `<tr class="${esDomingo ? "fila-domingo" : ""}">
           ${i === 0 ? `<td class="nombre" rowspan="${DIAS_PDF.length}">${c.puesto ? `${c.nombre}<br>(${c.puesto.toUpperCase()})` : c.nombre}</td>` : ""}
@@ -487,7 +490,8 @@ function Asistencias() {
         .fecha{text-align:center;width:24%;color:#555;font-family:'Roboto Mono',monospace;font-size:10px;}
         .estado{text-align:center;font-weight:800;width:22%;}
         table.tarjeta td.estado.asistio{background:#dff0d8;color:#1a7f37;}
-        table.tarjeta td.estado.falta{background:#fde8e8;color:#c62828;}
+        table.tarjeta td.estado.falta{background:#fde8e8;color:#c62828;font-size:9.5px;letter-spacing:.3px;}
+        table.tarjeta td.estado.sin{background:#f4f4f4;color:#9a9a9a;font-weight:700;font-size:8px;letter-spacing:.2px;}
         table.tarjeta tr.fila-domingo td{background:#eef2f7;color:#4a6fa5;}
         table.tarjeta tr.fila-domingo td.estado{background:#eef2f7;font-weight:700;color:#4a6fa5;}
         table.tarjeta td.obs-label{background:#f9f0f1;font-weight:700;text-align:center;font-family:'Space Mono',monospace;font-size:9px;border-right:2px solid #8F1D2C;}
@@ -1410,7 +1414,7 @@ function Asistencias() {
                     {[
                       { valor: "A", texto: descanso ? "Trabajó" : "Asistió", color: VERDE },
                       { valor: "F", texto: "Falta", color: ROJO },
-                      { valor: "", texto: "Sin marcar", color: "#aaa" }
+                      { valor: "", texto: "Sin asistencia", color: "#aaa" }
                     ].map((op) => (
                       <button
                         key={op.valor}

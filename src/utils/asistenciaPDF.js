@@ -94,9 +94,10 @@ export function descargarAsistenciaPDF({ titulo = "Lista de Asistencia", subtitu
       let bg = [255, 255, 255], tx = TEXTO, txt = "";
       if (dom) { bg = DOM_BG; tx = DOM_TX; txt = "Descanso"; }
       else if (d.estado === "A") { bg = VERDE_BG; tx = VERDE_TX; txt = "A"; }
-      else if (d.estado === "F") { bg = ROJO_BG; tx = ROJO_TX; txt = "F"; }
+      else if (d.estado === "F") { bg = ROJO_BG; tx = ROJO_TX; txt = "FALTA"; }
+      else { bg = [244, 244, 244]; tx = [154, 154, 154]; txt = "SIN ASISTENCIA"; }
       celda(cx, yy, cw[3], H_DIA, bg);
-      if (txt) textoCentro(txt, cx, yy, cw[3], H_DIA, { color: tx, bold: true, sz: dom ? 7 : 8 });
+      textoCentro(txt, cx, yy, cw[3], H_DIA, { color: tx, bold: true, sz: txt === "A" ? 8 : txt === "SIN ASISTENCIA" ? 5.6 : 7 });
       yy += H_DIA;
     });
 
