@@ -409,7 +409,7 @@ function Asistencias() {
       String(lunes.getMonth() + 1).padStart(2, "0") + lunes.getFullYear();
     const nombreArchivo = `A-SEMANA${semana}-${mesAnio}`;
 
-    let tarjetas = "";
+    const tarjetas = [];
     colaboradores.forEach((c) => {
       const filasDias = DIAS_PDF.map((nombreDia, i) => {
         const esDomingo = i === DIA_DESCANSO;
@@ -445,7 +445,7 @@ function Asistencias() {
         .map(esc)
         .join(" · ");
 
-      tarjetas += `
+      tarjetas.push(`
         <table class="tarjeta">
           <tr class="encabezado">
             <th class="mes">${mesNombre}</th>
@@ -458,32 +458,42 @@ function Asistencias() {
             <td class="obs-label">Observaciones:</td>
             <td class="obs-texto" colspan="3">${observaciones}</td>
           </tr>
-        </table>`;
+        </table>`);
     });
+
+    // 6 tarjetas por hoja (3 filas × 2 columnas) en carta vertical
+    const hojas = [];
+    for (let i = 0; i < tarjetas.length; i += 6) hojas.push(tarjetas.slice(i, i + 6).join(""));
 
     // las tarjetas no llevan renglones alternos: cada celda tiene su color (A / F / descanso)
     abrirDocPDF({
       nombre: nombreArchivo,
+      hoja: "vertical",
       css: `
-        .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px 22px;}
-        table.tarjeta{border-collapse:collapse;width:100%;border:1px solid #e0e0e0;page-break-inside:avoid;font-size:12.5px;}
-        table.tarjeta tbody tr td,table.tarjeta th{border:0.5px solid #e8e8e8;padding:5px 8px;background:#fff;}
-        table.tarjeta tr.encabezado th{background:#8F1D2C;color:#fff;border-color:#8F1D2C;border-bottom:0.5px solid #e8e8e8;font-weight:700;text-align:left;padding:7px 8px;font-family:'Space Mono',monospace;letter-spacing:.4px;}
+        body{padding:8mm 9mm !important;}
+        .top{padding-bottom:5px;margin-bottom:8px}
+        .top img{height:40px}
+        .top h1{font-size:19px;margin-bottom:1px}
+        .top p{margin:0;font-size:9.5px;line-height:1.35}
+        .hoja{display:grid;grid-template-columns:1fr 1fr;gap:16px 14px;break-after:page;page-break-after:always;}
+        .hoja:last-child{break-after:auto;page-break-after:auto;}
+        table.tarjeta{border-collapse:collapse;width:100%;border:1px solid #e0e0e0;break-inside:avoid;page-break-inside:avoid;font-size:10.5px;line-height:1.2;}
+        table.tarjeta tbody tr td,table.tarjeta th{border:0.5px solid #e8e8e8;padding:5px 6px;background:#fff;}
+        table.tarjeta tr.encabezado th{background:#8F1D2C;color:#fff;border-color:#8F1D2C;font-weight:700;text-align:left;padding:6px 6px;font-family:'Space Mono',monospace;letter-spacing:.2px;font-size:9px;}
         table.tarjeta tr.encabezado th.centrado{text-align:center;}
-        table.tarjeta tr.encabezado th.mes{font-size:14px;letter-spacing:.8px;text-align:center;}
-        table.tarjeta td.nombre{background:#f9f0f1;font-weight:700;text-align:center;vertical-align:middle;width:22%;border-right:2px solid #8F1D2C;font-family:'Space Mono',monospace;font-size:11.5px;}
-        .dia{text-transform:capitalize;width:16%;color:#444;background:#e3e3e3;}
-        .fecha{text-align:center;width:20%;color:#555;font-family:'Roboto Mono',monospace;font-size:12px;}
-        .estado{text-align:center;font-weight:800;width:20%;}
+        table.tarjeta tr.encabezado th.mes{font-size:11px;letter-spacing:.5px;text-align:center;}
+        table.tarjeta td.nombre{background:#f9f0f1;font-weight:700;text-align:center;vertical-align:middle;width:26%;border-right:2px solid #8F1D2C;font-family:'Space Mono',monospace;font-size:9.5px;}
+        .dia{text-transform:capitalize;width:18%;color:#444;background:#e3e3e3;}
+        .fecha{text-align:center;width:24%;color:#555;font-family:'Roboto Mono',monospace;font-size:10px;}
+        .estado{text-align:center;font-weight:800;width:22%;}
         table.tarjeta td.estado.asistio{background:#dff0d8;color:#1a7f37;}
         table.tarjeta td.estado.falta{background:#fde8e8;color:#c62828;}
         table.tarjeta tr.fila-domingo td{background:#eef2f7;color:#4a6fa5;}
         table.tarjeta tr.fila-domingo td.estado{background:#eef2f7;font-weight:700;color:#4a6fa5;}
-        table.tarjeta td.obs-label{background:#f9f0f1;font-weight:700;text-align:center;font-family:'Space Mono',monospace;font-size:11px;border-right:2px solid #8F1D2C;}
-        .obs-texto{font-weight:500;text-align:center;padding:8px;color:#444;font-family:'Roboto Mono',monospace;font-size:12px;}
-        @media print{.grid{gap:14px 18px;}}`,
+        table.tarjeta td.obs-label{background:#f9f0f1;font-weight:700;text-align:center;font-family:'Space Mono',monospace;font-size:9px;border-right:2px solid #8F1D2C;}
+        .obs-texto{font-weight:500;text-align:center;padding:7px 6px;color:#444;font-family:'Roboto Mono',monospace;font-size:9.5px;}`,
       cuerpo: `${encabezadoDoc("Lista de Asistencia", [`${mesNombre} · Semana ${semana} · ${lunes.getFullYear()}`, "Generado: " + hoyMX()])}
-        <div class="grid">${tarjetas}</div>`
+        ${hojas.map((h) => `<div class="hoja">${h}</div>`).join("")}`
     });
   };
 
