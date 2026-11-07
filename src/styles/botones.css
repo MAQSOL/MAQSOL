@@ -80,3 +80,19 @@ button[style*="background: var(--acento)"]:disabled { transform: none; box-shado
 
 /* Botón gris con texto rojo para eliminar */
 .btn-sys.btn-eliminar { color: #c62828 !important; }
+
+/* Botón para minimizar/mostrar una sección (fichas de equipo) */
+.btn-reducir {
+  position: absolute; top: 16px; right: 16px;
+  width: 34px; height: 34px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #e8e8e8; color: #111; cursor: pointer;
+  border: 2px solid #111; border-radius: 0; box-shadow: 0 3px 0 #111;
+  transform: translateY(-2px); transition: transform .1s ease, box-shadow .1s ease;
+}
+.btn-reducir:hover { transform: translateY(-3px); box-shadow: 0 4px 0 #111; }
+.btn-reducir:active { transform: translateY(1px) !important; box-shadow: 0 0 0 #111 !important; }
+/* minimizada: solo se ve el encabezado (botón + primer bloque) */
+.tarjeta-min > *:nth-child(n+3) { display: none !important; }
+.tarjeta-min h2 { margin-bottom: 0 !important; }
+.tarjeta-min > *:nth-child(2) { margin-bottom: 0 !important; }

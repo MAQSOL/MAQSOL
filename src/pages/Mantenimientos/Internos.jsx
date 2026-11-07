@@ -89,6 +89,21 @@ function diasPara(f){if(!f)return null;const h=new Date();h.setHours(0,0,0,0);re
 function fFecha(f){return f?new Date(f+'T00:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}):'—'}
 function uid(){return 'x'+Date.now()+Math.random().toString(36).slice(2,6)}
 
+// Sección de la ficha que se puede minimizar (se recuerda en este navegador)
+function Tarjeta({id,children}){
+  const clave="eq_sec_min_"+id
+  const[min,setMin]=useState(()=>{try{return localStorage.getItem(clave)==="1"}catch{return false}})
+  const cambiar=()=>setMin(m=>{const n=!m;try{localStorage.setItem(clave,n?"1":"0")}catch{/* sin almacenamiento */};return n})
+  return(
+    <div className={min?"tarjeta-min":""} style={{...S.card,position:"relative",paddingRight:66,...(min?{paddingBottom:14,marginBottom:20}:{})}}>
+      <button type="button" className="btn-reducir" onClick={cambiar} title={min?"Mostrar sección":"Minimizar sección"} aria-label={min?"Mostrar sección":"Minimizar sección"} aria-expanded={!min}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" style={{transform:min?"rotate(180deg)":"none",transition:"transform .2s"}}><path d="m6 15 6-6 6 6"/></svg>
+      </button>
+      {children}
+    </div>
+  )
+}
+
 function comprimirImagen(file,maxAncho=800){
   return new Promise((resolve)=>{
     const reader=new FileReader()
@@ -444,7 +459,7 @@ export default function EquiposInternos(){
         </div>
 
         {/* INFORMACIÓN GENERAL */}
-        <div style={S.card}>
+        <Tarjeta id="info">
           <h2 style={{...S.h2,marginBottom:18}}>Información General</h2>
           <div style={S.grid4}>
             <Dato etiqueta="TIPO DE EQUIPO" valor={activo.tipo}/><Dato etiqueta="MARCA" valor={activo.marca}/><Dato etiqueta="MODELO" valor={activo.modelo}/><Dato etiqueta="SERIE" valor={activo.serie}/>
@@ -453,10 +468,10 @@ export default function EquiposInternos(){
             <Dato etiqueta="PLACAS O NO. ECONÓMICO" valor={activo.placas}/>
           </div>
           <div style={{marginTop:6}}><div style={S.label}>PRÓXIMO MANTENIMIENTO</div><div style={{fontSize:15}}><Semaforo fecha={activo.proximoMantto}/></div></div>
-        </div>
+        </Tarjeta>
 
         {/* FILTROS MULTI-MARCA */}
-        <div style={S.card}>
+        <Tarjeta id="filtros">
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
             <div><h2 style={S.h2}>Filtros de la Máquina</h2><p style={{color:'#777',fontSize:13,margin:'-4px 0 0'}}>Puedes agregar varias marcas por tipo de filtro.</p></div>
             <button style={S.btnSm} onClick={agregarFiltro}><IconoMas />Agregar filtro</button>
@@ -480,10 +495,10 @@ export default function EquiposInternos(){
                 </tr>]})}</tbody>
             </table>
           )}
-        </div>
+        </Tarjeta>
 
         {/* SUMINISTROS */}
-        <div style={S.card}>
+        <Tarjeta id="suministros">
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
             <div><h2 style={S.h2}>Suministros del Equipo</h2><p style={{color:'#777',fontSize:13,margin:'-4px 0 0'}}>Capacidades y especificaciones de lo que lleva la máquina.</p></div>
             <button style={S.btnSm} onClick={agregarSuministro}><IconoMas />Agregar suministro</button>
@@ -501,10 +516,10 @@ export default function EquiposInternos(){
               ))}</tbody>
             </table>
           )}
-        </div>
+        </Tarjeta>
 
         {/* FOTOGRAFÍA */}
-        <div style={S.card}>
+        <Tarjeta id="foto">
 <h2 style={S.h2}>Fotografía del Equipo</h2>
           <div style={{display:'flex',gap:22,alignItems:'center',flexWrap:'wrap',marginTop:12}}>
             {activo.fotoUrl?(
@@ -537,15 +552,15 @@ export default function EquiposInternos(){
               <button type="button" onClick={()=>setVerFoto(false)} aria-label="Cerrar" style={{position:'fixed',top:16,right:16,width:42,height:42,background:'#111',color:'#fff',border:'2px solid #fff',fontSize:18,cursor:'pointer'}}>✕</button>
             </div>
           )}
-        </div>
+        </Tarjeta>
 
         {/* NOTAS */}
-        <div style={S.card}>
+        <Tarjeta id="notas">
           <NotasEquipo lista={notasDe(activo)} onCambiar={nueva=>actualizarCampos({notasLista:nueva,notas:''})}/>
-        </div>
+        </Tarjeta>
 
         {/* PENDIENTES */}
-        <div style={S.card}>
+        <Tarjeta id="pendientes">
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
             <h2 style={S.h2}>Pendientes del Equipo</h2>
             <button style={S.btnSm} onClick={agregarPendiente}><IconoMas />Agregar pendiente</button>
@@ -559,10 +574,10 @@ export default function EquiposInternos(){
               </div>
             ))}</div>
           )}
-        </div>
+        </Tarjeta>
 
         {/* HISTORIAL DE MANTENIMIENTOS */}
-        <div style={S.card}>
+        <Tarjeta id="historial">
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
             <h2 style={{...S.h2,margin:0}}>Historial de Mantenimientos</h2>
             <button className="btn-sys" style={S.btn} onClick={abrirNuevoMantto}><IconoMas />Agregar mantenimiento</button>
@@ -588,7 +603,7 @@ export default function EquiposInternos(){
               ))}</tbody>
             </table></div>
           )}
-        </div>
+        </Tarjeta>
 
         {/* DETALLE MANTTO */}
         {verMantto&&(<div style={S.modalBg} onClick={()=>setVerMantto(null)}><div style={S.modal} onClick={ev=>ev.stopPropagation()}>
