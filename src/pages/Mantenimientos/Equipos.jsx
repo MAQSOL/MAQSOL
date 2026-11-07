@@ -1,4 +1,4 @@
-﻿import { IconoMas } from "../../components/Icons";
+﻿import { IconoMas, IconoLapiz } from "../../components/Icons";
 import { useState, useEffect } from 'react'
 import CampoFecha from "../../components/CampoFecha";
 
@@ -403,7 +403,8 @@ export default function EquiposInternos() {
             <button className="btn-sys" style={S.btnGris} onClick={() => setVista('lista')}>
               ← Regresar a la lista
             </button>
-            <button className="btn-sys btn-word" style={S.btn} onClick={() => abrirEditar(activo)}>
+            <button className="btn-sys btn-word" style={{ ...S.btn, display: 'inline-flex', alignItems: 'center', gap: 7 }} onClick={() => abrirEditar(activo)}>
+              <IconoLapiz width={16} height={16} />
               Editar datos generales
             </button>
           </div>

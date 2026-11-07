@@ -55,3 +55,25 @@
 
 /* Opción seleccionada (puestos rápidos) */
 .btn-sys.btn-activo { background: #ffcd11 !important; }
+
+/* Botones rojos (fondo del color del tema puesto en línea): mismo diseño con borde negro.
+   Se excluyen los redondos (chat, avatares). */
+button[style*="background: var(--acento)"]:not(.btn-sys):not([style*="border-radius: 50%"]):not([style*="border-radius: 999"]),
+label[style*="background: var(--acento)"]:not(.btn-sys) {
+  border: 2px solid #111 !important;
+  border-radius: 0 !important;
+  box-shadow: 0 5px 0 #111 !important;
+  transform: translateY(-3px);
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+}
+button[style*="background: var(--acento)"]:not(.btn-sys):not([style*="border-radius: 50%"]):not([style*="border-radius: 999"]):hover,
+label[style*="background: var(--acento)"]:not(.btn-sys):hover {
+  transform: translateY(-5px);
+  box-shadow: 0 7px 0 #111 !important;
+}
+button[style*="background: var(--acento)"]:not(.btn-sys):not([style*="border-radius: 50%"]):not([style*="border-radius: 999"]):active,
+label[style*="background: var(--acento)"]:not(.btn-sys):active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 0 0 #111 !important;
+}
+button[style*="background: var(--acento)"]:disabled { transform: none; box-shadow: 0 2px 0 #111 !important; }

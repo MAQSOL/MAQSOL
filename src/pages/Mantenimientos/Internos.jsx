@@ -7,7 +7,8 @@ import { useSharedTable, useCatalogo, useListaCompartida } from '../../hooks/use
 import QrEquipoModal from '../../components/QrEquipoModal'
 import { conHoras } from '../../utils/horometro'
 import CampoDiferido from '../../components/CampoDiferido'
-import { IconoMas } from '../../components/Icons'
+import { IconoMas, IconoLapiz } from '../../components/Icons'
+import { descargarExpedienteEquipoPDF } from '../../utils/expedienteEquipo'
 import CargandoMaq from '../../components/CargandoMaq'
 import CampoFecha from "../../components/CampoFecha"
 
@@ -412,8 +413,9 @@ export default function EquiposInternos(){
             <p style={S.sub}>{activo.marca} {activo.modelo} · Serie {activo.serie||'s/n'}</p>
             <div style={{display:'flex',gap:10,marginTop:14}}>
               <button className="btn-sys" style={S.btnGris} onClick={()=>setVista('lista')}>← Regresar a la lista</button>
-              <button className="btn-sys btn-word" style={S.btn} onClick={()=>abrirEditar(activo)}>Editar datos generales</button>
+              <button className="btn-sys btn-word" style={{...S.btn,display:'inline-flex',alignItems:'center',gap:7}} onClick={()=>abrirEditar(activo)}><IconoLapiz width={16} height={16}/>Editar datos generales</button>
               <button className="btn-sys btn-qr" style={S.btnGris} onClick={()=>setModalQr(true)}>Generar código QR</button>
+              <button className="btn-sys btn-pdf" style={S.btn} onClick={()=>descargarExpedienteEquipoPDF(activo)}>Descargar PDF</button>
             </div>
           </div>
    <div style={{flexShrink:0,textAlign:'center'}}>
