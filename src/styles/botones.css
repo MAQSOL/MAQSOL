@@ -50,5 +50,5 @@
 .btn-sys.btn-qr  { background: #ef6c00 !important; color: #fff !important; }
 .btn-sys.btn-qr svg path { fill: #fff !important; }
 
-/* Botón azul clarito (Enviar ficha) */
-.btn-sys.btn-azul-claro { background: #bfe0ff !important; color: #111 !important; }
+/* Botón amarillo Caterpillar (Enviar ficha) */
+.btn-sys.btn-azul-claro { background: #ffcd11 !important; color: #111 !important; }
