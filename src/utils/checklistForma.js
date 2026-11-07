@@ -1,6 +1,6 @@
 import { LOGO_MAQSOL_TRANSPARENTE, LOGO_MAQSOL_TRANSPARENTE_RELACION } from "./logoMaqsolTransparente";
 import { folioVisible } from "./folio";
-import { AZUL, AZUL_TENUE, CSS_ENCABEZADO, EMPRESA, encabezadoDoc } from "./pdfFormato";
+import { AZUL, AZUL_TENUE, CSS_ENCABEZADO, EMPRESA, encabezadoDoc, abrirHtmlImprimible } from "./pdfFormato";
 
 const NIVELES = [["electrica", "ELECTRICA", 2], ["1/4", "1/4", 1], ["1/2", "1/2", 1], ["3/4", "3/4", 1], ["full", "FULL", 1]];
 
@@ -154,7 +154,7 @@ export function htmlChecklist(r, cols) {
       ${t1}
       ${t2}
       ${t3}
-      <div class="pie-doc">${r.fotosUrl ? `Fotos del equipo: <a href="${esc(r.fotosUrl)}" style="color:#d6001c;font-weight:700;text-decoration:none">${esc(r.fotosUrl)}</a> &nbsp;·&nbsp; ` : ""}Documento generado desde MAQSISTEM · ${esc(folioCorto(r))}</div>
+      <div class="pie-doc">${r.fotosUrl ? `Fotos del equipo: <a href="${esc(r.fotosUrl)}" style="color:#8F1D2C;font-weight:700;text-decoration:none">${esc(r.fotosUrl)}</a> &nbsp;·&nbsp; ` : ""}Documento generado desde MAQSISTEM · ${esc(folioCorto(r))}</div>
     </div>
     <script>
       window.onload=function(){
@@ -170,13 +170,7 @@ export function htmlChecklist(r, cols) {
 
 /** Abre la ventana de impresión con el formato (sin pie "about:blank"). */
 export function abrirChecklistPDF(r, cols) {
-  const ventana = window.open("", "_blank");
-  if (!ventana) {
-    alert("El navegador bloqueó la ventana. Permite ventanas emergentes para este sitio.");
-    return;
-  }
-  ventana.document.write(htmlChecklist(r, cols));
-  ventana.document.close();
+  abrirHtmlImprimible(htmlChecklist(r, cols));
 }
 
 /** Excel (.xlsx) con la misma estructura del formato: celdas combinadas, logo, B/R/M de colores y firmas. */

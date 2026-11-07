@@ -13,8 +13,8 @@ export const AZUL = "#1a1a1a";
 export const AZUL_RGB = [26, 26, 26];
 export const AZUL_TENUE = "#f2f2f2";      // celdas de etiqueta en formatos
 export const AZUL_TENUE_RGB = [242, 242, 242];
-export const ROJO = "#d6001c";            // rojo MAQSOL
-export const ROJO_RGB = [214, 0, 28];
+export const ROJO = "#8F1D2C";            // rojo vino MAQSOL (mismo de las asistencias)
+export const ROJO_RGB = [143, 29, 44];
 export const EMPRESA = "MAQUINARIA SOPORTE Y LOGÍSTICA SA DE CV";
 
 export const esc = (t) =>
@@ -31,7 +31,7 @@ export const CSS_ENCABEZADO = `
     .top .der{display:flex;align-items:center;gap:20px}
     .top .folio-top{text-align:right;border-right:1px solid #ddd;padding-right:20px}
     .top .folio-top small{display:block;font-size:10px;letter-spacing:1px;color:#888;text-transform:uppercase}
-    .top .folio-top b{display:block;font-size:24px;color:#d6001c;margin-top:2px}
+    .top .folio-top b{display:block;font-size:24px;color:${ROJO};margin-top:2px}
     .top h1{font-size:20px;margin:0;color:#111}
     .top p{margin:3px 0;color:#555}`;
 
@@ -73,17 +73,29 @@ export const pieDoc = (texto = "") => `<div class="pie">Documento generado desde
  * la ventana, que el navegador propone como nombre del archivo.
  */
 export function abrirDocPDF({ nombre, cuerpo, hoja = "auto", css = "" }) {
-  const w = window.open("", "_blank");
-  if (!w) {
-    alert("El navegador bloqueó la ventana. Permite ventanas emergentes para este sitio.");
-    return;
-  }
-  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(nombre)}</title>
+  abrirHtmlImprimible(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(nombre)}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>${cssDoc({ hoja, extra: css })}</style></head><body>${cuerpo}
     <script>document.fonts.ready.then(function(){window.print()});</script></body></html>`);
-  w.document.close();
+}
+
+/**
+ * Abre un HTML completo en pestaña nueva como archivo propio (URL blob) en vez de
+ * escribirlo en una ventana "about:blank". Así Chrome sí toma el <title> como
+ * nombre propuesto al "Guardar como PDF".
+ */
+export function abrirHtmlImprimible(html) {
+  const url = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
+  const w = window.open(url, "_blank");
+  if (!w) {
+    URL.revokeObjectURL(url);
+    alert("El navegador bloqueó la ventana. Permite ventanas emergentes para este sitio.");
+    return null;
+  }
+  // se libera después; la pestaña ya cargó su copia
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  return w;
 }
 
 // ---------------------------------------------------------------- mismo diseño en jsPDF

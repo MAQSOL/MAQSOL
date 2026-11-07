@@ -38,7 +38,7 @@ export function descargarEtiquetaQR(equipo, dataUrl, url, logoUrl) {
 
   doc.setFillColor(26, 26, 26);
   doc.rect(0, 0, W, 22, "F");
-  doc.setFillColor(214, 0, 28);
+  doc.setFillColor(143, 29, 44);
   doc.rect(0, 22, W, 1.6, "F");
   if (logoUrl) {
     try { doc.addImage(logoUrl, "PNG", 5, 3, 15, 16); } catch { /* sin logo */ }
