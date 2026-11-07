@@ -22,7 +22,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   const W = 216, M = 12, ancho = W - M * 2;
   let y = 7;
 
-  const NEGRO  = [17, 17, 17];
+  const NEGRO  = [0, 0, 0];
   const GRIS   = [130, 130, 130];
   const LINEA  = [210, 210, 210];
   const VINO   = ROJO_RGB;
@@ -49,7 +49,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
       // Encabezado corto en hojas siguientes
       y = 12;
       doc.setFont("courier", "bold");
-      doc.setFontSize(7.5);
+      doc.setFontSize(8.5);
       doc.setTextColor(...GRIS);
       doc.text("FICHA DE INGRESO" + (p.nombre ? "  ·  " + String(p.nombre).toUpperCase() : ""), M, y + 3);
       doc.setDrawColor(...VINO);
@@ -65,7 +65,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
     doc.setFillColor(...NEGRO);
     doc.rect(M, y, ancho, 6, "F");
     doc.setFont("courier", "bold");
-    doc.setFontSize(7.5);
+    doc.setFontSize(8.5);
     doc.setTextColor(255, 255, 255);
     doc.text(titulo, M + 3, y + 4);
     y += 6 + 2;
@@ -84,14 +84,14 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
 
       // etiqueta
       doc.setFont("courier", "bold");
-      doc.setFontSize(6.2);
+      doc.setFontSize(7.5);
       doc.setTextColor(...GRIS);
       doc.text(label.toUpperCase(), x, y + 3.2);
 
       // valor
       if (txt) {
         doc.setFont("courier", "normal");
-        let sz = 9;
+        let sz = 10.5;
         doc.setFontSize(sz);
         while (doc.getTextWidth(txt) > fw - 1 && sz > 6.5) { sz -= 0.25; doc.setFontSize(sz); }
         doc.setTextColor(...NEGRO);
@@ -174,13 +174,13 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
     seccion("OBSERVACIONES");
     // Área de texto multilínea (todas las líneas, con salto de página)
     doc.setFont("courier", "normal");
-    doc.setFontSize(9);
+    doc.setFontSize(10.5);
     doc.setTextColor(...NEGRO);
     const lineas = doc.splitTextToSize(String(p.notas), ancho - 2);
     lineas.forEach((ln) => {
       asegura(4.5);
       doc.setFont("courier", "normal");
-      doc.setFontSize(9);
+      doc.setFontSize(10.5);
       doc.setTextColor(...NEGRO);
       doc.text(ln, M, y + 4);
       y += 4.5;
@@ -207,12 +207,14 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
     doc.setLineWidth(0.3);
     doc.line(fx, y, fx + fw4, y);
     doc.setFont("courier", "bold");
-    doc.setFontSize(6.5);
+    doc.setFontSize(7.5);
     doc.setTextColor(...GRIS);
     doc.text(labels4[i], fx + fw4 / 2, y + 3.5, { align: "center" });
     doc.setFont("courier", "normal");
-    doc.setFontSize(7.5);
+    doc.setFontSize(8.5);
     doc.setTextColor(...NEGRO);
+    let fs = 8.5; doc.setFontSize(fs);
+    while (doc.getTextWidth(vals4[i]) > fw4 - 1 && fs > 6) { fs -= 0.25; doc.setFontSize(fs); }
     doc.text(vals4[i], fx + fw4 / 2, y + 7.5, { align: "center" });
   });
   y += 12;
@@ -221,13 +223,9 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   const total = doc.getNumberOfPages();
   for (let i = 1; i <= total; i++) {
     doc.setPage(i);
-    doc.setDrawColor(...VINO);
-    doc.setLineWidth(0.7);
-    doc.line(M, PIE_Y, M + ancho, PIE_Y);
     doc.setFont("courier", "normal");
-    doc.setFontSize(6.5);
+    doc.setFontSize(7.5);
     doc.setTextColor(...GRIS);
-    doc.text("Documento confidencial generado desde MAQSISTEM", M, PIE_Y + 4.5);
     doc.text(`Hoja ${i} de ${total}`, M + ancho, PIE_Y + 4.5, { align: "right" });
   }
 
