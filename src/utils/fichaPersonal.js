@@ -16,7 +16,7 @@ export function edadDe(iso) {
   return e >= 0 && e < 120 ? String(e) : "";
 }
 
-export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA-INGRESO") {
+export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA-INGRESO", opts = null) {
   const p = persona || {};
   const doc = new jsPDF({ unit: "mm", format: "letter" });
   const W = 216, M = 12, ancho = W - M * 2;
@@ -191,14 +191,13 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   // ── Firmas ──────────────────────────────────────────────────────────────────
   asegura(8 + 20 + 10);
   seccion("FIRMAS");
-  const fw4 = (ancho - GAP * 3) / 4;
-  const fxs = [M, M + fw4 + GAP, M + (fw4 + GAP) * 2, M + (fw4 + GAP) * 3];
-  const labels4 = ["TRABAJADOR", "RECURSOS HUMANOS", "SUPERVISIÓN", "VO. BO."];
+  const GAP_F = 20;
+  const fw4 = (ancho - GAP_F) / 2;
+  const fxs = [M, M + fw4 + GAP_F];
+  const labels4 = ["RECURSOS HUMANOS", "VO. BO."];
   const vals4   = [
-    (p.nombre || "").toUpperCase(),
     "LIC. ANABEL CERINO",
-    "C. ALEJANDRO BALAM",
-    "LIC. FCO. TORRES"
+    "LIC. FRANCISCO TORRES"
   ];
   // Líneas de firma
   y += 20; // espacio para firmar
@@ -229,5 +228,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
     doc.text(`Hoja ${i} de ${total}`, M + ancho, PIE_Y + 4.5, { align: "right" });
   }
 
+  // Con { devolver: true } no descarga: regresa el PDF en base64 (para enviarlo por correo)
+  if (opts && opts.devolver) return doc.output("datauristring").split(",")[1];
   doc.save(nombreArchivo + ".pdf");
 }

@@ -12,6 +12,7 @@ import { S, fFecha, hoyISO } from "./estilosAdmin";
 import { IconoMas } from "../../components/Icons";
 import CampoFecha from "../../components/CampoFecha";
 import CartaResponsivaModal from "../../components/CartaResponsivaModal";
+import EnviarFichaModal from "../../components/EnviarFichaModal";
 
 const BUCKET = "personal";
 const MAX_MB = 15;
@@ -87,6 +88,7 @@ export default function PersonalNuevo() {
   const [personas, guardarPersonas] = useListaCompartida("personal");
   const [modal, setModal] = useState(false);
   const [carta, setCarta] = useState(null); // null = cerrada; { persona } = abierta
+  const [enviarFicha, setEnviarFicha] = useState(null); // null = cerrado; persona = abierto
   const [form, setForm] = useState(NUEVO);
   const [nuevos, setNuevos] = useState({});
   const [quitar, setQuitar] = useState([]);
@@ -297,6 +299,7 @@ export default function PersonalNuevo() {
                     <td style={{ ...S.td, whiteSpace: "nowrap", textAlign: "right" }}>
                       <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => abrirEditar(p)}>Editar</button>{" "}
                       <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => descargarFichaPDF(p, logoUrl(), "FICHA-" + p.nombre.replace(/\s+/g, "-").toUpperCase())}>Ficha PDF</button>{" "}
+                      <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => setEnviarFicha(p)}>Enviar ficha</button>{" "}
                       <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => generarGafete(p, logoUrl())}>Generar Gafete</button>{" "}
                       {(() => { const hoy = new Date(); const vence = p.licenciaVence ? new Date(p.licenciaVence + "T12:00:00") : null; const dias = vence ? Math.ceil((vence - hoy) / 86400000) : null; return vence ? (<span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: dias < 0 ? "#fde8e8" : dias <= 60 ? "#fff9c4" : "#e8f5e9", color: dias < 0 ? "#c62828" : dias <= 60 ? "#856a00" : "#1f8b4c", border: `1px solid ${dias < 0 ? "#ef9a9a" : dias <= 60 ? "#ffe082" : "#a5d6a7"}`, borderRadius: 0, padding: "3px 8px", fontSize: 12, fontWeight: 700, marginRight: 6 }}>{dias < 0 ? "⚠ Licencia vencida" : dias <= 60 ? `⚠ Licencia vence en ${dias}d` : `✓ Lic. vence ${fFecha(p.licenciaVence)}`}</span>) : null; })()}
                       <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => setCarta({ persona: p })}>Responsiva</button>{" "}
@@ -532,6 +535,7 @@ export default function PersonalNuevo() {
         </div>
       )}
       {carta && <CartaResponsivaModal personas={personas} persona={carta.persona} onClose={() => setCarta(null)} onSubirEscaneo={subirEscaneoCarta} onAbrirArchivo={abrirArchivoCarta} />}
+      {enviarFicha && <EnviarFichaModal persona={enviarFicha} logo={logoUrl()} onClose={() => setEnviarFicha(null)} />}
     </Layout>
   );
 }
