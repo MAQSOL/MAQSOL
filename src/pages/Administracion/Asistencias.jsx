@@ -14,6 +14,8 @@ import { DIAS, DIA_DESCANSO, lunesDeLaSemana, numeroDeSemana, formatoCorto, minu
 import HistorialAsistencias from "./HistorialAsistencias";
 import { IconoLapiz } from "../../components/Icons";
 import { useListaCompartida } from "../../hooks/useSharedTable";
+import EnviarCorreoModal from "../../components/EnviarCorreoModal";
+import { descargarAsistenciaPDF } from "../../utils/asistenciaPDF";
 
 const VINO = "var(--acento)";
 const VERDE = "#2e7d32";
@@ -92,6 +94,7 @@ function PuestosRapidos({ valor, existentes = [], onElegir }) {
 function Asistencias() {
 
   const [pestana, setPestana] = useState("semanal");
+  const [enviarCorreo, setEnviarCorreo] = useState(false);
 
   // ==========================
   // COLABORADORES
@@ -366,6 +369,36 @@ function Asistencias() {
   const pad2 = (n) => String(n).padStart(2, "0");
   const fechaLarga = (d) =>
     `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
+
+  // PDF de la semana como base64, para adjuntarlo al correo
+  const infoSemanaPDF = () => {
+    const mesCrudo = lunes.toLocaleDateString("es-MX", { month: "long" });
+    const mes = mesCrudo.charAt(0).toUpperCase() + mesCrudo.slice(1).toLowerCase();
+    const semana = numeroDeSemana(lunes);
+    const nombreArchivo = `A-SEMANA${semana}-${String(lunes.getMonth() + 1).padStart(2, "0")}${lunes.getFullYear()}`;
+    return { mes, semana, nombreArchivo };
+  };
+
+  const asistenciaPDFBase64 = () => {
+    const { mes, semana, nombreArchivo } = infoSemanaPDF();
+    const tarjetas = colaboradores.map((c) => ({
+      nombre: c.nombre,
+      puesto: c.puesto,
+      dias: DIAS_PDF.map((nombreDia, i) => ({
+        dia: nombreDia.charAt(0).toUpperCase() + nombreDia.slice(1),
+        fecha: fechaLarga(fechasSemana[i]),
+        estado: obtenerDia(c.id, i).estado,
+        descanso: i === DIA_DESCANSO,
+      })),
+      obs: [extrasTexto(c.id), obsSemana(c.id), ...DIAS_PDF.map((_, i) => obtenerDia(c.id, i).observaciones)]
+        .filter(Boolean)
+        .join(" · "),
+    }));
+    return descargarAsistenciaPDF({
+      subtitulo: `${mes} · Semana ${semana} · ${lunes.getFullYear()}`,
+      mes, semana, tarjetas, nombreArchivo, descargar: false,
+    });
+  };
 
   const descargarPDF = () => {
     const mesCrudo = lunes.toLocaleDateString("es-MX", { month: "long" });
@@ -822,6 +855,21 @@ function Asistencias() {
                     }}
                   >
                     PDF
+                  </button>
+
+                  <button
+                    className="btn-sys btn-word"
+                    onClick={() => setEnviarCorreo(true)}
+                    style={{
+                      border: "2px solid #111",
+                      borderRadius: 0,
+                      padding: "11px 22px",
+                      cursor: "pointer",
+                      fontWeight: "700",
+                      fontFamily: "'Montserrat',sans-serif"
+                    }}
+                  >
+                    ✉ Enviar por correo
                   </button>
                 </div>
 
@@ -1481,6 +1529,21 @@ function Asistencias() {
           </div>
         </div>
       )}
+
+      {enviarCorreo && (() => {
+        const { mes, semana, nombreArchivo } = infoSemanaPDF();
+        return (
+          <EnviarCorreoModal
+            titulo="Enviar asistencias por correo"
+            archivo={nombreArchivo}
+            generarPDF={asistenciaPDFBase64}
+            asuntoInicial={`Asistencias · Semana ${semana} · ${mes} ${lunes.getFullYear()}`}
+            mensajeInicial={`Buen día,\n\nAdjunto la lista de asistencia de la semana ${semana} (del ${formatoCorto(fechasSemana[0])} al ${formatoCorto(fechasSemana[6])}).\n\nSaludos.`}
+            claveCorreo="asistencias_correo"
+            onClose={() => setEnviarCorreo(false)}
+          />
+        );
+      })()}
 
     </Layout>
   );
