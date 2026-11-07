@@ -38,8 +38,15 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   });
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
+  // Salto de página si no cabe el siguiente bloque
+  const LIMITE = 266;
+  const asegura = (alto) => {
+    if (y + alto > LIMITE) { doc.addPage(); y = 12; }
+  };
+
   // Franja de sección
   const seccion = (titulo) => {
+    asegura(6 + 2 + 11.5);
     doc.setFillColor(...NEGRO);
     doc.rect(M, y, ancho, 6, "F");
     doc.setFont("courier", "bold");
@@ -53,6 +60,7 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   const ROW_H = 8.5;
   const GAP   = 4;
   const campos = (lista) => {
+    asegura(ROW_H + 3);
     const totalW = ancho - GAP * (lista.length - 1);
     let x = M;
     lista.forEach(({ label = "", val = "", w = 1 }) => {
@@ -100,9 +108,12 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   par("Teléfono celular", p.telefono, "Fecha de nacimiento", fFecha(p.fechaNacimiento));
   par("Lugar de nacimiento", p.lugarNacimiento, "Tipo de sangre", p.tipoSangre);
   par("Estado civil", p.estadoCivil, "Escolaridad", p.escolaridad);
-  par("Licencia de conducir", p.licencia, "Vigencia licencia", "");
-  const nHijos = p.hijos ? p.hijos.filter(h => h.nombre).length : (p.numHijos || "");
-  par("Número de hijos", String(nHijos || ""), "Alergias / padecimientos", p.alergias || p.condicionesMedicas || "");
+  par("Licencia de conducir", p.licencia, "Vigencia licencia", fFecha(p.licenciaVence));
+  const hijos = (p.hijos || []).filter(h => h && h.nombre);
+  const nHijos = hijos.length || p.numHijos || "";
+  const edad = edadDe(p.fechaNacimiento);
+  par("Número de hijos", String(nHijos || "0"), "Edad", edad ? edad + " años" : "");
+  par("Alergias", p.alergias, "Condiciones médicas", p.condicionesMedicas);
 
   seccion("DATOS ECONÓMICOS");
   par("Crédito INFONAVIT", p.infonavit, "No. de crédito INFONAVIT", p.infonavitNumero);
@@ -132,19 +143,32 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
   par(p.familiarParentesco || "Cónyuge / pareja", p.conyugeNombre, "Teléfono", p.conyugeTelefono);
   par("Beneficiario", p.beneficiarioNombre, "Parentesco", p.beneficiarioParentesco);
   full("Teléfono del beneficiario", p.beneficiarioTelefono);
+  hijos.forEach((h, i) => {
+    const e = edadDe(h.fechaNacimiento);
+    const nac = fFecha(h.fechaNacimiento);
+    par(`Hijo(a) ${i + 1}`, h.nombre, "Fecha de nacimiento / edad", nac ? nac + (e ? `  (${e} años)` : "") : "", 0.6);
+  });
 
   if (p.notas) {
     seccion("OBSERVACIONES");
-    // Área de texto multilínea
+    // Área de texto multilínea (todas las líneas, con salto de página)
     doc.setFont("courier", "normal");
     doc.setFontSize(9);
     doc.setTextColor(...NEGRO);
-    const lineas = doc.splitTextToSize(p.notas, ancho - 2);
-    doc.text(lineas.slice(0, 4), M, y + 4);
-    y += Math.min(lineas.length, 4) * 4.5 + 5;
+    const lineas = doc.splitTextToSize(String(p.notas), ancho - 2);
+    lineas.forEach((ln) => {
+      asegura(4.5);
+      doc.setFont("courier", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(...NEGRO);
+      doc.text(ln, M, y + 4);
+      y += 4.5;
+    });
+    y += 5;
   }
 
   // ── Firmas ──────────────────────────────────────────────────────────────────
+  asegura(8 + 14 + 12 + 6);
   seccion("FIRMAS");
   const fw4 = (ancho - GAP * 3) / 4;
   const fxs = [M, M + fw4 + GAP, M + (fw4 + GAP) * 2, M + (fw4 + GAP) * 3];
