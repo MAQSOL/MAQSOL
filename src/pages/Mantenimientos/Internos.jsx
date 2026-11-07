@@ -1,5 +1,6 @@
 ﻿import { useRef, useState } from 'react'
 import Sidebar from '../../components/Sidebar'
+import { supabase } from '../../supabaseClient'
 import { descargarExcelBonito, nombreArchivoFecha } from '../../utils/exportExcel'
 import { abrirDocPDF, encabezadoDoc, pieDoc, hoyMX, esc } from '../../utils/pdfFormato'
 import DeleteButton from '../../components/DeleteButton'
@@ -55,7 +56,8 @@ const EQUIPO_NUEVO = {
 const MANTTO_NUEVO = {
   mid:'',tipoMantto:'Preventivo',fecha:'',horometro:'',proximoMantto:'',descripcion:'',
   filtrosUsados:[],aceiteDetalle:'',grasaDetalle:'',realizadoPor:'',autorizadoPor:'',
-  lugarRealizado:'',pdfUrl:'',costo:'',extras:[]
+  lugarRealizado:'',pdfUrl:'',costo:'',extras:[],
+  filtrosManuales:[],insumos:'',observaciones:'',supervisor:'',pdfArchivo:null
 }
 
 const UBICACIONES_INICIALES = ['Patio MAQSOL','Cancún','Playa del Carmen','Tulum','Mérida','Chetumal','Cozumel','Taller','En tránsito']
@@ -219,6 +221,28 @@ export default function EquiposInternos(){
   const[modal,setModal]=useState(false)
   const[modalQr,setModalQr]=useState(false)
   const[verFoto,setVerFoto]=useState(false)
+  const[subiendoPdf,setSubiendoPdf]=useState(false)
+  const[visorPdf,setVisorPdf]=useState(null) // {url,nombre,tipo}
+
+  // Reporte firmado del mantenimiento: se sube al bucket "archivos" (carpeta mantenimientos)
+  async function subirPdfMantto(ev,eq){
+    const file=ev.target.files[0];ev.target.value='';if(!file)return
+    if(file.size>15*1024*1024)return alert('El archivo pesa más de 15 MB.')
+    setSubiendoPdf(true)
+    const ext=(file.name.split('.').pop()||'pdf').toLowerCase().replace(/[^a-z0-9]/g,'')
+    const base=String(eq.serie||eq.id||'equipo').replace(/[^a-zA-Z0-9_-]/g,'_')
+    const path=`mantenimientos/${base}-${mForm.mid}-${Date.now()}.${ext}`
+    const{error}=await supabase.storage.from('archivos').upload(path,file,{contentType:file.type||'application/pdf'})
+    setSubiendoPdf(false)
+    if(error)return alert('No se pudo subir el reporte: '+error.message)
+    setMForm(f=>({...f,pdfArchivo:{path,nombre:file.name,tipo:file.type||'application/pdf'}}))
+  }
+  async function verPdfMantto(a){
+    if(!a?.path)return
+    const{data,error}=await supabase.storage.from('archivos').createSignedUrl(a.path,3600)
+    if(error||!data?.signedUrl)return alert('No se pudo abrir el reporte.')
+    setVisorPdf({url:data.signedUrl,nombre:a.nombre||'Reporte',tipo:a.tipo||''})
+  }
   const[form,setForm]=useState(EQUIPO_NUEVO)
   const[modoNuevoOperador,setModoNuevoOperador]=useState(false)
   const[nuevoOperador,setNuevoOperador]=useState('')
@@ -329,8 +353,8 @@ export default function EquiposInternos(){
 
   function descargarExcel(eq){
     const l=manttosFiltrados(eq)
-    const columnas=['Fecha','Horómetro','Tipo','Descripción','Realizado por','Autorizado por','Lugar','Costo','Próx. Mantto']
-    const filas=l.map(m=>[fFecha(m.fecha),m.horometro,m.tipoMantto,m.descripcion,m.realizadoPor,m.autorizadoPor,m.lugarRealizado,m.costo?'$'+m.costo:'',fFecha(m.proximoMantto)])
+    const columnas=['Fecha','Horómetro','Tipo','Descripción','Realizado por','Supervisor','Autorizado por','Lugar','Costo','Próx. Mantto']
+    const filas=l.map(m=>[fFecha(m.fecha),m.horometro,m.tipoMantto,m.descripcion,m.realizadoPor,m.supervisor||'',m.autorizadoPor,m.lugarRealizado,m.costo?'$'+m.costo:'',fFecha(m.proximoMantto)])
     descargarExcelBonito({
       titulo:'Historial de Mantenimientos',
       subtitulo:[eq.tipo,eq.marca,eq.modelo].filter(Boolean).join(' ')+(eq.serie?' \u00B7 Serie '+eq.serie:''),
@@ -618,20 +642,43 @@ export default function EquiposInternos(){
             <div><div style={S.label}>HORÓMETRO</div><div>{verMantto.horometro||'—'}</div></div>
             <div><div style={S.label}>PRÓX. MANTTO</div><div>{fFecha(verMantto.proximoMantto)}</div></div>
             <div><div style={S.label}>REALIZADO POR</div><div>{verMantto.realizadoPor||'—'}</div></div>
+            <div><div style={S.label}>SUPERVISOR</div><div>{verMantto.supervisor||'—'}</div></div>
             <div><div style={S.label}>AUTORIZADO POR</div><div>{verMantto.autorizadoPor||'—'}</div></div>
             <div><div style={S.label}>LUGAR</div><div>{verMantto.lugarRealizado||'—'}</div></div>
             <div><div style={S.label}>COSTO</div><div>{verMantto.costo?'$'+verMantto.costo:'—'}</div></div>
           </div>
           <div style={{margin:'10px 0'}}><div style={S.label}>DESCRIPCIÓN</div><div style={{whiteSpace:'pre-wrap'}}>{verMantto.descripcion||'—'}</div></div>
           <div style={{margin:'10px 0'}}><div style={S.label}>FILTROS UTILIZADOS</div>
-            {(verMantto.filtrosUsados||[]).length===0?<div style={{color:'#999'}}>Ninguno</div>:
+            {(verMantto.filtrosManuales||[]).filter(x=>x.tipo||x.marca||x.parte).map(x=><div key={x.id} style={{fontSize:14,padding:'2px 0'}}>{x.tipo||'Sin tipo'} — {x.marca} — {x.parte} <span style={{color:'#999',fontSize:12}}>(manual)</span></div>)}
+            {(verMantto.filtrosUsados||[]).length===0?((verMantto.filtrosManuales||[]).some(x=>x.tipo||x.marca||x.parte)?null:<div style={{color:'#999'}}>Ninguno</div>):
               <div>{(verMantto.filtrosUsados||[]).map(fid=>{const f=(activo.filtros||[]).find(x=>x.id===fid);return f?<div key={fid} style={{fontSize:14,padding:'2px 0'}}>{f.tipo} — {f.marca} — {f.parte}</div>:<div key={fid} style={{color:'#999',fontSize:13}}>Filtro eliminado</div>})}</div>
             }
           </div>
           <div style={S.grid2}><div><div style={S.label}>ACEITE</div><div>{verMantto.aceiteDetalle||'—'}</div></div><div><div style={S.label}>GRASA</div><div>{verMantto.grasaDetalle||'—'}</div></div></div>
-          {verMantto.pdfUrl&&<div style={{margin:'10px 0'}}><div style={S.label}>REPORTE PDF</div><a href={verMantto.pdfUrl} target="_blank" rel="noreferrer" style={{color:VINO,fontWeight:700}}>Abrir reporte firmado</a></div>}
+          {verMantto.insumos&&<div style={{margin:'10px 0'}}><div style={S.label}>INSUMOS ADICIONALES</div><div style={{whiteSpace:'pre-wrap'}}>{verMantto.insumos}</div></div>}
+          {verMantto.observaciones&&<div style={{margin:'10px 0'}}><div style={S.label}>OBSERVACIONES</div><div style={{whiteSpace:'pre-wrap'}}>{verMantto.observaciones}</div></div>}
+          {(verMantto.pdfArchivo?.path||verMantto.pdfUrl)&&<div style={{margin:'10px 0'}}><div style={S.label}>REPORTE PDF FIRMADO</div>
+            {verMantto.pdfArchivo?.path
+              ?<button type="button" className="btn-sys btn-pdf" style={S.btn} onClick={()=>verPdfMantto(verMantto.pdfArchivo)}>Ver reporte firmado</button>
+              :<a href={verMantto.pdfUrl} target="_blank" rel="noreferrer" style={{color:VINO,fontWeight:700}}>Abrir reporte firmado</a>}
+          </div>}
           {verMantto.extras&&verMantto.extras.length>0&&<div style={{margin:'10px 0'}}><div style={S.label}>DATOS ADICIONALES</div>{verMantto.extras.map((ex,i)=><div key={i}><strong>{ex.nombre}:</strong> {ex.valor}</div>)}</div>}
         </div></div>)}
+
+        {visorPdf&&(
+          <div onClick={()=>setVisorPdf(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.7)',zIndex:1500,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+            <div onClick={ev=>ev.stopPropagation()} style={{background:'#fff',border:'3px solid #111',boxShadow:'6px 6px 0 #111',width:'100%',maxWidth:1000,height:'90vh',display:'flex',flexDirection:'column'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',borderBottom:'2px solid #111'}}>
+                <strong style={{flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{visorPdf.nombre}</strong>
+                <a className="btn-sys" style={{...S.btnGrisSm,textDecoration:'none'}} href={visorPdf.url} target="_blank" rel="noopener noreferrer">Abrir en pestaña</a>
+                <button type="button" className="btn-sys" style={S.btnGrisSm} onClick={()=>setVisorPdf(null)}>Cerrar</button>
+              </div>
+              {String(visorPdf.tipo).startsWith('image/')
+                ?<div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',overflow:'auto',background:'#f4f4f4'}}><img src={visorPdf.url} alt={visorPdf.nombre} style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain'}}/></div>
+                :<iframe title={visorPdf.nombre} src={visorPdf.url} style={{flex:1,width:'100%',border:0}}/>}
+            </div>
+          </div>
+        )}
 
         <div style={{textAlign:'right',marginBottom:40,display:'flex',justifyContent:'flex-end',alignItems:'center',gap:10}}>
           <span style={{color:'#c62828',fontSize:13,fontWeight:600}}>Eliminar este equipo</span>
@@ -666,18 +713,54 @@ export default function EquiposInternos(){
             </div>
           )}
 
+          {/* FILTROS MANUALES (cuando se puso uno distinto al de la lista) */}
+          <div style={{marginBottom:14}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+              <label style={{...S.label,margin:0}}>FILTROS MANUALES (si se puso uno distinto)</label>
+              <button type="button" style={S.btnGrisSm} onClick={()=>setMForm({...mForm,filtrosManuales:[...(mForm.filtrosManuales||[]),{id:uid(),tipo:'',marca:'',parte:''}]})}><IconoMas />Agregar filtro manual</button>
+            </div>
+            {(mForm.filtrosManuales||[]).map(fm=>(
+              <div key={fm.id} style={{display:'grid',gridTemplateColumns:'1fr 1fr 1.3fr auto',gap:8,marginBottom:6,alignItems:'center'}}>
+                <select style={S.input} value={fm.tipo} onChange={ev=>setMForm({...mForm,filtrosManuales:mForm.filtrosManuales.map(x=>x.id===fm.id?{...x,tipo:ev.target.value}:x)})}>
+                  <option value="">Tipo de filtro</option>{TIPOS_FILTRO.map(t=><option key={t}>{t}</option>)}
+                </select>
+                <input style={S.input} placeholder="Marca" value={fm.marca} onChange={ev=>setMForm({...mForm,filtrosManuales:mForm.filtrosManuales.map(x=>x.id===fm.id?{...x,marca:ev.target.value}:x)})}/>
+                <input style={S.input} placeholder="Número de parte" value={fm.parte} onChange={ev=>setMForm({...mForm,filtrosManuales:mForm.filtrosManuales.map(x=>x.id===fm.id?{...x,parte:ev.target.value}:x)})}/>
+                <DeleteButton size="sm" title="Quitar filtro" onConfirm={()=>setMForm({...mForm,filtrosManuales:mForm.filtrosManuales.filter(x=>x.id!==fm.id)})}/>
+              </div>
+            ))}
+          </div>
+
           <div style={S.grid2}>
             <div><label style={S.label}>ACEITE (tipo y cantidad)</label><input style={S.input} value={mForm.aceiteDetalle} onChange={ev=>setMForm({...mForm,aceiteDetalle:ev.target.value})} placeholder="Ej. 15W-40, 12 litros"/></div>
             <div><label style={S.label}>GRASA (detalle)</label><input style={S.input} value={mForm.grasaDetalle} onChange={ev=>setMForm({...mForm,grasaDetalle:ev.target.value})} placeholder="Ej. Grasa EP2"/></div>
           </div>
-          <div style={S.grid3}>
+          <div style={{marginBottom:14}}><label style={S.label}>INSUMOS ADICIONALES</label><textarea style={{...S.input,minHeight:52,resize:'vertical'}} value={mForm.insumos||''} onChange={ev=>setMForm({...mForm,insumos:ev.target.value})} placeholder="Ej. 2 L de anticongelante, 1 cartucho de grasa, limpiador de contactos..."/></div>
+          <div style={{marginBottom:14}}><label style={S.label}>OBSERVACIONES</label><textarea style={{...S.input,minHeight:60,resize:'vertical'}} value={mForm.observaciones||''} onChange={ev=>setMForm({...mForm,observaciones:ev.target.value})} placeholder="Algo que se detectó, pendientes, recomendaciones..."/></div>
+          <div style={S.grid4}>
             <div><label style={S.label}>REALIZADO POR</label><input style={S.input} value={mForm.realizadoPor} onChange={ev=>setMForm({...mForm,realizadoPor:ev.target.value})}/></div>
+            <div><label style={S.label}>SUPERVISOR</label><input style={S.input} value={mForm.supervisor||''} onChange={ev=>setMForm({...mForm,supervisor:ev.target.value})} placeholder="Quién supervisó"/></div>
             <div><label style={S.label}>AUTORIZADO POR</label><input style={S.input} value={mForm.autorizadoPor} onChange={ev=>setMForm({...mForm,autorizadoPor:ev.target.value})}/></div>
             <div><label style={S.label}>LUGAR</label><input style={S.input} value={mForm.lugarRealizado} onChange={ev=>setMForm({...mForm,lugarRealizado:ev.target.value})} placeholder="Ej. Taller MAQSOL"/></div>
           </div>
           <div style={S.grid2}>
             <div><label style={S.label}>COSTO</label><input style={S.input} value={mForm.costo} onChange={ev=>setMForm({...mForm,costo:ev.target.value})} placeholder="Ej. 8500"/></div>
-            <div><label style={S.label}>LIGA DEL REPORTE PDF FIRMADO</label><input style={S.input} value={mForm.pdfUrl} onChange={ev=>setMForm({...mForm,pdfUrl:ev.target.value})} placeholder="Liga de OneDrive o Drive"/></div>
+            <div>
+              <label style={S.label}>REPORTE PDF FIRMADO</label>
+              {mForm.pdfArchivo?.path?(
+                <div style={{display:'flex',gap:8,alignItems:'center',border:'2px solid #111',padding:'7px 10px',minHeight:60,boxSizing:'border-box',background:'#fafafa'}}>
+                  <span style={{flex:1,minWidth:0,fontSize:13.5,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>📄 {mForm.pdfArchivo.nombre}</span>
+                  <button type="button" className="btn-sys" style={S.btnGrisSm} onClick={()=>verPdfMantto(mForm.pdfArchivo)}>Ver</button>
+                  <button type="button" className="btn-sys btn-eliminar" style={S.btnGrisSm} onClick={()=>{if(window.confirm('¿Quitar el reporte de este mantenimiento?'))setMForm(f=>({...f,pdfArchivo:null}))}}>Quitar</button>
+                </div>
+              ):(
+                <label className="btn-sys" style={{...S.btnGris,display:'flex',alignItems:'center',justifyContent:'center',gap:8,cursor:subiendoPdf?'wait':'pointer',minHeight:56,boxSizing:'border-box'}}>
+                  {subiendoPdf?'Subiendo…':'Subir reporte (PDF o foto)'}
+                  <input type="file" accept="application/pdf,image/*" style={{display:'none'}} disabled={subiendoPdf} onChange={ev=>subirPdfMantto(ev,activo)}/>
+                </label>
+              )}
+              {mForm.pdfUrl&&!mForm.pdfArchivo?.path&&<a href={mForm.pdfUrl} target="_blank" rel="noreferrer" style={{display:'inline-block',marginTop:6,fontSize:12.5,color:VINO,fontWeight:700}}>Ver liga anterior</a>}
+            </div>
           </div>
           <div style={{marginBottom:14,marginTop:6}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><label style={{...S.label,margin:0}}>DATOS ADICIONALES</label><button style={S.btnGrisSm} onClick={agregarExtra}><IconoMas />Agregar dato</button></div>

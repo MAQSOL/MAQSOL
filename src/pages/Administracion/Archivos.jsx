@@ -14,6 +14,7 @@ const CATEGORIAS = [
   { key: "cotizaciones", label: "Cotizaciones"        },
   { key: "horas",        label: "Reporte de Horas"   },
   { key: "diesel",       label: "Diesel"              },
+  { key: "mantenimientos", label: "Reportes de Mantenimiento" },
   { key: "otros",        label: "Otros"               },
 ];
 
