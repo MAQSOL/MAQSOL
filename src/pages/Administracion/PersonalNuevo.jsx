@@ -49,7 +49,7 @@ const NUEVO = {
   tipoSangre: "", alergias: "", condicionesMedicas: "", curp: "", rfc: "", nss: "", ine: "", licencia: "", licenciaVence: "",
   escolaridad: "", domicilio: "", telefono: "", correo: "",
   familiarParentesco: "Cónyuge / Pareja", conyugeNombre: "", conyugeTelefono: "", hijos: [],
-  beneficiarioNombre: "", beneficiarioParentesco: "", beneficiarioTelefono: "",
+  beneficiarioNombre: "", beneficiarioParentesco: "", beneficiarioTelefono: "", beneficiarioCorreo: "", beneficiarioDireccion: "",
   emergenciaNombre: "", emergenciaParentesco: "", emergenciaTelefono: "",
   empleos: [{ ...EMPLEO }, { ...EMPLEO }],
   codigoPostal: "", infonavit: "NO", infonavitNumero: "", fonacot: "NO", fonacotNumero: "",
@@ -395,13 +395,16 @@ export default function PersonalNuevo() {
               <Campo etiqueta="PARENTESCO"><input style={S.input} value={form.beneficiarioParentesco} onChange={(e) => set("beneficiarioParentesco", e.target.value)} /></Campo>
               <Campo etiqueta="TELÉFONO DEL BENEFICIARIO"><input style={S.input} value={form.beneficiarioTelefono} onChange={(e) => set("beneficiarioTelefono", e.target.value)} /></Campo>
             </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 14, marginBottom: 14, alignItems: "end" }}>
+              <Campo etiqueta="CORREO DEL BENEFICIARIO"><input style={S.input} type="email" value={form.beneficiarioCorreo || ""} onChange={(e) => set("beneficiarioCorreo", e.target.value)} /></Campo>
+              <Campo etiqueta="DIRECCIÓN DEL BENEFICIARIO"><input style={S.input} value={form.beneficiarioDireccion || ""} onChange={(e) => set("beneficiarioDireccion", e.target.value)} /></Campo>
+            </div>
 
             <h3 style={S.h3}>Contacto de emergencia (aparte del familiar)</h3>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 14, alignItems: "end" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 14, alignItems: "end" }}>
               <Campo etiqueta="NOMBRE"><input style={S.input} value={form.emergenciaNombre} onChange={(e) => set("emergenciaNombre", e.target.value)} /></Campo>
               <Campo etiqueta="PARENTESCO"><input style={S.input} value={form.emergenciaParentesco} onChange={(e) => set("emergenciaParentesco", e.target.value)} /></Campo>
               <Campo etiqueta="TELÉFONO"><input style={S.input} value={form.emergenciaTelefono} onChange={(e) => set("emergenciaTelefono", e.target.value)} /></Campo>
-              <Campo etiqueta="CORREO"><input style={S.input} value={form.emergenciaCorreo} onChange={(e) => set("emergenciaCorreo", e.target.value)} /></Campo>
             </div>
 
             <h3 style={S.h3}>Contacto de emergencia 2</h3>
@@ -411,11 +414,10 @@ export default function PersonalNuevo() {
               No hay contacto 2 (solo uno)
             </label>
             {!form.sinContacto2 && (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 14, alignItems: "end" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 14, alignItems: "end" }}>
                 <Campo etiqueta="NOMBRE Y APELLIDOS"><input style={S.input} value={form.emergencia2Nombre} onChange={(e) => set("emergencia2Nombre", e.target.value)} /></Campo>
                 <Campo etiqueta="PARENTESCO"><input style={S.input} value={form.emergencia2Parentesco} onChange={(e) => set("emergencia2Parentesco", e.target.value)} /></Campo>
                 <Campo etiqueta="TELÉFONO"><input style={S.input} value={form.emergencia2Telefono} onChange={(e) => set("emergencia2Telefono", e.target.value)} /></Campo>
-                <Campo etiqueta="CORREO"><input style={S.input} value={form.emergencia2Correo} onChange={(e) => set("emergencia2Correo", e.target.value)} /></Campo>
               </div>
             )}
 

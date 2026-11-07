@@ -133,16 +133,17 @@ export function descargarFichaPDF(persona = {}, _logoUrl, nombreArchivo = "FICHA
 
   seccion("CONTACTO DE EMERGENCIA");
   par("Nombre y apellidos", p.emergenciaNombre, "Parentesco", p.emergenciaParentesco);
-  par("Teléfono", p.emergenciaTelefono, "Correo electrónico", p.emergenciaCorreo);
+  full("Teléfono", p.emergenciaTelefono);
   if (p.emergencia2Nombre && !p.sinContacto2) {
     par("Nombre y apellidos (2)", p.emergencia2Nombre, "Parentesco", p.emergencia2Parentesco);
-    par("Teléfono", p.emergencia2Telefono, "Correo electrónico", p.emergencia2Correo);
+    full("Teléfono", p.emergencia2Telefono);
   }
 
   seccion("FAMILIA");
   par(p.familiarParentesco || "Cónyuge / pareja", p.conyugeNombre, "Teléfono", p.conyugeTelefono);
   par("Beneficiario", p.beneficiarioNombre, "Parentesco", p.beneficiarioParentesco);
-  full("Teléfono del beneficiario", p.beneficiarioTelefono);
+  par("Teléfono del beneficiario", p.beneficiarioTelefono, "Correo del beneficiario", p.beneficiarioCorreo);
+  full("Dirección del beneficiario", p.beneficiarioDireccion);
   hijos.forEach((h, i) => {
     const e = edadDe(h.fechaNacimiento);
     const nac = fFecha(h.fechaNacimiento);
