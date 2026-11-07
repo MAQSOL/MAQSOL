@@ -52,3 +52,6 @@
 
 /* Botón amarillo Caterpillar (Enviar ficha) */
 .btn-sys.btn-azul-claro { background: #ffcd11 !important; color: #111 !important; }
+
+/* Opción seleccionada (puestos rápidos) */
+.btn-sys.btn-activo { background: #ffcd11 !important; }

@@ -38,6 +38,57 @@ function AreaObservaciones({ inicial, onTexto, estilo }) {
   );
 }
 
+// Puestos de selección rápida (además de los que ya hay en la lista de colaboradores)
+const PUESTOS_BASE = [
+  "Operador",
+  "Operador de Maquinaria",
+  "Ayudante General",
+  "Auxiliar Técnico",
+  "Técnico",
+  "Soldador",
+  "Chofer",
+  "Almacenista",
+  "Supervisor",
+  "Administrativo"
+];
+
+// Botones para elegir el puesto con un clic (se sigue pudiendo escribir a mano)
+function PuestosRapidos({ valor, existentes = [], onElegir }) {
+  const lista = [...PUESTOS_BASE];
+  existentes.forEach((p) => {
+    const t = (p || "").trim();
+    if (t && !lista.some((x) => x.toLowerCase() === t.toLowerCase())) lista.push(t);
+  });
+  const actual = (valor || "").trim().toLowerCase();
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", justifyContent: "center", width: "100%" }}>
+      {lista.map((p) => {
+        const activo = p.toLowerCase() === actual;
+        return (
+          <button
+            key={p}
+            type="button"
+            className={"btn-sys" + (activo ? " btn-activo" : "")}
+            onClick={() => onElegir(activo ? "" : p)}
+            style={{
+              color: "#111",
+              border: "2px solid #111",
+              borderRadius: 0,
+              padding: "6px 12px",
+              fontSize: "12.5px",
+              fontWeight: 700,
+              cursor: "pointer",
+              fontFamily: "'Montserrat',sans-serif"
+            }}
+          >
+            {p}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function Asistencias() {
 
   const [pestana, setPestana] = useState("semanal");
@@ -634,6 +685,12 @@ function Asistencias() {
                   >
                     <IconoMas />Agregar
                   </button>
+
+                  <PuestosRapidos
+                    valor={nuevoPuesto}
+                    existentes={colaboradores.map((c) => c.puesto)}
+                    onElegir={setNuevoPuesto}
+                  />
                 </div>
               </div>
 
@@ -1106,7 +1163,12 @@ function Asistencias() {
               value={editando.puesto}
               onChange={(e) => setEditando({ ...editando, puesto: e.target.value })}
               onKeyDown={(e) => e.key === "Enter" && guardarEdicion()}
-              style={{ ...input, marginTop: "6px", textAlign: "left" }}
+              style={{ ...input, marginTop: "6px", marginBottom: "10px", textAlign: "left" }}
+            />
+            <PuestosRapidos
+              valor={editando.puesto}
+              existentes={colaboradores.map((c) => c.puesto)}
+              onElegir={(p) => setEditando({ ...editando, puesto: p })}
             />
             <p style={{ color: "#999", fontSize: "12.5px", marginTop: "10px" }}>
               Su historial de asistencias se conserva; solo cambia cómo aparece.
