@@ -203,6 +203,7 @@ export default function EquiposInternos(){
   const[activoId,setActivoId]=useState(null)
   const[modal,setModal]=useState(false)
   const[modalQr,setModalQr]=useState(false)
+  const[verFoto,setVerFoto]=useState(false)
   const[form,setForm]=useState(EQUIPO_NUEVO)
   const[modoNuevoOperador,setModoNuevoOperador]=useState(false)
   const[nuevoOperador,setNuevoOperador]=useState('')
@@ -505,15 +506,21 @@ export default function EquiposInternos(){
         {/* FOTOGRAFÍA */}
         <div style={S.card}>
 <h2 style={S.h2}>Fotografía del Equipo</h2>
-          <div style={{display:'flex',gap:14,alignItems:'end',marginBottom:14}}>
-            <div style={{flex:1}}>
-              <label style={S.label}>LIGA DE LA FOTO (o usa el botón de cargar)</label>
-              <input style={S.input} value={activo.fotoUrl||''} placeholder="Pega aquí la liga de una imagen con fondo blanco" onChange={ev=>actualizarCampo('fotoUrl',ev.target.value)}/>
-            </div>
-            <div>
-              <label style={S.label}>CARGAR FOTO</label>
-              <label style={{...S.btn,display:'inline-block',cursor:'pointer',textAlign:'center'}}>
-                Subir imagen
+          <div style={{display:'flex',gap:22,alignItems:'center',flexWrap:'wrap',marginTop:12}}>
+            {activo.fotoUrl?(
+              <button type="button" title="Ver imagen" onClick={()=>setVerFoto(true)} style={{padding:10,background:'#fff',border:'1px solid #e6e6e6',cursor:'zoom-in',width:340,maxWidth:'100%',height:240,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <img src={activo.fotoUrl} alt="Equipo" style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain',display:'block'}}/>
+              </button>
+            ):(
+              <div style={{width:340,maxWidth:'100%',height:240,background:'#f6f6f6',border:'2px dashed #ccc',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:6,color:'#999',fontSize:14}}>
+                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="9" cy="11" r="2"/><path d="m21 17-5-5-8 7"/></svg>
+                Sin foto
+              </div>
+            )}
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              {activo.fotoUrl&&<button type="button" className="btn-sys" style={S.btnGris} onClick={()=>setVerFoto(true)}>Ver imagen</button>}
+              <label className="btn-sys btn-word" style={{...S.btn,cursor:'pointer',textAlign:'center'}}>
+                {activo.fotoUrl?'Cambiar foto':'Agregar foto'}
                 <input type="file" accept="image/*" style={{display:'none'}} onChange={async(ev)=>{
                   const file=ev.target.files[0];if(!file)return
                   const base64=await comprimirImagen(file)
@@ -521,9 +528,15 @@ export default function EquiposInternos(){
                   ev.target.value=''
                 }}/>
               </label>
+              {activo.fotoUrl&&<button type="button" className="btn-sys btn-eliminar" style={S.btnGris} onClick={()=>{if(window.confirm('¿Eliminar la foto del equipo?'))actualizarCampo('fotoUrl','')}}>Eliminar</button>}
             </div>
           </div>
-          {activo.fotoUrl?<img src={activo.fotoUrl} alt="Equipo" style={{maxWidth:'100%',maxHeight:300,borderRadius:8,display:'block',objectFit:'contain',background:'#fff',border:'1px solid #eee',padding:8}}/>:<p style={{color:'#888',fontSize:13,marginBottom:0}}>La galería de fotos y vista 360° se activan con Supabase.</p>}
+          {verFoto&&activo.fotoUrl&&(
+            <div onClick={()=>setVerFoto(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.82)',zIndex:1400,display:'flex',alignItems:'center',justifyContent:'center',padding:24,cursor:'zoom-out'}}>
+              <img src={activo.fotoUrl} alt="Equipo" style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain',background:'#fff',padding:10}}/>
+              <button type="button" onClick={()=>setVerFoto(false)} aria-label="Cerrar" style={{position:'fixed',top:16,right:16,width:42,height:42,background:'#111',color:'#fff',border:'2px solid #fff',fontSize:18,cursor:'pointer'}}>✕</button>
+            </div>
+          )}
         </div>
 
         {/* NOTAS */}

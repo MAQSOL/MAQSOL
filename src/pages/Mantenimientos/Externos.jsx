@@ -184,20 +184,20 @@ export default function EquiposExternos(){
           </tr></thead>
           <tbody>
             {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={12}>No hay equipos subarrendados registrados. Usa "Agregar equipo subarrendado".</td></tr>
-            :filtrados.map(e=>(<tr key={e.id} style={{cursor:'pointer',transition:'transform 0.15s ease'}} onMouseOver={ev=>{ev.currentTarget.style.background='#faf5f6';ev.currentTarget.style.transform='translateX(-4px)'}} onMouseOut={ev=>{ev.currentTarget.style.background='transparent';ev.currentTarget.style.transform='none'}}>
-              <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>abrirEditar(e)}>{e.tipo}{e.incompleto&&<div style={{marginTop:4,display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}><span style={{background:'#fff3c4',color:'#7a5a00',fontSize:11,fontWeight:700,padding:'2px 8px',borderRadius:0}}>Faltan datos</span><button onClick={ev=>{ev.stopPropagation();guardarEquipos(equipos.map(x=>x.id===e.id?{...x,incompleto:false}:x))}} style={{background:'none',border:'none',color:'#7a5a00',fontSize:11.5,fontWeight:700,cursor:'pointer',textDecoration:'underline',padding:0}}>No quiero rellenarlo</button></div>}</td>
+            :filtrados.map(e=>(<tr key={e.id} title="Clic para editar" onClick={()=>abrirEditar(e)} style={{cursor:'pointer',transition:'transform 0.15s ease'}} onMouseOver={ev=>{ev.currentTarget.style.background='#faf5f6';ev.currentTarget.style.transform='translateX(-4px)'}} onMouseOut={ev=>{ev.currentTarget.style.background='transparent';ev.currentTarget.style.transform='none'}}>
+              <td style={{...S.td,fontWeight:700,cursor:'pointer'}}>{e.tipo}{e.incompleto&&<div style={{marginTop:4,display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}><span style={{background:'#fff3c4',color:'#7a5a00',fontSize:11,fontWeight:700,padding:'2px 8px',borderRadius:0}}>Faltan datos</span><button onClick={ev=>{ev.stopPropagation();guardarEquipos(equipos.map(x=>x.id===e.id?{...x,incompleto:false}:x))}} style={{background:'none',border:'none',color:'#7a5a00',fontSize:11.5,fontWeight:700,cursor:'pointer',textDecoration:'underline',padding:0}}>No quiero rellenarlo</button></div>}</td>
               <td style={S.td}>{e.marca} {e.modelo}{e.serie?<div style={{color:'#999',fontSize:12}}>Serie: {e.serie}</div>:null}</td>
               <td style={S.td}>{e.proveedor}{e.telProveedor?<div style={{color:'#999',fontSize:12}}>{e.telProveedor}</div>:null}</td>
               <td style={S.td}>{e.cliente||<span style={{color:'#bbb'}}>—</span>}</td>
               <td style={S.td}><BadgeEstado estado={e.estado}/></td>
-              <td style={S.td}><BadgeRenovada renovada={!!e.renovada} onClick={()=>toggleRenovada(e)}/></td>
+              <td style={S.td} onClick={ev=>ev.stopPropagation()}><BadgeRenovada renovada={!!e.renovada} onClick={()=>toggleRenovada(e)}/></td>
               <td style={S.td}>{fFecha(e.fechaInicio)}</td>
               <td style={S.td}><SemaforoFin fecha={e.fechaFinEstimada} estado={e.estado}/></td>
               <td style={S.td}>{fFecha(e.ultimoMantto)}</td>
               <td style={S.td}>{e.estado==='Devuelto'?<span style={{color:'#999'}}>—</span>:<SemaforoMantto fecha={e.proximoMantto}/>}</td>
               <td style={S.td}>{e.realizadoPor||<span style={{color:'#bbb'}}>—</span>}</td>
               <td style={S.td}>{e.linkReporte?<a href={linkSeguro(e.linkReporte)} target="_blank" rel="noopener noreferrer" style={{color:VINO,fontWeight:700}} onClick={ev=>ev.stopPropagation()}>Ver reporte</a>:<span style={{color:'#bbb'}}>—</span>}</td>
-              <td style={{...S.td,whiteSpace:'nowrap'}}>
+              <td style={{...S.td,whiteSpace:'nowrap',cursor:'default'}} onClick={ev=>ev.stopPropagation()}>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:6}}>
                   {e.estado!=='Devuelto'&&<button className="btn-sys" style={S.btnGrisSm} onClick={()=>marcarDevuelto(e)} title="Marcar como devuelto al proveedor">✓ Devolver</button>}
                   <DeleteButton size="sm" title="Eliminar equipo" onConfirm={()=>eliminarEquipo(e)}/>

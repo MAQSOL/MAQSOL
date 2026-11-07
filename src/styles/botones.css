@@ -77,3 +77,6 @@ label[style*="background: var(--acento)"]:not(.btn-sys):active {
   box-shadow: 0 0 0 #111 !important;
 }
 button[style*="background: var(--acento)"]:disabled { transform: none; box-shadow: 0 2px 0 #111 !important; }
+
+/* Botón gris con texto rojo para eliminar */
+.btn-sys.btn-eliminar { color: #c62828 !important; }
