@@ -68,10 +68,19 @@ export default function CargasDiesel() {
     setLunes(d);
   };
 
+  // Solo equipos a combustión: fuera los eléctricos (p. ej. tijeras de batería).
+  // Si el equipo no tiene combustible capturado y es tijera, se toma como eléctrico.
+  const esCombustion = (e) => {
+    const c = String(e.combustible || "").toLowerCase();
+    if (/el[eé]ctric|bater|litio/.test(c)) return false;
+    if (/di[eé]sel|gasolina|gas|magna|premium/.test(c)) return true;
+    return !/tijera/i.test(e.tipo || "");
+  };
   const catalogo = [
-    ...internos.map((e) => ({ id: e.id, label: `${e.tipo || ""} ${e.marca || ""} ${e.modelo || ""}`.trim(), serie: e.serie || "", origen: "propio" })),
-    ...externos.filter((e) => e.estado !== "Devuelto").map((e) => ({ id: e.id, label: `${e.tipo || ""} ${e.marca || ""} ${e.modelo || ""}`.trim(), serie: e.serie || "", origen: "externo" }))
+    ...internos.filter(esCombustion).map((e) => ({ id: e.id, label: `${e.tipo || ""} ${e.marca || ""} ${e.modelo || ""}`.trim(), serie: e.serie || "", origen: "propio" })),
+    ...externos.filter((e) => e.estado !== "Devuelto" && esCombustion(e)).map((e) => ({ id: e.id, label: `${e.tipo || ""} ${e.marca || ""} ${e.modelo || ""}`.trim(), serie: e.serie || "", origen: "externo" }))
   ];
+  const modelosCatalogo = [...new Set(catalogo.map((m) => m.label).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
 
   const obras = [...new Set([...alquileres.map((a) => a.obra), ...cargas.map((c) => c.obra)].filter(Boolean))].sort();
   const operadores = [...new Set(cargas.map((c) => c.operador).filter(Boolean))].sort();
@@ -128,10 +137,12 @@ export default function CargasDiesel() {
 
   const abrirNuevo = () => {
     setForm({ ...NUEVO, id: "D-" + Date.now(), fecha: hoyISO(), precioLitro: ultimoPrecio });
+    setMaquinaManual(false);
     setModal(true);
   };
   const abrirEditar = (c) => {
     setForm({ ...NUEVO, ...c });
+    setMaquinaManual(false);
     setModal(true);
   };
 
@@ -141,6 +152,21 @@ export default function CargasDiesel() {
     const m = catalogo[idx];
     if (!m) return;
     setForm((f) => ({ ...f, equipoId: m.id, maquina: m.label, serie: m.serie }));
+  };
+
+  // Máquina por modelo → la serie se elige entre las registradas de ese modelo
+  const [maquinaManual, setMaquinaManual] = useState(false);
+  const seriesDeModelo = (label) => catalogo.filter((m) => m.label === label);
+  const elegirModelo = (valor) => {
+    if (valor === "__otra") { setMaquinaManual(true); setForm((f) => ({ ...f, equipoId: "", maquina: "", serie: "" })); return; }
+    setMaquinaManual(false);
+    const opciones = seriesDeModelo(valor);
+    const unica = opciones.length === 1 ? opciones[0] : null;
+    setForm((f) => ({ ...f, maquina: valor, serie: unica ? unica.serie : "", equipoId: unica ? unica.id : "" }));
+  };
+  const elegirSerie = (id) => {
+    const m = catalogo.find((x) => x.id === id);
+    setForm((f) => ({ ...f, equipoId: m ? m.id : "", serie: m ? m.serie : "" }));
   };
 
   const totalForm = redondear(num(form.litros) * num(form.precioLitro));
@@ -490,8 +516,39 @@ export default function CargasDiesel() {
               </div>
             </div>
             <div style={S.grid2}>
-              <div><label style={S.label}>MÁQUINA</label><input style={S.input} value={form.maquina} onChange={(e) => set("maquina", e.target.value)} placeholder="Ej. Manipulador Genie GTH-844" /></div>
-              <div><label style={S.label}>SERIE</label><input style={S.input} value={form.serie} onChange={(e) => set("serie", e.target.value)} /></div>
+              {(() => {
+                const enLista = modelosCatalogo.includes(form.maquina);
+                const manual = maquinaManual || (form.maquina && !enLista);
+                const opcionesSerie = enLista ? seriesDeModelo(form.maquina) : [];
+                return (
+                  <>
+                    <div>
+                      <label style={S.label}>MÁQUINA (MODELO)</label>
+                      <select style={S.input} value={manual ? "__otra" : form.maquina} onChange={(e) => elegirModelo(e.target.value)}>
+                        <option value="">— Elegir modelo —</option>
+                        {modelosCatalogo.map((l) => <option key={l} value={l}>{l}</option>)}
+                        <option value="__otra">Otra (escribir)</option>
+                      </select>
+                      {manual && (
+                        <input style={{ ...S.input, marginTop: 8 }} value={form.maquina} onChange={(e) => set("maquina", e.target.value)} placeholder="Ej. Manipulador Genie GTH-844" autoFocus />
+                      )}
+                    </div>
+                    <div>
+                      <label style={S.label}>SERIE</label>
+                      {enLista && !manual ? (
+                        <select style={S.input} value={opcionesSerie.some((m) => m.id === form.equipoId) ? form.equipoId : ""} onChange={(e) => elegirSerie(e.target.value)}>
+                          <option value="">{opcionesSerie.length ? "— Elegir serie —" : "Sin series registradas"}</option>
+                          {opcionesSerie.map((m) => (
+                            <option key={m.id} value={m.id}>{`${m.serie || "s/n"}${m.origen === "externo" ? " · subarrendado" : ""}`}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input style={S.input} value={form.serie} onChange={(e) => set("serie", e.target.value)} placeholder={manual ? "Escribe la serie" : "Elige primero el modelo"} />
+                      )}
+                    </div>
+                  </>
+                );
+              })()}
             </div>
             <div style={S.grid3}>
               <div>
