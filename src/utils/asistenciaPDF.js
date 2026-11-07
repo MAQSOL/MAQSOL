@@ -10,7 +10,7 @@ import { encabezadoJsPDF } from "./pdfFormato";
  */
 
 const VINO      = [143, 29, 44];
-const VINO_TEN  = [249, 240, 241];
+const VINO_TEN  = [240, 240, 240]; // gris claro (nombre y observaciones)
 const BORDE     = [224, 224, 224];
 const GRIS_DIA  = [227, 227, 227];
 const VERDE_BG  = [223, 240, 216];

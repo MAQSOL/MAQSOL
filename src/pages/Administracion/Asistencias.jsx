@@ -485,7 +485,7 @@ function Asistencias() {
         table.tarjeta tr.encabezado th{background:#8F1D2C;color:#fff;border-color:#8F1D2C;font-weight:700;text-align:left;padding:6px 6px;font-family:'Space Mono',monospace;letter-spacing:.2px;font-size:9px;}
         table.tarjeta tr.encabezado th.centrado{text-align:center;}
         table.tarjeta tr.encabezado th.mes{font-size:11px;letter-spacing:.5px;text-align:center;}
-        table.tarjeta td.nombre{background:#f9f0f1;font-weight:700;text-align:center;vertical-align:middle;width:26%;border-right:2px solid #8F1D2C;font-family:'Space Mono',monospace;font-size:9.5px;}
+        table.tarjeta td.nombre{background:#f0f0f0;font-weight:700;text-align:center;vertical-align:middle;width:26%;border-right:2px solid #8F1D2C;font-family:'Space Mono',monospace;font-size:9.5px;}
         .dia{text-transform:capitalize;width:18%;color:#444;background:#e3e3e3;}
         .fecha{text-align:center;width:24%;color:#555;font-family:'Roboto Mono',monospace;font-size:10px;}
         .estado{text-align:center;font-weight:800;width:22%;}
@@ -494,7 +494,7 @@ function Asistencias() {
         table.tarjeta td.estado.sin{background:#f4f4f4;color:#9a9a9a;font-weight:700;font-size:8px;letter-spacing:.2px;}
         table.tarjeta tr.fila-domingo td{background:#eef2f7;color:#4a6fa5;}
         table.tarjeta tr.fila-domingo td.estado{background:#eef2f7;font-weight:700;color:#4a6fa5;}
-        table.tarjeta td.obs-label{background:#f9f0f1;font-weight:700;text-align:center;font-family:'Space Mono',monospace;font-size:9px;border-right:2px solid #8F1D2C;}
+        table.tarjeta td.obs-label{background:#f0f0f0;font-weight:700;text-align:center;font-family:'Space Mono',monospace;font-size:9px;border-right:2px solid #8F1D2C;}
         .obs-texto{font-weight:500;text-align:center;padding:7px 6px;color:#444;font-family:'Roboto Mono',monospace;font-size:9.5px;}`,
       cuerpo: `${encabezadoDoc("Lista de Asistencia", [`${mesNombre} · Semana ${semana} · ${lunes.getFullYear()}`, "Generado: " + hoyMX()])}
         ${hojas.map((h) => `<div class="hoja">${h}</div>`).join("")}`
