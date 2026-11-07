@@ -471,7 +471,7 @@ function Asistencias() {
       hoja: "vertical",
       css: `
         body{padding:8mm 9mm !important;}
-        .top{padding-bottom:5px;margin-bottom:8px}
+        .top{padding-bottom:5px;margin-bottom:8px;border-bottom-color:#8F1D2C}
         .top img{height:40px}
         .top h1{font-size:19px;margin-bottom:1px}
         .top p{margin:0;font-size:9.5px;line-height:1.35}

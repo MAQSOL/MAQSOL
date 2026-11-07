@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import { encabezadoJsPDF, ROJO_RGB } from "./pdfFormato";
+import { encabezadoJsPDF } from "./pdfFormato";
 
 /*
  * Lista de asistencia semanal como PDF descargable (sin ventana de impresión).
@@ -34,7 +34,7 @@ export function descargarAsistenciaPDF({ titulo = "Lista de Asistencia", subtitu
   let y = encabezadoJsPDF(doc, {
     titulo,
     lineas: [subtitulo, "Generado: " + new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "2-digit", year: "numeric" })],
-    x: M, ancho, y: 10, altoLogo: 13, separacion: 6, color: ROJO_RGB,
+    x: M, ancho, y: 10, altoLogo: 13, separacion: 6, color: VINO,
   });
 
   // Ajusta el tamaño de letra para que quepa en el ancho dado
@@ -158,7 +158,7 @@ export function descargarAsistenciaPDF({ titulo = "Lista de Asistencia", subtitu
   const total = doc.getNumberOfPages();
   for (let p = 1; p <= total; p++) {
     doc.setPage(p);
-    doc.setDrawColor(...ROJO_RGB);
+    doc.setDrawColor(...VINO);
     doc.setLineWidth(0.6);
     doc.line(M, PIE_Y, M + ancho, PIE_Y);
     doc.setFont("courier", "normal");
