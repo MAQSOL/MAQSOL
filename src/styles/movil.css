@@ -1,0 +1,105 @@
+/* ============================================
+   MAQSISTEM — Formato para celular (≤ 768 px)
+   Casi todas las pantallas usan estilos en línea, así que aquí se corrigen
+   con selectores de atributo: cuadrículas a una columna, filas que se
+   acomodan hacia abajo, modales a todo lo ancho y tablas con scroll lateral.
+   ============================================ */
+
+@media (max-width: 768px) {
+
+  html, body { overflow-x: hidden; }
+
+  /* ---------- Menú ---------- */
+  .btn-menu { top: 12px !important; left: 12px !important; width: 42px !important; height: 42px !important; }
+  .sidebar:not(.abierta) { box-shadow: none !important; }
+  .sidebar { width: 84vw !important; max-width: 300px; }
+  .sidebar .logo-container { padding-top: 62px !important; }
+
+  /* botón "Cotizaciones" (historial) de los cotizadores: arriba a la derecha, a la altura del menú */
+  .historial-mostrar-btn { top: 12px !important; right: 12px !important; height: 42px !important; padding: 0 12px !important; font-size: 13px !important; }
+
+  /* ---------- Contenedor de cada página ---------- */
+  .contenido,
+  aside.sidebar ~ div:not(.fondo-menu) {
+    padding: 66px 14px 90px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100vw !important;
+    box-sizing: border-box;
+  }
+
+  /* ---------- Títulos ---------- */
+  h1 { font-size: 24px !important; line-height: 1.15 !important; word-break: break-word; }
+  h2 { font-size: 18px !important; }
+  .header h1 { font-size: 30px !important; }
+
+  /* ---------- Cuadrículas: una columna (las de 4+ columnas, dos) ---------- */
+  [style*="grid-template-columns"],
+  .form-grid, .grid, .cards-grid, .paneles {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  [style*="grid-template-columns: repeat(4"],
+  [style*="grid-template-columns: repeat(5"],
+  [style*="grid-template-columns: repeat(6"],
+  [style*="grid-template-columns: repeat(7"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  /* campos que ocupaban varias columnas: todo el ancho */
+  [style*="grid-column"] { grid-column: 1 / -1 !important; }
+  [style*="display: grid"] > *, .form-grid > *, .grid > *, .cards-grid > *, .paneles > * { min-width: 0; }
+
+  /* ---------- Filas flexibles: se acomodan hacia abajo si no caben ---------- */
+  .contenido [style*="display: flex"],
+  aside.sidebar ~ div [style*="display: flex"],
+  [style*="position: fixed"] [style*="display: flex"] {
+    flex-wrap: wrap;
+  }
+  .contenido [style*="display: flex"] > *,
+  aside.sidebar ~ div [style*="display: flex"] > * { min-width: 0; }
+  /* bloques que "llenan el resto" (flex: 1) piden al menos 240px; si no caben, bajan de línea */
+  .contenido [style*="display: flex"] > [style*="flex: 1"],
+  aside.sidebar ~ div [style*="display: flex"] > [style*="flex: 1"],
+  [style*="position: fixed"] [style*="display: flex"] > [style*="flex: 1"] {
+    flex: 1 1 240px !important;
+  }
+
+  /* filas con clase propia que no bajaban de línea */
+  .agregar-pendiente { flex-wrap: wrap; }
+  .agregar-pendiente > input { flex: 1 1 100%; max-width: 100% !important; }
+
+  /* ---------- Campos ---------- */
+  input, select, textarea { max-width: 100%; font-size: 16px !important; } /* 16px evita el zoom de iPhone */
+  input[type="checkbox"], input[type="radio"] { font-size: inherit !important; }
+  img, video, canvas, svg { max-width: 100%; }
+
+  /* ---------- Tablas: scroll lateral en vez de romper la página ---------- */
+  .contenido table,
+  aside.sidebar ~ div table,
+  [style*="position: fixed"] table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  [style*="overflow-x: auto"], [style*="overflow: auto"] { max-width: 100%; }
+
+  /* ---------- Modales ---------- */
+  [style*="position: fixed"][style*="inset: 0"] {
+    padding: 8px !important;
+    align-items: flex-start !important;
+  }
+  [style*="position: fixed"][style*="inset: 0"] > div {
+    padding: 16px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-shadow: 4px 4px 0 #111 !important;
+  }
+
+  /* ---------- Botones ---------- */
+  .btn-sys, button { max-width: 100%; }
+  .contenido button, aside.sidebar ~ div button { white-space: normal; }
+
+  /* Tarjetas con sombra grande: menos sombra para que no se salga */
+  [style*="box-shadow: rgb(17, 17, 17) 8px 8px"],
+  [style*="box-shadow: rgb(17, 17, 17) 6px 6px"] { box-shadow: 4px 4px 0 #111 !important; }
+}

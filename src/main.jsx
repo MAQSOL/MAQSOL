@@ -5,6 +5,7 @@ import "./index.css";
 import "./styles/botones.css";
 import "./styles/checkbox.css";
 import "./styles/select.css";
+import "./styles/movil.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

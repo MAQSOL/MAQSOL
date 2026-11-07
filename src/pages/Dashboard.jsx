@@ -1,7 +1,6 @@
 ﻿import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
-import RailNav from "../components/RailNav";
+import Sidebar from "../components/Sidebar";
 import DeleteButton from "../components/DeleteButton";
 import UserMenu from "../components/UserMenu";
 import Contador from "../components/Contador";
@@ -235,68 +234,7 @@ function Dashboard() {
   return (
     <div className="app">
 
-      <aside className="sidebar">
-
-        <div className="logo-container">
-          <img
-            src={logo}
-            alt="MAQSISTEM"
-            className="logo-img"
-          />
-
-          <h2>MAQSISTEM</h2>
-        </div>
-
-        <div className="menu-section">
-          <h4>Clientes</h4>
-          <RailNav
-            items={[
-              { label: "Cotización Venta", href: "/ventas" },
-              { label: "Cotización Renta", href: "/rentas" },
-              { label: "Cotización Refacciones", href: "/refacciones" }
-            ]}
-          />
-        </div>
-
-        <div className="menu-section">
-          <h4>Equipos</h4>
-          <RailNav
-            items={[
-              { label: "Equipos Internos", href: "/internos" },
-              { label: "Equipos Externos", href: "/externos" },
-              { label: "Rentas Activas", href: "/alquileres" }
-            ]}
-          />
-        </div>
-
-        <div className="menu-section">
-          <h4>Operaciones</h4>
-          <RailNav
-            items={[
-              { label: "Tareas", href: "/tareas" },
-              { label: "Recepción Equipos", href: "/recepcion" },
-              { label: "Bitácora Fleteros", href: "/bitacora" },
-              { label: "Cargas de Combustible", href: "/diesel" },
-              { label: "Reporte de Horas", href: "/horas" },
-              { label: "Generador de Contratos", href: "/contratos" }
-            ]}
-          />
-        </div>
-
-        <div className="menu-section">
-          <h4>Administración</h4>
-          <RailNav
-            items={[
-              { label: "Asistencias", href: "/asistencias" },
-              { label: "Gestión de Clientes", href: "/clientes" },
-              { label: "Lista de Precios", href: "/precios" },
-              { label: "Órdenes de Compra", href: "/ordenes" },
-              ...(isAdmin ? [{ label: "Documentos de Personal", href: "/personal" }] : [])
-            ]}
-          />
-        </div>
-
-      </aside>
+      <Sidebar />
 
       <main className="contenido dash" ref={refDash}>
 
