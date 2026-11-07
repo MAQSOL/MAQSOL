@@ -133,18 +133,7 @@ export function descargarExpedienteEquipoPDF(eq = {}) {
     y += 4;
   };
 
-  // ── Título del equipo + foto ────────────────────────────────────────────────
-  doc.setFont("courier", "bold");
-  doc.setFontSize(14);
-  doc.setTextColor(...NEGRO);
-  doc.text(eq.tipo || "Equipo", M, y + 5);
-  doc.setFont("courier", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(90, 90, 90);
-  doc.text(`${eq.marca || ""} ${eq.modelo || ""}`.trim() + (eq.serie ? `  ·  Serie ${eq.serie}` : ""), M, y + 10.5);
-  y += 15;
-
-  // Foto a la derecha de la información general
+  // Foto arriba a la derecha, a la altura del título
   const FOTO_W = 62, FOTO_H = 46;
   let anchoInfo = ancho;
   const yFoto = y;
@@ -160,6 +149,18 @@ export function descargarExpedienteEquipoPDF(eq = {}) {
       anchoInfo = ancho - FOTO_W - 6;
     } catch { /* sin foto */ }
   }
+
+  // ── Título del equipo + foto ────────────────────────────────────────────────
+  doc.setFont("courier", "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(...NEGRO);
+  doc.text(eq.tipo || "Equipo", M, y + 5);
+  doc.setFont("courier", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(90, 90, 90);
+  doc.text(`${eq.marca || ""} ${eq.modelo || ""}`.trim() + (eq.serie ? `  ·  Serie ${eq.serie}` : ""), M, y + 10.5);
+  y += 15;
+
 
   seccionCorta("INFORMACIÓN GENERAL", anchoInfo);
   const info = [
