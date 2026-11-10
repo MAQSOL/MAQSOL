@@ -6,6 +6,7 @@ import { descargarExcelBonito, nombreArchivoSemana } from '../../utils/exportExc
 import { abrirDocPDF, encabezadoDoc, pieDoc, hoyMX } from '../../utils/pdfFormato'
 import { IconoMas } from '../../components/Icons'
 import CampoFecha from "../../components/CampoFecha"
+import { useOrdenTabla } from '../../hooks/useOrdenTabla'
 
 const VINO = 'var(--acento)'
 const KEY_FLETES = 'fletesMaqsol'
@@ -150,6 +151,7 @@ export default function BitacoraFleteros(){
   const[fCliente,setFCliente]=useState('')
   const[fDesde,setFDesde]=useState('')
   const[fHasta,setFHasta]=useState('')
+  const{ordenar,thOrden}=useOrdenTabla({fecha:'desc'})
 
   function siguienteFolio(){
     const n=fletes.reduce((max,f)=>{
@@ -181,10 +183,10 @@ export default function BitacoraFleteros(){
   function agregarEmpresa(){const n=nuevaEmpresa.trim();if(!n)return;if(!empresas.includes(n))guardarEmpresas([...empresas,n].sort());setForm({...form,proveedor:n});setNuevaEmpresa('');setModoNuevaEmpresa(false)}
   function cambiarEmpresa(v){if(v==='__nueva__'){setModoNuevaEmpresa(true);return};setModoNuevaEmpresa(false);setForm({...form,proveedor:v})}
 
-  const filtrados=fletes.filter(f=>{
+  const filtrados=ordenar(fletes.filter(f=>{
     const t=(f.folio+' '+f.origen+' '+f.destino+' '+f.empresa+' '+f.equipo+' '+f.serieEquipo+' '+(f.proveedor||'')+' '+(f.numOC||'')).toLowerCase()
     return t.includes(busqueda.toLowerCase())&&(!fEstado||f.estado===fEstado)&&(!fPagado||f.pagado===fPagado)&&(!fCliente||(fCliente==='Pagado'?f.clientePago==='Pagado':f.clientePago!=='Pagado'))&&(!fDesde||(f.fecha||'')>=fDesde)&&(!fHasta||(f.fecha||'')<=fHasta)
-  }).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''))
+  }),(f,col)=>col==='origen'?(f.origen||'')+' '+(f.destino||''):col==='oc'?textoOC(f):f[col],(a,b)=>(b.fecha||'').localeCompare(a.fecha||''))
 
   const stats={
     programados:fletes.filter(f=>f.estado==='Programado').length,
@@ -235,8 +237,8 @@ export default function BitacoraFleteros(){
       <div style={{...S.card,padding:0,overflowX:'auto'}}>
         <table style={{width:'100%',borderCollapse:'collapse',minWidth:1350}}>
           <thead><tr>
-            <th style={S.th}>FOLIO</th><th style={S.th}>FECHA</th><th style={S.th}>EMPRESA</th><th style={S.th}>EQUIPO</th>
-            <th style={S.th}>ORIGEN → DESTINO</th><th style={S.th}>ENTREGADO A</th><th style={S.th}>OC</th><th style={S.th}>PAGO PROVEEDOR</th><th style={S.th}>CLIENTE PAGÓ</th><th style={S.th}>ESTADO</th><th style={{...S.th,width:120,textAlign:'center'}}></th>
+            {thOrden('folio','FOLIO',S.th)}{thOrden('fecha','FECHA',S.th)}{thOrden('empresa','EMPRESA',S.th)}{thOrden('equipo','EQUIPO',S.th)}
+            {thOrden('origen','ORIGEN → DESTINO',S.th)}{thOrden('entregadoA','ENTREGADO A',S.th)}{thOrden('oc','OC',S.th)}{thOrden('pagado','PAGO PROVEEDOR',S.th)}{thOrden('clientePago','CLIENTE PAGÓ',S.th)}{thOrden('estado','ESTADO',S.th)}<th style={{...S.th,width:120,textAlign:'center'}}></th>
           </tr></thead>
           <tbody>
             {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={11}>No hay fletes registrados. Usa "Agregar flete".</td></tr>
