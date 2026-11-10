@@ -656,7 +656,8 @@ export default function Alquileres() {
                     <td style={{ ...S.td, textAlign: "center", whiteSpace: "nowrap" }}>
                       {!a.finalizado && (
                         <button
-                          style={{ ...(d !== null && d <= 3 ? S.btn : S.btnGris), padding: "6px 12px", fontSize: 13, marginRight: 6 }}
+                          className="btn-sys btn-verde"
+                          style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13, marginRight: 6 }}
                           onClick={() => setRenovando(a)}
                           title="El cliente renovó: registrar el nuevo periodo"
                         >
