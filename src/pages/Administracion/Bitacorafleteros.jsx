@@ -17,7 +17,7 @@ const FLETE_NUEVO = {
   empresa:'',proveedor:'',equipo:'',serieEquipo:'',
   oc:'',numOC:'',horaMovimiento:'',
   origen:'',destino:'',entregadoA:'',
-  costo:'',pagado:'Pendiente',clientePago:'Pendiente',
+  costo:'',cobroCliente:'',pagado:'Pendiente',clientePago:'Pendiente',
   estado:'Programado',observaciones:''
 }
 
@@ -70,6 +70,9 @@ function textoOC(f){
   return '—'
 }
 function dinero(v){const n=parseFloat(String(v).replace(/[$,\s]/g,''));return isNaN(n)?(v||'—'):'$'+n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function numero(v){const n=parseFloat(String(v==null?'':v).replace(/[$,\s]/g,''));return isNaN(n)?null:n}
+// utilidad = lo que Maqsol cobró al cliente - lo que cobró el proveedor del flete
+function utilidad(f){const c=numero(f.costo),v=numero(f.cobroCliente);return c==null||v==null?null:v-c}
 function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function folioBitacora(){
   const d=new Date()
@@ -85,6 +88,8 @@ function pdfFletes(lista,periodo){
   const folio=folioBitacora()
   const num=v=>{const n=parseFloat(String(v==null?'':v).replace(/[$,\s]/g,''));return isNaN(n)?0:n}
   const total=filas.reduce((a,f)=>a+num(f.costo),0)
+  const totalCobro=filas.reduce((a,f)=>a+num(f.cobroCliente),0)
+  const hayCobro=filas.some(f=>numero(f.cobroCliente)!=null)
   const fila=(f)=>`<tbody class="f"><tr>
     <td class="c b">${esc(f.folio)}</td>
     <td class="c">${esc(fFecha(f.fecha))}${f.horaMovimiento?`<div class="m">${esc(f.horaMovimiento)} h</div>`:''}</td>
@@ -95,10 +100,12 @@ function pdfFletes(lista,periodo){
     <td>${esc(f.entregadoA||'—')}</td>
     <td class="c">${esc(textoOC(f))}</td>
     <td class="r b">${f.costo?esc(dinero(f.costo)):'—'}</td>
+    <td class="r b">${f.cobroCliente?esc(dinero(f.cobroCliente)):'—'}</td>
+    <td class="r b">${utilidad(f)==null?'—':esc(dinero(utilidad(f)))}</td>
     <td class="c">${esc(f.pagado||'Pendiente')}</td>
     <td class="c">${f.clientePago==='Pagado'?'Sí':'No'}</td>
     <td class="c">${esc(f.estado==='En Ruta'?'Programado':f.estado)}</td>
-  </tr>${f.observaciones?`<tr class="obs"><td colspan="11">Obs.: ${esc(f.observaciones)}</td></tr>`:''}</tbody>`
+  </tr>${f.observaciones?`<tr class="obs"><td colspan="14">Obs.: ${esc(f.observaciones)}</td></tr>`:''}</tbody>`
   abrirDocPDF({
     nombre:folio,
     hoja:'horizontal',
@@ -108,11 +115,11 @@ function pdfFletes(lista,periodo){
     <table>
       <thead><tr>
         <th>Folio</th><th>Fecha / hora</th><th>Empresa (solicitó y pagó)</th><th>Proveedor</th>
-        <th>Equipo</th><th>Origen → destino</th><th>Entregado a</th><th>Orden de compra</th><th class="r">Importe sin imp.</th><th class="c">Pago al proveedor</th><th class="c">Cliente pagó</th><th class="c">Estado</th>
+        <th>Equipo</th><th>Origen → destino</th><th>Entregado a</th><th>Orden de compra</th><th class="r">Costo proveedor</th><th class="r">Cobro Maqsol</th><th class="r">Utilidad</th><th class="c">Pago al proveedor</th><th class="c">Cliente pagó</th><th class="c">Estado</th>
       </tr></thead>
       ${filas.map(fila).join('')}
     </table>
-    <div class="tot"><span>Fletes: <b>${filas.length}</b></span><span>Total sin impuestos: <b>${esc(dinero(total))}</b></span></div>
+    <div class="tot"><span>Fletes: <b>${filas.length}</b></span><span>Costo proveedores: <b>${esc(dinero(total))}</b></span>${hayCobro?`<span>Cobrado por Maqsol: <b>${esc(dinero(totalCobro))}</b></span><span>Utilidad: <b>${esc(dinero(totalCobro-total))}</b></span>`:''}<span class="m" style="align-self:center">Importes sin impuestos</span></div>
     ${pieDoc(folio)}`
   })
 }
@@ -186,7 +193,7 @@ export default function BitacoraFleteros(){
   const filtrados=ordenar(fletes.filter(f=>{
     const t=(f.folio+' '+f.origen+' '+f.destino+' '+f.empresa+' '+f.equipo+' '+f.serieEquipo+' '+(f.proveedor||'')+' '+(f.numOC||'')).toLowerCase()
     return t.includes(busqueda.toLowerCase())&&(!fEstado||f.estado===fEstado)&&(!fPagado||f.pagado===fPagado)&&(!fCliente||(fCliente==='Pagado'?f.clientePago==='Pagado':f.clientePago!=='Pagado'))&&(!fDesde||(f.fecha||'')>=fDesde)&&(!fHasta||(f.fecha||'')<=fHasta)
-  }),(f,col)=>col==='origen'?(f.origen||'')+' '+(f.destino||''):col==='oc'?textoOC(f):f[col],(a,b)=>(b.fecha||'').localeCompare(a.fecha||''))
+  }),(f,col)=>col==='origen'?(f.origen||'')+' '+(f.destino||''):col==='oc'?textoOC(f):col==='utilidad'?(utilidad(f)??numero(f.costo)??-1e12):f[col],(a,b)=>(b.fecha||'').localeCompare(a.fecha||''))
 
   const stats={
     programados:fletes.filter(f=>f.estado==='Programado').length,
@@ -199,8 +206,8 @@ export default function BitacoraFleteros(){
     return 'Periodo: '+new Date().toLocaleDateString('es-MX',{month:'long',year:'numeric'})
   }
   function exportarLista(){
-    const columnas=['Folio','Fecha','Empresa (cliente)','Proveedor del flete','Equipo','Serie','Origen','Destino','Entregado a','Hora','Orden de compra','Importe sin impuestos','Pago al proveedor','Cliente ya pagó','Estado','Observaciones']
-    const filas=filtrados.map(f=>[f.folio,fFecha(f.fecha),f.empresa,f.proveedor,f.equipo,f.serieEquipo,f.origen,f.destino,f.entregadoA||'',f.horaMovimiento,textoOC(f),f.costo?'$'+f.costo:'',f.pagado,f.clientePago==='Pagado'?'Sí':'No',f.estado,f.observaciones])
+    const columnas=['Folio','Fecha','Empresa (cliente)','Proveedor del flete','Equipo','Serie','Origen','Destino','Entregado a','Hora','Orden de compra','Costo proveedor (sin imp.)','Cobro Maqsol (sin imp.)','Utilidad','Pago al proveedor','Cliente ya pagó','Estado','Observaciones']
+    const filas=filtrados.map(f=>[f.folio,fFecha(f.fecha),f.empresa,f.proveedor,f.equipo,f.serieEquipo,f.origen,f.destino,f.entregadoA||'',f.horaMovimiento,textoOC(f),f.costo?dinero(f.costo):'',f.cobroCliente?dinero(f.cobroCliente):'',utilidad(f)==null?'':dinero(utilidad(f)),f.pagado,f.clientePago==='Pagado'?'Sí':'No',f.estado,f.observaciones])
     descargarExcelBonito({
       titulo:'Bitácora de Fleteros',
       subtitulo:'MAQUINARIA SOPORTE Y LOGISTICA SA DE CV · '+filtrados.length+' fletes',
@@ -238,10 +245,10 @@ export default function BitacoraFleteros(){
         <table style={{width:'100%',borderCollapse:'collapse',minWidth:1350}}>
           <thead><tr>
             {thOrden('folio','FOLIO',S.th)}{thOrden('fecha','FECHA',S.th)}{thOrden('empresa','EMPRESA',S.th)}{thOrden('equipo','EQUIPO',S.th)}
-            {thOrden('origen','ORIGEN → DESTINO',S.th)}{thOrden('entregadoA','ENTREGADO A',S.th)}{thOrden('oc','OC',S.th)}{thOrden('pagado','PAGO PROVEEDOR',S.th)}{thOrden('clientePago','CLIENTE PAGÓ',S.th)}{thOrden('estado','ESTADO',S.th)}<th style={{...S.th,width:120,textAlign:'center'}}></th>
+            {thOrden('origen','ORIGEN → DESTINO',S.th)}{thOrden('entregadoA','ENTREGADO A',S.th)}{thOrden('oc','OC',S.th)}{thOrden('utilidad','COSTO / COBRO',S.th)}{thOrden('pagado','PAGO PROVEEDOR',S.th)}{thOrden('clientePago','CLIENTE PAGÓ',S.th)}{thOrden('estado','ESTADO',S.th)}<th style={{...S.th,width:120,textAlign:'center'}}></th>
           </tr></thead>
           <tbody>
-            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={11}>No hay fletes registrados. Usa "Agregar flete".</td></tr>
+            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={12}>No hay fletes registrados. Usa "Agregar flete".</td></tr>
             :filtrados.map(f=>(<tr key={f.id} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
               <td style={{...S.td,fontWeight:700,cursor:'pointer'}} onClick={()=>setVerFlete(f)}>{f.folio}</td>
               <td style={S.td}>{fFecha(f.fecha)}</td>
@@ -250,6 +257,7 @@ export default function BitacoraFleteros(){
               <td style={S.td}>{f.origen||'—'} → {f.destino}{f.horaMovimiento?<div style={{color:'#999',fontSize:12}}>{f.horaMovimiento} h</div>:null}</td>
               <td style={{...S.td,fontWeight:f.entregadoA?700:400,color:f.entregadoA?'#111':'#bbb'}}>{f.entregadoA||'—'}</td>
               <td style={S.td}>{textoOC(f)}</td>
+              <td style={{...S.td,whiteSpace:'nowrap',fontSize:13}}><CostoCobro f={f}/></td>
               <td style={S.td}><BadgePago pagado={f.pagado}/></td>
               <td style={S.td}><BadgeCliente pagado={f.clientePago}/></td>
               <td style={S.td}><BadgeEstado estado={f.estado}/></td>
@@ -275,7 +283,9 @@ export default function BitacoraFleteros(){
           <div><div style={S.label}>ORIGEN</div><div>{verFlete.origen||'—'}</div></div>
           <div><div style={S.label}>DESTINO</div><div>{verFlete.destino||'—'}</div></div>
           <div><div style={S.label}>ENTREGADO A</div><div style={{fontWeight:700,color:verFlete.entregadoA?'#111':'#bbb'}}>{verFlete.entregadoA||'—'}</div></div>
-          <div><div style={S.label}>IMPORTE (SIN IMPUESTOS)</div><div>{verFlete.costo?dinero(verFlete.costo):'—'}</div></div>
+          <div><div style={S.label}>COSTO DEL PROVEEDOR{verFlete.proveedor?' ('+verFlete.proveedor.toUpperCase()+')':''}</div><div>{verFlete.costo?dinero(verFlete.costo):'—'}</div></div>
+          <div><div style={S.label}>COBRO DE MAQSOL AL CLIENTE</div><div>{verFlete.cobroCliente?dinero(verFlete.cobroCliente):'—'}</div></div>
+          <div><div style={S.label}>UTILIDAD</div><div style={{fontWeight:800,color:utilidad(verFlete)==null?'#bbb':utilidad(verFlete)<0?'#c62828':'#1b7a3f'}}>{utilidad(verFlete)==null?'—':dinero(utilidad(verFlete))}</div></div>
           <div><div style={S.label}>EMPRESA (SOLICITÓ Y PAGÓ)</div><div>{verFlete.empresa||'—'}</div></div>
           <div><div style={S.label}>PROVEEDOR DEL SERVICIO</div><div>{verFlete.proveedor||'—'}</div></div>
           <div><div style={S.label}>HORA DE MOVIMIENTO</div><div>{verFlete.horaMovimiento||'—'}</div></div>
@@ -374,7 +384,9 @@ export default function BitacoraFleteros(){
         </div>
 
         <div style={S.grid3}>
-          <div><label style={S.label}>IMPORTE (SIN IMPUESTOS)</label><input style={S.input} value={form.costo} onChange={ev=>setForm({...form,costo:ev.target.value})} placeholder="Ej. 1500 antes de IVA"/></div>
+          <div><label style={S.label}>COSTO DEL PROVEEDOR (SIN IMP.)</label><input style={S.input} inputMode="decimal" value={form.costo} onChange={ev=>setForm({...form,costo:ev.target.value})} placeholder="Lo que cobró el fletero, ej. 2500"/></div>
+          <div><label style={S.label}>COBRO MAQSOL AL CLIENTE (SIN IMP.)</label><input style={S.input} inputMode="decimal" value={form.cobroCliente||''} onChange={ev=>setForm({...form,cobroCliente:ev.target.value})} placeholder="Lo que cobramos, ej. 3500"/>
+            {utilidad(form)!=null&&<div style={{fontSize:12.5,fontWeight:700,marginTop:5,color:utilidad(form)<0?'#c62828':'#1b7a3f'}}>Utilidad: {dinero(utilidad(form))}</div>}</div>
           <div><label style={S.label}>PAGO AL PROVEEDOR</label><select style={S.input} value={form.pagado} onChange={ev=>setForm({...form,pagado:ev.target.value})}><option>Pendiente</option><option>Pagado</option></select></div>
           <div><label style={S.label}>ESTADO DEL VIAJE</label><select style={S.input} value={form.estado} onChange={ev=>setForm({...form,estado:ev.target.value})}><option>Programado</option><option>Entregado</option><option>Cancelado</option></select></div>
         </div>
@@ -386,4 +398,16 @@ export default function BitacoraFleteros(){
 
     </div></div>
   )
+}
+
+// Celda: cuánto cobró el proveedor del flete, cuánto cobró Maqsol y la diferencia
+function CostoCobro({f}){
+  const c=numero(f.costo),v=numero(f.cobroCliente),u=utilidad(f)
+  if(c==null&&v==null)return <span style={{color:'#bbb'}}>—</span>
+  const fila=(et,val,estilo={})=>(<div style={{display:'flex',justifyContent:'space-between',gap:10,...estilo}}><span style={{color:'#888',fontSize:11.5}}>{et}</span><span>{val==null?'—':dinero(val)}</span></div>)
+  return (<div style={{minWidth:170}}>
+    {fila(f.proveedor||'Proveedor',c)}
+    {fila('Maqsol',v,{fontWeight:700})}
+    {u!=null&&<div style={{display:'flex',justifyContent:'space-between',gap:10,borderTop:'1px solid #e5e5e5',marginTop:3,paddingTop:3,fontWeight:800,color:u<0?'#c62828':'#1b7a3f'}}><span style={{fontSize:11.5}}>Utilidad</span><span>{dinero(u)}</span></div>}
+  </div>)
 }
