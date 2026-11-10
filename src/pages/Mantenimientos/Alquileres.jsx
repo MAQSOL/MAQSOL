@@ -78,6 +78,17 @@ const TIPOS_RENTA = [
 const tipoRentaTexto = (clave) => TIPOS_RENTA.find((t) => t.clave === clave)?.etiqueta || "";
 const llevaOperador = (clave) => !!TIPOS_RENTA.find((t) => t.clave === clave)?.operador;
 
+// Etiquetas de la lista: mismo tamaño, mayúsculas y con ícono dibujado (no emoji)
+const chipRenta = { display: "inline-flex", alignItems: "center", gap: 6, background: "#f1f1f1", color: "#333", border: "1px solid #d6d6d6", fontSize: 10.5, fontWeight: 800, letterSpacing: 0.4, textTransform: "uppercase", padding: "3px 8px", lineHeight: 1.3, whiteSpace: "nowrap" };
+function IconoChip({ tipo }) {
+  const p = { width: 13, height: 13, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2.2, strokeLinecap: "round", strokeLinejoin: "round", style: { flexShrink: 0 } };
+  if (tipo === "combustible") return <svg {...p}><path d="M4 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16"/><path d="M3 21h13"/><path d="M7 8h5"/><path d="M15 10h1.5a1.5 1.5 0 0 1 1.5 1.5V17a1.5 1.5 0 0 0 3 0V8.5L18 6"/></svg>;
+  if (tipo === "operador") return <svg {...p}><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-1.5A5.5 5.5 0 0 1 10.5 14h3a5.5 5.5 0 0 1 5.5 5.5V21"/></svg>;
+  if (tipo === "casa") return <svg {...p}><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>;
+  if (tipo === "externo") return <svg {...p}><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>;
+  return <svg {...p}><rect x="3" y="10" width="13" height="7" rx="1"/><circle cx="7" cy="19" r="1.6"/><circle cx="13" cy="19" r="1.6"/><path d="M16 13h3l2 3v1h-5"/><path d="M6 10V6h5l2 4"/></svg>;
+}
+
 const dias = (f) => {
   if (!f) return null;
   const h = new Date();
@@ -586,18 +597,24 @@ export default function Alquileres() {
                       {a.tipo}
                       <div style={{ fontWeight: 400, color: "#777", fontSize: 12 }}>{a.marca} {a.modelo}</div>
                       {a.serie && <div style={{ fontWeight: 400, color: "#777", fontSize: 12, whiteSpace: "nowrap" }}>Serie {a.serie}</div>}
-                      {a.origen === "propio" && (
-                        <span style={{ background: "#e3f2fd", color: "#1565c0", fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20, marginTop: 3, display: "inline-block" }}>Propia MAQSOL</span>
-                      )}
-                      {a.origen === "externo" && (
-                        <span style={{ background: "#fff3e0", color: "#c98a00", fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20, marginTop: 3, display: "inline-block" }}>Subarrendada</span>
-                      )}
-                      {a.tipoRenta && (
+                      {(a.origen === "propio" || a.origen === "externo" || a.tipoRenta) && (
                         <div style={{ marginTop: 6, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4 }}>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#f1f1f1", color: "#333", border: "1px solid #d6d6d6", fontSize: 11, fontWeight: 800, letterSpacing: 0.3, textTransform: "uppercase", padding: "3px 8px" }}>
-                            {/combustible/.test(a.tipoRenta) && <span title="Incluye combustible">⛽</span>}
+                          {a.origen === "propio" && (
+                            <span style={{ ...chipRenta, background: "#e8f1fb", color: "#1565c0", borderColor: "#b9d3f0" }}>
+                              <IconoChip tipo="casa" />Propia MAQSOL
+                            </span>
+                          )}
+                          {a.origen === "externo" && (
+                            <span style={{ ...chipRenta, background: "#fff4e5", color: "#a86b00", borderColor: "#f0d3a2" }}>
+                              <IconoChip tipo="externo" />Subarrendada
+                            </span>
+                          )}
+                          {a.tipoRenta && (
+                          <span style={chipRenta}>
+                            <IconoChip tipo={/combustible/.test(a.tipoRenta) ? "combustible" : /operador/.test(a.tipoRenta) ? "operador" : "equipo"} />
                             {tipoRentaTexto(a.tipoRenta)}
                           </span>
+                          )}
                           {a.operadorRenta && (
                             <span style={{ fontSize: 12.5, color: "#222", fontWeight: 400 }}>
                               <span style={{ color: "#888", fontSize: 11, fontWeight: 700, letterSpacing: 0.4 }}>OPERADOR </span>
