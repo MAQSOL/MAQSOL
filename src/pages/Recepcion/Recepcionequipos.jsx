@@ -209,14 +209,15 @@ export default function Recepcionequipos(){
   function abrirDocs(r){reiniciarArchivos();setSoloDocs(true);setFolioManual(false);setForm({...CHECKLIST_NUEVO,folioSeq:r.folioSeq||siguienteSeq(),...r,items:{...r.items},porcentajes:{...r.porcentajes}});setModal(true)}
   function cerrarModal(){reiniciarArchivos();setSoloDocs(false);setModal(false)}
   function abrirEditar(r){reiniciarArchivos();setSoloDocs(false);setFolioManual(false);setForm({...CHECKLIST_NUEVO,folioSeq:r.folioSeq||siguienteSeq(),...r,items:{...r.items},porcentajes:{...r.porcentajes}});setModal(true)}
-  function registrarEntrada(salida){
+  // Checklist de la otra parte (Salida → Entrada o Entrada → Salida), ligado por folio
+  function registrarContraparte(salida,tipo){
     const seq=siguienteSeq()
     const fecha=hoyISO()
     reiniciarArchivos()
     setFolioManual(false)
     setForm({
       ...CHECKLIST_NUEVO,id:uid(),folioSeq:seq,folio:construirFolio(seq,salida.cliente,fecha,salida.modelo),
-      tipo:'Entrada',ligadoA:salida.folio,fecha,
+      tipo,ligadoA:salida.folio,fecha,
       cliente:salida.cliente,nombreContacto:salida.nombreContacto,telefono:salida.telefono,correo:salida.correo,
       equipo:salida.equipo,marca:salida.marca,modelo:salida.modelo,serie:salida.serie,
       accesorio:salida.accesorio,accMarca:salida.accMarca,accModelo:salida.accModelo,accSerie:salida.accSerie,accNA:!!salida.accNA,
@@ -300,7 +301,7 @@ export default function Recepcionequipos(){
       const existe=registros.some(r=>r.id===reg.id)
       const lista=existe?registros.map(r=>r.id===reg.id?{...r,...reg}:r):[...registros,reg]
       await guardarRegistros(lista)
-      if(!existe && reg.tipo==='Salida'){
+      if(!existe && reg.tipo==='Salida' && !reg.ligadoA){
         const nuevoAlq={
           id:'AL-'+Date.now(),plan:'manual',horasIncluidas:'',
           fechaInicio:reg.fechaEntrega||'',fechaFin:reg.fechaRetiro||'',
@@ -552,7 +553,13 @@ export default function Recepcionequipos(){
                 </button>)
               })()}</td>
               <td style={{...S.td,textAlign:'center',whiteSpace:'nowrap'}}>
-                {(r.tipo||'Salida')==='Salida'&&<button style={S.btnSm} onClick={()=>registrarEntrada(r)}><IconoMas />Entrada</button>}
+                {(()=>{
+                  const otro=(r.tipo||'Salida')==='Salida'?'Entrada':'Salida'
+                  const par=registros.find(x=>x.ligadoA===r.folio)||(r.ligadoA&&registros.find(x=>x.folio===r.ligadoA))
+                  return par
+                    ?<button style={{...S.btnGrisSm,background:'#e3eefb',color:'#1d4f91'}} title={'Abrir el checklist de '+(par.tipo||'Salida')+' ligado'} onClick={()=>abrirEditar(par)}>Ver {(par.tipo||'Salida')}</button>
+                    :<button style={S.btnSm} title={'Anexar el checklist de '+otro+' de este equipo'} onClick={()=>registrarContraparte(r,otro)}><IconoMas />{otro}</button>
+                })()}
                 <button style={{...S.btnGrisSm,marginLeft:6,background:'#1f8b4c',color:'#fff'}} onClick={()=>abrirEditar(r)}>Editar</button>
                 <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>abrirDocs(r)}>Fotos e INE</button>
                 <button style={{...S.btnGrisSm,marginLeft:6,background:'var(--acento)',color:'#fff'}} onClick={()=>descargarPDF(r)}>PDF</button>
