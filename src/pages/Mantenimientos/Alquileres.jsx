@@ -62,8 +62,20 @@ const NUEVO = {
   checklist: null,
   finalizado: false,
   fechaFinalizado: "",
-  origen: ""
+  origen: "",
+  tipoRenta: "",
+  operadorRenta: ""
 };
+
+// Cómo se renta el equipo; las que llevan operador piden su nombre
+const TIPOS_RENTA = [
+  { clave: "pura", etiqueta: "Renta pura", detalle: "Solo el equipo", operador: false },
+  { clave: "operador", etiqueta: "Con operador", detalle: "Equipo + operador", operador: true },
+  { clave: "operador_combustible", etiqueta: "Con operador y combustible", detalle: "Equipo + operador + combustible", operador: true },
+  { clave: "combustible", etiqueta: "Solo con combustible", detalle: "Equipo + combustible", operador: false },
+];
+const tipoRentaTexto = (clave) => TIPOS_RENTA.find((t) => t.clave === clave)?.etiqueta || "";
+const llevaOperador = (clave) => !!TIPOS_RENTA.find((t) => t.clave === clave)?.operador;
 
 const dias = (f) => {
   if (!f) return null;
@@ -578,6 +590,11 @@ export default function Alquileres() {
                       {a.origen === "externo" && (
                         <span style={{ background: "#fff3e0", color: "#c98a00", fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20, marginTop: 3, display: "inline-block" }}>Subarrendada</span>
                       )}
+                      {a.tipoRenta && (
+                        <div style={{ fontWeight: 400, fontSize: 12, color: "#444", marginTop: 4 }}>
+                          {tipoRentaTexto(a.tipoRenta)}{a.operadorRenta ? ` · Operador: ${a.operadorRenta}` : ""}
+                        </div>
+                      )}
                     </td>
                     <td style={S.td}>{a.cliente}</td>
                     <td style={S.td}>
@@ -702,6 +719,48 @@ export default function Alquileres() {
                   </>
                 )}
               </p>
+            )}
+
+            <label style={S.label}>TIPO DE RENTA</label>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+              {TIPOS_RENTA.map((t) => {
+                const activo = form.tipoRenta === t.clave;
+                return (
+                  <button
+                    key={t.clave}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, tipoRenta: t.clave, operadorRenta: t.operador ? f.operadorRenta : "" }))}
+                    style={{
+                      padding: "9px 14px",
+                      borderRadius: 0,
+                      border: activo ? "2px solid var(--acento)" : "1px solid #d8d8d8",
+                      background: activo ? "var(--acento)" : "#fff",
+                      color: activo ? "#fff" : "#333",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      lineHeight: 1.25
+                    }}
+                  >
+                    <strong style={{ display: "block", fontSize: 14 }}>{t.etiqueta}</strong>
+                    <span style={{ fontSize: 11.5, opacity: 0.85 }}>{t.detalle}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {llevaOperador(form.tipoRenta) && (
+              <div style={{ marginBottom: 14, maxWidth: 520 }}>
+                <label style={S.label}>NOMBRE DEL OPERADOR</label>
+                <input
+                  style={S.input}
+                  list="operadores-renta"
+                  value={form.operadorRenta || ""}
+                  onChange={(e) => set("operadorRenta", e.target.value)}
+                  placeholder="¿Quién va a operar el equipo?"
+                />
+                <datalist id="operadores-renta">
+                  {[...new Set([...internos.map((e) => e.operador), ...alquileres.map((a) => a.operadorRenta)].filter(Boolean))].sort().map((o) => <option key={o} value={o} />)}
+                </datalist>
+              </div>
             )}
 
             <h3 style={S.h3}>Cliente</h3>
