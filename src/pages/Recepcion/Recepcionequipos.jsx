@@ -157,7 +157,7 @@ export default function Recepcionequipos(){
   const[alquileres,guardarAlquileres]=useListaCompartida('alquileres')
   const[modal,setModal]=useState(false)
   const[form,setForm]=useState(CHECKLIST_NUEVO)
-  const[busqueda,setBusqueda]=useState('')
+  const[busqueda,setBusqueda]=useState(()=>{try{return new URLSearchParams(window.location.search).get('buscar')||''}catch{return ''}})
   const[orden,setOrden]=useState({col:null,dir:1})
   const[alqDestino,setAlqDestino]=useState(null) // renta a la que se liga el checklist que se está creando
   const[verRentas,setVerRentas]=useState(()=>{try{return localStorage.getItem('recepcion_ver_rentas')!=='0'}catch{return true}})

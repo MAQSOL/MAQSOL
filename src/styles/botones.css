@@ -84,6 +84,8 @@ button[style*="background: var(--acento)"]:disabled { transform: none; box-shado
 
 /* Botón gris con texto rojo para eliminar */
 .btn-sys.btn-eliminar { color: #c62828 !important; }
+/* Pestaña seleccionada (ej. Rentas activas / Ver historial) */
+.btn-sys.btn-activo, .btn-sys.btn-activo:hover { background: #111 !important; color: #fff !important; }
 /* Variante verde (Renovar) */
 .btn-sys.btn-verde { background: #2e9d5b !important; color: #fff !important; }
 .btn-sys.btn-verde:hover { background: #268a4f !important; }

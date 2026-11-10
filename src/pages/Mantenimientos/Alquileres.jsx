@@ -237,6 +237,9 @@ export default function Alquileres() {
   const [form, setForm] = useState(NUEVO);
   const [busqueda, setBusqueda] = useState("");
   const [fEstado, setFEstado] = useState("");
+  const [checklists] = useListaCompartida("checklists");
+  const [vista, setVista] = useState("activas"); // activas | historial
+  const [orden, setOrden] = useState({ col: null, dir: 1 });
   const [guardando, setGuardando] = useState(false);
 
   const [nuevasFotos, setNuevasFotos] = useState([]);
@@ -501,12 +504,49 @@ export default function Alquileres() {
       )
     );
 
-  const filtrados = alquileres
+  // Checklists de Salida y Entrada (Recepción) de cada renta: por folio guardado o por serie + cliente
+  const norm = (t) => String(t || "").trim().toLowerCase();
+  const checklistsDe = (a) => {
+    const base = typeof a.checklist === "string" && a.checklist ? checklists.find((c) => c.folio === a.checklist) : null;
+    const desde = a.inicioOriginal || a.fechaInicio || "";
+    const cand = norm(a.serie)
+      ? checklists.filter((c) => norm(c.serie) === norm(a.serie) && (!a.cliente || !c.cliente || norm(c.cliente) === norm(a.cliente)) && (!desde || !c.fecha || c.fecha >= desdeMenos(desde)))
+      : [];
+    const ultimo = (tipo, extra = () => true) => cand.filter((c) => (c.tipo || "Salida") === tipo && extra(c)).sort((x, y) => (y.fecha || "").localeCompare(x.fecha || ""))[0] || null;
+    const salida = base && (base.tipo || "Salida") === "Salida" ? base : ultimo("Salida");
+    const entrada = base && base.tipo === "Entrada" ? base
+      : (salida && checklists.find((c) => c.ligadoA === salida.folio)) || ultimo("Entrada", (c) => !salida || !c.fecha || !salida.fecha || c.fecha >= salida.fecha);
+    return { salida, entrada };
+  };
+  const enHistorial = (a) => { const c = checklistsDe(a); return !!a.finalizado || !!(c.salida && c.entrada); };
+
+  const valorOrden = (a) => {
+    if (orden.col === "equipo") return [a.tipo, a.marca, a.modelo].filter(Boolean).join(" ");
+    if (orden.col === "periodo") return a.fechaFin || "";
+    if (orden.col === "estado") return estadoDe(a);
+    return a[orden.col] || "";
+  };
+  const ordenarPor = (col) => setOrden((o) => (o.col === col ? { col, dir: -o.dir } : { col, dir: 1 }));
+  const thOrden = (col, texto) => {
+    const on = orden.col === col;
+    return (
+      <th style={{ ...S.th, cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" }} onClick={() => ordenarPor(col)} title="Ordenar por esta columna">
+        {texto}<span style={{ marginLeft: 6, fontSize: 10, opacity: on ? 1 : 0.35 }}>{on ? (orden.dir === 1 ? "▲" : "▼") : "▲▼"}</span>
+      </th>
+    );
+  };
+
+  const deVista = alquileres.filter((a) => (vista === "historial" ? enHistorial(a) : !enHistorial(a)));
+  const nHistorial = alquileres.filter(enHistorial).length;
+  const filtrados = deVista
     .filter((a) => {
       const t = `${a.tipo} ${a.marca} ${a.modelo} ${a.serie} ${a.cliente} ${a.obra}`.toLowerCase();
       return t.includes(busqueda.toLowerCase()) && (!fEstado || estadoDe(a) === fEstado);
     })
-    .sort((a, b) => (a.fechaFin || "").localeCompare(b.fechaFin || ""));
+    .sort((a, b) => {
+      if (!orden.col) return vista === "historial" ? (b.fechaFin || "").localeCompare(a.fechaFin || "") : (a.fechaFin || "").localeCompare(b.fechaFin || "");
+      return String(valorOrden(a)).localeCompare(String(valorOrden(b)), "es", { numeric: true, sensitivity: "base" }) * orden.dir || (a.fechaFin || "").localeCompare(b.fechaFin || "");
+    });
 
   const activos = alquileres.filter((a) => !a.finalizado).length;
 
@@ -567,18 +607,28 @@ export default function Alquileres() {
           </div>
         </div>
 
+        <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+          {[["activas", "Rentas activas", alquileres.length - nHistorial], ["historial", "Ver historial", nHistorial]].map(([v, t, n]) => (
+            <button key={v} type="button" className={vista === v ? "btn-sys btn-activo" : "btn-sys"} onClick={() => setVista(v)}
+              style={{ ...S.btnGris, padding: "8px 16px", fontSize: 13.5 }}>
+              {t} <span style={{ opacity: 0.7, marginLeft: 4 }}>({n})</span>
+            </button>
+          ))}
+          {vista === "historial" && <span style={{ alignSelf: "center", fontSize: 12.5, color: "#888" }}>Rentas terminadas o que ya tienen checklist de salida y de entrada.</span>}
+        </div>
+
         <div style={{ ...S.card, padding: 0, overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 1100 }}>
             <thead>
               <tr>
-                <th style={S.th}>FOTO</th><th style={S.th}>EQUIPO</th><th style={S.th}>CLIENTE</th><th style={S.th}>OBRA</th>
-                <th style={S.th}>PERIODO</th><th style={S.th}>ESTADO</th><th style={S.th}>CHECKLIST</th><th style={{ ...S.th, width: 230 }}></th>
+                <th style={S.th}>FOTO</th>{thOrden("equipo", "EQUIPO")}{thOrden("cliente", "CLIENTE")}{thOrden("obra", "OBRA")}
+                {thOrden("periodo", "PERIODO")}{thOrden("estado", "ESTADO")}<th style={S.th}>CHECKLIST</th><th style={{ ...S.th, width: 230 }}></th>
               </tr>
             </thead>
             <tbody>
               {filtrados.length === 0 ? (
                 <tr><td colSpan={8} style={{ ...S.td, textAlign: "center", color: "#999", padding: 40 }}>
-                  No hay equipos en renta registrados. Usa "Registrar equipo en renta".
+                  {vista === "historial" ? "Todavía no hay rentas en el historial." : 'No hay equipos en renta registrados. Usa "Registrar equipo en renta".'}
                 </td></tr>
               ) : filtrados.map((a) => {
                 const d = dias(a.fechaFin);
@@ -649,11 +699,7 @@ export default function Alquileres() {
                     </td>
                     <td style={S.td}><Badge estado={estadoDe(a)} /></td>
                     <td style={S.td}>
-                      {a.checklist?.path && urls[a.checklist.path] ? (
-                        <a href={urls[a.checklist.path]} target="_blank" rel="noopener noreferrer" style={{ color: "var(--acento)", fontWeight: 700 }}>Ver PDF</a>
-                      ) : typeof a.checklist === "string" ? (
-                        <a href="/recepcion" title="Checklist de Entrega y Salida de Equipo" style={{ display: "inline-block", background: "#e1f3e7", color: "#1b7a3f", fontSize: 11.5, fontWeight: 700, padding: "2px 8px", textDecoration: "none", whiteSpace: "nowrap" }}>✓ {a.checklist}</a>
-                      ) : a.checklist ? "…" : a.sinChecklist ? <span style={{ background: "#fff3e0", color: "#c98a00", fontSize: 11.5, fontWeight: 700, padding: "2px 8px" }}>No lleva checklist</span> : <span style={{ color: "#bbb" }}>Sin checklist</span>}
+                      <CeldaChecklist a={a} urls={urls} cl={checklistsDe(a)} />
                     </td>
                     <td style={{ ...S.td, textAlign: "center", whiteSpace: "nowrap" }}>
                       {!a.finalizado && (
@@ -978,4 +1024,37 @@ const btnX = {
 
 function registros_en_modal(form, nuevas) {
   return (form.fotos || []).length + nuevas.length;
+}
+
+function desdeMenos(fecha, dias = 7) {
+  const d = new Date(fecha + "T00:00:00");
+  if (isNaN(d)) return "";
+  d.setDate(d.getDate() - dias);
+  return d.toISOString().slice(0, 10);
+}
+
+// Checklist de Salida y de Entrada de una renta (ligan a Entrega y Salida de Equipo)
+function CeldaChecklist({ a, urls, cl }) {
+  const chip = (c, bg) => ({ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, padding: "2px 8px", color: c, background: bg, whiteSpace: "nowrap", textDecoration: "none" });
+  const fila = (tipo, reg) => (
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <span style={{ fontSize: 10.5, fontWeight: 700, color: "#999", width: 52, letterSpacing: 0.3 }}>{tipo.toUpperCase()}</span>
+      {reg
+        ? <Link to={"/recepcion?buscar=" + encodeURIComponent(reg.folio || "")} title={"Abrir el checklist " + reg.folio} style={chip("#1b7a3f", "#e1f3e7")}>✓ {reg.folio}</Link>
+        : <span style={chip("#999", "#f2f2f2")}>Pendiente</span>}
+    </div>
+  );
+  const pdf = a.checklist?.path;
+  if (!cl.salida && !cl.entrada) {
+    if (pdf) return urls[pdf] ? <a href={urls[pdf]} target="_blank" rel="noopener noreferrer" style={{ color: "var(--acento)", fontWeight: 700 }}>Ver PDF</a> : "…";
+    if (a.sinChecklist) return <span style={chip("#c98a00", "#fff3e0")}>No lleva checklist</span>;
+    return <span style={{ color: "#bbb" }}>Sin checklist</span>;
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      {fila("Salida", cl.salida)}
+      {fila("Entrada", cl.entrada)}
+      {pdf && urls[pdf] && <a href={urls[pdf]} target="_blank" rel="noopener noreferrer" style={{ color: "var(--acento)", fontWeight: 700, fontSize: 12 }}>Ver PDF</a>}
+    </div>
+  );
 }
