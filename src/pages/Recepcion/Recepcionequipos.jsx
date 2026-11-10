@@ -541,7 +541,7 @@ export default function Recepcionequipos(){
               })()}</td>
               <td style={{...S.td,textAlign:'center',whiteSpace:'nowrap'}}>
                 {(r.tipo||'Salida')==='Salida'&&<button style={S.btnSm} onClick={()=>registrarEntrada(r)}><IconoMas />Entrada</button>}
-                <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>abrirEditar(r)}>Editar</button>
+                <button style={{...S.btnGrisSm,marginLeft:6,background:'#1f8b4c',color:'#fff'}} onClick={()=>abrirEditar(r)}>Editar</button>
                 <button style={{...S.btnGrisSm,marginLeft:6}} onClick={()=>abrirDocs(r)}>Fotos e INE</button>
                 <button style={{...S.btnGrisSm,marginLeft:6,background:'var(--acento)',color:'#fff'}} onClick={()=>descargarPDF(r)}>PDF</button>
                 <button style={{...S.btnGrisSm,marginLeft:6,background:'#1f8b4c',color:'#fff'}} onClick={()=>descargarExcel(r)}>Excel</button>
