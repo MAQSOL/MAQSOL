@@ -651,6 +651,8 @@ export default function Alquileres() {
                     <td style={S.td}>
                       {a.checklist?.path && urls[a.checklist.path] ? (
                         <a href={urls[a.checklist.path]} target="_blank" rel="noopener noreferrer" style={{ color: "var(--acento)", fontWeight: 700 }}>Ver PDF</a>
+                      ) : typeof a.checklist === "string" ? (
+                        <a href="/recepcion" title="Checklist de Entrega y Salida de Equipo" style={{ display: "inline-block", background: "#e1f3e7", color: "#1b7a3f", fontSize: 11.5, fontWeight: 700, padding: "2px 8px", textDecoration: "none", whiteSpace: "nowrap" }}>✓ {a.checklist}</a>
                       ) : a.checklist ? "…" : a.sinChecklist ? <span style={{ background: "#fff3e0", color: "#c98a00", fontSize: 11.5, fontWeight: 700, padding: "2px 8px" }}>No lleva checklist</span> : <span style={{ color: "#bbb" }}>Sin checklist</span>}
                     </td>
                     <td style={{ ...S.td, textAlign: "center", whiteSpace: "nowrap" }}>

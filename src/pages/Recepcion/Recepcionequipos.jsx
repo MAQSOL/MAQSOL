@@ -159,6 +159,8 @@ export default function Recepcionequipos(){
   const[form,setForm]=useState(CHECKLIST_NUEVO)
   const[busqueda,setBusqueda]=useState('')
   const[orden,setOrden]=useState({col:null,dir:1})
+  const[alqDestino,setAlqDestino]=useState(null) // renta a la que se liga el checklist que se está creando
+  const[verRentas,setVerRentas]=useState(()=>{try{return localStorage.getItem('recepcion_ver_rentas')!=='0'}catch{return true}})
   const[fCliente,setFCliente]=useState('')
   const[fTipo,setFTipo]=useState('')
   const[folioManual,setFolioManual]=useState(false)
@@ -195,6 +197,7 @@ export default function Recepcionequipos(){
   }
 
   function reiniciarArchivos(){
+    setAlqDestino(null)
     pend.fotos.forEach(f=>f.preview&&URL.revokeObjectURL(f.preview))
     setPend({fotos:[],ineEntrega:[],ineRecibe:[]})
     setQuitar([])
@@ -209,6 +212,34 @@ export default function Recepcionequipos(){
   function abrirDocs(r){reiniciarArchivos();setSoloDocs(true);setFolioManual(false);setForm({...CHECKLIST_NUEVO,folioSeq:r.folioSeq||siguienteSeq(),...r,items:{...r.items},porcentajes:{...r.porcentajes}});setModal(true)}
   function cerrarModal(){reiniciarArchivos();setSoloDocs(false);setModal(false)}
   function abrirEditar(r){reiniciarArchivos();setSoloDocs(false);setFolioManual(false);setForm({...CHECKLIST_NUEVO,folioSeq:r.folioSeq||siguienteSeq(),...r,items:{...r.items},porcentajes:{...r.porcentajes}});setModal(true)}
+  // ---------- Rentas activas ligadas a su checklist ----------
+  const normal=t=>String(t||'').trim().toLowerCase()
+  function checklistDeRenta(a){
+    if(typeof a.checklist==='string'&&a.checklist){const r=registros.find(x=>x.folio===a.checklist);if(r)return r}
+    if(!normal(a.serie))return null
+    return registros.filter(r=>normal(r.serie)===normal(a.serie)&&(!a.cliente||!r.cliente||normal(r.cliente)===normal(a.cliente)))
+      .sort((x,y)=>(y.fecha||'').localeCompare(x.fecha||''))[0]||null
+  }
+  const rentasActivas=alquileres.filter(a=>!a.finalizado).sort((x,y)=>(x.fechaFin||'9').localeCompare(y.fechaFin||'9'))
+  function checklistDesdeRenta(a){
+    const seq=siguienteSeq()
+    const fecha=a.fechaInicio||hoyISO()
+    reiniciarArchivos()
+    setSoloDocs(false)
+    setFolioManual(false)
+    setForm({
+      ...CHECKLIST_NUEVO,id:uid(),folioSeq:seq,folio:construirFolio(seq,a.cliente,fecha,a.modelo),
+      tipo:'Salida',fecha,cliente:a.cliente||'',nombreContacto:a.contactoCliente||'',telefono:a.telefonoCliente||'',
+      equipo:a.tipo||'',marca:a.marca||'',modelo:a.modelo||'',serie:a.serie||'',
+      horometro:a.horometroEntrega||'',ubicacion:a.obra||'',items:{},porcentajes:{}
+    })
+    setAlqDestino(a.id)
+    setModal(true)
+  }
+  async function marcarSinChecklist(a,valor){
+    await guardarAlquileres(alquileres.map(x=>x.id===a.id?{...x,sinChecklist:valor}:x))
+  }
+
   // Checklist de la otra parte (Salida → Entrada o Entrada → Salida), ligado por folio
   function registrarContraparte(salida,tipo){
     const seq=siguienteSeq()
@@ -276,6 +307,7 @@ export default function Recepcionequipos(){
     if(!form.folio.trim()){alert('El folio no puede quedar vacío.');return}
     if(registros.some(r=>r.id!==form.id&&(r.folio||'').trim().toLowerCase()===form.folio.trim().toLowerCase())){alert('Ya existe un checklist con el folio '+form.folio+'. Cámbialo para no repetirlo.');return}
     setGuardando(true)
+    const destinoRenta=alqDestino
     const subidos=[]
     try{
       const reg={...form,fotos:[...(form.fotos||[])],ineEntrega:[...(form.ineEntrega||[])],ineRecibe:[...(form.ineRecibe||[])]}
@@ -301,7 +333,9 @@ export default function Recepcionequipos(){
       const existe=registros.some(r=>r.id===reg.id)
       const lista=existe?registros.map(r=>r.id===reg.id?{...r,...reg}:r):[...registros,reg]
       await guardarRegistros(lista)
-      if(!existe && reg.tipo==='Salida' && !reg.ligadoA){
+      if(destinoRenta){
+        await guardarAlquileres(alquileres.map(x=>x.id===destinoRenta?{...x,checklist:reg.folio,sinChecklist:false}:x))
+      }else if(!existe && reg.tipo==='Salida' && !reg.ligadoA){
         const nuevoAlq={
           id:'AL-'+Date.now(),plan:'manual',horasIncluidas:'',
           fechaInicio:reg.fechaEntrega||'',fechaFin:reg.fechaRetiro||'',
@@ -523,6 +557,50 @@ export default function Recepcionequipos(){
           <div><label style={S.label}>CLIENTE</label><select style={S.input} value={fCliente} onChange={ev=>setFCliente(ev.target.value)}><option value="">Todos</option>{clientes.map(c=><option key={c}>{c}</option>)}</select></div>
           <div><label style={S.label}>TIPO</label><select style={S.input} value={fTipo} onChange={ev=>setFTipo(ev.target.value)}><option value="">Todos</option><option>Salida</option><option>Entrada</option></select></div>
         </div>
+      </div>
+
+      {/* RENTAS ACTIVAS ligadas a su checklist */}
+      <div style={{...S.card,padding:0}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:10,padding:'14px 18px',borderBottom:verRentas?'1px solid #eee':'none'}}>
+          <div>
+            <div style={{fontWeight:800,fontSize:15,letterSpacing:.3}}>RENTAS ACTIVAS <span style={{color:VINO}}>({rentasActivas.length})</span></div>
+            <div style={{fontSize:12.5,color:'#888'}}>Cada renta con su checklist de entrega · {rentasActivas.filter(a=>!checklistDeRenta(a)&&!a.checklist?.path&&!a.sinChecklist).length} sin checklist</div>
+          </div>
+          <button type="button" className="btn-sys" style={{...S.btnGrisSm,padding:'6px 12px'}} onClick={()=>{const v=!verRentas;setVerRentas(v);try{localStorage.setItem('recepcion_ver_rentas',v?'1':'0')}catch{}}}>{verRentas?'Ocultar':'Mostrar'}</button>
+        </div>
+        {verRentas&&(rentasActivas.length===0
+          ?<div style={{padding:24,textAlign:'center',color:'#999'}}>No hay rentas activas.</div>
+          :<div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',minWidth:900}}><tbody>
+            {rentasActivas.map(a=>{
+              const par=checklistDeRenta(a)
+              const chip=(c,bg)=>({display:'inline-block',fontSize:11.5,fontWeight:700,padding:'3px 9px',color:c,background:bg,whiteSpace:'nowrap'})
+              return(<tr key={a.id} style={{borderBottom:'1px solid #f0f0f0'}}>
+                <td style={{...S.td,minWidth:220}}>
+                  <div style={{fontWeight:700}}>{[a.tipo,a.marca,a.modelo].filter(Boolean).join(' ')||'Equipo'}</div>
+                  {a.serie&&<div style={{fontSize:11.5,color:'#999'}}>Serie: {a.serie}</div>}
+                </td>
+                <td style={S.td}>
+                  <div>{a.cliente||'—'}</div>
+                  {a.obra&&<div style={{fontSize:11.5,color:'#999'}}>{a.obra}</div>}
+                </td>
+                <td style={{...S.td,whiteSpace:'nowrap'}}>{fFecha(a.fechaInicio)||'—'} → {fFecha(a.fechaFin)||'—'}</td>
+                <td style={S.td}>
+                  {par?<span style={chip('#1b7a3f','#e1f3e7')}>✓ Checklist {folioVisible(par.folio)}</span>
+                  :a.checklist?.path?<span style={chip('#1d4f91','#e3eefb')}>PDF anexado en Rentas</span>
+                  :a.sinChecklist?<span style={chip('#a8730a','#fdf0d4')}>No lleva checklist</span>
+                  :<span style={chip('#666','#eee')}>Sin checklist</span>}
+                </td>
+                <td style={{...S.td,textAlign:'right',whiteSpace:'nowrap'}}>
+                  {par?<button style={{...S.btnGrisSm,background:'#1f8b4c',color:'#fff'}} onClick={()=>abrirEditar(par)}>Ver checklist</button>
+                  :a.sinChecklist?<button style={S.btnGrisSm} title="Volver a pedir checklist para esta renta" onClick={()=>marcarSinChecklist(a,false)}>Sí lleva</button>
+                  :!a.checklist?.path&&<>
+                    <button style={S.btnSm} title="Crear el checklist de entrega con los datos de esta renta" onClick={()=>checklistDesdeRenta(a)}><IconoMas />Checklist</button>
+                    <button style={{...S.btnGrisSm,marginLeft:6}} title="Este equipo se entrega sin checklist (ej. manipuladores)" onClick={()=>marcarSinChecklist(a,true)}>No lleva</button>
+                  </>}
+                </td>
+              </tr>)
+            })}
+          </tbody></table></div>)}
       </div>
 
       <div style={{...S.card,padding:0,overflowX:'auto'}}>
