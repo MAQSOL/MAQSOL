@@ -38,7 +38,7 @@ export const CSS_ENCABEZADO = `
 /** CSS base. hoja: "auto" (el usuario elige al imprimir) o "horizontal" (carta apaisada). */
 export function cssDoc({ hoja = "auto", extra = "" } = {}) {
   return `
-    @page{size:${hoja === "horizontal" ? "letter landscape" : hoja === "vertical" ? "letter portrait" : "auto"};margin:0}
+    @page{size:${hoja === "horizontal" ? "letter landscape" : hoja === "vertical" ? "letter portrait" : "auto"};margin:10mm 9mm 16mm}
     *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     body{font-family:'Roboto Mono','Courier New',monospace;color:#222;margin:0;padding:12mm 12mm;font-size:11.5px}
     ${CSS_ENCABEZADO}
@@ -54,7 +54,11 @@ export function cssDoc({ hoja = "auto", extra = "" } = {}) {
     .m{font-size:10px;color:#777;margin-top:1px;font-family:'Roboto Mono',monospace}
     .tot{display:flex;gap:30px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px;font-size:13px}
     .pie{margin-top:14px;font-size:9px;color:#aaa;text-align:center;font-family:'Roboto Mono',monospace;letter-spacing:.3px}
-    @media print{body{padding:10mm 9mm}}
+    @media print{
+      body{padding:0}
+      /* al imprimir, el pie se dibuja en el margen inferior de cada hoja (@page @bottom-center) */
+      .pie{display:none}
+    }
     ${extra}`;
 }
 
@@ -65,8 +69,13 @@ export function encabezadoDoc(titulo, lineas = [], { folio = "" } = {}) {
   return `<div class="top"><div><h1>${esc(titulo)}</h1>${ps}</div><div class="der">${f}<img src="${LOGO_MAQSOL_TRANSPARENTE}" alt="MAQSOL"></div></div>`;
 }
 
-/** Pie discreto al final del documento. */
-export const pieDoc = (texto = "") => `<div class="pie">Documento generado desde MAQSISTEM${texto ? " · " + esc(texto) : ""}</div>`;
+/** Pie discreto: en pantalla al final; al imprimir, hasta abajo de cada hoja. */
+export const pieDoc = (texto = "") => {
+  const t = "Documento generado desde MAQSISTEM" + (texto ? " · " + texto : "");
+  // texto seguro para una cadena CSS
+  const css = t.replace(/[\\"]/g, (c) => "\\" + c).replace(/[\r\n<>]/g, " ");
+  return `<style>@page{@bottom-center{content:"${css}";font-family:'Roboto Mono',monospace;font-size:8px;color:#aaa;letter-spacing:.3px;vertical-align:middle}}</style><div class="pie">${esc(t)}</div>`;
+};
 
 /**
  * Abre la ventana y lanza imprimir ("Guardar como PDF"). `nombre` es el título de
