@@ -2,6 +2,10 @@
    MAQSISTEM — Estilo global de botones
    ============================================ */
 
+/* Todos los botones muestran la manita al pasar el cursor */
+button:not(:disabled), [role="button"], label[for], summary { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+
 /* Botón estilo Uiverse Voxybuns — efecto lift sin cambiar HTML */
 .btn-sys {
   background: #e8e8e8 !important;
