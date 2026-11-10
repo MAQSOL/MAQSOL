@@ -158,6 +158,7 @@ export default function Recepcionequipos(){
   const[modal,setModal]=useState(false)
   const[form,setForm]=useState(CHECKLIST_NUEVO)
   const[busqueda,setBusqueda]=useState('')
+  const[orden,setOrden]=useState({col:null,dir:1})
   const[fCliente,setFCliente]=useState('')
   const[fTipo,setFTipo]=useState('')
   const[folioManual,setFolioManual]=useState(false)
@@ -428,7 +429,18 @@ export default function Recepcionequipos(){
   const filtrados=registros.filter(r=>{
     const t=(r.folio+' '+r.cliente+' '+r.equipo+' '+r.marca+' '+r.serie).toLowerCase()
     return t.includes(busqueda.toLowerCase())&&(!fCliente||r.cliente===fCliente)&&(!fTipo||(r.tipo||'Salida')===fTipo)
-  }).sort((a,b)=>(a.cliente||'').localeCompare(b.cliente||'')||(b.fecha||'').localeCompare(a.fecha||''))
+  }).sort((a,b)=>{
+    if(!orden.col)return (a.cliente||'').localeCompare(b.cliente||'')||(b.fecha||'').localeCompare(a.fecha||'')
+    const v=r=>orden.col==='folio'?(r.folioSeq??''):orden.col==='tipo'?(r.tipo||'Salida'):(r[orden.col]||'')
+    const x=v(a),y=v(b)
+    const c=typeof x==='number'&&typeof y==='number'?x-y:String(x).localeCompare(String(y),'es',{numeric:true,sensitivity:'base'})
+    return c*orden.dir||(b.fecha||'').localeCompare(a.fecha||'')
+  })
+  function ordenarPor(col){setOrden(o=>o.col===col?{col,dir:-o.dir}:{col,dir:col==='fecha'?-1:1})}
+  function Th({col,children}){
+    const on=orden.col===col
+    return <th style={{...S.th,cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>ordenarPor(col)} title='Ordenar por esta columna'>{children}<span style={{marginLeft:6,fontSize:10,opacity:on?1:.35}}>{on?(orden.dir===1?'▲':'▼'):'▲▼'}</span></th>
+  }
 
   // ================= EXPORTES =================
 
@@ -515,8 +527,8 @@ export default function Recepcionequipos(){
       <div style={{...S.card,padding:0,overflowX:'auto'}}>
         <table style={{width:'100%',borderCollapse:'collapse',minWidth:1380}}>
           <thead><tr>
-            <th style={S.th}>FOLIO</th><th style={S.th}>CLIENTE</th><th style={S.th}>TIPO</th><th style={S.th}>EQUIPO</th><th style={S.th}>FECHA</th>
-            <th style={S.th}>ENTREGA</th><th style={S.th}>RECIBE</th><th style={S.th}>EXPEDIENTE</th><th style={{...S.th,width:300,textAlign:'center'}}></th>
+            <Th col='folio'>FOLIO</Th><Th col='cliente'>CLIENTE</Th><Th col='tipo'>TIPO</Th><Th col='equipo'>EQUIPO</Th><Th col='fecha'>FECHA</Th>
+            <Th col='quienEntrega'>ENTREGA</Th><Th col='quienRecibe'>RECIBE</Th><th style={S.th}>EXPEDIENTE</th><th style={{...S.th,width:300,textAlign:'center'}}></th>
           </tr></thead>
           <tbody>
             {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={9}>No hay checklists registrados. Usa "Nuevo checklist".</td></tr>
