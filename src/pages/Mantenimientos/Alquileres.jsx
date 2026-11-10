@@ -64,7 +64,8 @@ const NUEVO = {
   fechaFinalizado: "",
   origen: "",
   tipoRenta: "",
-  operadorRenta: ""
+  operadorRenta: "",
+  sinChecklist: false
 };
 
 // Cómo se renta el equipo; las que llevan operador piden su nombre
@@ -374,6 +375,7 @@ export default function Alquileres() {
     if (file.type !== "application/pdf") return alert("El checklist debe ser un archivo PDF.");
     if (file.size > MAX_PDF_MB * 1024 * 1024) return alert(`El PDF pesa más de ${MAX_PDF_MB} MB.`);
     setNuevoPdf(file);
+    setForm((f) => ({ ...f, sinChecklist: false }));
   };
 
   const quitarChecklist = () => {
@@ -623,7 +625,7 @@ export default function Alquileres() {
                     <td style={S.td}>
                       {a.checklist?.path && urls[a.checklist.path] ? (
                         <a href={urls[a.checklist.path]} target="_blank" rel="noopener noreferrer" style={{ color: "var(--acento)", fontWeight: 700 }}>Ver PDF</a>
-                      ) : a.checklist ? "…" : <span style={{ color: "#bbb" }}>Sin checklist</span>}
+                      ) : a.checklist ? "…" : a.sinChecklist ? <span style={{ background: "#fff3e0", color: "#c98a00", fontSize: 11.5, fontWeight: 700, padding: "2px 8px" }}>No lleva checklist</span> : <span style={{ color: "#bbb" }}>Sin checklist</span>}
                     </td>
                     <td style={{ ...S.td, textAlign: "center", whiteSpace: "nowrap" }}>
                       {!a.finalizado && (
@@ -888,8 +890,20 @@ export default function Alquileres() {
                     <a href={urls[form.checklist.path]} target="_blank" rel="noopener noreferrer" style={{ color: "var(--acento)", fontWeight: 700 }}>Ver</a>
                   )}
                 </p>
+              ) : form.sinChecklist ? (
+                <p style={{ margin: "0 0 8px", fontSize: 13.5, fontWeight: 700, color: "#555" }}>Marcado como <span style={{ color: "#c98a00" }}>sin checklist</span>.</p>
               ) : (
                 <p style={{ margin: "0 0 8px", color: "#aaa", fontSize: 13 }}>Aún no hay checklist.</p>
+              )}
+              {!form.checklist && !nuevoPdf && (
+                <button
+                  type="button"
+                  className="btn-sys"
+                  style={{ ...S.btnGris, marginRight: 8 }}
+                  onClick={() => set("sinChecklist", !form.sinChecklist)}
+                >
+                  {form.sinChecklist ? "Sí lleva checklist" : "Sin checklist"}
+                </button>
               )}
               <label style={{ ...S.btnGris, display: "inline-block", marginRight: 8 }}>
                 {form.checklist || nuevoPdf ? "Reemplazar PDF" : <><IconoMas />Subir checklist en PDF</>}
