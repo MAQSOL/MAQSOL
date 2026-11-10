@@ -582,7 +582,7 @@ export default function Alquileres() {
                       )}
                       {(a.fotos || []).length > 1 && <div style={{ fontSize: 11, color: "#888" }}>+{a.fotos.length - 1} más</div>}
                     </td>
-                    <td style={{ ...S.td, fontWeight: 700, cursor: "pointer" }} onClick={() => abrirEditar(a)}>
+                    <td style={{ ...S.td, fontWeight: 700, cursor: "pointer", minWidth: 220 }} onClick={() => abrirEditar(a)}>
                       {a.tipo}
                       <div style={{ fontWeight: 400, color: "#777", fontSize: 12 }}>{a.marca} {a.modelo}</div>
                       {a.serie && <div style={{ fontWeight: 400, color: "#777", fontSize: 12, whiteSpace: "nowrap" }}>Serie {a.serie}</div>}
@@ -593,8 +593,17 @@ export default function Alquileres() {
                         <span style={{ background: "#fff3e0", color: "#c98a00", fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20, marginTop: 3, display: "inline-block" }}>Subarrendada</span>
                       )}
                       {a.tipoRenta && (
-                        <div style={{ fontWeight: 400, fontSize: 12, color: "#444", marginTop: 4 }}>
-                          {tipoRentaTexto(a.tipoRenta)}{a.operadorRenta ? ` · Operador: ${a.operadorRenta}` : ""}
+                        <div style={{ marginTop: 6, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4 }}>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#f1f1f1", color: "#333", border: "1px solid #d6d6d6", fontSize: 11, fontWeight: 800, letterSpacing: 0.3, textTransform: "uppercase", padding: "3px 8px" }}>
+                            {/combustible/.test(a.tipoRenta) && <span title="Incluye combustible">⛽</span>}
+                            {tipoRentaTexto(a.tipoRenta)}
+                          </span>
+                          {a.operadorRenta && (
+                            <span style={{ fontSize: 12.5, color: "#222", fontWeight: 400 }}>
+                              <span style={{ color: "#888", fontSize: 11, fontWeight: 700, letterSpacing: 0.4 }}>OPERADOR </span>
+                              <strong>{a.operadorRenta}</strong>
+                            </span>
+                          )}
                         </div>
                       )}
                     </td>
