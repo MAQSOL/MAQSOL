@@ -622,7 +622,7 @@ export default function Alquileres() {
             <thead>
               <tr>
                 <th style={S.th}>FOTO</th>{thOrden("equipo", "EQUIPO")}{thOrden("cliente", "CLIENTE")}{thOrden("obra", "OBRA")}
-                {thOrden("periodo", "PERIODO")}{thOrden("estado", "ESTADO")}<th style={S.th}>CHECKLIST</th><th style={{ ...S.th, width: 230 }}></th>
+                {thOrden("periodo", "PERIODO")}{thOrden("estado", "ESTADO")}<th style={S.th}>CHECKLIST</th><th style={{ ...S.th, width: 160 }}></th>
               </tr>
             </thead>
             <tbody>
@@ -701,23 +701,26 @@ export default function Alquileres() {
                     <td style={S.td}>
                       <CeldaChecklist a={a} urls={urls} cl={checklistsDe(a)} />
                     </td>
-                    <td style={{ ...S.td, textAlign: "center", whiteSpace: "nowrap" }}>
-                      {!a.finalizado && (
-                        <button
-                          className="btn-sys btn-verde"
-                          style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13, marginRight: 6 }}
-                          onClick={() => setRenovando(a)}
-                          title="El cliente renovó: registrar el nuevo periodo"
-                        >
-                          ↻ Renovar
-                        </button>
-                      )}
-                      <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => finalizar(a)} title={a.finalizado ? "Reabrir alquiler" : "Marcar como terminado / devuelto"}>
-                        {a.finalizado ? "Reabrir" : "✓ Terminar"}
-                      </button>
-                      <span style={{ marginLeft: 6, display: "inline-block" }}>
+                    <td style={{ ...S.td, whiteSpace: "nowrap" }}>
+                      {/* Renovar arriba de Terminar para ocupar menos ancho */}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, flexWrap: "nowrap" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10, width: 118, flexWrap: "nowrap" }}>
+                          {!a.finalizado && (
+                            <button
+                              className="btn-sys btn-verde"
+                              style={{ ...S.btnGris, padding: "6px 10px", fontSize: 13, width: "100%" }}
+                              onClick={() => setRenovando(a)}
+                              title="El cliente renovó: registrar el nuevo periodo"
+                            >
+                              ↻ Renovar
+                            </button>
+                          )}
+                          <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 10px", fontSize: 13, width: "100%" }} onClick={() => finalizar(a)} title={a.finalizado ? "Reabrir alquiler" : "Marcar como terminado / devuelto"}>
+                            {a.finalizado ? "Reabrir" : "✓ Terminar"}
+                          </button>
+                        </div>
                         <DeleteButton size="sm" title="Eliminar alquiler" onConfirm={() => eliminar(a)} />
-                      </span>
+                      </div>
                     </td>
                   </tr>
                 );
