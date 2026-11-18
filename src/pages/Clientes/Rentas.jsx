@@ -291,7 +291,7 @@ const generarPDF = () => {
 
 // FRANJA NEGRA DE ACENTO
 doc.setFillColor(20, 20, 20);
-doc.rect(0, 23, 19, 12, "F");
+doc.rect(0, 24.5, 19, 9, "F");
 
 // LOGO
 doc.addImage(
@@ -307,7 +307,11 @@ doc.addImage(
 doc.setFont("helvetica", "bold");
 doc.setFontSize(22);
 doc.setTextColor(17, 17, 17);
-doc.text("MAQSOL", 54, 23, { charSpace: 2.2 });
+// contorno del mismo color para que la letra se vea más gruesa
+doc.setDrawColor(17, 17, 17);
+doc.setLineWidth(0.45);
+doc.text("MAQSOL", 54, 23, { charSpace: 2.2, renderingMode: "fillThenStroke" });
+doc.setLineWidth(0.2);
 
 doc.setFont("helvetica", "normal");
 doc.setFontSize(8.5);
