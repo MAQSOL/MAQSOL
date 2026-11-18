@@ -303,15 +303,15 @@ doc.addImage(
   25.8
 );
 
-// NOMBRE Y DESCRIPCIÓN DE EMPRESA
-doc.setFont("courier", "bold");
-doc.setFontSize(23);
-doc.setTextColor(0, 0, 0);
-doc.text("MAQSOL", 54, 23);
+// NOMBRE Y DESCRIPCIÓN DE EMPRESA (tipografía minimalista, letras espaciadas)
+doc.setFont("helvetica", "bold");
+doc.setFontSize(22);
+doc.setTextColor(17, 17, 17);
+doc.text("MAQSOL", 54, 23, { charSpace: 2.2 });
 
-doc.setFont("courier", "normal");
-doc.setFontSize(9);
-doc.setTextColor(100, 100, 100);
+doc.setFont("helvetica", "normal");
+doc.setFontSize(8.5);
+doc.setTextColor(60, 60, 60);
 doc.text(
   "Soluciones prácticas y eficientes en la renta y venta",
   54,
@@ -326,9 +326,15 @@ doc.text(
 doc.setTextColor(0, 0, 0);
 
 // TÍTULO COTIZACIÓN
-doc.setFont("courier", "bold");
-doc.setFontSize(16);
-doc.text(renovacion ? "COTIZACIÓN · RENOVACIÓN" : "COTIZACIÓN", 190, 15, { align: "right" });
+{
+  const titulo = renovacion ? "COTIZACIÓN · RENOVACIÓN" : "COTIZACIÓN";
+  const esp = 0.9;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(15);
+  doc.setTextColor(17, 17, 17);
+  const ancho = doc.getTextWidth(titulo) + esp * (titulo.length - 1);
+  doc.text(titulo, 190 - ancho, 15, { charSpace: esp });
+}
 
 doc.addImage(
   margen,
@@ -339,10 +345,9 @@ doc.addImage(
   12
 );
 
-doc.setFont("courier", "normal");
+doc.setFont("helvetica", "normal");
 doc.setFontSize(11);
 doc.setTextColor(0, 0, 0);
-doc.text("www.maqsol.com.mx", 105, 283, { align: "center" });
 
   let y = 60;
 
@@ -359,8 +364,9 @@ const verificarPagina = () => {
 
 // FOLIO Y FECHA
 
-doc.setFont("courier", "normal");
-doc.setFontSize(9);
+doc.setFont("helvetica", "normal");
+doc.setFontSize(8.5);
+doc.setTextColor(70, 70, 70);
 
 doc.text(
   `Folio: ${folio}`,
@@ -393,7 +399,7 @@ const dibujarTablaDatos = (columnas, anchos, valores, xInicio, yInicio) => {
 
     doc.setFillColor(0, 0, 0);
     doc.rect(x, yInicio, anchos[i], 6, "F");
-    doc.setFont("courier", "bold");
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
     doc.setTextColor(255, 255, 255);
     doc.text(col, x + anchos[i] / 2, yInicio + 4, { align: "center" });
@@ -402,7 +408,7 @@ const dibujarTablaDatos = (columnas, anchos, valores, xInicio, yInicio) => {
     doc.setLineWidth(0.1);
     doc.rect(x, yInicio + 6, anchos[i], altoFila);
 
-    doc.setFont("courier", "normal");
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(0, 0, 0);
     doc.text(lineasPorCelda[i], x + 2, yInicio + 6 + 4);
@@ -439,7 +445,7 @@ yBloques = dibujarTablaDatos(
 
 const yRentas = yBloques;
 
-doc.setFont("courier", "bold");
+doc.setFont("helvetica", "bold");
 doc.setFontSize(10);
 doc.setTextColor(0, 0, 0);
 doc.text("1.0 RENTA DEL EQUIPO", 20, yRentas + 3);
@@ -450,13 +456,13 @@ doc.rect(20, yRentas + 6, 95, 8, "F");
 doc.rect(115, yRentas + 6, 45, 8, "F");
 doc.rect(160, yRentas + 6, 30, 8, "F");
 
-doc.setFont("courier", "bold");
+doc.setFont("helvetica", "bold");
 doc.text("DESCRIPCION", 67, yRentas + 11, { align: "center" });
 doc.text("PERIODO", 137, yRentas + 11, { align: "center" });
 doc.text("IMPORTE", 175, yRentas + 11, { align: "center" });
 
 doc.setTextColor(0, 0, 0);
-doc.setFont("courier", "normal");
+doc.setFont("helvetica", "normal");
 
 let yFilaRenta = yRentas + 14;
 
@@ -507,11 +513,11 @@ const hayTraslados = !renovacion && traslados.some(
 let yAfterTraslados = yAfterRentas;
 
 if (renovacion) {
-  doc.setFont("courier", "bold");
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
   doc.setTextColor(0, 0, 0);
   doc.text("1.1 RENOVACIÓN", 20, yAfterRentas + 3);
-  doc.setFont("courier", "normal");
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.text("No incluye flete: el traslado ya se cubrió en la renta original.", 20, yAfterRentas + 9);
   yAfterTraslados = yAfterRentas + 18;
@@ -519,7 +525,7 @@ if (renovacion) {
 
 if (hayTraslados) {
 
-  doc.setFont("courier", "bold");
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
 doc.text("1.1 TRASLADOS", 20, yAfterRentas + 3);
 
@@ -528,12 +534,12 @@ doc.text("1.1 TRASLADOS", 20, yAfterRentas + 3);
   doc.rect(20, yAfterRentas + 6, 140, 8, "F");
   doc.rect(160, yAfterRentas + 6, 30, 8, "F");
 
-  doc.setFont("courier", "bold");
+  doc.setFont("helvetica", "bold");
   doc.text("DESCRIPCION", 90, yAfterRentas + 11, { align: "center" });
   doc.text("IMPORTE", 175, yAfterRentas + 11, { align: "center" });
 
   doc.setTextColor(0, 0, 0);
-  doc.setFont("courier", "normal");
+  doc.setFont("helvetica", "normal");
 
   let yFilaTraslado = yAfterRentas + 14;
 
@@ -573,11 +579,11 @@ doc.text("1.1 TRASLADOS", 20, yAfterRentas + 3);
 // RESUMEN FINANCIERO Y OBSERVACIONES
 // ==========================
 
-doc.setFont("courier", "bold");
+doc.setFont("helvetica", "bold");
 doc.setFontSize(10);
 doc.text("OBSERVACIONES", 20, yAfterTraslados);
 
-doc.setFont("courier", "normal");
+doc.setFont("helvetica", "normal");
 doc.setFontSize(8.5);
 
 const observacionesTexto = doc.splitTextToSize(observaciones, 100);
@@ -586,7 +592,7 @@ doc.text(observacionesTexto, 20, yAfterTraslados + 8);
 
 const finObservaciones = yAfterTraslados + 10 + (observacionesTexto.length * 5);
 
-doc.setFont("courier", "normal");
+doc.setFont("helvetica", "normal");
 doc.setFontSize(9);
 
 doc.text("Subtotal:", 140, yAfterTraslados);
@@ -624,7 +630,7 @@ doc.text(
 doc.setFillColor(128, 0, 32);
 doc.rect(129, yAfterTraslados + 26, 61, 10, "F");
 doc.setTextColor(255, 255, 255);
-doc.setFont("courier", "bold");
+doc.setFont("helvetica", "bold");
 doc.setFontSize(11);
 
 doc.text("TOTAL:", 134, yAfterTraslados + 33);
@@ -649,11 +655,11 @@ if (y > 240) {
   y = 20;
 }
 
-doc.setFont("courier", "bold");
+doc.setFont("helvetica", "bold");
 doc.setFontSize(10);
 doc.text("TERMINOS Y CONDICIONES", 20, y);
 
-doc.setFont("courier", "normal");
+doc.setFont("helvetica", "normal");
 doc.setFontSize(8.5);
 
 const clausulasTexto = doc.splitTextToSize(clausulas, 165);
@@ -697,7 +703,7 @@ doc.line(135, yPie + 8, 135, yPie + altoPie - 8);
 doc.setTextColor(255, 255, 255);
 
 // Columna 1: Firma
-doc.setFont("courier", "bold");
+doc.setFont("helvetica", "bold");
 doc.setFontSize(11);
 doc.text("Atentamente", 22, yPie + 11);
 
@@ -705,18 +711,18 @@ doc.setDrawColor(255, 255, 255);
 doc.setLineWidth(0.3);
 doc.line(22, yPie + 23, 60, yPie + 23);
 
-doc.setFont("courier", "normal");
+doc.setFont("helvetica", "normal");
 doc.setFontSize(10);
 doc.text(datosVendedor[codigoUsuario]?.nombre || nombrePorCodigo[codigoUsuario] || "Lic. Alejandro Balam", 22, yPie + 30);
 doc.text(datosVendedor[codigoUsuario]?.telefono || telefonoPorCodigo[codigoUsuario] || "+52 998 215 7262", 22, yPie + 36);
 doc.text("Área Comercial", 22, yPie + 42);
 
 // Columna 2: Cuentas Bancarias MXN
-doc.setFont("courier", "bold");
+doc.setFont("helvetica", "bold");
 doc.setFontSize(11);
 doc.text("Cuenta en MXN:", 78, yPie + 11);
 
-doc.setFont("courier", "normal");
+doc.setFont("helvetica", "normal");
 doc.setFontSize(8.5);
 doc.text("BANCOMER Pesos - Suc. 1781", 78, yPie + 19);
 doc.text("Cuenta: 0112453290", 78, yPie + 25);
@@ -724,11 +730,11 @@ doc.text("CLABE:", 78, yPie + 31);
 doc.text("012691001124532902", 78, yPie + 36);
 
 // Columna 3: Cuentas Bancarias USD
-doc.setFont("courier", "bold");
+doc.setFont("helvetica", "bold");
 doc.setFontSize(11);
 doc.text("Cuenta en USD:", 141, yPie + 11);
 
-doc.setFont("courier", "normal");
+doc.setFont("helvetica", "normal");
 doc.setFontSize(8.5);
 doc.text("BANCOMER Dólares - Suc. 1781", 141, yPie + 19);
 doc.text("Cuenta: 0113448126", 141, yPie + 25);
