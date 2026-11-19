@@ -105,3 +105,9 @@ button[style*="background: var(--acento)"]:disabled { transform: none; box-shado
 .tarjeta-min > *:nth-child(n+3) { display: none !important; }
 .tarjeta-min h2 { margin-bottom: 0 !important; }
 .tarjeta-min > *:nth-child(2) { margin-bottom: 0 !important; }
+
+/* Pago del cliente en Rentas Activas */
+.btn-sys.btn-pagado { background: #e3f5ea !important; color: #17663a !important; border-color: #1f8b4c !important; }
+.btn-sys.btn-pagado:hover { background: #cdeedb !important; }
+.btn-sys.btn-nopagado { background: #c62828 !important; color: #fff !important; }
+.btn-sys.btn-nopagado:hover { background: #a82020 !important; }

@@ -7,7 +7,7 @@ import { useCatalogo, useListaCompartida, useSharedTable } from "../../hooks/use
 import { TIPOS_EQUIPO } from "../../utils/catalogoEquipos";
 import { buscarCliente } from "../../utils/expediente";
 import { descargarExcelBonito, nombreArchivoFecha } from "../../utils/exportExcel";
-import { S, fFecha, hoyISO } from "../Administracion/estilosAdmin";
+import { S, fFecha, hoyISO, dinero } from "../Administracion/estilosAdmin";
 import { IconoMas } from "../../components/Icons";
 import CampoFecha from "../../components/CampoFecha";
 
@@ -216,6 +216,83 @@ function ModalRenovar({ alquiler, onGuardar, onCerrar }) {
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
           <button className="btn-sys" style={S.btnGris} onClick={onCerrar}>Cancelar</button>
           <button className="btn-sys" style={S.btn} onClick={guardar}>Guardar renovación</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------- Pagos del cliente ----------
+// Cada pago queda ligado al periodo en que se registró: al renovar, el nuevo periodo empieza "sin pagar".
+const METODOS_PAGO = ["Transferencia", "Efectivo", "Cheque", "Tarjeta", "Otro"];
+const pagoDelPeriodo = (a) => (a.pagos || []).find((p) => p.periodoInicio === a.fechaInicio && p.periodoFin === a.fechaFin) || null;
+
+function ModalPago({ alquiler, onGuardar, onCerrar }) {
+  const pagado = pagoDelPeriodo(alquiler);
+  const [f, setF] = useState({ fecha: hoyISO(), monto: "", metodo: "Transferencia", referencia: "", nota: "" });
+  const [error, setError] = useState("");
+  const pagos = [...(alquiler.pagos || [])].sort((x, y) => String(y.fecha).localeCompare(String(x.fecha)));
+
+  const registrar = () => {
+    if (!f.fecha) return setError("Pon la fecha del pago.");
+    const monto = f.monto === "" ? "" : Number(String(f.monto).replace(/[$,\s]/g, ""));
+    if (f.monto !== "" && (isNaN(monto) || monto <= 0)) return setError("El monto no es válido.");
+    const nuevo = { id: "PG-" + Date.now(), ...f, monto, periodoInicio: alquiler.fechaInicio, periodoFin: alquiler.fechaFin, registrado: hoyISO() };
+    onGuardar([...(alquiler.pagos || []), nuevo]);
+    onCerrar();
+  };
+  const quitar = (p) => {
+    if (!window.confirm("¿Quitar este pago? El periodo quedará como no pagado si era su único pago.")) return;
+    onGuardar((alquiler.pagos || []).filter((x) => x.id !== p.id));
+  };
+
+  return (
+    <div style={S.modalBg} onClick={onCerrar}>
+      <div style={{ ...S.modal, maxWidth: 620 }} onClick={(e) => e.stopPropagation()}>
+        <h2 style={{ margin: "0 0 4px" }}>Pago del cliente</h2>
+        <p style={{ color: "#777", margin: "0 0 14px", fontSize: 14 }}>
+          {[alquiler.tipo, alquiler.marca, alquiler.modelo].filter(Boolean).join(" ")} · {alquiler.cliente}
+          <br />Periodo actual: {fFecha(alquiler.fechaInicio)} → {fFecha(alquiler.fechaFin)}
+        </p>
+
+        <div style={{ padding: "12px 14px", marginBottom: 16, border: "2px solid " + (pagado ? "#1f8b4c" : "#c62828"), background: pagado ? "#eaf7ef" : "#fdecec", fontWeight: 700, color: pagado ? "#1b6e3d" : "#a32020" }}>
+          {pagado
+            ? <>✓ Pagado el {fFecha(pagado.fecha)}{pagado.monto !== "" ? " · " + dinero(pagado.monto) : ""}{pagado.metodo ? " · " + pagado.metodo : ""}</>
+            : <>✕ Este periodo todavía no está pagado</>}
+        </div>
+
+        <label style={{ ...S.label, fontSize: 13 }}>REGISTRAR PAGO</label>
+        <div style={S.grid2}>
+          <div><label style={S.label}>FECHA DEL PAGO</label><CampoFecha style={S.input} value={f.fecha} onChange={(e) => { setF({ ...f, fecha: e.target.value }); setError(""); }} /></div>
+          <div><label style={S.label}>MONTO (OPCIONAL)</label><input style={S.input} inputMode="decimal" value={f.monto} onChange={(e) => { setF({ ...f, monto: e.target.value }); setError(""); }} placeholder="Ej. 16692.31" /></div>
+        </div>
+        <div style={S.grid2}>
+          <div><label style={S.label}>MÉTODO</label><select style={S.input} value={f.metodo} onChange={(e) => setF({ ...f, metodo: e.target.value })}>{METODOS_PAGO.map((m) => <option key={m}>{m}</option>)}</select></div>
+          <div><label style={S.label}>FACTURA / REFERENCIA</label><input style={S.input} value={f.referencia} onChange={(e) => setF({ ...f, referencia: e.target.value })} placeholder="Ej. folio de factura o transferencia" /></div>
+        </div>
+        {error && <p style={{ color: "#c62828", fontSize: 13, margin: "-4px 0 10px" }}>{error}</p>}
+
+        {pagos.length > 0 && (
+          <div style={{ margin: "6px 0 16px" }}>
+            <label style={S.label}>PAGOS REGISTRADOS</label>
+            {pagos.map((p) => {
+              const actual = p.periodoInicio === alquiler.fechaInicio && p.periodoFin === alquiler.fechaFin;
+              return (
+                <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, padding: "7px 0", borderBottom: "1px solid #eee", fontSize: 13 }}>
+                  <span>
+                    <b>{fFecha(p.fecha)}</b>{p.monto !== "" && p.monto != null ? " · " + dinero(p.monto) : ""}{p.metodo ? " · " + p.metodo : ""}{p.referencia ? " · " + p.referencia : ""}
+                    <span style={{ display: "block", color: actual ? "#1b6e3d" : "#999", fontSize: 11.5 }}>Periodo {fFecha(p.periodoInicio)} → {fFecha(p.periodoFin)}{actual ? " (actual)" : ""}</span>
+                  </span>
+                  <button className="btn-sys" style={{ ...S.btnGris, padding: "4px 10px", fontSize: 12 }} onClick={() => quitar(p)}>Quitar</button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+          <button className="btn-sys" style={S.btnGris} onClick={onCerrar}>Cerrar</button>
+          <button className="btn-sys btn-verde" style={S.btn} onClick={registrar}>Registrar pago</button>
         </div>
       </div>
     </div>
@@ -497,6 +574,12 @@ export default function Alquileres() {
     setRenovando(null);
   };
 
+  const [cobrando, setCobrando] = useState(null);
+  const guardarPagos = (a, pagos) => {
+    guardarAlquileres(alquileres.map((x) => (x.id === a.id ? { ...x, pagos } : x)));
+    setCobrando((c) => (c ? { ...c, pagos } : c));
+  };
+
   const finalizar = (a) =>
     guardarAlquileres(
       alquileres.map((x) =>
@@ -645,8 +728,8 @@ export default function Alquileres() {
                     </td>
                     <td style={{ ...S.td, fontWeight: 700, cursor: "pointer", minWidth: 220 }} onClick={() => abrirEditar(a)}>
                       {a.tipo}
-                      <div style={{ fontWeight: 400, color: "#777", fontSize: 12 }}>{a.marca} {a.modelo}</div>
-                      {a.serie && <div style={{ fontWeight: 400, color: "#777", fontSize: 12, whiteSpace: "nowrap" }}>Serie {a.serie}</div>}
+                      <div style={{ fontWeight: 400, color: "#777", fontSize: 12 }}>{a.marca} <span style={{ color: "#0b3d91", fontWeight: 700 }}>{a.modelo}</span></div>
+                      {a.serie && <div style={{ fontWeight: 400, color: "#777", fontSize: 12, whiteSpace: "nowrap" }}>Serie <span style={{ color: "#0b3d91", fontWeight: 700 }}>{a.serie}</span></div>}
                       {(a.origen === "propio" || a.origen === "externo" || a.tipoRenta) && (
                         <div style={{ marginTop: 6, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4 }}>
                           {a.origen === "propio" && (
@@ -668,7 +751,7 @@ export default function Alquileres() {
                           {a.operadorRenta && (
                             <span style={{ fontSize: 12.5, color: "#222", fontWeight: 400 }}>
                               <span style={{ color: "#888", fontSize: 11, fontWeight: 700, letterSpacing: 0.4 }}>OPERADOR </span>
-                              <strong>{a.operadorRenta}</strong>
+                              <strong style={{ color: "#0a9b45" }}>{a.operadorRenta}</strong>
                             </span>
                           )}
                         </div>
@@ -718,6 +801,20 @@ export default function Alquileres() {
                           <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 10px", fontSize: 13, width: "100%" }} onClick={() => finalizar(a)} title={a.finalizado ? "Reabrir alquiler" : "Marcar como terminado / devuelto"}>
                             {a.finalizado ? "Reabrir" : "✓ Terminar"}
                           </button>
+                          {(() => {
+                            const pg = pagoDelPeriodo(a);
+                            return (
+                              <button
+                                className={"btn-sys " + (pg ? "btn-pagado" : "btn-nopagado")}
+                                style={{ ...S.btnGris, padding: "6px 10px", fontSize: 13, width: "100%", lineHeight: 1.2 }}
+                                onClick={() => setCobrando(a)}
+                                title={pg ? "Ver o registrar pagos" : "El cliente no ha pagado este periodo: registrar pago"}
+                              >
+                                {pg ? "$ Pagado" : "$ No pagado"}
+                                {pg && <span style={{ display: "block", fontSize: 10.5, fontWeight: 500 }}>{fFecha(pg.fecha)}</span>}
+                              </button>
+                            );
+                          })()}
                         </div>
                         <DeleteButton size="sm" title="Eliminar alquiler" onConfirm={() => eliminar(a)} />
                       </div>
@@ -730,6 +827,7 @@ export default function Alquileres() {
         </div>
       </div>
 
+      {cobrando && <ModalPago alquiler={cobrando} onGuardar={(pagos) => guardarPagos(cobrando, pagos)} onCerrar={() => setCobrando(null)} />}
       {renovando && <ModalRenovar alquiler={renovando} onGuardar={(r) => renovar(renovando, r)} onCerrar={() => setRenovando(null)} />}
 
       {modal && (
