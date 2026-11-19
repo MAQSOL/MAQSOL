@@ -279,6 +279,24 @@ export default function EquiposInternos(){
   }
   function actual(){return ultimoEnviado.current[activoId]||getActivo()}
   function actualizarCampo(c,v){const a=actual();if(!a)return;guardarRapido(a.id,{...a,[c]:v})}
+  // Cambiar el estado desde la tabla (sin abrir la ficha); al ponerlo fuera de servicio pide el motivo
+  function cambiarEstadoTabla(e,valor){
+    const base=ultimoEnviado.current[e.id]||e
+    if(valor===(base.estadoOperativo||'Operativo'))return
+    if(valor==='Fuera de servicio'){
+      const motivo=window.prompt('¿Por qué está fuera de servicio? (puedes dejarlo vacío)',base.comentarioEstado||'')
+      if(motivo===null)return
+      guardarRapido(e.id,{...base,estadoOperativo:valor,fueraServicioDesde:new Date().toISOString().slice(0,10),comentarioEstado:motivo.trim()})
+    }else{
+      guardarRapido(e.id,{...base,estadoOperativo:'Operativo',fueraServicioDesde:''})
+    }
+  }
+  function editarComentarioTabla(e){
+    const base=ultimoEnviado.current[e.id]||e
+    const t=window.prompt('Comentarios del estado:',base.comentarioEstado||'')
+    if(t===null)return
+    guardarRapido(e.id,{...base,comentarioEstado:t.trim()})
+  }
   function actualizarCampos(cambios){const a=actual();if(!a)return;guardarRapido(a.id,{...a,...cambios})}
   function getActivo(){return equipos.find(e=>e.id===activoId)}
 
@@ -833,7 +851,13 @@ export default function EquiposInternos(){
               <td style={{...S.td,fontWeight:700}}>{e.tipo}</td><td style={S.td}>{e.marca}</td><td style={S.td}>{e.modelo}</td><td style={S.td}>{e.serie}</td>
               <td style={S.td}>{conHoras(e.horometro)||'—'}</td><td style={S.td}>{e.operador||<span style={{color:'#c98a00',fontWeight:700}}>Sin operador</span>}</td>
               <td style={S.td}>{e.ubicacion}</td>
-              <td style={{...S.td,minWidth:150,maxWidth:220}}><BadgeEstadoEq e={e}/>{e.comentarioEstado&&<div title={e.comentarioEstado} style={{fontSize:12,color:fueraDeServicio(e)?'#a32020':'#666',marginTop:5,lineHeight:1.3,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{e.comentarioEstado}</div>}</td>
+              <td style={{...S.td,minWidth:170,maxWidth:230}} onClick={ev=>ev.stopPropagation()}>
+                <select className={'sel-estado-eq '+(fueraDeServicio(e)?'fuera':'ok')} value={fueraDeServicio(e)?'Fuera de servicio':'Operativo'} onChange={ev=>cambiarEstadoTabla(e,ev.target.value)} title="Cambiar el estado del equipo">
+                  <option value="Operativo">✓ Operativo</option>
+                  <option value="Fuera de servicio">✕ Fuera de servicio</option>
+                </select>
+                <div onClick={()=>editarComentarioTabla(e)} title="Clic para escribir o cambiar el comentario" style={{cursor:'pointer',fontSize:12,color:e.comentarioEstado?(fueraDeServicio(e)?'#a32020':'#666'):'#aaa',marginTop:6,lineHeight:1.3,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{e.comentarioEstado||'+ Agregar comentario'}</div>
+              </td>
               <td style={{...S.td,minWidth:200}}>{ultimoMantto(e)?<span style={{display:"flex",flexDirection:"column",gap:4}}><span style={{fontSize:13}}>{fFecha(ultimoMantto(e).fecha)}</span><BadgeMantto tipo={ultimoMantto(e).tipoMantto}/></span>:<span style={{color:"#999"}}>Sin registro</span>}</td><td style={S.td}><Semaforo fecha={e.proximoMantto}/></td>
               <td style={{...S.td,textAlign:'center'}} onClick={ev=>ev.stopPropagation()}><DeleteButton size="sm" title="Eliminar equipo" onConfirm={()=>eliminarEquipo(e)}/></td>
             </tr>))}

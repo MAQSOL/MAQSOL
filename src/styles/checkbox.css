@@ -70,3 +70,7 @@
   70%  { transform: scale(1.2) rotate(40deg); }
   100% { transform: scale(1) rotate(40deg); opacity: 1; }
 }
+
+/* Variante verde (palomita de Pendientes en el Panel) */
+.chk-sys.chk-verde input:checked ~ .checkmark { background-color: #1f9d55; }
+.chk-sys.chk-pendiente { font-size: 20px; }

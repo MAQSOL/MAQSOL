@@ -478,14 +478,14 @@ function Dashboard() {
 
                   <div className="acciones-pendiente">
 
-                    <button
-                      className="btn-check"
-                      onClick={() =>
-                        togglePendiente(item)
-                      }
-                    >
-                      ✓
-                    </button>
+                    <label className="chk-sys chk-verde chk-pendiente" title={item.completado ? "Marcar como no hecho" : "Marcar como hecho"}>
+                      <input
+                        type="checkbox"
+                        checked={!!item.completado}
+                        onChange={() => togglePendiente(item)}
+                      />
+                      <span className="checkmark" />
+                    </label>
 
                     {(
                       <DeleteButton
