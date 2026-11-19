@@ -1,5 +1,5 @@
 ﻿import { useState } from 'react'
-import { useListaCompartida, useListaCatalogo } from '../../hooks/useSharedTable'
+import { useListaCompartida, useListaCatalogo, useCatalogo, useSharedTable } from '../../hooks/useSharedTable'
 import Sidebar from '../../components/Sidebar'
 import DeleteButton from '../../components/DeleteButton'
 import { descargarExcelBonito, nombreArchivoSemana } from '../../utils/exportExcel'
@@ -22,6 +22,10 @@ const FLETE_NUEVO = {
 }
 
 const RECEPTORES_SUGERIDOS = ['Lic. Francisco Torres','Damián']
+const LUGARES_BASE = ['Patio MAQSOL','Cancún','Playa del Carmen','Tulum','Mérida','Chetumal','Cozumel','Taller']
+const nombreEquipo=(e)=>[e.tipo,e.marca,e.modelo].filter(Boolean).join(' ')
+// sin repetidos (ignorando mayúsculas y espacios), en orden alfabético
+const unicos=(lista)=>{const m=new Map();lista.forEach(v=>{const t=String(v||'').trim();if(t&&!m.has(t.toLowerCase()))m.set(t.toLowerCase(),t)});return [...m.values()].sort((a,b)=>a.localeCompare(b,'es'))}
 
 const S = {
   page:{padding:'24px 28px',fontFamily:'inherit',color:'#222',flex:1,overflowY:'auto'},
@@ -147,6 +151,23 @@ export default function BitacoraFleteros(){
   const[fletes,guardarFletes]=useListaCompartida('fletes')
   const[empresas,guardarEmpresas]=useListaCatalogo('empresas_flete')
   const[clientesDB]=useListaCompartida('clientes')
+  // pre-selección de equipo: internos, subarrendados y los que están en renta
+  const{registros:eqInternos}=useSharedTable('equipos_internos')
+  const{registros:eqExternos}=useSharedTable('equipos_externos')
+  const[alquileresDB]=useListaCompartida('alquileres')
+  const{valores:ubicacionesCat}=useCatalogo('ubicaciones')
+  const opcionesEquipo=[
+    ...eqInternos.map(e=>({k:'I-'+e.id,grupo:'Equipos internos (MAQSOL)',equipo:nombreEquipo(e),serie:e.serie||'',lugar:e.ubicacion||''})),
+    ...eqExternos.filter(e=>e.estado!=='Devuelto').map(e=>({k:'X-'+e.id,grupo:'Equipos subarrendados',equipo:nombreEquipo(e),serie:e.serie||'',lugar:e.ubicacion||'',cliente:e.cliente||''})),
+    ...alquileresDB.filter(a=>!a.finalizado).map(a=>({k:'A-'+a.id,grupo:'En renta ahora',equipo:nombreEquipo(a),serie:a.serie||'',lugar:a.obra||a.direccionObra||'',cliente:a.cliente||''}))
+  ].filter(o=>o.equipo)
+  const lugares=unicos([...LUGARES_BASE,...ubicacionesCat,...fletes.flatMap(f=>[f.origen,f.destino])])
+  const receptores=unicos([...RECEPTORES_SUGERIDOS,...fletes.map(f=>f.entregadoA)])
+  function preseleccionarEquipo(k){
+    const o=opcionesEquipo.find(x=>x.k===k);if(!o)return
+    // llena equipo y serie; el origen sale de su ubicación (o de la obra si está en renta) si aún está vacío
+    setForm(f=>({...f,equipo:o.equipo,serieEquipo:o.serie||f.serieEquipo,origen:f.origen||o.lugar}))
+  }
   const[modal,setModal]=useState(false)
   const[form,setForm]=useState(FLETE_NUEVO)
   const[verFlete,setVerFlete]=useState(null)
@@ -348,20 +369,32 @@ export default function BitacoraFleteros(){
           </div>
         </div>
 
+        {opcionesEquipo.length>0&&<div style={{marginBottom:12}}>
+          <label style={S.label}>PRE-SELECCIONAR EQUIPO</label>
+          <select style={S.input} value="" onChange={ev=>preseleccionarEquipo(ev.target.value)}>
+            <option value="">Elige un equipo para llenar equipo y serie…</option>
+            {[...new Set(opcionesEquipo.map(o=>o.grupo))].map(g=>(
+              <optgroup key={g} label={g}>
+                {opcionesEquipo.filter(o=>o.grupo===g).map(o=><option key={o.k} value={o.k}>{o.equipo}{o.serie?' · '+o.serie:''}{o.cliente?' · '+o.cliente:''}</option>)}
+              </optgroup>
+            ))}
+          </select>
+        </div>}
         <div style={S.grid2}>
           <div><label style={S.label}>EQUIPO QUE SE MOVIÓ</label><input style={S.input} value={form.equipo} onChange={ev=>setForm({...form,equipo:ev.target.value})} placeholder="Ej. Manipulador telescópico Genie GTH1056"/></div>
           <div><label style={S.label}>SERIE DEL EQUIPO</label><input style={S.input} value={form.serieEquipo} onChange={ev=>setForm({...form,serieEquipo:ev.target.value})}/></div>
         </div>
 
         <div style={S.grid2}>
-          <div><label style={S.label}>ORIGEN</label><input style={S.input} value={form.origen} onChange={ev=>setForm({...form,origen:ev.target.value})} placeholder="Ej. Patio MAQSOL"/></div>
-          <div><label style={S.label}>DESTINO</label><input style={S.input} value={form.destino} onChange={ev=>setForm({...form,destino:ev.target.value})} placeholder="Ej. Mérida"/></div>
+          <div><label style={S.label}>ORIGEN</label><input style={S.input} list="lugares-flete" value={form.origen} onChange={ev=>setForm({...form,origen:ev.target.value})} placeholder="Escribe o elige, ej. Patio MAQSOL"/></div>
+          <div><label style={S.label}>DESTINO</label><input style={S.input} list="lugares-flete" value={form.destino} onChange={ev=>setForm({...form,destino:ev.target.value})} placeholder="Escribe o elige, ej. Mérida"/></div>
+          <datalist id="lugares-flete">{lugares.map(l=><option key={l} value={l}/>)}</datalist>
         </div>
 
         <div style={{marginBottom:14}}>
           <label style={S.label}>ENTREGADO A</label>
           <input style={S.input} list="receptores-flete" value={form.entregadoA||''} onChange={ev=>setForm({...form,entregadoA:ev.target.value})} placeholder="¿A quién se entregó el equipo?"/>
-          <datalist id="receptores-flete">{RECEPTORES_SUGERIDOS.map(r=><option key={r} value={r}/>)}</datalist>
+          <datalist id="receptores-flete">{receptores.map(r=><option key={r} value={r}/>)}</datalist>
         </div>
 
         <div style={{marginBottom:14}}>
