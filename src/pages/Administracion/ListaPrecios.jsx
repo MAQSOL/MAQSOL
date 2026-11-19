@@ -130,8 +130,8 @@ function EquiposRenta({ equipos, guardar }) {
     const t = precioTxt(v);
     return t ? <span style={{ fontWeight: 700 }}>{t}</span> : <span style={{ color: "#bbb" }}>N/A</span>;
   };
-  const th = { ...S.th, fontSize: 11, whiteSpace: "normal", lineHeight: 1.25 };
-  const td = { ...S.td, fontSize: 13, padding: "9px 8px" };
+  const th = { ...S.th, fontSize: 11, whiteSpace: "normal", lineHeight: 1.25, textAlign: "center", verticalAlign: "middle" };
+  const td = { ...S.td, fontSize: 13, padding: "9px 8px", textAlign: "center" };
 
   return (
     <>
@@ -191,7 +191,7 @@ function EquiposRenta({ equipos, guardar }) {
               <tr>
                 <th style={th}>MARCA</th><th style={th}>MODELO</th><th style={th}>TIPO</th>
                 <th style={th}>ALTURA A NIVEL DE PLATAFORMA</th><th style={th}>ALTURA MÁXIMA</th><th style={th}>CAPACIDAD</th>
-                {COLUMNAS_PRECIO.map(([k, t]) => <th key={k} style={{ ...th, textAlign: "right" }}>{t}</th>)}
+                {COLUMNAS_PRECIO.map(([k, t]) => <th key={k} style={th}>{t}</th>)}
                 <th style={{ ...th, width: 120 }}></th>
               </tr>
             </thead>
@@ -204,7 +204,7 @@ function EquiposRenta({ equipos, guardar }) {
                   <td style={td}>{e.alturaPlataforma}</td>
                   <td style={td}>{e.alturaMaxima}</td>
                   <td style={td}>{e.capacidad}</td>
-                  {COLUMNAS_PRECIO.map(([k]) => <td key={k} style={{ ...td, textAlign: "right", whiteSpace: "nowrap" }}>{celdaPrecio(e[k])}</td>)}
+                  {COLUMNAS_PRECIO.map(([k]) => <td key={k} style={{ ...td, whiteSpace: "nowrap" }}>{celdaPrecio(e[k])}</td>)}
                   <td style={{ ...td, whiteSpace: "nowrap", textAlign: "right" }}>
                     <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 12px", fontSize: 13 }} onClick={() => abrirEditar(e)}>Editar</button>{" "}
                     <span style={{ display: "inline-block" }}><DeleteButton size="sm" title="Eliminar equipo" onConfirm={() => eliminar(e)} /></span>
