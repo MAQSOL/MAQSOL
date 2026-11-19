@@ -13,7 +13,22 @@ const KEY_TIPOS = 'tiposEquipoInterno' // mismo catálogo de tipos que Equipos I
 
 const TIPOS_INICIALES = ['Manipulador telescópico','Montacargas','Plataforma de tijera','Plataforma articulada','Minicargador','Retroexcavadora','Torre de iluminación','Generador']
 
-const PERIODOS = ['Diario','Semanal','Mensual','Total del proyecto']
+// Periodo de renta: la fecha fin se calcula sola (mismos planes que Rentas Activas)
+const PERIODOS_RENTA = [
+  { clave: '1d', dias: 1, etiqueta: '1 día' },
+  { clave: '6d', dias: 6, etiqueta: '6 días', detalle: 'semana' },
+  { clave: '14d', dias: 14, etiqueta: '14 días', detalle: '2 semanas' },
+  { clave: '28d', dias: 28, etiqueta: '28 días', detalle: 'mes' },
+  { clave: 'manual', etiqueta: 'Manual', detalle: 'elige la fecha' }
+]
+// el día de inicio cuenta como día 1: 6 días desde el lunes terminan el sábado
+function finDePeriodo(inicio, dias){
+  if(!inicio||!dias)return ''
+  const d=new Date(inicio+'T00:00:00');if(isNaN(d))return ''
+  d.setDate(d.getDate()+dias-1)
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')
+}
+const diasDePeriodo=(clave)=>PERIODOS_RENTA.find(x=>x.clave===clave)?.dias
 
 const EQUIPO_NUEVO = {
   id:'',tipo:'',marca:'',modelo:'',serie:'',
@@ -249,8 +264,20 @@ export default function EquiposExternos(){
         <h3 style={{fontSize:15,fontWeight:800,margin:'8px 0 10px',color:VINO}}>Cliente y fechas</h3>
         <div style={S.grid3}>
           <div><label style={S.label}>CLIENTE ASIGNADO</label><input style={S.input} value={form.cliente} onChange={ev=>setForm({...form,cliente:ev.target.value})} placeholder="A quién se le renta"/></div>
-          <div><label style={S.label}>FECHA INICIO</label><CampoFecha  style={S.input} value={form.fechaInicio} onChange={ev=>setForm({...form,fechaInicio:ev.target.value})}/></div>
-          <div><label style={S.label}>FECHA FIN ESTIMADA</label><CampoFecha  style={S.input} value={form.fechaFinEstimada} onChange={ev=>setForm({...form,fechaFinEstimada:ev.target.value})}/></div>
+          <div><label style={S.label}>FECHA INICIO</label><CampoFecha  style={S.input} value={form.fechaInicio} onChange={ev=>{const v=ev.target.value;const dias=diasDePeriodo(form.periodoRenta);setForm({...form,fechaInicio:v,...(dias?{fechaFinEstimada:finDePeriodo(v,dias)}:{})})}}/></div>
+          <div><label style={S.label}>FECHA FIN ESTIMADA</label><CampoFecha  style={S.input} value={form.fechaFinEstimada} onChange={ev=>setForm({...form,fechaFinEstimada:ev.target.value,periodoRenta:'manual'})}/></div>
+        </div>
+        <div style={{margin:'-2px 0 14px'}}>
+          <label style={S.label}>PERIODO DE RENTA</label>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            {PERIODOS_RENTA.map(pr=>{const activo=(form.periodoRenta||'')===pr.clave;return(
+              <button key={pr.clave} type="button" onClick={()=>setForm(f=>({...f,periodoRenta:pr.clave,...(pr.dias&&f.fechaInicio?{fechaFinEstimada:finDePeriodo(f.fechaInicio,pr.dias)}:{})}))}
+                style={{padding:'8px 14px',border:'2px solid #111',borderRadius:4,cursor:'pointer',fontWeight:700,fontSize:13,lineHeight:1.2,textAlign:'left',background:activo?'#111':'#fff',color:activo?'#fff':'#111',boxShadow:activo?'none':'2px 2px 0 #111'}}>
+                {pr.etiqueta}{pr.detalle&&<span style={{display:'block',fontSize:11,fontWeight:500,opacity:.75}}>{pr.detalle}</span>}
+              </button>)})}
+          </div>
+          {diasDePeriodo(form.periodoRenta)&&form.fechaInicio&&<div style={{fontSize:12.5,color:'#555',marginTop:6}}>Termina el <b>{new Date(finDePeriodo(form.fechaInicio,diasDePeriodo(form.periodoRenta))+'T00:00:00').toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</b> ({diasDePeriodo(form.periodoRenta)} {diasDePeriodo(form.periodoRenta)===1?'día':'días'} contando el de inicio)</div>}
+          {diasDePeriodo(form.periodoRenta)&&!form.fechaInicio&&<div style={{fontSize:12.5,color:'#c62828',marginTop:6}}>Pon la fecha de inicio para calcular la fecha fin.</div>}
         </div>
 
         <h3 style={{fontSize:15,fontWeight:800,margin:'8px 0 10px',color:VINO}}>Mantenimiento</h3>
@@ -265,12 +292,6 @@ export default function EquiposExternos(){
             <input style={S.input} value={form.linkReporte} onChange={ev=>setForm({...form,linkReporte:ev.target.value})} placeholder="Pega aquí el enlace de OneDrive, Drive, etc."/>
             {form.linkReporte.trim()&&<a href={linkSeguro(form.linkReporte)} target="_blank" rel="noopener noreferrer" style={{...S.btnGris,textDecoration:'none',whiteSpace:'nowrap',display:'inline-flex',alignItems:'center'}}>Abrir</a>}
           </div>
-        </div>
-
-        <h3 style={{fontSize:15,fontWeight:800,margin:'8px 0 10px',color:VINO}}>Costos</h3>
-        <div style={S.grid3}>
-          <div><label style={S.label}>PERIODO DEL COSTO</label><select style={S.input} value={form.periodoCosto} onChange={ev=>setForm({...form,periodoCosto:ev.target.value})}>{PERIODOS.map(p=><option key={p}>{p}</option>)}</select></div>
-          <div><label style={S.label}>PRECIO AL CLIENTE (opcional)</label><input style={S.input} value={form.precioCliente} onChange={ev=>setForm({...form,precioCliente:ev.target.value})} placeholder="Para ver el margen"/></div>
         </div>
 
         <div style={{marginBottom:20}}><label style={S.label}>NOTAS</label><textarea style={{...S.input,minHeight:70,resize:'vertical'}} value={form.notas} onChange={ev=>setForm({...form,notas:ev.target.value})}/></div>
