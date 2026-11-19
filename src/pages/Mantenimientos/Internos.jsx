@@ -443,7 +443,7 @@ export default function EquiposInternos(){
     return t.includes(busqueda.toLowerCase())&&(!fTipo||e.tipo===fTipo)
   })].sort((a,b)=>(favs.has(b.id)?1:0)-(favs.has(a.id)?1:0))
   function exportarLista(){
-    const columnas=['Equipo','Marca','Modelo','Serie','Horómetro','Operador','Ubicación','Estado','Comentarios del estado','Próx. Mantto']
+    const columnas=['Equipo','Marca','Modelo','Serie','Horómetro','Último operador','Ubicación','Estado','Comentarios del estado','Próx. Mantto']
     const filas=filtrados.map(e=>[e.tipo,e.marca,e.modelo,e.serie,conHoras(e.horometro),e.operador||'Sin operador',e.ubicacion,fueraDeServicio(e)?'Fuera de servicio'+(e.fueraServicioDesde?' desde '+fFecha(e.fueraServicioDesde):''):'Operativo',e.comentarioEstado||'',fFecha(e.proximoMantto)])
     descargarExcelBonito({
       titulo:'Equipos Internos',
@@ -873,7 +873,7 @@ export default function EquiposInternos(){
       </div>
       <div style={{...S.card,padding:0,overflowX:'auto'}}>
         <table className="tabla-centrada" style={{width:'100%',borderCollapse:'collapse',minWidth:950}}>
-          <thead><tr><th style={{...S.th,width:44,textAlign:'center'}}>★</th><th style={S.th}>EQUIPO</th><th style={S.th}>MARCA</th><th style={S.th}>MODELO</th><th style={S.th}>SERIE</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>OPERADOR</th><th style={S.th}>UBICACIÓN</th><th style={S.th}>ESTADO</th><th style={S.th}>ÚLT. PREVENTIVO</th><th style={S.th}>ÚLT. CORRECTIVO</th><th style={S.th}>PRÓX. MANTTO</th><th style={{...S.th,width:50,textAlign:'center'}}></th></tr></thead>
+          <thead><tr><th style={{...S.th,width:44,textAlign:'center'}}>★</th><th style={S.th}>EQUIPO</th><th style={S.th}>MARCA</th><th style={S.th}>MODELO</th><th style={S.th}>SERIE</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>ÚLTIMO OPERADOR</th><th style={S.th}>UBICACIÓN</th><th style={S.th}>ESTADO</th><th style={S.th}>ÚLT. PREVENTIVO</th><th style={S.th}>ÚLT. CORRECTIVO</th><th style={S.th}>PRÓX. MANTTO</th><th style={{...S.th,width:50,textAlign:'center'}}></th></tr></thead>
           <tbody>
             {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={13}>No hay equipos. Usa "Agregar equipo".</td></tr>
             :filtrados.map(e=>(<tr key={e.id} style={{cursor:'pointer',transition:'transform 0.15s ease'}} onClick={()=>{setActivoId(e.id);setVista('ficha')}} onMouseOver={ev=>{ev.currentTarget.style.background='#faf5f6';ev.currentTarget.style.transform='translateX(-4px)'}} onMouseOut={ev=>{ev.currentTarget.style.background='transparent';ev.currentTarget.style.transform='none'}}>
