@@ -50,7 +50,15 @@ const botonNA = {border:'1px solid #ddd',background:'#fafafa',color:'#666',borde
 const EQUIPO_NUEVO = {
   id:'',tipo:'',marca:'',modelo:'',serie:'',horometro:'',operador:'',ubicacion:'',
   proximoMantto:'',anio:'',motor:'',capacidad:'',alturaMaxima:'',combustible:'',placas:'',notas:'',fotoUrl:'',
-  filtros:[],suministros:[],pendientes:[],mantenimientos:[]
+  filtros:[],suministros:[],pendientes:[],mantenimientos:[],
+  estadoOperativo:'Operativo',comentarioEstado:'',fueraServicioDesde:''
+}
+
+// Estado del equipo: si no se ha capturado, se toma como operativo
+const fueraDeServicio=(e)=>e&&e.estadoOperativo==='Fuera de servicio'
+function BadgeEstadoEq({e,grande}){
+  const fuera=fueraDeServicio(e)
+  return(<span style={{display:'inline-block',padding:grande?'5px 12px':'3px 9px',fontSize:grande?13:11.5,fontWeight:800,letterSpacing:.3,whiteSpace:'nowrap',background:fuera?'#c62828':'#e3f5ea',color:fuera?'#fff':'#17663a',border:'1.5px solid '+(fuera?'#c62828':'#1f8b4c')}}>{fuera?'✕ Fuera de servicio':'✓ Operativo'}</span>)
 }
 
 const MANTTO_NUEVO = {
@@ -385,8 +393,8 @@ export default function EquiposInternos(){
     return t.includes(busqueda.toLowerCase())&&(!fTipo||e.tipo===fTipo)
   })].sort((a,b)=>(favs.has(b.id)?1:0)-(favs.has(a.id)?1:0))
   function exportarLista(){
-    const columnas=['Equipo','Marca','Modelo','Serie','Horómetro','Operador','Ubicación','Próx. Mantto']
-    const filas=filtrados.map(e=>[e.tipo,e.marca,e.modelo,e.serie,conHoras(e.horometro),e.operador||'Sin operador',e.ubicacion,fFecha(e.proximoMantto)])
+    const columnas=['Equipo','Marca','Modelo','Serie','Horómetro','Operador','Ubicación','Estado','Comentarios del estado','Próx. Mantto']
+    const filas=filtrados.map(e=>[e.tipo,e.marca,e.modelo,e.serie,conHoras(e.horometro),e.operador||'Sin operador',e.ubicacion,fueraDeServicio(e)?'Fuera de servicio'+(e.fueraServicioDesde?' desde '+fFecha(e.fueraServicioDesde):''):'Operativo',e.comentarioEstado||'',fFecha(e.proximoMantto)])
     descargarExcelBonito({
       titulo:'Equipos Internos',
       subtitulo:'Maquinaria propiedad de MAQSOL \u00B7 '+filtrados.length+' equipos',
@@ -424,6 +432,19 @@ export default function EquiposInternos(){
             :(<select style={S.input} value={form.ubicacion} onChange={ev=>cambiarUbicacion(ev.target.value)}><option value="">Selecciona</option>{ubicaciones.map(u=><option key={u}>{u}</option>)}<option value="__nueva__">+ Agregar ubicación nueva</option></select>)}
           </div>
           <div><label style={{...S.label,display:'flex',justifyContent:'space-between',alignItems:'center'}}>PLACAS O NÚMERO ECONÓMICO<button type="button" style={botonNA} title="Maquinaria sin placas" onClick={()=>setForm(f=>({...f,placas:'N/A'}))}>N/A</button></label><input style={S.input} value={form.placas} onChange={ev=>setForm({...form,placas:ev.target.value})} placeholder="Placas, No. económico o N/A"/></div>
+        </div>
+        <div style={{marginBottom:16}}>
+          <label style={S.label}>ESTADO DEL EQUIPO</label>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:10}}>
+            {['Operativo','Fuera de servicio'].map(op=>{const on=(form.estadoOperativo||'Operativo')===op;const rojo=op==='Fuera de servicio';return(
+              <button key={op} type="button" onClick={()=>setForm(f=>({...f,estadoOperativo:op,fueraServicioDesde:op==='Fuera de servicio'?(f.estadoOperativo==='Fuera de servicio'&&f.fueraServicioDesde?f.fueraServicioDesde:new Date().toISOString().slice(0,10)):''}))}
+                style={{padding:'9px 16px',border:'2px solid '+(rojo?'#c62828':'#1f8b4c'),borderRadius:4,cursor:'pointer',fontWeight:800,fontSize:13.5,background:on?(rojo?'#c62828':'#1f8b4c'):'#fff',color:on?'#fff':(rojo?'#c62828':'#1f8b4c'),boxShadow:on?'none':'2px 2px 0 #111'}}>
+                {rojo?'✕ ':'✓ '}{op}
+              </button>)})}
+          </div>
+          {fueraDeServicio(form)&&<div style={{marginBottom:10,maxWidth:260}}><label style={S.label}>FUERA DE SERVICIO DESDE</label><CampoFecha style={S.input} value={form.fueraServicioDesde||''} onChange={ev=>setForm({...form,fueraServicioDesde:ev.target.value})}/></div>}
+          <label style={S.label}>{fueraDeServicio(form)?'¿POR QUÉ ESTÁ FUERA DE SERVICIO?':'COMENTARIOS DEL ESTADO (OPCIONAL)'}</label>
+          <textarea style={{...S.input,minHeight:62,resize:'vertical'}} value={form.comentarioEstado||''} onChange={ev=>setForm({...form,comentarioEstado:ev.target.value})} placeholder={fueraDeServicio(form)?'Ej. falla en bomba hidráulica, esperando refacción':'Ej. listo para renta'}/>
         </div>
         <div style={{...S.grid4,marginBottom:22}}>
           <div><label style={S.label}>MOTOR</label><input style={S.input} value={form.motor} onChange={ev=>setForm({...form,motor:ev.target.value})}/></div>
@@ -485,6 +506,10 @@ export default function EquiposInternos(){
         {/* INFORMACIÓN GENERAL */}
         <Tarjeta id="info">
           <h2 style={{...S.h2,marginBottom:18}}>Información General</h2>
+          <div style={{marginBottom:18,padding:'12px 14px',border:'2px solid '+(fueraDeServicio(activo)?'#c62828':'#1f8b4c'),background:fueraDeServicio(activo)?'#fdecec':'#f1faf4'}}>
+            <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}><span style={S.label}>ESTADO</span><BadgeEstadoEq e={activo} grande/>{fueraDeServicio(activo)&&activo.fueraServicioDesde&&<span style={{fontSize:13,color:'#a32020',fontWeight:700}}>desde {fFecha(activo.fueraServicioDesde)}</span>}</div>
+            {activo.comentarioEstado&&<div style={{marginTop:8,fontSize:14,whiteSpace:'pre-wrap'}}>{activo.comentarioEstado}</div>}
+          </div>
           <div style={S.grid4}>
             <Dato etiqueta="TIPO DE EQUIPO" valor={activo.tipo}/><Dato etiqueta="MARCA" valor={activo.marca}/><Dato etiqueta="MODELO" valor={activo.modelo}/><Dato etiqueta="SERIE" valor={activo.serie}/>
             <Dato etiqueta="AÑO" valor={activo.anio}/><Dato etiqueta="HORÓMETRO" valor={conHoras(activo.horometro)}/><Dato etiqueta="OPERADOR" valor={activo.operador||'Sin operador'}/><Dato etiqueta="UBICACIÓN" valor={activo.ubicacion}/>
@@ -800,14 +825,16 @@ export default function EquiposInternos(){
       </div>
       <div style={{...S.card,padding:0,overflowX:'auto'}}>
         <table style={{width:'100%',borderCollapse:'collapse',minWidth:950}}>
-          <thead><tr><th style={{...S.th,width:44,textAlign:'center'}}>★</th><th style={S.th}>EQUIPO</th><th style={S.th}>MARCA</th><th style={S.th}>MODELO</th><th style={S.th}>SERIE</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>OPERADOR</th><th style={S.th}>UBICACIÓN</th><th style={S.th}>ÚLTIMO MANTTO</th><th style={S.th}>PRÓX. MANTTO</th><th style={{...S.th,width:50,textAlign:'center'}}></th></tr></thead>
+          <thead><tr><th style={{...S.th,width:44,textAlign:'center'}}>★</th><th style={S.th}>EQUIPO</th><th style={S.th}>MARCA</th><th style={S.th}>MODELO</th><th style={S.th}>SERIE</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>OPERADOR</th><th style={S.th}>UBICACIÓN</th><th style={S.th}>ESTADO</th><th style={S.th}>ÚLTIMO MANTTO</th><th style={S.th}>PRÓX. MANTTO</th><th style={{...S.th,width:50,textAlign:'center'}}></th></tr></thead>
           <tbody>
-            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={11}>No hay equipos. Usa "Agregar equipo".</td></tr>
+            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={12}>No hay equipos. Usa "Agregar equipo".</td></tr>
             :filtrados.map(e=>(<tr key={e.id} style={{cursor:'pointer',transition:'transform 0.15s ease'}} onClick={()=>{setActivoId(e.id);setVista('ficha')}} onMouseOver={ev=>{ev.currentTarget.style.background='#faf5f6';ev.currentTarget.style.transform='translateX(-4px)'}} onMouseOut={ev=>{ev.currentTarget.style.background='transparent';ev.currentTarget.style.transform='none'}}>
               <td style={{...S.td,textAlign:'center',padding:'0 4px'}} onClick={ev=>toggleFav(e.id,ev)}><span style={{fontSize:20,cursor:'pointer',color:favs.has(e.id)?'#f4b400':'#ddd',transition:'color .15s'}}>★</span></td>
               <td style={{...S.td,fontWeight:700}}>{e.tipo}</td><td style={S.td}>{e.marca}</td><td style={S.td}>{e.modelo}</td><td style={S.td}>{e.serie}</td>
               <td style={S.td}>{conHoras(e.horometro)||'—'}</td><td style={S.td}>{e.operador||<span style={{color:'#c98a00',fontWeight:700}}>Sin operador</span>}</td>
-              <td style={S.td}>{e.ubicacion}</td><td style={{...S.td,minWidth:200}}>{ultimoMantto(e)?<span style={{display:"flex",flexDirection:"column",gap:4}}><span style={{fontSize:13}}>{fFecha(ultimoMantto(e).fecha)}</span><BadgeMantto tipo={ultimoMantto(e).tipoMantto}/></span>:<span style={{color:"#999"}}>Sin registro</span>}</td><td style={S.td}><Semaforo fecha={e.proximoMantto}/></td>
+              <td style={S.td}>{e.ubicacion}</td>
+              <td style={{...S.td,minWidth:150,maxWidth:220}}><BadgeEstadoEq e={e}/>{e.comentarioEstado&&<div title={e.comentarioEstado} style={{fontSize:12,color:fueraDeServicio(e)?'#a32020':'#666',marginTop:5,lineHeight:1.3,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{e.comentarioEstado}</div>}</td>
+              <td style={{...S.td,minWidth:200}}>{ultimoMantto(e)?<span style={{display:"flex",flexDirection:"column",gap:4}}><span style={{fontSize:13}}>{fFecha(ultimoMantto(e).fecha)}</span><BadgeMantto tipo={ultimoMantto(e).tipoMantto}/></span>:<span style={{color:"#999"}}>Sin registro</span>}</td><td style={S.td}><Semaforo fecha={e.proximoMantto}/></td>
               <td style={{...S.td,textAlign:'center'}} onClick={ev=>ev.stopPropagation()}><DeleteButton size="sm" title="Eliminar equipo" onConfirm={()=>eliminarEquipo(e)}/></td>
             </tr>))}
           </tbody>
