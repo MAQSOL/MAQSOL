@@ -56,9 +56,31 @@ const EQUIPO_NUEVO = {
 
 // Estado del equipo: si no se ha capturado, se toma como operativo
 const fueraDeServicio=(e)=>e&&e.estadoOperativo==='Fuera de servicio'
-function BadgeEstadoEq({e,grande}){
+// días transcurridos desde una fecha ISO (null si no hay o es futura)
+function diasDesde(f){if(!f)return null;const d=Math.floor((Date.now()-new Date(f+'T00:00:00').getTime())/86400000);return d>=0?d:null}
+// Recuadro del estado en la ficha del equipo
+function EstadoFicha({e}){
   const fuera=fueraDeServicio(e)
-  return(<span style={{display:'inline-block',padding:grande?'5px 12px':'3px 9px',fontSize:grande?13:11.5,fontWeight:800,letterSpacing:.3,whiteSpace:'nowrap',background:fuera?'#c62828':'#e3f5ea',color:fuera?'#fff':'#17663a',border:'1.5px solid '+(fuera?'#c62828':'#1f8b4c')}}>{fuera?'Fuera de servicio':'✓ Operativo'}</span>)
+  const color=fuera?'#c62828':'#1f8b4c'
+  const dias=fuera?diasDesde(e.fueraServicioDesde):null
+  return(
+    <div style={{display:'flex',marginBottom:22,border:'2px solid #111',boxShadow:'4px 4px 0 #111',background:'#fff'}}>
+      <div style={{flex:'0 0 64px',background:color,color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:30,fontWeight:900,borderRight:'2px solid #111'}}>{fuera?'!':'✓'}</div>
+      <div style={{flex:1,padding:'14px 18px',display:'flex',flexWrap:'wrap',gap:'10px 28px',alignItems:'center'}}>
+        <div style={{minWidth:180}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:1,color:'#888'}}>ESTADO DEL EQUIPO</div>
+          <div style={{fontSize:20,fontWeight:800,color,marginTop:2}}>{fuera?'Fuera de servicio':'Operativo'}</div>
+          {fuera&&e.fueraServicioDesde&&<div style={{fontSize:13,color:'#555',marginTop:3}}>Desde el {fFecha(e.fueraServicioDesde)}{dias!==null?' · '+(dias===0?'hoy':dias===1?'hace 1 día':'hace '+dias+' días'):''}</div>}
+        </div>
+        {e.comentarioEstado&&(
+          <div style={{flex:'1 1 260px',borderLeft:'3px solid '+(fuera?'#f3b6b6':'#bfe5cc'),paddingLeft:14}}>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:1,color:'#888'}}>{fuera?'MOTIVO':'COMENTARIOS'}</div>
+            <div style={{fontSize:15,marginTop:3,whiteSpace:'pre-wrap',color:'#222'}}>{e.comentarioEstado}</div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 const MANTTO_NUEVO = {
@@ -141,15 +163,16 @@ function Semaforo({fecha}){
   return(<span style={{display:'inline-flex',alignItems:'center',gap:7}}><span style={{width:9,height:9,borderRadius:'50%',background:color,display:'inline-block'}}/><span>{fFecha(fecha)}</span><span style={{color,fontSize:12,fontWeight:700}}>({texto})</span></span>)
 }
 
-function ultimoMantto(eq){
-  const l=Array.isArray(eq.mantenimientos)?eq.mantenimientos:[]
-  if(!l.length)return null
-  return l.slice().sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''))[0]
+// último mantenimiento de un tipo (Preventivo / Correctivo)
+function ultimoDeTipo(eq,tipo){
+  const l=(Array.isArray(eq.mantenimientos)?eq.mantenimientos:[]).filter(m=>(m.tipoMantto||'Preventivo')===tipo)
+  return l.length?l.slice().sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''))[0]:null
 }
 function BadgeMantto({tipo}){
   if(!tipo)return <span style={{color:'#bbb'}}>—</span>
   const prev=tipo==='Preventivo'
-  return <span style={{background:prev?'#e8f5e9':'#fce4ec',color:prev?'#2e7d32':'#c62828',padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>{tipo}</span>
+  // preventivo en verde, correctivo en amarillo
+  return <span style={{background:prev?'#e8f5e9':'#fff4c2',color:prev?'#2e7d32':'#8a6100',padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>{tipo}</span>
 }
 
 // observaciones del equipo: antes era un solo texto (notas); ahora es una lista con fecha.
@@ -268,6 +291,9 @@ export default function EquiposInternos(){
   const[filtroTipoM,setFiltroTipoM]=useState('')
   const[filtroDesde,setFiltroDesde]=useState('')
   const[filtroHasta,setFiltroHasta]=useState('')
+  // "Descargar ficha" desde la lista: primero se elige el equipo
+  const[elegirFicha,setElegirFicha]=useState(false)
+  const[fichaId,setFichaId]=useState('')
 
   // Mientras hay guardados en camino, cada cambio nuevo parte de lo ÚLTIMO que se mandó
   // (no de lo que había en pantalla), para que dos cambios seguidos no se pisen.
@@ -390,12 +416,12 @@ export default function EquiposInternos(){
   }
   function descargarPDF(eq){
     const l=manttosFiltrados(eq)
-    const filas=l.map(m=>`<tr><td>${fFecha(m.fecha)}</td><td class="r">${esc(m.horometro||'—')}</td><td>${esc(m.tipoMantto)}</td><td>${esc(m.descripcion||'')}</td><td>${esc(m.realizadoPor||'')}</td><td>${esc(m.autorizadoPor||'')}</td><td>${esc(m.lugarRealizado||'')}</td><td class="r b">${m.costo?'$'+esc(m.costo):''}</td></tr>`).join('')
+    const filas=l.map(m=>`<tr><td>${fFecha(m.fecha)}</td><td class="r">${esc(m.horometro||'—')}</td><td>${esc(m.tipoMantto)}</td><td>${esc(m.descripcion||'')}</td><td>${esc(m.realizadoPor||'')}</td><td>${esc(m.autorizadoPor||'')}</td><td>${esc(m.lugarRealizado||'')}</td></tr>`).join('')
     abrirDocPDF({
       nombre:'Historial '+(eq.serie||eq.tipo||''),
       cuerpo:`${encabezadoDoc('Historial de Mantenimientos',[`${eq.tipo||''} ${eq.marca||''} ${eq.modelo||''}`.trim()+' — Serie: '+(eq.serie||'s/n'),'Generado: '+hoyMX()])}
-      <table><thead><tr><th>Fecha</th><th class="r">Hrm</th><th>Tipo</th><th>Descripción</th><th>Realizó</th><th>Autorizó</th><th>Lugar</th><th class="r">Costo</th></tr></thead>
-      <tbody>${filas||'<tr><td colspan="8" class="c">Sin mantenimientos registrados.</td></tr>'}</tbody></table>
+      <table><thead><tr><th>Fecha</th><th class="r">Hrm</th><th>Tipo</th><th>Descripción</th><th>Realizó</th><th>Autorizó</th><th>Lugar</th></tr></thead>
+      <tbody>${filas||'<tr><td colspan="7" class="c">Sin mantenimientos registrados.</td></tr>'}</tbody></table>
       ${pieDoc()}`
     })
   }
@@ -524,10 +550,7 @@ export default function EquiposInternos(){
         {/* INFORMACIÓN GENERAL */}
         <Tarjeta id="info">
           <h2 style={{...S.h2,marginBottom:18}}>Información General</h2>
-          <div style={{marginBottom:18,padding:'12px 14px',border:'2px solid '+(fueraDeServicio(activo)?'#c62828':'#1f8b4c'),background:fueraDeServicio(activo)?'#fdecec':'#f1faf4'}}>
-            <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}><span style={S.label}>ESTADO</span><BadgeEstadoEq e={activo} grande/>{fueraDeServicio(activo)&&activo.fueraServicioDesde&&<span style={{fontSize:13,color:'#a32020',fontWeight:700}}>desde {fFecha(activo.fueraServicioDesde)}</span>}</div>
-            {activo.comentarioEstado&&<div style={{marginTop:8,fontSize:14,whiteSpace:'pre-wrap'}}>{activo.comentarioEstado}</div>}
-          </div>
+          <EstadoFicha e={activo}/>
           <div style={S.grid4}>
             <Dato etiqueta="TIPO DE EQUIPO" valor={activo.tipo}/><Dato etiqueta="MARCA" valor={activo.marca}/><Dato etiqueta="MODELO" valor={activo.modelo}/><Dato etiqueta="SERIE" valor={activo.serie}/>
             <Dato etiqueta="AÑO" valor={activo.anio}/><Dato etiqueta="HORÓMETRO" valor={conHoras(activo.horometro)}/><Dato etiqueta="OPERADOR" valor={activo.operador||'Sin operador'}/><Dato etiqueta="UBICACIÓN" valor={activo.ubicacion}/>
@@ -781,9 +804,11 @@ export default function EquiposInternos(){
           <div style={{marginBottom:14}}><label style={S.label}>INSUMOS ADICIONALES</label><textarea style={{...S.input,minHeight:52,resize:'vertical'}} value={mForm.insumos||''} onChange={ev=>setMForm({...mForm,insumos:ev.target.value})} placeholder="Ej. 2 L de anticongelante, 1 cartucho de grasa, limpiador de contactos..."/></div>
           <div style={{marginBottom:14}}><label style={S.label}>OBSERVACIONES</label><textarea style={{...S.input,minHeight:60,resize:'vertical'}} value={mForm.observaciones||''} onChange={ev=>setMForm({...mForm,observaciones:ev.target.value})} placeholder="Algo que se detectó, pendientes, recomendaciones..."/></div>
           <div style={S.grid4}>
-            <div><label style={S.label}>REALIZADO POR</label><input style={S.input} value={mForm.realizadoPor} onChange={ev=>setMForm({...mForm,realizadoPor:ev.target.value})}/></div>
-            <div><label style={S.label}>SUPERVISOR</label><input style={S.input} value={mForm.supervisor||''} onChange={ev=>setMForm({...mForm,supervisor:ev.target.value})} placeholder="Quién supervisó"/></div>
-            <div><label style={S.label}>AUTORIZADO POR</label><input style={S.input} value={mForm.autorizadoPor} onChange={ev=>setMForm({...mForm,autorizadoPor:ev.target.value})}/></div>
+            <div><label style={S.label}>REALIZADO POR</label><input style={S.input} list="empleados-mantto" placeholder="Elige o escribe" value={mForm.realizadoPor} onChange={ev=>setMForm({...mForm,realizadoPor:ev.target.value})}/></div>
+            <div><label style={S.label}>SUPERVISOR</label><input style={S.input} list="empleados-mantto" value={mForm.supervisor||''} onChange={ev=>setMForm({...mForm,supervisor:ev.target.value})} placeholder="Elige o escribe"/></div>
+            <div><label style={S.label}>AUTORIZADO POR</label><input style={S.input} list="empleados-mantto" placeholder="Elige o escribe" value={mForm.autorizadoPor} onChange={ev=>setMForm({...mForm,autorizadoPor:ev.target.value})}/></div>
+            {/* empleados de Asistencias para elegir; también se puede escribir a mano */}
+            <datalist id="empleados-mantto">{operadores.map(o=><option key={o} value={o}/>)}</datalist>
             <div><label style={S.label}>LUGAR</label><input style={S.input} value={mForm.lugarRealizado} onChange={ev=>setMForm({...mForm,lugarRealizado:ev.target.value})} placeholder="Ej. Taller MAQSOL"/></div>
           </div>
           <div style={S.grid2}>
@@ -827,7 +852,7 @@ export default function EquiposInternos(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={S.h1}>Equipos Internos</h1><p style={S.sub}>Maquinaria propiedad de MAQSOL · {equipos.length} equipos registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button className="btn-sys btn-excel" style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo</button></div>
+        <div style={{display:'flex',gap:10}}><button className="btn-sys btn-excel" style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button className="btn-sys btn-pdf" style={S.btnGris} onClick={()=>{setFichaId('');setElegirFicha(true)}}>Descargar ficha</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo</button></div>
       </div>
       <div style={S.card}>
         <div style={{display:'grid',gridTemplateColumns:'2fr 1.4fr',gap:18,alignItems:'start'}}>
@@ -843,9 +868,9 @@ export default function EquiposInternos(){
       </div>
       <div style={{...S.card,padding:0,overflowX:'auto'}}>
         <table style={{width:'100%',borderCollapse:'collapse',minWidth:950}}>
-          <thead><tr><th style={{...S.th,width:44,textAlign:'center'}}>★</th><th style={S.th}>EQUIPO</th><th style={S.th}>MARCA</th><th style={S.th}>MODELO</th><th style={S.th}>SERIE</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>OPERADOR</th><th style={S.th}>UBICACIÓN</th><th style={S.th}>ESTADO</th><th style={S.th}>ÚLTIMO MANTTO</th><th style={S.th}>PRÓX. MANTTO</th><th style={{...S.th,width:50,textAlign:'center'}}></th></tr></thead>
+          <thead><tr><th style={{...S.th,width:44,textAlign:'center'}}>★</th><th style={S.th}>EQUIPO</th><th style={S.th}>MARCA</th><th style={S.th}>MODELO</th><th style={S.th}>SERIE</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>OPERADOR</th><th style={S.th}>UBICACIÓN</th><th style={S.th}>ESTADO</th><th style={S.th}>ÚLT. PREVENTIVO</th><th style={S.th}>ÚLT. CORRECTIVO</th><th style={S.th}>PRÓX. MANTTO</th><th style={{...S.th,width:50,textAlign:'center'}}></th></tr></thead>
           <tbody>
-            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={12}>No hay equipos. Usa "Agregar equipo".</td></tr>
+            {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={13}>No hay equipos. Usa "Agregar equipo".</td></tr>
             :filtrados.map(e=>(<tr key={e.id} style={{cursor:'pointer',transition:'transform 0.15s ease'}} onClick={()=>{setActivoId(e.id);setVista('ficha')}} onMouseOver={ev=>{ev.currentTarget.style.background='#faf5f6';ev.currentTarget.style.transform='translateX(-4px)'}} onMouseOut={ev=>{ev.currentTarget.style.background='transparent';ev.currentTarget.style.transform='none'}}>
               <td style={{...S.td,textAlign:'center',padding:'0 4px'}} onClick={ev=>toggleFav(e.id,ev)}><span style={{fontSize:20,cursor:'pointer',color:favs.has(e.id)?'#f4b400':'#ddd',transition:'color .15s'}}>★</span></td>
               <td style={{...S.td,fontWeight:700}}>{e.tipo}</td><td style={S.td}>{e.marca}</td><td style={S.td}>{e.modelo}</td><td style={S.td}>{e.serie}</td>
@@ -858,7 +883,8 @@ export default function EquiposInternos(){
                 </select>
                 <div onClick={()=>editarComentarioTabla(e)} title="Clic para escribir o cambiar el comentario" style={{cursor:'pointer',fontSize:12,color:e.comentarioEstado?(fueraDeServicio(e)?'#a32020':'#666'):'#aaa',marginTop:6,lineHeight:1.3,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{e.comentarioEstado||'+ Agregar comentario'}</div>
               </td>
-              <td style={{...S.td,minWidth:200}}>{ultimoMantto(e)?<span style={{display:"flex",flexDirection:"column",gap:4}}><span style={{fontSize:13}}>{fFecha(ultimoMantto(e).fecha)}</span><BadgeMantto tipo={ultimoMantto(e).tipoMantto}/></span>:<span style={{color:"#999"}}>Sin registro</span>}</td><td style={S.td}><Semaforo fecha={e.proximoMantto}/></td>
+              <td style={{...S.td,minWidth:120}}>{(()=>{const m=ultimoDeTipo(e,'Preventivo');return m?<span style={{display:"flex",flexDirection:"column",gap:4,alignItems:"flex-start"}}><span style={{fontSize:13}}>{fFecha(m.fecha)}</span><BadgeMantto tipo="Preventivo"/></span>:<span style={{color:"#999",fontSize:13}}>Sin registro</span>})()}</td>
+              <td style={{...S.td,minWidth:170,maxWidth:240}}>{(()=>{const m=ultimoDeTipo(e,'Correctivo');return m?<span style={{display:"flex",flexDirection:"column",gap:4,alignItems:"flex-start"}}><span style={{fontSize:13}}>{fFecha(m.fecha)}</span><BadgeMantto tipo="Correctivo"/>{m.descripcion&&<span title={m.descripcion} style={{fontSize:12,color:"#6b4e00",lineHeight:1.3,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>{m.descripcion}</span>}</span>:<span style={{color:"#999",fontSize:13}}>Sin registro</span>})()}</td><td style={S.td}><Semaforo fecha={e.proximoMantto}/></td>
               <td style={{...S.td,textAlign:'center'}} onClick={ev=>ev.stopPropagation()}><DeleteButton size="sm" title="Eliminar equipo" onConfirm={()=>eliminarEquipo(e)}/></td>
             </tr>))}
           </tbody>
@@ -866,6 +892,19 @@ export default function EquiposInternos(){
       </div>
 
       {/* MODAL ALTA/EDICIÓN EQUIPO */}
+      {elegirFicha&&(<div style={S.modalBg} onClick={()=>setElegirFicha(false)}><div style={{...S.modal,maxWidth:520}} onClick={ev=>ev.stopPropagation()}>
+        <h2 style={{fontSize:22,fontWeight:800,margin:'0 0 4px'}}>Descargar ficha de equipo</h2>
+        <p style={{color:'#777',fontSize:14,margin:'0 0 16px'}}>Elige el equipo; la ficha sale en PDF con sus datos, filtros, suministros, pendientes y últimos mantenimientos.</p>
+        <label style={S.label}>EQUIPO</label>
+        <select style={{...S.input,marginBottom:18}} value={fichaId} onChange={ev=>setFichaId(ev.target.value)} autoFocus>
+          <option value="">Selecciona un equipo…</option>
+          {[...equipos].sort((a,b)=>(a.tipo+a.marca+a.modelo).localeCompare(b.tipo+b.marca+b.modelo,'es')).map(e=><option key={e.id} value={e.id}>{[e.tipo,e.marca,e.modelo].filter(Boolean).join(' ')}{e.serie?' · '+e.serie:''}{fueraDeServicio(e)?' · fuera de servicio':''}</option>)}
+        </select>
+        <div style={{display:'flex',justifyContent:'flex-end',gap:10}}>
+          <button className="btn-sys" style={S.btnGris} onClick={()=>setElegirFicha(false)}>Cancelar</button>
+          <button className="btn-sys btn-pdf" style={{...S.btn,opacity:fichaId?1:.5}} onClick={()=>{const e=equipos.find(x=>x.id===fichaId);if(!e)return alert('Elige un equipo primero.');descargarExpedienteEquipoPDF(e);setElegirFicha(false)}}>Descargar PDF</button>
+        </div>
+      </div></div>)}
       {modalEquipo}
 
     </div></div>

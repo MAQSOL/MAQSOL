@@ -234,12 +234,11 @@ export function descargarExpedienteEquipoPDF(eq = {}) {
   tabla(
     [
       { t: "Fecha", w: 0.12, b: true }, { t: "Horóm.", w: 0.1 }, { t: "Tipo", w: 0.13 },
-      { t: "Descripción", w: 0.37 }, { t: "Realizó", w: 0.16 }, { t: "Costo", w: 0.12 },
+      { t: "Descripción", w: 0.47 }, { t: "Realizó", w: 0.18 },
     ],
     manttos.map((m) => [
       fFecha(m.fecha), m.horometro ? conHoras(m.horometro, "h") : "", m.tipoMantto || "",
       m.descripcion || "", m.realizadoPor || "",
-      m.costo ? "$" + (isNaN(Number(m.costo)) ? m.costo : Number(m.costo).toLocaleString("es-MX")) : "",
     ]),
     { vacio: "No hay mantenimientos registrados." }
   );
