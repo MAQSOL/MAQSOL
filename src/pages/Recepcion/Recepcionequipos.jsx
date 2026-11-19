@@ -153,7 +153,16 @@ function ColumnaChecklist({titulo,items,valores,porcentajes,onCambiar,onCambiarP
 }
 
 export default function Recepcionequipos(){
-  const[registros,guardarRegistros]=useListaCompartida('checklists')
+  const[registros,guardarRegistros,cargandoChecklists]=useListaCompartida('checklists')
+  // Acceso directo desde el Panel (/recepcion?nuevo=1): abre "Nuevo checklist" cuando ya cargó la lista (para el folio)
+  const[abrirPendiente,setAbrirPendiente]=useState(false)
+  useEffect(()=>{
+    if(cargandoChecklists)return
+    if(new URLSearchParams(window.location.search).get('nuevo')==='1'){
+      window.history.replaceState(null,'',window.location.pathname)
+      setAbrirPendiente(true)
+    }
+  },[cargandoChecklists])
   const[alquileres,guardarAlquileres]=useListaCompartida('alquileres')
   const[modal,setModal]=useState(false)
   const[form,setForm]=useState(CHECKLIST_NUEVO)
@@ -209,6 +218,9 @@ export default function Recepcionequipos(){
     setForm({...CHECKLIST_NUEVO,id:uid(),folioSeq:seq,folio:construirFolio(seq,'',hoyISO()),fecha:hoyISO(),items:{},porcentajes:{}})
     setModal(true)
   }
+  useEffect(()=>{if(abrirPendiente){setAbrirPendiente(false);abrirNuevo()}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[abrirPendiente])
   function abrirDocs(r){reiniciarArchivos();setSoloDocs(true);setFolioManual(false);setForm({...CHECKLIST_NUEVO,folioSeq:r.folioSeq||siguienteSeq(),...r,items:{...r.items},porcentajes:{...r.porcentajes}});setModal(true)}
   function cerrarModal(){reiniciarArchivos();setSoloDocs(false);setModal(false)}
   function abrirEditar(r){reiniciarArchivos();setSoloDocs(false);setFolioManual(false);setForm({...CHECKLIST_NUEVO,folioSeq:r.folioSeq||siguienteSeq(),...r,items:{...r.items},porcentajes:{...r.porcentajes}});setModal(true)}
@@ -548,7 +560,7 @@ export default function Recepcionequipos(){
     <div style={{display:'flex',minHeight:'100vh'}}><Sidebar/><div style={S.page}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <div><h1 style={S.h1}>Entrega y Salida de Equipo</h1><p style={S.sub}>Checklist de condición del equipo al entregar y al retirar · {registros.length} registrados</p></div>
-        <div style={{display:'flex',gap:10}}><button className="btn-sys btn-excel" style={S.btnGris} onClick={descargarListaExcel}>Descargar lista</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Nuevo checklist</button></div>
+        <div style={{display:'flex',gap:10,alignItems:'center'}}><button className="btn-sys btn-excel" style={S.btnGris} onClick={descargarListaExcel}>Descargar lista</button><button className="btn-sys" style={{...S.btn,padding:'16px 30px',fontSize:18,fontWeight:800,gap:10,whiteSpace:'nowrap'}} onClick={abrirNuevo}><IconoMas />Nuevo checklist</button></div>
       </div>
 
       <div style={S.card}>

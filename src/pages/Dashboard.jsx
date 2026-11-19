@@ -247,7 +247,22 @@ function Dashboard() {
             <p>Sistema Integral de Administración de Maquinaria</p>
           </div>
 
-          <UserMenu />
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "14px" }}>
+            <UserMenu />
+            {/* acceso directo: abre Recepción con el formulario de checklist nuevo */}
+            <button
+              type="button"
+              className="acceso-checklist"
+              onClick={() => navigate("/recepcion?nuevo=1")}
+              title="Abrir un checklist nuevo de entrega o salida de equipo"
+            >
+              <IconoPortapapeles style={{ width: 34, height: 34, flex: "0 0 auto" }} />
+              <span style={{ textAlign: "left" }}>
+                <span style={{ display: "block", fontSize: 21, fontWeight: 800, lineHeight: 1.15 }}>¿Harás un checklist?</span>
+                <span style={{ display: "block", fontSize: 13, fontWeight: 500, opacity: 0.85, marginTop: 3 }}>Entrega o salida de equipo →</span>
+              </span>
+            </button>
+          </div>
         </header>
 
         {isAdmin && (
