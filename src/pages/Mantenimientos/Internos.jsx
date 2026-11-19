@@ -405,8 +405,8 @@ export default function EquiposInternos(){
 
   function descargarExcel(eq){
     const l=manttosFiltrados(eq)
-    const columnas=['Fecha','Horómetro','Tipo','Descripción','Realizado por','Supervisor','Autorizado por','Lugar','Costo','Próx. Mantto']
-    const filas=l.map(m=>[fFecha(m.fecha),m.horometro,m.tipoMantto,m.descripcion,m.realizadoPor,m.supervisor||'',m.autorizadoPor,m.lugarRealizado,m.costo?'$'+m.costo:'',fFecha(m.proximoMantto)])
+    const columnas=['Fecha','Horómetro','Tipo','Descripción','Realizado por','Supervisor','Autorizado por','Lugar','Próx. Mantto']
+    const filas=l.map(m=>[fFecha(m.fecha),m.horometro,m.tipoMantto,m.descripcion,m.realizadoPor,m.supervisor||'',m.autorizadoPor,m.lugarRealizado,fFecha(m.proximoMantto)])
     descargarExcelBonito({
       titulo:'Historial de Mantenimientos',
       subtitulo:[eq.tipo,eq.marca,eq.modelo].filter(Boolean).join(' ')+(eq.serie?' \u00B7 Serie '+eq.serie:''),
@@ -681,13 +681,13 @@ export default function EquiposInternos(){
           </div>
           {mFiltrados.length===0?<p style={{color:'#999',textAlign:'center',padding:20}}>No hay mantenimientos registrados.</p>:(
             <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',minWidth:700}}>
-              <thead><tr><th style={S.th}>FECHA</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>TIPO</th><th style={S.th}>DESCRIPCIÓN</th><th style={S.th}>REALIZÓ</th><th style={S.th}>COSTO</th><th style={{...S.th,width:50}}></th></tr></thead>
+              <thead><tr><th style={S.th}>FECHA</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>TIPO</th><th style={S.th}>DESCRIPCIÓN</th><th style={S.th}>REALIZÓ</th><th style={{...S.th,width:50}}></th></tr></thead>
               <tbody>{mFiltrados.map(m=>(
                 <tr key={m.mid} style={{cursor:'pointer'}} onClick={()=>setVerMantto(m)} onMouseOver={ev=>ev.currentTarget.style.background='#faf5f6'} onMouseOut={ev=>ev.currentTarget.style.background='transparent'}>
                   <td style={S.td}>{fFecha(m.fecha)}</td><td style={S.td}>{m.horometro||'—'}</td>
-                  <td style={S.td}><span style={{background:m.tipoMantto==='Preventivo'?'#e8f5e9':'#fce4ec',color:m.tipoMantto==='Preventivo'?'#2e7d32':'#c62828',padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700}}>{m.tipoMantto}</span></td>
+                  <td style={S.td}><span style={{background:m.tipoMantto==='Preventivo'?'#e8f5e9':'#fff4c2',color:m.tipoMantto==='Preventivo'?'#2e7d32':'#8a6100',padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700}}>{m.tipoMantto}</span></td>
                   <td style={S.td}>{(m.descripcion||'').slice(0,50)}{(m.descripcion||'').length>50?'...':''}</td>
-                  <td style={S.td}>{m.realizadoPor||'—'}</td><td style={S.td}>{m.costo?'$'+m.costo:'—'}</td>
+                  <td style={S.td}>{m.realizadoPor||'—'}</td>
                   <td style={{...S.td,textAlign:'center'}} onClick={ev=>ev.stopPropagation()}><DeleteButton size="sm" title="Eliminar mantenimiento" onConfirm={()=>eliminarMantto(m.mid)}/></td>
                 </tr>
               ))}</tbody>
@@ -711,7 +711,6 @@ export default function EquiposInternos(){
             <div><div style={S.label}>SUPERVISOR</div><div>{verMantto.supervisor||'—'}</div></div>
             <div><div style={S.label}>AUTORIZADO POR</div><div>{verMantto.autorizadoPor||'—'}</div></div>
             <div><div style={S.label}>LUGAR</div><div>{verMantto.lugarRealizado||'—'}</div></div>
-            <div><div style={S.label}>COSTO</div><div>{verMantto.costo?'$'+verMantto.costo:'—'}</div></div>
           </div>
           <div style={{margin:'10px 0'}}><div style={S.label}>DESCRIPCIÓN</div><div style={{whiteSpace:'pre-wrap'}}>{verMantto.descripcion||'—'}</div></div>
           <div style={{margin:'10px 0'}}><div style={S.label}>FILTROS UTILIZADOS</div>
@@ -812,7 +811,6 @@ export default function EquiposInternos(){
             <div><label style={S.label}>LUGAR</label><input style={S.input} value={mForm.lugarRealizado} onChange={ev=>setMForm({...mForm,lugarRealizado:ev.target.value})} placeholder="Ej. Taller MAQSOL"/></div>
           </div>
           <div style={S.grid2}>
-            <div><label style={S.label}>COSTO</label><input style={S.input} value={mForm.costo} onChange={ev=>setMForm({...mForm,costo:ev.target.value})} placeholder="Ej. 8500"/></div>
             <div>
               <label style={S.label}>REPORTE PDF FIRMADO</label>
               {mForm.pdfArchivo?.path?(
