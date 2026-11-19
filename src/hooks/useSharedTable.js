@@ -80,7 +80,7 @@ export function useSharedTable(tabla) {
  * `guardarLista(nuevaLista)` compara contra lo actual y hace upsert/delete de la diferencia.
  */
 export function useListaCompartida(tabla) {
-  const { registros, loading, error, recargar } = useSharedTable(tabla);
+  const { registros, rowsRaw, loading, error, recargar } = useSharedTable(tabla);
   const [lista, setLista] = useState([]);
 
   useEffect(() => {
@@ -114,7 +114,8 @@ export function useListaCompartida(tabla) {
     await recargar();
   }
 
-  return [lista, guardarLista, loading, error];
+  // rowsRaw (5.º) trae el updated_at de cada renglón, p. ej. para mostrar la última actualización
+  return [lista, guardarLista, loading, error, rowsRaw];
 }
 
 /** Catálogo como arreglo de textos (ej. tipos, proveedores), persistido en Supabase. */

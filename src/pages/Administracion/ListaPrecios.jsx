@@ -45,10 +45,15 @@ function Campo({ etiqueta, children }) {
 }
 
 export default function ListaPrecios() {
-  const [precios, guardarPrecios] = useListaCompartida("lista_precios");
+  const [precios, guardarPrecios, , , filasRaw] = useListaCompartida("lista_precios");
   const [pestana, setPestana] = useState("equipos");
 
   const equipos = useMemo(() => precios.filter(esEquipo), [precios]);
+  // fecha del último equipo agregado o editado
+  const actualizado = useMemo(
+    () => (filasRaw || []).filter((r) => esEquipo(r.data || {})).reduce((max, r) => (r.updated_at > max ? r.updated_at : max), ""),
+    [filasRaw]
+  );
   const otros = useMemo(() => precios.filter((p) => !esEquipo(p)), [precios]);
   const guardarEquipos = (lista) => guardarPrecios([...otros, ...lista]);
   const guardarOtros = (lista) => guardarPrecios([...lista, ...equipos]);
@@ -62,7 +67,7 @@ export default function ListaPrecios() {
             <button style={pestana === "otros" ? S.btn : S.btnGris} onClick={() => setPestana("otros")}>Otros conceptos ({otros.length})</button>
           </div>
           {pestana === "equipos"
-            ? <EquiposRenta equipos={equipos} guardar={guardarEquipos} />
+            ? <EquiposRenta equipos={equipos} guardar={guardarEquipos} actualizado={actualizado} />
             : <OtrosConceptos lista={otros} guardar={guardarOtros} />}
         </div>
       </Layout>
@@ -71,7 +76,8 @@ export default function ListaPrecios() {
 }
 
 // =====================================================================================
-function EquiposRenta({ equipos, guardar }) {
+function EquiposRenta({ equipos, guardar, actualizado }) {
+  const fechaAct = actualizado ? new Date(actualizado).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" }) : "";
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState(NUEVO_EQUIPO);
   const [busqueda, setBusqueda] = useState("");
@@ -119,7 +125,7 @@ function EquiposRenta({ equipos, guardar }) {
   const exportar = () =>
     descargarExcelBonito({
       titulo: "Lista de Precios de Equipos en Renta · MAQSOL",
-      subtitulo: `${filtrados.length} equipos · precios sin IVA`,
+      subtitulo: `${filtrados.length} equipos · precios sin IVA${fechaAct ? " · última actualización: " + fechaAct : ""}`,
       columnas: ["Grupo", "Marca", "Modelo", "Tipo", "Altura a nivel de plataforma", "Altura máxima", "Capacidad", "Día", "Semana", "Mes", "Semana con operación", "Mes con operación", "Semana con operación y combustible", "Mes con operación y combustible", "Notas"],
       formatos: [null, null, null, null, null, null, null, "moneda", "moneda", "moneda", "moneda", "moneda", "moneda", "moneda", null],
       filas: filtrados.map((e) => [e.grupo, e.marca, e.modelo, e.tipo, e.alturaPlataforma, e.alturaMaxima, e.capacidad, ...COLUMNAS_PRECIO.map(([k]) => (num(e[k]) === "" ? "N/A" : num(e[k]))), e.notas || ""]),
@@ -138,6 +144,11 @@ function EquiposRenta({ equipos, guardar }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, gap: 10, flexWrap: "wrap" }}>
         <div>
           <h1 style={S.h1}>Lista de Precios · Equipos en renta</h1>
+          {fechaAct && (
+            <p style={{ margin: "2px 0 4px", fontSize: 14, fontWeight: 700, color: "#222" }}>
+              Lista de precios · última actualización: <span style={{ color: "#8F1D2C" }}>{fechaAct}</span>
+            </p>
+          )}
           <p style={S.sub}>{equipos.length} equipos · precios sin IVA · edita cualquier dato con el botón "Editar"</p>
         </div>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
