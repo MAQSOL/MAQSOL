@@ -58,7 +58,7 @@ const EQUIPO_NUEVO = {
 const fueraDeServicio=(e)=>e&&e.estadoOperativo==='Fuera de servicio'
 function BadgeEstadoEq({e,grande}){
   const fuera=fueraDeServicio(e)
-  return(<span style={{display:'inline-block',padding:grande?'5px 12px':'3px 9px',fontSize:grande?13:11.5,fontWeight:800,letterSpacing:.3,whiteSpace:'nowrap',background:fuera?'#c62828':'#e3f5ea',color:fuera?'#fff':'#17663a',border:'1.5px solid '+(fuera?'#c62828':'#1f8b4c')}}>{fuera?'✕ Fuera de servicio':'✓ Operativo'}</span>)
+  return(<span style={{display:'inline-block',padding:grande?'5px 12px':'3px 9px',fontSize:grande?13:11.5,fontWeight:800,letterSpacing:.3,whiteSpace:'nowrap',background:fuera?'#c62828':'#e3f5ea',color:fuera?'#fff':'#17663a',border:'1.5px solid '+(fuera?'#c62828':'#1f8b4c')}}>{fuera?'Fuera de servicio':'✓ Operativo'}</span>)
 }
 
 const MANTTO_NUEVO = {
@@ -457,7 +457,7 @@ export default function EquiposInternos(){
             {['Operativo','Fuera de servicio'].map(op=>{const on=(form.estadoOperativo||'Operativo')===op;const rojo=op==='Fuera de servicio';return(
               <button key={op} type="button" onClick={()=>setForm(f=>({...f,estadoOperativo:op,fueraServicioDesde:op==='Fuera de servicio'?(f.estadoOperativo==='Fuera de servicio'&&f.fueraServicioDesde?f.fueraServicioDesde:new Date().toISOString().slice(0,10)):''}))}
                 style={{padding:'9px 16px',border:'2px solid '+(rojo?'#c62828':'#1f8b4c'),borderRadius:4,cursor:'pointer',fontWeight:800,fontSize:13.5,background:on?(rojo?'#c62828':'#1f8b4c'):'#fff',color:on?'#fff':(rojo?'#c62828':'#1f8b4c'),boxShadow:on?'none':'2px 2px 0 #111'}}>
-                {rojo?'✕ ':'✓ '}{op}
+                {rojo?'':'✓ '}{op}
               </button>)})}
           </div>
           {fueraDeServicio(form)&&<div style={{marginBottom:10,maxWidth:260}}><label style={S.label}>FUERA DE SERVICIO DESDE</label><CampoFecha style={S.input} value={form.fueraServicioDesde||''} onChange={ev=>setForm({...form,fueraServicioDesde:ev.target.value})}/></div>}
@@ -854,7 +854,7 @@ export default function EquiposInternos(){
               <td style={{...S.td,minWidth:170,maxWidth:230}} onClick={ev=>ev.stopPropagation()}>
                 <select className={'sel-estado-eq '+(fueraDeServicio(e)?'fuera':'ok')} value={fueraDeServicio(e)?'Fuera de servicio':'Operativo'} onChange={ev=>cambiarEstadoTabla(e,ev.target.value)} title="Cambiar el estado del equipo">
                   <option value="Operativo">✓ Operativo</option>
-                  <option value="Fuera de servicio">✕ Fuera de servicio</option>
+                  <option value="Fuera de servicio">Fuera de servicio</option>
                 </select>
                 <div onClick={()=>editarComentarioTabla(e)} title="Clic para escribir o cambiar el comentario" style={{cursor:'pointer',fontSize:12,color:e.comentarioEstado?(fueraDeServicio(e)?'#a32020':'#666'):'#aaa',marginTop:6,lineHeight:1.3,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{e.comentarioEstado||'+ Agregar comentario'}</div>
               </td>
