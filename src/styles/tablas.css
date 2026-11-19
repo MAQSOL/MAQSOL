@@ -1,0 +1,9 @@
+/* ============================================
+   TABLAS: renglones alternados (blanco / gris muy claro) en todo el sistema,
+   para no perderse al leer una fila.
+   - Se pinta en las celdas, así una celda con color propio (inline) lo conserva.
+   - Si el renglón ya trae un color propio (resaltado o hover con fondo), se respeta.
+   ============================================ */
+tbody tr:nth-child(even):not([style*="background: rgb"]):not([style*="background-color: rgb"]) > td {
+  background-color: #f4f4f4;
+}
