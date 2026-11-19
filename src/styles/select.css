@@ -90,3 +90,7 @@ select.sel-estado-eq { width: auto; min-width: 160px; padding: 6px 30px 6px 10px
 select.sel-estado-eq.ok { background-color: #e3f5ea !important; color: #17663a !important; border-color: #1f8b4c !important; }
 select.sel-estado-eq.fuera { background-color: #c62828 !important; color: #fff !important; border-color: #8e1b1b !important; }
 select.sel-estado-eq option { background: #fff; color: #111; }
+
+/* Formulario de mantenimiento: todo en MAYÚSCULAS mientras se escribe (se guarda igual) */
+.form-mayus input[type="text"], .form-mayus input:not([type]), .form-mayus textarea { text-transform: uppercase; }
+.form-mayus input::placeholder, .form-mayus textarea::placeholder { text-transform: none; }

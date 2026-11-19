@@ -7,3 +7,6 @@
 tbody tr:nth-child(even):not([style*="background: rgb"]):not([style*="background-color: rgb"]) > td {
   background-color: #f4f4f4;
 }
+
+/* Tablas con todo centrado (ej. Equipos internos) */
+.tabla-centrada th, .tabla-centrada td { text-align: center !important; vertical-align: middle; }

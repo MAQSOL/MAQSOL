@@ -376,7 +376,13 @@ export default function EquiposInternos(){
     const eq=getActivo();if(!eq)return
     const manttos=Array.isArray(eq.mantenimientos)?eq.mantenimientos:[]
     const existe=manttos.some(m=>m.mid===mForm.mid)
-    const nuevos=existe?manttos.map(m=>m.mid===mForm.mid?mForm:m):[...manttos,mForm]
+    // todo el texto del mantenimiento se guarda en MAYÚSCULAS
+    const M=(v)=>typeof v==='string'?v.toUpperCase():v
+    const reg={...mForm}
+    ;['descripcion','aceiteDetalle','grasaDetalle','realizadoPor','autorizadoPor','lugarRealizado','insumos','observaciones','supervisor','horometro'].forEach(k=>{reg[k]=M(reg[k])})
+    reg.filtrosManuales=(reg.filtrosManuales||[]).map(x=>({...x,tipo:M(x.tipo),marca:M(x.marca),parte:M(x.parte)}))
+    reg.extras=(reg.extras||[]).map(x=>({...x,nombre:M(x.nombre),valor:M(x.valor)}))
+    const nuevos=existe?manttos.map(m=>m.mid===mForm.mid?reg:m):[...manttos,reg]
     const updates={mantenimientos:nuevos}
     if(mForm.proximoMantto)updates.proximoMantto=mForm.proximoMantto
     guardarEquipoRow(eq.id,{...eq,...updates});setModalMantto(false)
@@ -751,9 +757,10 @@ export default function EquiposInternos(){
         </div>
 
         {/* MODAL NUEVO/EDITAR MANTTO */}
-        {modalMantto&&(<div style={S.modalBg} onClick={()=>setModalMantto(false)}><div style={S.modal} onClick={ev=>ev.stopPropagation()}>
+        {modalMantto&&(<div style={S.modalBg} onClick={()=>setModalMantto(false)}><div className="form-mayus" style={S.modal} onClick={ev=>ev.stopPropagation()}>
           <h2 style={{fontSize:22,fontWeight:800,margin:'0 0 6px'}}>{(activo.mantenimientos||[]).some(m=>m.mid===mForm.mid)?'Editar mantenimiento':'Nuevo mantenimiento'}</h2>
-          <p style={{color:'#888',fontSize:13,margin:'0 0 18px'}}>{activo.tipo} {activo.marca} {activo.modelo}</p>
+          <p style={{color:'#888',fontSize:13,margin:'0 0 8px'}}>{activo.tipo} {activo.marca} {activo.modelo}{activo.serie&&<> · Serie <b style={{color:'#111',letterSpacing:.3}}>{activo.serie}</b></>}</p>
+          <p style={{color:'#0b3d91',fontSize:13.5,fontWeight:800,margin:'0 0 18px',padding:'8px 12px',background:'#eaf1fb',borderLeft:'4px solid #0b3d91'}}>Escribe de preferencia con MAYÚSCULAS. Si escribes en minúsculas, aquí se pasa todo a MAYÚSCULAS al guardar.</p>
           <div style={S.grid4}>
             <div><label style={S.label}>TIPO DE MANTTO</label><select style={S.input} value={mForm.tipoMantto} onChange={ev=>setMForm({...mForm,tipoMantto:ev.target.value})}><option>Preventivo</option><option>Correctivo</option></select></div>
             <div><label style={S.label}>FECHA</label><CampoFecha  style={S.input} value={mForm.fecha} onChange={ev=>setMForm({...mForm,fecha:ev.target.value})}/></div>
@@ -865,7 +872,7 @@ export default function EquiposInternos(){
         </div>
       </div>
       <div style={{...S.card,padding:0,overflowX:'auto'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',minWidth:950}}>
+        <table className="tabla-centrada" style={{width:'100%',borderCollapse:'collapse',minWidth:950}}>
           <thead><tr><th style={{...S.th,width:44,textAlign:'center'}}>★</th><th style={S.th}>EQUIPO</th><th style={S.th}>MARCA</th><th style={S.th}>MODELO</th><th style={S.th}>SERIE</th><th style={S.th}>HORÓMETRO</th><th style={S.th}>OPERADOR</th><th style={S.th}>UBICACIÓN</th><th style={S.th}>ESTADO</th><th style={S.th}>ÚLT. PREVENTIVO</th><th style={S.th}>ÚLT. CORRECTIVO</th><th style={S.th}>PRÓX. MANTTO</th><th style={{...S.th,width:50,textAlign:'center'}}></th></tr></thead>
           <tbody>
             {filtrados.length===0?<tr><td style={{...S.td,textAlign:'center',color:'#999',padding:40}} colSpan={13}>No hay equipos. Usa "Agregar equipo".</td></tr>
@@ -881,8 +888,8 @@ export default function EquiposInternos(){
                 </select>
                 <div onClick={()=>editarComentarioTabla(e)} title="Clic para escribir o cambiar el comentario" style={{cursor:'pointer',fontSize:12,color:e.comentarioEstado?(fueraDeServicio(e)?'#a32020':'#666'):'#aaa',marginTop:6,lineHeight:1.3,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{e.comentarioEstado||'+ Agregar comentario'}</div>
               </td>
-              <td style={{...S.td,minWidth:120}}>{(()=>{const m=ultimoDeTipo(e,'Preventivo');return m?<span style={{display:"flex",flexDirection:"column",gap:4,alignItems:"flex-start"}}><span style={{fontSize:13}}>{fFecha(m.fecha)}</span><BadgeMantto tipo="Preventivo"/></span>:<span style={{color:"#999",fontSize:13}}>Sin registro</span>})()}</td>
-              <td style={{...S.td,minWidth:170,maxWidth:240}}>{(()=>{const m=ultimoDeTipo(e,'Correctivo');return m?<span style={{display:"flex",flexDirection:"column",gap:4,alignItems:"flex-start"}}><span style={{fontSize:13}}>{fFecha(m.fecha)}</span><BadgeMantto tipo="Correctivo"/>{m.descripcion&&<span title={m.descripcion} style={{fontSize:12,color:"#6b4e00",lineHeight:1.3,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>{m.descripcion}</span>}</span>:<span style={{color:"#999",fontSize:13}}>Sin registro</span>})()}</td><td style={S.td}><Semaforo fecha={e.proximoMantto}/></td>
+              <td style={{...S.td,minWidth:120}}>{(()=>{const m=ultimoDeTipo(e,'Preventivo');return m?<span style={{display:"flex",flexDirection:"column",gap:4,alignItems:"center"}}><span style={{fontSize:13}}>{fFecha(m.fecha)}</span><BadgeMantto tipo="Preventivo"/></span>:<span style={{color:"#999",fontSize:13}}>Sin registro</span>})()}</td>
+              <td style={{...S.td,minWidth:170,maxWidth:240}}>{(()=>{const m=ultimoDeTipo(e,'Correctivo');return m?<span style={{display:"flex",flexDirection:"column",gap:4,alignItems:"center"}}><span style={{fontSize:13}}>{fFecha(m.fecha)}</span><BadgeMantto tipo="Correctivo"/>{m.descripcion&&<span title={m.descripcion} style={{fontSize:12,color:"#6b4e00",lineHeight:1.3,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>{m.descripcion}</span>}</span>:<span style={{color:"#999",fontSize:13}}>Sin registro</span>})()}</td><td style={S.td}><Semaforo fecha={e.proximoMantto}/></td>
               <td style={{...S.td,textAlign:'center'}} onClick={ev=>ev.stopPropagation()}><DeleteButton size="sm" title="Eliminar equipo" onConfirm={()=>eliminarEquipo(e)}/></td>
             </tr>))}
           </tbody>
