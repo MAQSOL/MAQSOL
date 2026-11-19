@@ -474,7 +474,7 @@ function Dashboard() {
 
                     {(
                       <DeleteButton
-                        size="sm"
+                        size="md"
                         title="Eliminar pendiente"
                         onConfirm={() => eliminarPendiente(item)}
                       />

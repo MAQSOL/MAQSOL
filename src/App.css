@@ -691,3 +691,11 @@ button:active { transform:translate(3px,3px) !important; box-shadow:0 0 0 transp
 
 /* alinear btn-check con DeleteButton sm */
 .btn-check{width:30px;height:30px}
+
+/* Pendientes del panel: palomita y bote de basura del mismo tamaño */
+.acciones-pendiente{align-items:center}
+.acciones-pendiente .btn-check{width:36px;height:36px}
+.acciones-pendiente .delbtn{width:36px;height:36px}
+.acciones-pendiente .delbtn .delbtn-trigger{flex-basis:32px;height:32px}
+.acciones-pendiente .delbtn .delbtn-panel{left:32px}
+.acciones-pendiente .delbtn.delbtn-open{width:96px}
