@@ -9,6 +9,11 @@ import CampoFecha from "../../components/CampoFecha"
 const VINO = 'var(--acento)'
 const KEY_EXTERNOS = 'equiposExternos'
 const KEY_PROVEEDORES = 'proveedoresExternos'
+// Contacto fijo de cada proveedor (tiene prioridad; si no está aquí, se usa el último capturado)
+const CONTACTOS_PROVEEDOR = {
+  MADISA: { contacto: 'Gaston Mojica', tel: '+52 998 239 0646' },
+  SEGAMAC: { contacto: 'Debany', tel: '+52 81 8053 5004' },
+}
 const KEY_TIPOS = 'tiposEquipoInterno' // mismo catálogo de tipos que Equipos Internos
 
 const TIPOS_INICIALES = ['Manipulador telescópico','Montacargas','Plataforma de tijera','Plataforma articulada','Minicargador','Retroexcavadora','Torre de iluminación','Generador']
@@ -146,7 +151,23 @@ export default function EquiposExternos(){
     guardarEquipos(equipos.map(e=>e.id===eq.id?{...e,estado:'Devuelto',fechaDevolucion:new Date().toISOString().slice(0,10)}:e))
   }
   function agregarProveedor(){const n=nuevoProveedor.trim();if(!n)return;if(!proveedores.includes(n))guardarProveedores([...proveedores,n].sort());setForm({...form,proveedor:n});setNuevoProveedor('');setModoNuevoProveedor(false)}
-  function cambiarProveedor(v){if(v==='__nuevo__'){setModoNuevoProveedor(true);return};setModoNuevoProveedor(false);setForm({...form,proveedor:v})}
+  // contacto y teléfono del proveedor: el fijo de CONTACTOS_PROVEEDOR, o el último capturado con ese proveedor
+  function contactoDeProveedor(prov){
+    const k=String(prov||'').trim().toLowerCase();if(!k)return null
+    const fijo=Object.entries(CONTACTOS_PROVEEDOR).find(([n])=>n.toLowerCase()===k)
+    if(fijo)return fijo[1]
+    const eq=equipos.find(e=>e.id!==form.id&&String(e.proveedor||'').trim().toLowerCase()===k&&(e.contactoProveedor||e.telProveedor))
+    return eq?{contacto:eq.contactoProveedor||'',tel:eq.telProveedor||''}:null
+  }
+  function cambiarProveedor(v){
+    if(v==='__nuevo__'){setModoNuevoProveedor(true);return}
+    setModoNuevoProveedor(false)
+    const c=contactoDeProveedor(v)
+    const cambio=v!==form.proveedor
+    setForm({...form,proveedor:v,
+      contactoProveedor:c?(c.contacto||form.contactoProveedor):(cambio&&form.proveedor?'':form.contactoProveedor),
+      telProveedor:c?(c.tel||form.telProveedor):(cambio&&form.proveedor?'':form.telProveedor)})
+  }
   function agregarTipoDesdeForm(){const n=nuevoTipoForm.trim();if(!n)return;if(!tipos.includes(n))guardarTipos([...tipos,n].sort());setForm({...form,tipo:n});setNuevoTipoForm('');setModoNuevoTipoForm(false)}
   function cambiarTipoForm(v){if(v==='__nuevo__'){setModoNuevoTipoForm(true);return};setModoNuevoTipoForm(false);setForm({...form,tipo:v})}
 
