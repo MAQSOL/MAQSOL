@@ -747,7 +747,7 @@ export default function Alquileres() {
                             const actual = ps[ps.length - 1], previo = ps[ps.length - 2];
                             const ok = a.liquidado || actual?.pago;
                             const renglon = (p, gris) => (
-                              <span style={{ display: "flex", justifyContent: "space-between", gap: 6, fontSize: 11, fontWeight: 700, opacity: gris ? 0.6 : 1 }}>
+                              <span style={{ display: "flex", justifyContent: "space-between", gap: 4, fontSize: 9.5, fontWeight: 700, opacity: gris ? 0.6 : 1 }}>
                                 <span>{p ? nombrePeriodo(p, true) : "Anterior"}</span>
                                 <span>{!p ? "—" : p.pago ? "✓ " + fFecha(p.pago.fecha).slice(0, 5) : "✗ pend."}</span>
                               </span>
@@ -755,13 +755,13 @@ export default function Alquileres() {
                             return (
                               <button
                                 className={"btn-sys " + (ok ? "btn-pagado" : "btn-nopagado")}
-                                style={{ ...S.btnGris, padding: "6px 8px", fontSize: 12.5, width: "100%", lineHeight: 1.25, whiteSpace: "normal" }}
+                                style={{ ...S.btnGris, padding: "3px 7px", fontSize: 11, width: "100%", lineHeight: 1.15, whiteSpace: "normal" }}
                                 onClick={() => setCobrando(a)}
                                 title="Estado de cuenta: pagos por periodo, observaciones y PDF"
                               >
                                 {a.liquidado ? "✓ No debe nada" : (
                                   <>
-                                    <span style={{ display: "block", marginBottom: 3 }}>$ {actual?.pago ? "Pagado" : "No pagado"}</span>
+                                    <span style={{ display: "block", marginBottom: 1 }}>$ {actual?.pago ? "Pagado" : "No pagado"}</span>
                                     {renglon(previo, !previo)}
                                     {renglon(actual)}
                                   </>
