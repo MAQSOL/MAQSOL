@@ -163,6 +163,28 @@ function Semaforo({fecha}){
   return(<span style={{display:'inline-flex',alignItems:'center',gap:7}}><span style={{width:9,height:9,borderRadius:'50%',background:color,display:'inline-block'}}/><span>{fFecha(fecha)}</span><span style={{color,fontSize:12,fontWeight:700}}>({texto})</span></span>)
 }
 
+// Caja del próximo mantenimiento en la ficha: fecha grande y chip de color según lo que falta
+function ProximoMantto({fecha}){
+  const d=diasPara(fecha)
+  const t=d===null?{c:'#888',bg:'#f6f6f6',txt:'Sin fecha programada'}
+    :d<0?{c:'#c62828',bg:'#fdecec',txt:'Vencido hace '+Math.abs(d)+(Math.abs(d)===1?' día':' días')}
+    :d===0?{c:'#c98a00',bg:'#fff6df',txt:'Es hoy'}
+    :d<=15?{c:'#c98a00',bg:'#fff6df',txt:'Faltan '+d+(d===1?' día':' días')}
+    :{c:'#1f8b4c',bg:'#eaf7ef',txt:'Faltan '+d+' días'}
+  return(
+    <div style={{marginTop:20,paddingTop:18,borderTop:'1px solid #e6e6e6'}}>
+      <div style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap',padding:'14px 18px',background:t.bg,borderLeft:'5px solid '+t.c}}>
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={t.c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><rect x="3" y="5" width="18" height="16" rx="1"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="m9 15 2 2 4-4"/></svg>
+        <div style={{flex:1,minWidth:160}}>
+          <div style={{fontSize:11.5,fontWeight:800,letterSpacing:1,color:'#666',marginBottom:3}}>PRÓXIMO MANTENIMIENTO</div>
+          <div style={{fontSize:20,fontWeight:800,color:'#111'}}>{fecha?fFecha(fecha):'—'}</div>
+        </div>
+        <span style={{fontSize:13,fontWeight:800,color:'#fff',background:t.c,padding:'6px 12px',whiteSpace:'nowrap'}}>{t.txt}</span>
+      </div>
+    </div>
+  )
+}
+
 // último mantenimiento de un tipo (Preventivo / Correctivo)
 function ultimoDeTipo(eq,tipo){
   const l=(Array.isArray(eq.mantenimientos)?eq.mantenimientos:[]).filter(m=>(m.tipoMantto||'Preventivo')===tipo)
@@ -565,7 +587,7 @@ export default function EquiposInternos(){
             <Dato etiqueta="MOTOR" valor={activo.motor}/><Dato etiqueta="CAPACIDAD DE CARGA" valor={activo.capacidad}/><Dato etiqueta="ALTURA MÁX. DE TRABAJO" valor={activo.alturaMaxima}/><Dato etiqueta="COMBUSTIBLE" valor={activo.combustible}/>
             <Dato etiqueta="PLACAS O NO. ECONÓMICO" valor={activo.placas}/>
           </div>
-          <div style={{marginTop:6}}><div style={S.label}>PRÓXIMO MANTENIMIENTO</div><div style={{fontSize:15}}><Semaforo fecha={activo.proximoMantto}/></div></div>
+          <ProximoMantto fecha={activo.proximoMantto}/>
         </Tarjeta>
 
         {/* FILTROS MULTI-MARCA */}
