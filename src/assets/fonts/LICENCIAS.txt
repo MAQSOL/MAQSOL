@@ -2,6 +2,7 @@ Fuentes para los PDF de cotización (src/utils/fuentesPDF.js).
 
 - Space Mono: Copyright 2016 The Space Mono Project Authors (https://github.com/googlefonts/spacemono)
 - IBM Plex Mono: Copyright 2017 IBM Corp.
+- Rubik Mono One: Copyright 2015 The Rubik Project Authors
 
 Ambas bajo SIL Open Font License 1.1: https://openfontlicense.org
 Descargadas de https://github.com/google/fonts

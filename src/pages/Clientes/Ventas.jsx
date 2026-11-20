@@ -245,15 +245,11 @@ doc.addImage(
   25.8
 );
 
-// NOMBRE Y DESCRIPCIÓN DE EMPRESA (tipografía minimalista, letras espaciadas)
-doc.setFont("space", "bold");
-doc.setFontSize(22);
+// NOMBRE Y DESCRIPCIÓN DE EMPRESA (título en Rubik Mono One, retro y grueso)
+doc.setFont("rubik", "normal");
+doc.setFontSize(21);
 doc.setTextColor(17, 17, 17);
-// contorno del mismo color para que la letra se vea más gruesa
-doc.setDrawColor(17, 17, 17);
-doc.setLineWidth(0.45);
-doc.text("MAQSOL", 54, 23, { charSpace: 2.2, renderingMode: "fillThenStroke" });
-doc.setLineWidth(0.2);
+doc.text("MAQSOL", 54, 23, { charSpace: 1.4 });
 
 doc.setFont("plex", "normal");
 doc.setFontSize(8.5);
