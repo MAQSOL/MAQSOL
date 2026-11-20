@@ -15,7 +15,8 @@ const CATEGORIAS = [
   { key: "horas",        label: "Reporte de Horas"   },
   { key: "diesel",       label: "Diesel"              },
   { key: "mantenimientos", label: "Reportes de Mantenimiento" },
-  { key: "otros",        label: "Otros"               },
+  { key: "estados",      label: "Estados de cuenta"   },
+  { key: "otros",       label: "Otros"               },
 ];
 
 function CatIcon({ k, color = "currentColor" }) {
