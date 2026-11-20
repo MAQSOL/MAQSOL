@@ -10,6 +10,7 @@ import { descargarExcelBonito, nombreArchivoFecha } from "../../utils/exportExce
 import { S, fFecha, hoyISO } from "../Administracion/estilosAdmin";
 import { IconoMas } from "../../components/Icons";
 import CampoFecha from "../../components/CampoFecha";
+import { ModalHorasRenta } from "../../components/HorasRenta";
 
 const BUCKET = "alquileres";
 const MAX_PDF_MB = 15;
@@ -569,6 +570,11 @@ export default function Alquileres() {
     setRenovando(null);
   };
 
+  const [horasDe, setHorasDe] = useState(null); // renta abierta en "Reporte de horas"
+  const guardarHorasDias = (a, horasDias) => {
+    guardarAlquileres(alquileres.map((x) => (x.id === a.id ? { ...x, horasDias } : x)));
+    setHorasDe((h) => (h ? { ...h, horasDias } : h));
+  };
   const [cobrando, setCobrando] = useState(null);
   const guardarPagos = (a, pagos) => {
     guardarAlquileres(alquileres.map((x) => (x.id === a.id ? { ...x, pagos } : x)));
@@ -796,6 +802,9 @@ export default function Alquileres() {
                           <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 10px", fontSize: 13, width: "100%" }} onClick={() => finalizar(a)} title={a.finalizado ? "Reabrir alquiler" : "Marcar como terminado / devuelto"}>
                             {a.finalizado ? "Reabrir" : "✓ Terminar"}
                           </button>
+                          <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 10px", fontSize: 13, width: "100%" }} onClick={() => setHorasDe(a)} title="Horas trabajadas por día: faltas del operador, fallas y PDF">
+                            🕘 Horas
+                          </button>
                           {(() => {
                             const pg = pagoDelPeriodo(a);
                             return (
@@ -822,6 +831,7 @@ export default function Alquileres() {
         </div>
       </div>
 
+      {horasDe && <ModalHorasRenta alquiler={horasDe} onGuardar={(hd) => guardarHorasDias(horasDe, hd)} onCerrar={() => setHorasDe(null)} />}
       {cobrando && <ModalPago alquiler={cobrando} onGuardar={(pagos) => guardarPagos(cobrando, pagos)} onCerrar={() => setCobrando(null)} />}
       {renovando && <ModalRenovar alquiler={renovando} onGuardar={(r) => renovar(renovando, r)} onCerrar={() => setRenovando(null)} />}
 

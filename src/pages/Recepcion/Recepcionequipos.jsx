@@ -16,6 +16,7 @@ import { comprimirImagen, rutaUnica, extensionDe } from '../../utils/imagenes'
 import { nuevoToken, urlBase } from '../../utils/qrEquipo'
 import { IconoMas } from '../../components/Icons'
 import CampoFecha from "../../components/CampoFecha"
+import { ModalHorasRenta } from "../../components/HorasRenta"
 
 const VINO = 'var(--acento)'
 
@@ -232,6 +233,9 @@ export default function Recepcionequipos(){
     return registros.filter(r=>normal(r.serie)===normal(a.serie)&&(!a.cliente||!r.cliente||normal(r.cliente)===normal(a.cliente)))
       .sort((x,y)=>(y.fecha||'').localeCompare(x.fecha||''))[0]||null
   }
+  // "Reporte de horas" de una renta (el mismo de Rentas Activas)
+  const[horasDe,setHorasDe]=useState(null)
+  async function guardarHorasDias(a,horasDias){await guardarAlquileres(alquileres.map(x=>x.id===a.id?{...x,horasDias}:x));setHorasDe(h=>h?{...h,horasDias}:h)}
   const rentasActivas=alquileres.filter(a=>!a.finalizado).sort((x,y)=>(x.fechaFin||'9').localeCompare(y.fechaFin||'9'))
   function checklistDesdeRenta(a){
     const seq=siguienteSeq()
@@ -603,6 +607,7 @@ export default function Recepcionequipos(){
                   :<span style={chip('#666','#eee')}>Sin checklist</span>}
                 </td>
                 <td style={{...S.td,textAlign:'right',whiteSpace:'nowrap'}}>
+                  <button style={{...S.btnGrisSm,marginRight:6}} title="Horas trabajadas por día y PDF" onClick={()=>setHorasDe(a)}>🕘 Horas</button>
                   {par?<button style={{...S.btnGrisSm,background:'#1f8b4c',color:'#fff'}} onClick={()=>abrirEditar(par)}>Ver checklist</button>
                   :a.sinChecklist?<button style={S.btnGrisSm} title="Volver a pedir checklist para esta renta" onClick={()=>marcarSinChecklist(a,false)}>Sí lleva</button>
                   :!a.checklist?.path&&<>
@@ -679,6 +684,7 @@ export default function Recepcionequipos(){
       </div></div>)}
 
       {/* MODAL ALTA/EDICIÓN */}
+      {horasDe&&<ModalHorasRenta alquiler={horasDe} onGuardar={hd=>guardarHorasDias(horasDe,hd)} onCerrar={()=>setHorasDe(null)}/>}
       {modal&&!soloDocs&&(<div style={S.modalBg} onClick={()=>setModal(false)}><div style={S.modal} onClick={ev=>ev.stopPropagation()}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <h2 style={{fontSize:22,fontWeight:800,margin:0}}>{registros.some(r=>r.id===form.id)?'Editar checklist':'Nuevo checklist'}</h2>
