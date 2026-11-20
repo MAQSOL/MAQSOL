@@ -247,6 +247,8 @@ export default function CargasDiesel() {
       .join("");
     abrirDocPDF({
       nombre: "Cargas de diesel",
+      // copia automática en Archivos > Diesel (se reemplaza si se vuelve a generar el mismo periodo)
+      archivar: { categoria: "diesel", nombre: "Cargas de diesel " + etiquetaPeriodo + ".pdf" },
       cuerpo: `${encabezadoDoc("Cargas de Combustible", [etiquetaPeriodo, "Generado: " + hoyMX()])}
       <h2>Resumen por máquina</h2>
       <table><thead><tr><th>Máquina</th><th>Serie</th><th class="c">Cargas</th><th class="r">Litros</th><th class="r">Importe</th><th class="r">Con impuestos</th></tr></thead><tbody>${resumen}</tbody></table>

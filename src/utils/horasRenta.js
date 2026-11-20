@@ -93,6 +93,7 @@ export function descargarHorasPDF(a) {
   }).join("");
   abrirDocPDF({
     nombre: "Horas " + (a.serie || equipo || "") + " " + (a.cliente || ""),
+    archivar: { categoria: "horas", nombre: "Horas " + (a.serie || equipo || a.id) + " " + (a.cliente || "") + ".pdf" },
     hoja: "vertical",
     cuerpo: `${encabezadoDoc("Reporte de Horas", [
       equipo + (a.serie ? " — Serie: " + a.serie : ""),

@@ -608,7 +608,7 @@ export default function Recepcionequipos(){
                 </td>
                 <td style={{...S.td,textAlign:'right',whiteSpace:'nowrap'}}>
                   <button style={{...S.btnGrisSm,marginRight:6}} title="Horas trabajadas por día y PDF" onClick={()=>setHorasDe(a)}>🕘 Horas</button>
-                  {par?<button style={{...S.btnGrisSm,background:'#1f8b4c',color:'#fff'}} onClick={()=>abrirEditar(par)}>Ver checklist</button>
+                  {par?<><button style={{...S.btnGrisSm,background:'#1f8b4c',color:'#fff'}} onClick={()=>abrirEditar(par)}>Ver checklist</button><button className="btn-sys btn-pdf" style={{...S.btnGrisSm,marginLeft:6}} title="Abrir el PDF del checklist" onClick={()=>descargarPDF(par)}>Ver PDF</button></>
                   :a.sinChecklist?<button style={S.btnGrisSm} title="Volver a pedir checklist para esta renta" onClick={()=>marcarSinChecklist(a,false)}>Sí lleva</button>
                   :!a.checklist?.path&&<>
                     <button style={S.btnSm} title="Crear el checklist de entrega con los datos de esta renta" onClick={()=>checklistDesdeRenta(a)}><IconoMas />Checklist</button>

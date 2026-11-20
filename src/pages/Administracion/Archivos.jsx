@@ -97,7 +97,7 @@ export default function Archivos() {
   const [conteos, setConteos]       = useState({});
   const [visor, setVisor]           = useState(null); // { url, nombre }
   const fileRef = useRef();
-  const [ordenes] = useListaCompartida("ordenes_compra");
+  const [ordenes, guardarOrdenes] = useListaCompartida("ordenes_compra");
 
   const cargar = useCallback(async (cat) => {
     setCargando(true);
@@ -330,7 +330,7 @@ export default function Archivos() {
                 onDrop={onDrop}
               >
                 {ocFiltradas.map(o => (
-                  <OrdenCard key={o.id} orden={o} onAbrir={() => abrirOrdenPDF({ ...ORDEN_NUEVA, ...o })} />
+                  <OrdenCard key={o.id} orden={o} onAbrir={() => abrirOrdenPDF({ ...ORDEN_NUEVA, ...o })} onEliminar={() => guardarOrdenes(ordenes.filter((x) => x.id !== o.id))} />
                 ))}
                 {filtrados.map(archivo => (
                   <FileCard
@@ -414,7 +414,7 @@ export default function Archivos() {
   );
 }
 
-function OrdenCard({ orden, onAbrir }) {
+function OrdenCard({ orden, onAbrir, onEliminar }) {
   const [hover, setHover] = useState(false);
   const total = calcularTotales(orden).total;
   return (
@@ -449,6 +449,8 @@ function OrdenCard({ orden, onAbrir }) {
         >
           PDF
         </button>
+        {/* borra la orden de compra (también desaparece de Órdenes de Compra) */}
+        <DeleteButton size="sm" title="Eliminar orden de compra (también se borra de Órdenes de Compra)" onConfirm={onEliminar} />
       </div>
     </div>
   );

@@ -81,12 +81,55 @@ export const pieDoc = (texto = "") => {
  * Abre la ventana y lanza imprimir ("Guardar como PDF"). `nombre` es el título de
  * la ventana, que el navegador propone como nombre del archivo.
  */
-export function abrirDocPDF({ nombre, cuerpo, hoja = "auto", css = "" }) {
-  abrirHtmlImprimible(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(nombre)}</title>
+export function abrirDocPDF({ nombre, cuerpo, hoja = "auto", css = "", archivar = null }) {
+  const cabeza = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(nombre)}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>${cssDoc({ hoja, extra: css })}</style></head><body>${cuerpo}
+    <style>${cssDoc({ hoja, extra: css })}</style></head><body>${cuerpo}`;
+  abrirHtmlImprimible(cabeza + `
     <script>document.fonts.ready.then(function(){window.print()});</script></body></html>`);
+  // copia en PDF al explorador de Archivos (ej. { categoria: "diesel", nombre: "Cargas semana 3.pdf" })
+  if (archivar?.categoria && archivar?.nombre) {
+    htmlAPdfBlob(cabeza + "</body></html>", { horizontal: hoja === "horizontal" })
+      .then((blob) => import("./archivoAuto").then((m) => m.guardarEnArchivos(archivar.categoria, archivar.nombre, blob)))
+      .catch((e) => console.warn("No se pudo guardar la copia en Archivos:", e));
+  }
+}
+
+/**
+ * Convierte un HTML del sistema en un PDF (imagen por hoja, tamaño carta) sin abrir nada:
+ * se dibuja en un iframe oculto con html2canvas y se reparte en hojas con jsPDF.
+ */
+export async function htmlAPdfBlob(html, { horizontal = false } = {}) {
+  const ancho = horizontal ? 1056 : 816; // carta a 96 dpi
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("aria-hidden", "true");
+  iframe.style.cssText = `position:fixed;left:-20000px;top:0;width:${ancho}px;height:1200px;border:0;visibility:hidden`;
+  document.body.appendChild(iframe);
+  try {
+    const d = iframe.contentDocument;
+    d.open(); d.write(html); d.close();
+    await new Promise((ok) => (d.readyState === "complete" ? ok() : iframe.addEventListener("load", ok, { once: true })));
+    try { await d.fonts?.ready; } catch { /* sin fuentes web */ }
+    await new Promise((ok) => setTimeout(ok, 250));
+    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
+    const canvas = await html2canvas(d.body, { scale: 2, backgroundColor: "#ffffff", windowWidth: ancho, width: ancho, useCORS: true, logging: false });
+    const pdf = new jsPDF({ orientation: horizontal ? "landscape" : "portrait", unit: "pt", format: "letter" });
+    const W = pdf.internal.pageSize.getWidth(), H = pdf.internal.pageSize.getHeight();
+    const pxPorPt = canvas.width / W;
+    const altoHoja = Math.floor(H * pxPorPt);
+    for (let y = 0, hoja = 0; y < canvas.height; y += altoHoja, hoja++) {
+      const trozo = document.createElement("canvas");
+      trozo.width = canvas.width;
+      trozo.height = Math.min(altoHoja, canvas.height - y);
+      trozo.getContext("2d").drawImage(canvas, 0, -y);
+      if (hoja) pdf.addPage();
+      pdf.addImage(trozo.toDataURL("image/jpeg", 0.9), "JPEG", 0, 0, W, trozo.height / pxPorPt);
+    }
+    return pdf.output("blob");
+  } finally {
+    iframe.remove();
+  }
 }
 
 /**
