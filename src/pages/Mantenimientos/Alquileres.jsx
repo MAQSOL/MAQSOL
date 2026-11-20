@@ -11,6 +11,7 @@ import { S, fFecha, hoyISO } from "../Administracion/estilosAdmin";
 import { IconoMas } from "../../components/Icons";
 import CampoFecha from "../../components/CampoFecha";
 import { ModalHorasRenta } from "../../components/HorasRenta";
+import { descargarHorasPDF } from "../../utils/horasRenta";
 import { ModalEstadoCuenta } from "../../components/EstadoCuentaRenta";
 import { periodosDe, nombrePeriodo } from "../../utils/estadoCuenta";
 
@@ -501,6 +502,8 @@ export default function Alquileres() {
   };
 
   const [horasDe, setHorasDe] = useState(null); // renta abierta en "Reporte de horas"
+  const [elegirHoras, setElegirHoras] = useState(false); // ventana para escoger la máquina
+  const [horasId, setHorasId] = useState("");
   const guardarHorasDias = (a, horasDias) => {
     guardarAlquileres(alquileres.map((x) => (x.id === a.id ? { ...x, horasDias } : x)));
     setHorasDe((h) => (h ? { ...h, horasDias } : h));
@@ -629,6 +632,10 @@ export default function Alquileres() {
               {t} <span style={{ opacity: 0.7, marginLeft: 4 }}>({n})</span>
             </button>
           ))}
+          <button type="button" className="btn-sys" onClick={() => { setHorasId(""); setElegirHoras(true); }}
+            style={{ ...S.btnGris, padding: "8px 16px", fontSize: 13.5 }} title="Escoge la máquina para registrar horas o ver su reporte">
+            🕘 Horas
+          </button>
           {vista === "historial" && <span style={{ alignSelf: "center", fontSize: 12.5, color: "#888" }}>Rentas terminadas o que ya tienen checklist de salida y de entrada.</span>}
         </div>
 
@@ -733,9 +740,6 @@ export default function Alquileres() {
                           <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 10px", fontSize: 13, width: "100%" }} onClick={() => finalizar(a)} title={a.finalizado ? "Reabrir alquiler" : "Marcar como terminado / devuelto"}>
                             {a.finalizado ? "Reabrir" : "✓ Terminar"}
                           </button>
-                          <button className="btn-sys" style={{ ...S.btnGris, padding: "6px 10px", fontSize: 13, width: "100%" }} onClick={() => setHorasDe(a)} title="Horas trabajadas por día: faltas del operador, fallas y PDF">
-                            🕘 Horas
-                          </button>
                           {(() => {
                             // pagos: el periodo actual y el anterior (ej. Nov y Oct, o Sem 46 y 45)
                             const ps = periodosDe(a);
@@ -767,6 +771,32 @@ export default function Alquileres() {
         </div>
       </div>
 
+      {elegirHoras && (() => {
+        const etiqueta = (a) => [a.tipo, a.marca, a.modelo].filter(Boolean).join(" ") + (a.serie ? " · " + a.serie : "") + (a.cliente ? " · " + a.cliente : "");
+        const orden = (x, y) => etiqueta(x).localeCompare(etiqueta(y), "es");
+        const activas = alquileres.filter((a) => !enHistorial(a)).sort(orden);
+        const terminadas = alquileres.filter(enHistorial).sort(orden);
+        const sel = alquileres.find((a) => a.id === horasId);
+        return (
+          <div style={S.modalBg} onClick={() => setElegirHoras(false)}>
+            <div style={{ ...S.modal, maxWidth: 540 }} onClick={(e) => e.stopPropagation()}>
+              <h2 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 4px" }}>Horas de la máquina</h2>
+              <p style={{ color: "#777", fontSize: 14, margin: "0 0 16px" }}>Elige la máquina en renta para registrar sus horas (faltas, fallas, descansos) o ver su reporte en PDF.</p>
+              <label style={S.label}>MÁQUINA</label>
+              <select style={{ ...S.input, marginBottom: 18 }} value={horasId} onChange={(e) => setHorasId(e.target.value)} autoFocus>
+                <option value="">Selecciona una máquina…</option>
+                {activas.length > 0 && <optgroup label="Rentas activas">{activas.map((a) => <option key={a.id} value={a.id}>{etiqueta(a)}</option>)}</optgroup>}
+                {terminadas.length > 0 && <optgroup label="Historial">{terminadas.map((a) => <option key={a.id} value={a.id}>{etiqueta(a)}</option>)}</optgroup>}
+              </select>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, flexWrap: "wrap" }}>
+                <button className="btn-sys" style={S.btnGris} onClick={() => setElegirHoras(false)}>Cancelar</button>
+                <button className="btn-sys btn-pdf" style={{ ...S.btnGris, opacity: sel ? 1 : 0.5 }} onClick={() => { if (!sel) return alert("Elige una máquina primero."); descargarHorasPDF(sel); setElegirHoras(false); }}>Ver reporte PDF</button>
+                <button className="btn-sys" style={{ ...S.btn, opacity: sel ? 1 : 0.5 }} onClick={() => { if (!sel) return alert("Elige una máquina primero."); setHorasDe(sel); setElegirHoras(false); }}>Registrar horas</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
       {horasDe && <ModalHorasRenta alquiler={horasDe} onGuardar={(hd) => guardarHorasDias(horasDe, hd)} onCerrar={() => setHorasDe(null)} />}
       {cobrando && <ModalEstadoCuenta alquiler={cobrando} onGuardar={(c) => guardarCuenta(cobrando, c)} onCerrar={() => setCobrando(null)} />}
       {renovando && <ModalRenovar alquiler={renovando} onGuardar={(r) => renovar(renovando, r)} onCerrar={() => setRenovando(null)} />}
