@@ -89,6 +89,7 @@ function IconoChip({ tipo }) {
   if (tipo === "combustible") return <svg {...p}><path d="M4 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16"/><path d="M3 21h13"/><path d="M7 8h5"/><path d="M15 10h1.5a1.5 1.5 0 0 1 1.5 1.5V17a1.5 1.5 0 0 0 3 0V8.5L18 6"/></svg>;
   if (tipo === "operador") return <svg {...p}><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-1.5A5.5 5.5 0 0 1 10.5 14h3a5.5 5.5 0 0 1 5.5 5.5V21"/></svg>;
   if (tipo === "casa") return <svg {...p}><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>;
+  if (tipo === "reloj") return <svg {...p}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>;
   if (tipo === "externo") return <svg {...p}><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>;
   return <svg {...p}><rect x="3" y="10" width="13" height="7" rx="1"/><circle cx="7" cy="19" r="1.6"/><circle cx="13" cy="19" r="1.6"/><path d="M16 13h3l2 3v1h-5"/><path d="M6 10V6h5l2 4"/></svg>;
 }
@@ -633,8 +634,8 @@ export default function Alquileres() {
             </button>
           ))}
           <button type="button" className="btn-sys" onClick={() => { setHorasId(""); setElegirHoras(true); }}
-            style={{ ...S.btnGris, padding: "8px 16px", fontSize: 13.5 }} title="Escoge la máquina para registrar horas o ver su reporte">
-            🕘 Horas
+            style={{ ...S.btnGris, padding: "8px 16px", fontSize: 13.5, display: "inline-flex", alignItems: "center", gap: 7 }} title="Escoge la máquina para registrar horas o ver su reporte">
+            <span style={{ display: "inline-flex", transform: "scale(1.25)" }}><IconoChip tipo="reloj" /></span>Horas
           </button>
           {vista === "historial" && <span style={{ alignSelf: "center", fontSize: 12.5, color: "#888" }}>Rentas terminadas o que ya tienen checklist de salida y de entrada.</span>}
         </div>
@@ -745,7 +746,12 @@ export default function Alquileres() {
                             const ps = periodosDe(a);
                             const actual = ps[ps.length - 1], previo = ps[ps.length - 2];
                             const ok = a.liquidado || actual?.pago;
-                            const linea = (p) => p && (p.pago ? "✓ " + fFecha(p.pago.fecha).slice(0, 5) : "pendiente");
+                            const renglon = (p, gris) => (
+                              <span style={{ display: "flex", justifyContent: "space-between", gap: 6, fontSize: 11, fontWeight: 700, opacity: gris ? 0.6 : 1 }}>
+                                <span>{p ? nombrePeriodo(p, true) : "Anterior"}</span>
+                                <span>{!p ? "—" : p.pago ? "✓ " + fFecha(p.pago.fecha).slice(0, 5) : "✗ pend."}</span>
+                              </span>
+                            );
                             return (
                               <button
                                 className={"btn-sys " + (ok ? "btn-pagado" : "btn-nopagado")}
@@ -753,9 +759,13 @@ export default function Alquileres() {
                                 onClick={() => setCobrando(a)}
                                 title="Estado de cuenta: pagos por periodo, observaciones y PDF"
                               >
-                                {a.liquidado ? "✓ No debe nada" : <>$ {actual ? nombrePeriodo(actual, true) : ""} · {actual?.pago ? "Pagado" : "No pagado"}</>}
-                                {!a.liquidado && previo && <span style={{ display: "block", fontSize: 10.5, fontWeight: 600, opacity: 0.85 }}>{nombrePeriodo(previo, true)} {linea(previo)}</span>}
-                                {!a.liquidado && !previo && actual?.pago && <span style={{ display: "block", fontSize: 10.5, fontWeight: 600 }}>{fFecha(actual.pago.fecha)}</span>}
+                                {a.liquidado ? "✓ No debe nada" : (
+                                  <>
+                                    <span style={{ display: "block", marginBottom: 3 }}>$ {actual?.pago ? "Pagado" : "No pagado"}</span>
+                                    {renglon(previo, !previo)}
+                                    {renglon(actual)}
+                                  </>
+                                )}
                               </button>
                             );
                           })()}
