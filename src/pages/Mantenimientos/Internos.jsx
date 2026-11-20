@@ -293,6 +293,8 @@ export default function EquiposInternos(){
   const[filtroHasta,setFiltroHasta]=useState('')
   // "Descargar ficha" desde la lista: primero se elige el equipo
   const[elegirFicha,setElegirFicha]=useState(false)
+  // Filtros: en la ficha se ven solo para leer; se editan con "Editar filtros" (guarda el id del equipo en edición)
+  const[editFiltrosId,setEditFiltrosId]=useState(null)
   const[fichaId,setFichaId]=useState('')
 
   // Mientras hay guardados en camino, cada cambio nuevo parte de lo ÚLTIMO que se mandó
@@ -569,10 +571,31 @@ export default function EquiposInternos(){
         {/* FILTROS MULTI-MARCA */}
         <Tarjeta id="filtros">
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-            <div><h2 style={S.h2}>Filtros de la Máquina</h2><p style={{color:'#777',fontSize:13,margin:'-4px 0 0'}}>Puedes agregar varias marcas por tipo de filtro.</p></div>
-            <button style={S.btnSm} onClick={agregarFiltro}><IconoMas />Agregar filtro</button>
+            <div><h2 style={S.h2}>Filtros de la Máquina</h2><p style={{color:'#777',fontSize:13,margin:'-4px 0 0'}}>{editFiltrosId===activo.id?'Editando: puedes agregar varias marcas por tipo de filtro.':'Vista de los filtros del equipo. Para cambiarlos usa “Editar filtros”.'}</p></div>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap',justifyContent:'flex-end'}}>
+              {editFiltrosId===activo.id
+                ?<><button style={S.btnSm} onClick={agregarFiltro}><IconoMas />Agregar filtro</button><button className="btn-sys btn-verde" style={S.btnSm} onClick={()=>setEditFiltrosId(null)}>✓ Listo</button></>
+                :<button className="btn-sys" style={S.btnGrisSm} onClick={()=>setEditFiltrosId(activo.id)}>✎ Editar filtros</button>}
+            </div>
           </div>
-          {(!activo.filtros||activo.filtros.length===0)?<p style={{color:'#999',fontSize:14}}>No hay filtros registrados. Usa el botón de arriba para agregar.</p>:(
+          {(!activo.filtros||activo.filtros.length===0)?<p style={{color:'#999',fontSize:14}}>No hay filtros registrados. Usa “Editar filtros” para agregar.</p>:editFiltrosId!==activo.id?(
+            <table style={{width:'100%',borderCollapse:'collapse'}}>
+              <thead><tr><th style={{...S.th,width:170}}>TIPO</th><th style={{...S.th,width:200}}>MARCA</th><th style={S.th}>NÚMERO DE PARTE</th><th style={{...S.th,width:90,textAlign:'center'}}>COPIAR</th></tr></thead>
+              <tbody>{ordenarFiltros(activo.filtros).map((f,i,lista)=>{
+                const clase=claseFiltro(f.tipo)
+                const inicioGrupo=i===0||claseFiltro(lista[i-1].tipo)!==clase
+                return[inicioGrupo&&(
+                <tr key={'v-clase-'+clase}><td colSpan={4} style={{padding:'12px 12px 6px',fontSize:12,fontWeight:800,letterSpacing:.6,color:clase==='Sin tipo'?'#c98a00':'var(--acento)',background:'#fafafa',borderBottom:'1px solid #eee'}}>
+                  {clase==='Sin tipo'?'SIN TIPO':clase.toUpperCase()} · {lista.filter(x=>claseFiltro(x.tipo)===clase).length}
+                </td></tr>),
+                <tr key={'v-'+f.id}>
+                  <td style={{...S.td,fontWeight:700}}>{f.tipo||<span style={{color:'#c98a00'}}>Sin tipo</span>}</td>
+                  <td style={S.td}>{f.marca||<span style={{color:'#bbb'}}>—</span>}</td>
+                  <td style={{...S.td,fontFamily:"'Space Mono', monospace",fontWeight:700,fontSize:15,letterSpacing:.4}}>{f.parte||<span style={{color:'#bbb',fontWeight:400}}>—</span>}</td>
+                  <td style={{...S.td,textAlign:'center'}}>{f.parte&&<button style={S.btnGrisSm} onClick={()=>{navigator.clipboard.writeText(f.parte);alert('Copiado: '+f.parte)}}>Copiar</button>}</td>
+                </tr>]})}</tbody>
+            </table>
+          ):(
             <table style={{width:'100%',borderCollapse:'collapse'}}>
               <thead><tr><th style={{...S.th,width:150}}>TIPO</th><th style={{...S.th,width:200}}>MARCA</th><th style={S.th}>NÚMERO DE PARTE</th><th style={{...S.th,width:80,textAlign:'center'}}>COPIAR</th><th style={{...S.th,width:50}}></th></tr></thead>
               <tbody>{ordenarFiltros(activo.filtros).map((f,i,lista)=>{
