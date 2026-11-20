@@ -170,7 +170,8 @@ export default function Recepcionequipos(){
   const[busqueda,setBusqueda]=useState(()=>{try{return new URLSearchParams(window.location.search).get('buscar')||''}catch{return ''}})
   const[orden,setOrden]=useState({col:null,dir:1})
   const[alqDestino,setAlqDestino]=useState(null) // renta a la que se liga el checklist que se está creando
-  const[verRentas,setVerRentas]=useState(()=>{try{return localStorage.getItem('recepcion_ver_rentas')!=='0'}catch{return true}})
+  // las rentas activas siempre empiezan minimizadas al entrar; se abren con el botón
+  const[verRentas,setVerRentas]=useState(false)
   const[fCliente,setFCliente]=useState('')
   const[fTipo,setFTipo]=useState('')
   const[folioManual,setFolioManual]=useState(false)
@@ -582,7 +583,7 @@ export default function Recepcionequipos(){
             <div style={{fontWeight:800,fontSize:15,letterSpacing:.3}}>RENTAS ACTIVAS <span style={{color:VINO}}>({rentasActivas.length})</span></div>
             <div style={{fontSize:12.5,color:'#888'}}>Cada renta con su checklist de entrega · {rentasActivas.filter(a=>!checklistDeRenta(a)&&!a.checklist?.path&&!a.sinChecklist).length} sin checklist</div>
           </div>
-          <button type="button" className="btn-sys" style={{...S.btnGrisSm,padding:'6px 12px'}} onClick={()=>{const v=!verRentas;setVerRentas(v);try{localStorage.setItem('recepcion_ver_rentas',v?'1':'0')}catch{}}}>{verRentas?'Ocultar':'Mostrar'}</button>
+          <button type="button" className="btn-sys" style={{...S.btnGrisSm,padding:'6px 12px'}} onClick={()=>setVerRentas(v=>!v)}>{verRentas?'Ocultar':'Mostrar'}</button>
         </div>
         {verRentas&&(rentasActivas.length===0
           ?<div style={{padding:24,textAlign:'center',color:'#999'}}>No hay rentas activas.</div>

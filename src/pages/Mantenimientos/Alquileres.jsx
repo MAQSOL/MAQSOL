@@ -11,6 +11,8 @@ import { S, fFecha, hoyISO } from "../Administracion/estilosAdmin";
 import { IconoMas } from "../../components/Icons";
 import CampoFecha from "../../components/CampoFecha";
 import { ModalHorasRenta } from "../../components/HorasRenta";
+import { ModalEstadoCuenta } from "../../components/EstadoCuentaRenta";
+import { periodosDe, nombrePeriodo } from "../../utils/estadoCuenta";
 
 const BUCKET = "alquileres";
 const MAX_PDF_MB = 15;
@@ -217,78 +219,6 @@ function ModalRenovar({ alquiler, onGuardar, onCerrar }) {
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
           <button className="btn-sys" style={S.btnGris} onClick={onCerrar}>Cancelar</button>
           <button className="btn-sys" style={S.btn} onClick={guardar}>Guardar renovación</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ---------- Pagos del cliente ----------
-// Solo se registra si el cliente pagó y cuándo. Cada pago queda ligado al periodo en que se
-// registró: al renovar, el nuevo periodo empieza "sin pagar".
-const pagoDelPeriodo = (a) => (a.pagos || []).find((p) => p.periodoInicio === a.fechaInicio && p.periodoFin === a.fechaFin) || null;
-
-function ModalPago({ alquiler, onGuardar, onCerrar }) {
-  const pagado = pagoDelPeriodo(alquiler);
-  const [fecha, setFecha] = useState(hoyISO());
-  const [error, setError] = useState("");
-  const pagos = [...(alquiler.pagos || [])].sort((x, y) => String(y.fecha).localeCompare(String(x.fecha)));
-
-  const registrar = () => {
-    if (!fecha) return setError("Pon la fecha en que pagó.");
-    const nuevo = { id: "PG-" + Date.now(), fecha, periodoInicio: alquiler.fechaInicio, periodoFin: alquiler.fechaFin, registrado: hoyISO() };
-    onGuardar([...(alquiler.pagos || []), nuevo]);
-    onCerrar();
-  };
-  const quitar = (p) => {
-    if (!window.confirm("¿Quitar este pago? El periodo quedará como no pagado.")) return;
-    onGuardar((alquiler.pagos || []).filter((x) => x.id !== p.id));
-  };
-
-  return (
-    <div style={S.modalBg} onClick={onCerrar}>
-      <div style={{ ...S.modal, maxWidth: 560 }} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ margin: "0 0 4px" }}>Pago del cliente</h2>
-        <p style={{ color: "#777", margin: "0 0 14px", fontSize: 14 }}>
-          {[alquiler.tipo, alquiler.marca, alquiler.modelo].filter(Boolean).join(" ")} · {alquiler.cliente}
-          <br />Periodo actual: {fFecha(alquiler.fechaInicio)} → {fFecha(alquiler.fechaFin)}
-        </p>
-
-        <div style={{ padding: "12px 14px", marginBottom: 16, border: "2px solid " + (pagado ? "#1f8b4c" : "#c62828"), background: pagado ? "#eaf7ef" : "#fdecec", fontWeight: 700, color: pagado ? "#1b6e3d" : "#a32020" }}>
-          {pagado ? <>✓ El cliente ya pagó · {fFecha(pagado.fecha)}</> : <>Este periodo todavía no está pagado</>}
-        </div>
-
-        {!pagado && (
-          <>
-            <label style={S.label}>¿CUÁNDO PAGÓ EL CLIENTE?</label>
-            <div style={{ maxWidth: 260, marginBottom: 6 }}>
-              <CampoFecha style={S.input} value={fecha} onChange={(e) => { setFecha(e.target.value); setError(""); }} />
-            </div>
-            {error && <p style={{ color: "#c62828", fontSize: 13, margin: "0 0 10px" }}>{error}</p>}
-          </>
-        )}
-
-        {pagos.length > 0 && (
-          <div style={{ margin: "12px 0 16px" }}>
-            <label style={S.label}>PAGOS REGISTRADOS</label>
-            {pagos.map((p) => {
-              const actual = p.periodoInicio === alquiler.fechaInicio && p.periodoFin === alquiler.fechaFin;
-              return (
-                <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, padding: "7px 0", borderBottom: "1px solid #eee", fontSize: 13 }}>
-                  <span>
-                    Pagó el <b>{fFecha(p.fecha)}</b>
-                    <span style={{ display: "block", color: actual ? "#1b6e3d" : "#999", fontSize: 11.5 }}>Periodo {fFecha(p.periodoInicio)} → {fFecha(p.periodoFin)}{actual ? " (actual)" : ""}</span>
-                  </span>
-                  <button className="btn-sys" style={{ ...S.btnGris, padding: "4px 10px", fontSize: 12 }} onClick={() => quitar(p)}>Quitar</button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 14 }}>
-          <button className="btn-sys" style={S.btnGris} onClick={onCerrar}>Cerrar</button>
-          {!pagado && <button className="btn-sys btn-verde" style={S.btn} onClick={registrar}>✓ Sí, ya pagó</button>}
         </div>
       </div>
     </div>
@@ -576,9 +506,10 @@ export default function Alquileres() {
     setHorasDe((h) => (h ? { ...h, horasDias } : h));
   };
   const [cobrando, setCobrando] = useState(null);
-  const guardarPagos = (a, pagos) => {
-    guardarAlquileres(alquileres.map((x) => (x.id === a.id ? { ...x, pagos } : x)));
-    setCobrando((c) => (c ? { ...c, pagos } : c));
+  // estado de cuenta: guarda pagos, observacionesPago o liquidado
+  const guardarCuenta = (a, cambios) => {
+    guardarAlquileres(alquileres.map((x) => (x.id === a.id ? { ...x, ...cambios } : x)));
+    setCobrando((c) => (c ? { ...c, ...cambios } : c));
   };
 
   const finalizar = (a) =>
@@ -806,16 +737,21 @@ export default function Alquileres() {
                             🕘 Horas
                           </button>
                           {(() => {
-                            const pg = pagoDelPeriodo(a);
+                            // pagos: el periodo actual y el anterior (ej. Nov y Oct, o Sem 46 y 45)
+                            const ps = periodosDe(a);
+                            const actual = ps[ps.length - 1], previo = ps[ps.length - 2];
+                            const ok = a.liquidado || actual?.pago;
+                            const linea = (p) => p && (p.pago ? "✓ " + fFecha(p.pago.fecha).slice(0, 5) : "pendiente");
                             return (
                               <button
-                                className={"btn-sys " + (pg ? "btn-pagado" : "btn-nopagado")}
-                                style={{ ...S.btnGris, padding: "6px 10px", fontSize: 13, width: "100%", lineHeight: 1.2 }}
+                                className={"btn-sys " + (ok ? "btn-pagado" : "btn-nopagado")}
+                                style={{ ...S.btnGris, padding: "6px 8px", fontSize: 12.5, width: "100%", lineHeight: 1.25, whiteSpace: "normal" }}
                                 onClick={() => setCobrando(a)}
-                                title={pg ? "Ver o registrar pagos" : "El cliente no ha pagado este periodo: registrar pago"}
+                                title="Estado de cuenta: pagos por periodo, observaciones y PDF"
                               >
-                                {pg ? "$ Pagado" : "$ No pagado"}
-                                {pg && <span style={{ display: "block", fontSize: 10.5, fontWeight: 500 }}>{fFecha(pg.fecha)}</span>}
+                                {a.liquidado ? "✓ No debe nada" : <>$ {actual ? nombrePeriodo(actual, true) : ""} · {actual?.pago ? "Pagado" : "No pagado"}</>}
+                                {!a.liquidado && previo && <span style={{ display: "block", fontSize: 10.5, fontWeight: 600, opacity: 0.85 }}>{nombrePeriodo(previo, true)} {linea(previo)}</span>}
+                                {!a.liquidado && !previo && actual?.pago && <span style={{ display: "block", fontSize: 10.5, fontWeight: 600 }}>{fFecha(actual.pago.fecha)}</span>}
                               </button>
                             );
                           })()}
@@ -832,7 +768,7 @@ export default function Alquileres() {
       </div>
 
       {horasDe && <ModalHorasRenta alquiler={horasDe} onGuardar={(hd) => guardarHorasDias(horasDe, hd)} onCerrar={() => setHorasDe(null)} />}
-      {cobrando && <ModalPago alquiler={cobrando} onGuardar={(pagos) => guardarPagos(cobrando, pagos)} onCerrar={() => setCobrando(null)} />}
+      {cobrando && <ModalEstadoCuenta alquiler={cobrando} onGuardar={(c) => guardarCuenta(cobrando, c)} onCerrar={() => setCobrando(null)} />}
       {renovando && <ModalRenovar alquiler={renovando} onGuardar={(r) => renovar(renovando, r)} onCerrar={() => setRenovando(null)} />}
 
       {modal && (
