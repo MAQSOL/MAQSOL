@@ -164,13 +164,16 @@ function Semaforo({fecha}){
 }
 
 // Caja del próximo mantenimiento en la ficha: fecha grande y chip de color según lo que falta
-function ProximoMantto({fecha}){
-  const d=diasPara(fecha)
-  const t=d===null?{c:'#888',bg:'#f6f6f6',txt:'Sin fecha programada'}
+// color y texto según los días que faltan (rojo vencido, amarillo ≤15 días, verde)
+function colorProx(d){
+  return d===null?{c:'#888',bg:'#f6f6f6',txt:'Sin fecha programada'}
     :d<0?{c:'#c62828',bg:'#fdecec',txt:'Vencido hace '+Math.abs(d)+(Math.abs(d)===1?' día':' días')}
     :d===0?{c:'#c98a00',bg:'#fff6df',txt:'Es hoy'}
     :d<=15?{c:'#c98a00',bg:'#fff6df',txt:'Faltan '+d+(d===1?' día':' días')}
     :{c:'#1f8b4c',bg:'#eaf7ef',txt:'Faltan '+d+' días'}
+}
+function ProximoMantto({fecha}){
+  const t=colorProx(diasPara(fecha))
   return(
     <div style={{marginTop:20,paddingTop:18,borderTop:'1px solid #e6e6e6'}}>
       <div style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap',padding:'14px 18px',background:t.bg,borderLeft:'5px solid '+t.c}}>
@@ -181,6 +184,48 @@ function ProximoMantto({fecha}){
         </div>
         <span style={{fontSize:13,fontWeight:800,color:'#fff',background:t.c,padding:'6px 12px',whiteSpace:'nowrap'}}>{t.txt}</span>
       </div>
+    </div>
+  )
+}
+
+// Lista de arriba: los 3 mantenimientos más cercanos; si hay más, "Ver todos" abre una ventana grande
+function ProximosMantenimientos({equipos,onAbrir}){
+  const[verTodos,setVerTodos]=useState(false)
+  const lista=equipos.filter(e=>e.proximoMantto).map(e=>({e,d:diasPara(e.proximoMantto)})).sort((a,b)=>a.e.proximoMantto.localeCompare(b.e.proximoMantto))
+  const nVencidos=lista.filter(x=>x.d<0).length
+  const tabla=(filas,grande)=>(
+    <table className="tabla-centrada" style={{width:'100%',borderCollapse:'collapse',minWidth:grande?640:560}}>
+      <thead><tr><th style={S.th}>EQUIPO</th><th style={S.th}>SERIE</th><th style={S.th}>ÚLTIMO OPERADOR</th><th style={S.th}>FECHA</th><th style={S.th}>ESTADO</th></tr></thead>
+      <tbody>{filas.map(({e,d})=>{const t=colorProx(d);return(
+        <tr key={e.id} style={{cursor:'pointer'}} title="Abrir la ficha del equipo" onClick={()=>{setVerTodos(false);onAbrir(e)}}>
+          <td style={{...S.td,fontWeight:700,padding:grande?'14px 16px':'10px 14px'}}>{e.tipo}<div style={{fontWeight:400,color:'#777',fontSize:12}}>{[e.marca,e.modelo].filter(Boolean).join(' ')}</div></td>
+          <td style={{...S.td,padding:grande?'14px 16px':'10px 14px',color:'#0b3d91',fontWeight:700}}>{e.serie||'—'}</td>
+          <td style={{...S.td,padding:grande?'14px 16px':'10px 14px'}}>{e.operador||'—'}</td>
+          <td style={{...S.td,padding:grande?'14px 16px':'10px 14px',fontWeight:800,whiteSpace:'nowrap'}}>{fFecha(e.proximoMantto)}</td>
+          <td style={{...S.td,padding:grande?'14px 16px':'10px 14px'}}><span style={{display:'inline-block',fontSize:12,fontWeight:800,color:'#fff',background:t.c,padding:'4px 10px',whiteSpace:'nowrap'}}>{t.txt}</span></td>
+        </tr>)})}</tbody>
+    </table>
+  )
+  return(
+    <div style={S.card}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,flexWrap:'wrap',marginBottom:12}}>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="16" rx="1"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          <div>
+            <h2 style={{fontSize:18,fontWeight:800,margin:0}}>Próximos mantenimientos</h2>
+            <p style={{color:'#777',fontSize:12.5,margin:'2px 0 0'}}>{lista.length?(lista.length===1?'1 equipo con fecha':lista.length+' equipos con fecha')+(nVencidos?' · ':''):'Ningún equipo tiene fecha de próximo mantenimiento.'}{nVencidos>0&&<b style={{color:'#c62828'}}>{nVencidos} vencido{nVencidos>1?'s':''}</b>}</p>
+          </div>
+        </div>
+        {lista.length>3&&<button className="btn-sys" style={S.btnGris} onClick={()=>setVerTodos(true)}>Ver todos ({lista.length})</button>}
+      </div>
+      {lista.length>0&&<div style={{overflowX:'auto',border:'2px solid #111'}}>{tabla(lista.slice(0,3),false)}</div>}
+      {verTodos&&(<div style={S.modalBg} onClick={()=>setVerTodos(false)}><div style={{...S.modal,maxWidth:1000,width:'94vw'}} onClick={ev=>ev.stopPropagation()}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,marginBottom:14}}>
+          <div><h2 style={{fontSize:22,fontWeight:800,margin:'0 0 4px'}}>Próximos mantenimientos</h2><p style={{color:'#777',fontSize:14,margin:0}}>Todos los equipos con fecha, del más cercano al más lejano. Clic en un equipo para abrir su ficha.</p></div>
+          <button className="btn-sys" style={S.btnGris} onClick={()=>setVerTodos(false)}>Cerrar</button>
+        </div>
+        <div style={{overflow:'auto',maxHeight:'68vh',border:'2px solid #111'}}>{tabla(lista,true)}</div>
+      </div></div>)}
     </div>
   )
 }
@@ -904,6 +949,7 @@ export default function EquiposInternos(){
         <div><h1 style={S.h1}>Equipos Internos</h1><p style={S.sub}>Maquinaria propiedad de MAQSOL · {equipos.length} equipos registrados</p></div>
         <div style={{display:'flex',gap:10}}><button className="btn-sys btn-excel" style={S.btnGris} onClick={exportarLista}>Descargar lista</button><button className="btn-sys btn-pdf" style={S.btnGris} onClick={()=>{setFichaId('');setElegirFicha(true)}}>Descargar ficha</button><button className="btn-sys" style={S.btn} onClick={abrirNuevo}><IconoMas />Agregar equipo</button></div>
       </div>
+      <ProximosMantenimientos equipos={equipos} onAbrir={e=>{setActivoId(e.id);setVista('ficha')}}/>
       <div style={S.card}>
         <div style={{display:'grid',gridTemplateColumns:'2fr 1.4fr',gap:18,alignItems:'start'}}>
           <div><label style={S.label}>BUSCAR</label><input style={S.input} placeholder="Equipo, marca, modelo o serie" value={busqueda} onChange={ev=>setBusqueda(ev.target.value)}/></div>
