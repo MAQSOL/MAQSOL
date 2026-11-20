@@ -247,7 +247,7 @@ function Dashboard() {
             <p>Sistema Integral de Administración de Maquinaria</p>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "14px" }}>
+          <div className="header-derecha" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "14px" }}>
             <UserMenu />
             {/* acceso directo: abre Recepción con el formulario de checklist nuevo */}
             <button

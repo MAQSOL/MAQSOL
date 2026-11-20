@@ -704,3 +704,10 @@ button:active { transform:translate(3px,3px) !important; box-shadow:0 0 0 transp
 .acceso-checklist{display:flex;align-items:center;gap:14px;padding:16px 22px;min-width:300px;background:var(--acento,#8F1D2C);color:#fff;border:3px solid #111;border-radius:6px;box-shadow:5px 5px 0 #111;cursor:pointer;font-family:inherit;transition:transform .1s,box-shadow .1s}
 .acceso-checklist:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #111}
 .acceso-checklist:active{transform:translate(4px,4px);box-shadow:1px 1px 0 #111}
+
+/* Panel: saludo y "¿Harás un checklist?" pegados a la derecha (también en celular, donde el encabezado se apila) */
+.header-derecha{margin-left:auto}
+@media (max-width: 768px){
+.header-derecha{width:100%;margin-left:0;align-items:flex-end !important}
+.acceso-checklist{min-width:0;max-width:100%}
+}
